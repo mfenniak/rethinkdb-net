@@ -40,9 +40,7 @@ namespace RethinkDb
             var task = connection.Connect("10.210.27.106");
             task.Wait();
 
-            var dcs = new RethinkDb.DataContractJsonSerializer<TestObject>();
-
-            task = connection.FetchSingleObject<TestObject>(dcs);
+            task = connection.FetchSingleObject<TestObject>();
             task.Wait();
         }
     }

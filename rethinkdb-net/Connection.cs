@@ -18,25 +18,16 @@ namespace RethinkDb
         private Socket socket;
         private NetworkStream stream;
 
-        #region IDisposable Members
-
-        public void Dispose()
+        public Connection()
         {
-            if (stream != null)
-            {
-                stream.Close();
-                stream.Dispose();
-                stream = null;
-            }
-            if (socket != null)
-            {
-                socket.Close();
-                socket.Dispose();
-                socket = null;
-            }
+            JsonSerializerFactory = new DataContractJsonSerializerFactory();
         }
 
-        #endregion
+        public IJsonSerializerFactory JsonSerializerFactory
+        {
+            get;
+            set;
+        }
 
         public async Task Connect(params string[] hostname)
         {
@@ -196,5 +187,30 @@ namespace RethinkDb
                     throw new Exception("error status code");
             }
         }
+
+        public Task<T> FetchSingleObject<T>()
+        {
+            return FetchSingleObject<T>(JsonSerializerFactory.Get<T>());
+        }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            if (stream != null)
+            {
+                stream.Close();
+                stream.Dispose();
+                stream = null;
+            }
+            if (socket != null)
+            {
+                socket.Close();
+                socket.Dispose();
+                socket = null;
+            }
+        }
+
+        #endregion
     }
 }

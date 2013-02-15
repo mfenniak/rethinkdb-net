@@ -52,6 +52,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Connection.cs" />
+    <Compile Include="DataContractJsonSerializerFactory.cs" />
+    <Compile Include="IJsonSerializerFactory.cs" />
     <Compile Include="DataContractJsonSerializer.cs" />
     <Compile Include="IJsonSerializer.cs" />
     <Compile Include="Program.cs" />
