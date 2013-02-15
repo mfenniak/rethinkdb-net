@@ -1,7 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RethinkDb", "RethinkDb\RethinkDb.csproj", "{4632C7DA-1C4F-4DAB-B212-EF69059959C5}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rethinkdb-net", "rethinkdb-net\rethinkdb-net.csproj", "{4632C7DA-1C4F-4DAB-B212-EF69059959C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

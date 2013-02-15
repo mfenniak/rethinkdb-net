@@ -1,2 +1,3 @@
-RethinkDb/bin
-RethinkDb/obj
+rethinkdb-net/bin
+rethinkdb-net/obj
+*.suo
