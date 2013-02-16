@@ -42,6 +42,7 @@ namespace RethinkDb
                 }
                 catch (Exception)
                 {
+                    // FIXME: Log: DNS resolution failed
                     continue;
                 }
 
@@ -54,10 +55,12 @@ namespace RethinkDb
                     }
                     catch (TaskCanceledException)
                     {
+                        // FIXME: Log: timeout occurred trying to connect
                         throw;
                     }
                     catch (Exception)
                     {
+                        // FIXME: Log: exception occurred trying to connect
                         continue;
                     }
                 }
@@ -94,13 +97,25 @@ namespace RethinkDb
             {
                 if (stream != null)
                 {
-                    stream.Close();
-                    stream.Dispose();
+                    try
+                    {
+                        stream.Close();
+                        stream.Dispose();
+                    }
+                    catch (Exception)
+                    {
+                    }
                 }
                 if (socket != null)
                 {
-                    socket.Close();
-                    socket.Dispose();
+                    try
+                    {
+                        socket.Close();
+                        socket.Dispose();
+                    }
+                    catch (Exception)
+                    {
+                    }
                 }
                 throw;
             }
@@ -199,14 +214,26 @@ namespace RethinkDb
         {
             if (stream != null)
             {
-                stream.Close();
-                stream.Dispose();
+                try
+                {
+                    stream.Close();
+                    stream.Dispose();
+                }
+                catch (Exception)
+                {
+                }
                 stream = null;
             }
             if (socket != null)
             {
-                socket.Close();
-                socket.Dispose();
+                try
+                {
+                    socket.Close();
+                    socket.Dispose();
+                }
+                catch (Exception)
+                {
+                }
                 socket = null;
             }
         }
