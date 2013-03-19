@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Net;
 
 namespace RethinkDb
 {
@@ -39,7 +40,7 @@ namespace RethinkDb
             {
                 var connection = new Connection();
 
-                var task1 = connection.Connect("127.0.0.1231");
+                var task1 = connection.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 28015));
                 task1.Wait();
 
                 var task2 = connection.FetchSingleObject<TestObject>();
@@ -49,7 +50,7 @@ namespace RethinkDb
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error: {0}", e);                
+                Console.WriteLine("Error: {0}", e);
             }
         }
     }

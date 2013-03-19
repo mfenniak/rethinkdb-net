@@ -5,6 +5,8 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using ProtoBuf;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace RethinkDb
 {
@@ -29,28 +31,42 @@ namespace RethinkDb
             set;
         }
 
-        public async Task Connect(params string[] hostname)
+        public async Task Connect(params EndPoint[] endpoints)
         {
             var cancellationToken = new CancellationTokenSource(connectTimeout).Token;
 
-            foreach (var h in hostname)
+            foreach (var ep in endpoints)
             {
-                IPAddress[] addresses;
-                try
+                IEnumerable<IPEndPoint> resolvedIpEndpoints = null;
+                if (ep is DnsEndPoint)
                 {
-                    addresses = await Dns.GetHostAddressesAsync(h);
+                    var dnsEndpoint = (DnsEndPoint)ep;
+                    try
+                    {
+                        var ips = await Dns.GetHostAddressesAsync(dnsEndpoint.Host);
+                        resolvedIpEndpoints = ips.Select(ip => new IPEndPoint(ip, dnsEndpoint.Port));
+                    }
+                    catch (Exception)
+                    {
+                        // FIXME: Log: DNS resolution failed
+                        continue;
+                    }
                 }
-                catch (Exception)
+                else if (ep is IPEndPoint)
                 {
-                    // FIXME: Log: DNS resolution failed
-                    continue;
+                    resolvedIpEndpoints = Enumerable.Repeat((IPEndPoint)ep, 1);
+                }
+                else
+                {
+                    // FIXME: custom exception
+                    throw new ArgumentException("Unexpected type of System.Net.EndPoint");
                 }
 
-                foreach (var a in addresses)
+                foreach (var ipEndpoint in resolvedIpEndpoints)
                 {
                     try
                     {
-                        await DoTryConnect(a, cancellationToken);
+                        await DoTryConnect(ipEndpoint, cancellationToken);
                         return;
                     }
                     catch (TaskCanceledException)
@@ -70,7 +86,7 @@ namespace RethinkDb
             throw new Exception("Failed to resolve a connectable address.");
         }
 
-        private async Task DoTryConnect(IPAddress address, CancellationToken cancellationToken)
+        private async Task DoTryConnect(IPEndPoint endpoint, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
                 throw new TaskCanceledException();
@@ -80,9 +96,9 @@ namespace RethinkDb
 
             try
             {
-                socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 await taskFactory.FromAsync(
-                    (asyncCallback, asyncState) => socket.BeginConnect(address, 28015, asyncCallback, asyncState),
+                    (asyncCallback, asyncState) => socket.BeginConnect(endpoint.Address, endpoint.Port, asyncCallback, asyncState),
                     ar => socket.EndConnect(ar),
                     null
                 );
