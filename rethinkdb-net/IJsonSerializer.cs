@@ -2,6 +2,6 @@
 {
     interface IJsonSerializer<T>
     {
-        T Deserialize(string jsonText);
+        T Deserialize(Datum datum);
     }
 }

@@ -15,7 +15,7 @@ namespace RethinkDb
         private static TaskFactory taskFactory = new TaskFactory();
         private static TimeSpan connectTimeout = TimeSpan.FromSeconds(30);
         private static TimeSpan runQueryTimeout = TimeSpan.FromSeconds(30);
-        private static byte[] connectHeader = new byte[] { 0x35, 0xba, 0x61, 0xaf, };
+        private static byte[] connectHeader = null;
 
         private Socket socket;
         private NetworkStream stream;
@@ -103,6 +103,14 @@ namespace RethinkDb
                     null
                 );
 
+                if (connectHeader == null)
+                {
+                    var header = BitConverter.GetBytes((int)Version.V0_1);
+                    if (!BitConverter.IsLittleEndian)
+                        Array.Reverse(header, 0, header.Length);
+                    connectHeader = header;
+                }
+
                 stream = new NetworkStream(socket, true);
                 await stream.WriteAsync(connectHeader, 0, connectHeader.Length, cancellationToken);
 
@@ -156,20 +164,47 @@ namespace RethinkDb
         {
             var cancellationToken = new CancellationTokenSource(runQueryTimeout).Token;
 
+            var dbTerm = new Term() {
+                type = Term.TermType.DB,
+            };
+            dbTerm.args.Add(
+                new Term() {
+                    type = Term.TermType.DATUM,
+                    datum = new Datum() {
+                        type = Datum.DatumType.R_STR,
+                        r_str = "voicemail",
+                    }
+                }
+            );
+
+            var tableTerm = new Term() {
+                type = Term.TermType.TABLE,
+            };
+            tableTerm.args.Add(dbTerm);
+            tableTerm.args.Add(
+                new Term() {
+                    type = Term.TermType.DATUM,
+                    datum = new Datum() {
+                        type = Datum.DatumType.R_STR,
+                        r_str = "user",
+                    }
+                }
+            );
+            tableTerm.optargs.Add(new Term.AssocPair() {
+                key = "use_outdated",
+                val = new Term() {
+                    type = Term.TermType.DATUM,
+                    datum = new Datum() {
+                        type = Datum.DatumType.R_BOOL,
+                        r_bool = false,
+                    }
+                }
+            });
+
             var query = new Query();
             query.token = 1;
-            query.type = Query.QueryType.READ;
-            query.read_query = new ReadQuery();
-            query.read_query.term = new Term();
-            query.read_query.term.type = Term.TermType.TABLE;
-            query.read_query.term.table = new Term.Table()
-            {
-                table_ref = new TableRef()
-                {
-                    db_name = "voicemail",
-                    table_name = "user",
-                }
-            };
+            query.type = Query.QueryType.START;
+            query.query = tableTerm;
 
             using (var memoryBuffer = new MemoryStream(1024))
             {
@@ -203,19 +238,19 @@ namespace RethinkDb
         {
             var response = await InternalRunQuery();
 
-            switch (response.status_code)
+            switch (response.type)
             {
-                case Response.StatusCode.SUCCESS_EMPTY:
-                    throw new InvalidOperationException("Expected 1 object, received 0");
-                case Response.StatusCode.SUCCESS_JSON:
-                case Response.StatusCode.SUCCESS_PARTIAL:
-                case Response.StatusCode.SUCCESS_STREAM:
+                case Response.ResponseType.SUCCESS_SEQUENCE:
                     if (response.response.Count != 1)
                         throw new InvalidOperationException(String.Format("Expected 1 object, received {0}", response.response.Count));
                     return serializer.Deserialize(response.response[0]);
+                case Response.ResponseType.CLIENT_ERROR:
+                case Response.ResponseType.COMPILE_ERROR:
+                case Response.ResponseType.RUNTIME_ERROR:
+                    // FIXME: more robust error handling
+                    throw new Exception("Error: " + response.response[0].r_str);
                 default:
-                    // FIXME: error handling
-                    throw new Exception("error status code");
+                    throw new InvalidOperationException("Unhandled response type in FetchSingleObject<T>");
             }
         }
 
