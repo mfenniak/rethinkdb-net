@@ -49,13 +49,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Connection.cs" />
-    <Compile Include="DataContractJsonSerializerFactory.cs" />
     <Compile Include="IJsonSerializerFactory.cs" />
-    <Compile Include="DataContractJsonSerializer.cs" />
-    <Compile Include="IJsonSerializer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="rethinkdb_spec.cs" />
+    <Compile Include="IDatumConverter.cs" />
+    <Compile Include="DataContractDatumConverterFactory.cs" />
+    <Compile Include="DataContractDatumConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

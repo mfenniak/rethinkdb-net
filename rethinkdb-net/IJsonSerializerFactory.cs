@@ -1,7 +1,7 @@
 ﻿namespace RethinkDb
 {
-    interface IJsonSerializerFactory
+    interface IDatumConverterFactory
     {
-        IJsonSerializer<T> Get<T>();
+        IDatumConverter<T> Get<T>();
     }
 }

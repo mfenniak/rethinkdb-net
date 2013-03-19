@@ -22,10 +22,10 @@ namespace RethinkDb
 
         public Connection()
         {
-            JsonSerializerFactory = new DataContractJsonSerializerFactory();
+            DatumConverterFactory = new DataContractDatumConverterFactory();
         }
 
-        public IJsonSerializerFactory JsonSerializerFactory
+        public IDatumConverterFactory DatumConverterFactory
         {
             get;
             set;
@@ -234,7 +234,7 @@ namespace RethinkDb
             }
         }
 
-        public async Task<T> FetchSingleObject<T>(IJsonSerializer<T> serializer)
+        public async Task<T> FetchSingleObject<T>(IDatumConverter<T> converter)
         {
             var response = await InternalRunQuery();
 
@@ -243,7 +243,7 @@ namespace RethinkDb
                 case Response.ResponseType.SUCCESS_SEQUENCE:
                     if (response.response.Count != 1)
                         throw new InvalidOperationException(String.Format("Expected 1 object, received {0}", response.response.Count));
-                    return serializer.Deserialize(response.response[0]);
+                    return converter.ConvertDatum(response.response[0]);
                 case Response.ResponseType.CLIENT_ERROR:
                 case Response.ResponseType.COMPILE_ERROR:
                 case Response.ResponseType.RUNTIME_ERROR:
@@ -256,7 +256,7 @@ namespace RethinkDb
 
         public Task<T> FetchSingleObject<T>()
         {
-            return FetchSingleObject<T>(JsonSerializerFactory.Get<T>());
+            return FetchSingleObject<T>(DatumConverterFactory.Get<T>());
         }
 
         #region IDisposable Members
