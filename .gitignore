@@ -1,3 +1,4 @@
 rethinkdb-net/bin
 rethinkdb-net/obj
 *.suo
+*.userprefs
