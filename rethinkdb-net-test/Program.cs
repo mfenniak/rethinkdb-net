@@ -47,12 +47,10 @@ namespace RethinkDb.Test
                 var testObjectConverter = factory.Get<TestObject>();
 
                 var testObjectDatum = testObjectConverter.ConvertObject(new TestObject() { Id = "123", Name = "Jack Black", /*Children = new TestObject[] { new TestObject() { Name = "Jim Black" } }*/ });
+                var testObjectRetval = testObjectConverter.ConvertDatum(testObjectDatum);
 
-
-                /*
                 var task = TestSequence();
                 task.Wait();
-                 */
             }
             catch (Exception e)
             {
