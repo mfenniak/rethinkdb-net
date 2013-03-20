@@ -199,7 +199,7 @@ namespace RethinkDb
             }
         }
 
-        public async Task<T> Query<T>(IDatumConverter<T> converter, ISingleObjectQuery queryObject)
+        public async Task<T> Query<T>(IDatumConverter<T> converter, ISingleObjectQuery<T> queryObject)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
@@ -225,7 +225,7 @@ namespace RethinkDb
             }
         }
 
-        public Task<T> Query<T>(ISingleObjectQuery queryObject)
+        public Task<T> Query<T>(ISingleObjectQuery<T> queryObject)
         {
             return Query<T>(DatumConverterFactory.Get<T>(), queryObject);
         }
@@ -240,12 +240,12 @@ namespace RethinkDb
             return Write(DatumConverterFactory.Get<DmlResponse>(), queryObject);
         }
 
-        public IAsyncEnumerator<T> Query<T>(IDatumConverter<T> converter, ISequenceQuery queryObject)
+        public IAsyncEnumerator<T> Query<T>(IDatumConverter<T> converter, ISequenceQuery<T> queryObject)
         {
             return new QueryEnumerator<T>(this, converter, queryObject);
         }
 
-        public IAsyncEnumerator<T> Query<T>(ISequenceQuery queryObject)
+        public IAsyncEnumerator<T> Query<T>(ISequenceQuery<T> queryObject)
         {
             return Query(DatumConverterFactory.Get<T>(), queryObject);
         }
@@ -290,13 +290,13 @@ namespace RethinkDb
         {
             private readonly Connection connection;
             private readonly IDatumConverter<T> converter;
-            private readonly ISequenceQuery queryObject;
+            private readonly ISequenceQuery<T> queryObject;
 
             private Spec.Query query = null;
             private Response lastResponse = null;
             private int lastResponseIndex = 0;
 
-            public QueryEnumerator(Connection connection, IDatumConverter<T> converter, ISequenceQuery queryObject)
+            public QueryEnumerator(Connection connection, IDatumConverter<T> converter, ISequenceQuery<T> queryObject)
             {
                 this.connection = connection;
                 this.converter = converter;

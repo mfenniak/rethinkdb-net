@@ -52,6 +52,16 @@
     <Compile Include="ArrayDatumConverterFactory.cs" />
     <Compile Include="PrimitiveDatumConverterFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryTerm\TableListQuery.cs" />
+    <Compile Include="QueryTerm\DbCreateQuery.cs" />
+    <Compile Include="QueryTerm\DbDropQuery.cs" />
+    <Compile Include="QueryTerm\DbListQuery.cs" />
+    <Compile Include="QueryTerm\DbQuery.cs" />
+    <Compile Include="QueryTerm\GetQuery.cs" />
+    <Compile Include="QueryTerm\InsertQuery.cs" />
+    <Compile Include="QueryTerm\TableCreateQuery.cs" />
+    <Compile Include="QueryTerm\TableDropQuery.cs" />
+    <Compile Include="QueryTerm\TableQuery.cs" />
     <Compile Include="rethinkdb_spec.cs" />
     <Compile Include="IDatumConverter.cs" />
     <Compile Include="DataContractDatumConverterFactory.cs" />

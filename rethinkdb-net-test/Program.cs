@@ -25,30 +25,6 @@ namespace RethinkDb.Test
         {
             try
             {
-                var factory = DataContractDatumConverterFactory.Instance;
-
-                //var stringConverter = factory.Get<string>();
-
-                //var strDatum = stringConverter.ConvertObject("Woot!");
-                //var strRetval = stringConverter.ConvertDatum(strDatum);
-                //if (strDatum.r_str != "Woot!" || strDatum.r_str != strRetval)
-                //    throw new Exception("String converter failed!");
-
-                //strDatum = stringConverter.ConvertObject(null);
-                //if (strDatum.type != Spec.Datum.DatumType.R_NULL)
-                //    throw new Exception("null string converter failed!");
-
-                //strRetval = stringConverter.ConvertDatum(new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL });
-                //if (strRetval != null)
-                //    throw new Exception("null datum converter failed!");
-
-                ////testConverter.ConvertDatum(new Spec.Datum() { type = Spec.Datum.DatumType.R_BOOL });
-
-                var testObjectConverter = factory.Get<TestObject>();
-
-                var testObjectDatum = testObjectConverter.ConvertObject(new TestObject() { Name = "Jack Black" });
-                var testObjectRetval = testObjectConverter.ConvertDatum(testObjectDatum);
-
                 var task = TestSequence();
                 task.Wait();
             }
@@ -66,7 +42,7 @@ namespace RethinkDb.Test
 
                 await connection.Connect(new IPEndPoint(IPAddress.Parse("10.210.27.106"), 28015));
 
-                var dbList = await connection.Query<string[]>(Query.DbList());
+                var dbList = await connection.Query(Query.DbList());
                 if (dbList.Contains("test"))
                 {
                     resp = await connection.Write(Query.DbDrop("test"));
@@ -84,13 +60,17 @@ namespace RethinkDb.Test
                 if (resp.Created != 1)
                     throw new Exception("TableCreate failed");
 
-                var testTable = testDb.Table("table");
+                var tableList = await connection.Query(testDb.TableList());
+                if (tableList.Length != 1 || tableList[0] != "table")
+                    throw new Exception("TableList failed");
 
-                var obj = await connection.Query<TestObject>(testTable.Get("58379951-6208-46cc-a194-03da8ee1e13c"));
+                var testTable = testDb.Table<TestObject>("table");
+
+                var obj = await connection.Query(testTable.Get("58379951-6208-46cc-a194-03da8ee1e13c"));
                 if (obj != null)
                     throw new Exception("Expected null from fetching a random GUID");
 
-                var enumerable = connection.Query<TestObject>(testTable);
+                var enumerable = connection.Query(testTable);
                 int count = 0;
                 while (true)
                 {
@@ -108,13 +88,13 @@ namespace RethinkDb.Test
                         new TestObject() { Name = "Scan" }
                     }
                 };
-                resp = await connection.Write(testTable.Insert<TestObject>(obj));
+                resp = await connection.Write(testTable.Insert(obj));
                 if (resp.Inserted != 1)
                     throw new Exception("Insert failed");
                 else if (resp.GeneratedKeys == null || resp.GeneratedKeys.Length != 1)
                     throw new Exception("Insert failed; GeneratedKeys bad");
 
-                obj = await connection.Query<TestObject>(testTable.Get(resp.GeneratedKeys[0]));
+                obj = await connection.Query(testTable.Get(resp.GeneratedKeys[0]));
                 if (obj == null)
                     throw new Exception("Get failed from FetchSingleObject");
 
