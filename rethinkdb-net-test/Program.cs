@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace RethinkDb.Test
 {
     [DataContract]
-    class TestObject
+    public class TestObject
     {
         [DataMember(Name = "id")]
         public string Id;
@@ -15,8 +15,8 @@ namespace RethinkDb.Test
         [DataMember(Name = "name")]
         public string Name;
 
-        [DataMember(Name = "children")]
-        public TestObject[] Children;
+        //[DataMember(Name = "children")]
+        //public TestObject[] Children;
     }
 
     class Program
@@ -25,8 +25,34 @@ namespace RethinkDb.Test
         {
             try
             {
+                var factory = new DataContractDatumConverterFactory();
+
+                var stringConverter = factory.Get<string>();
+
+                var strDatum = stringConverter.ConvertObject("Woot!");
+                var strRetval = stringConverter.ConvertDatum(strDatum);
+                if (strDatum.r_str != "Woot!" || strDatum.r_str != strRetval)
+                    throw new Exception("String converter failed!");
+
+                strDatum = stringConverter.ConvertObject(null);
+                if (strDatum.type != Spec.Datum.DatumType.R_NULL)
+                    throw new Exception("null string converter failed!");
+
+                strRetval = stringConverter.ConvertDatum(new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL });
+                if (strRetval != null)
+                    throw new Exception("null datum converter failed!");
+
+                //testConverter.ConvertDatum(new Spec.Datum() { type = Spec.Datum.DatumType.R_BOOL });
+
+                var testObjectConverter = factory.Get<TestObject>();
+
+                var testObjectDatum = testObjectConverter.ConvertObject(new TestObject() { Id = "123", Name = "Jack Black", /*Children = new TestObject[] { new TestObject() { Name = "Jim Black" } }*/ });
+
+
+                /*
                 var task = TestSequence();
                 task.Wait();
+                 */
             }
             catch (Exception e)
             {
@@ -80,9 +106,9 @@ namespace RethinkDb.Test
                 obj = new TestObject()
                 {
                     Name = "Jim Brown",
-                    Children = new TestObject[] {
-                        new TestObject() { Name = "Scan" }
-                    }
+                    //Children = new TestObject[] {
+                    //    new TestObject() { Name = "Scan" }
+                    //}
                 };
                 resp = await connection.Write(testTable.Insert<TestObject>(obj));
                 if (resp.Inserted != 1)
