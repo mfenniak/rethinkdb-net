@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace RethinkDb.Test
 {
     [DataContract]
-    class TestObject
+    public class TestObject
     {
-        [DataMember(Name = "id")]
+        [DataMember(Name = "id", EmitDefaultValue = false)]
         public string Id;
 
         [DataMember(Name = "name")]
@@ -25,6 +25,30 @@ namespace RethinkDb.Test
         {
             try
             {
+                var factory = new DataContractDatumConverterFactory();
+
+                //var stringConverter = factory.Get<string>();
+
+                //var strDatum = stringConverter.ConvertObject("Woot!");
+                //var strRetval = stringConverter.ConvertDatum(strDatum);
+                //if (strDatum.r_str != "Woot!" || strDatum.r_str != strRetval)
+                //    throw new Exception("String converter failed!");
+
+                //strDatum = stringConverter.ConvertObject(null);
+                //if (strDatum.type != Spec.Datum.DatumType.R_NULL)
+                //    throw new Exception("null string converter failed!");
+
+                //strRetval = stringConverter.ConvertDatum(new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL });
+                //if (strRetval != null)
+                //    throw new Exception("null datum converter failed!");
+
+                ////testConverter.ConvertDatum(new Spec.Datum() { type = Spec.Datum.DatumType.R_BOOL });
+
+                var testObjectConverter = factory.Get<TestObject>();
+
+                var testObjectDatum = testObjectConverter.ConvertObject(new TestObject() { Name = "Jack Black" });
+                var testObjectRetval = testObjectConverter.ConvertDatum(testObjectDatum);
+
                 var task = TestSequence();
                 task.Wait();
             }
