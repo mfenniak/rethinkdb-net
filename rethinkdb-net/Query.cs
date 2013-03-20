@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace RethinkDb
 {
@@ -19,6 +20,11 @@ namespace RethinkDb
 
     public interface ISequenceQuery : IQuery
     {
+    }
+
+    public interface IWriteQuery<T> : IQuery
+    {
+        Spec.Term GenerateTerm(IDatumConverter<T> converter);
     }
 
     public class GetQuery : ISingleObjectQuery
@@ -66,6 +72,61 @@ namespace RethinkDb
         }
     }
 
+    public class InsertQuery<T> : IWriteQuery<T>
+    {
+        private readonly IQuery tableTerm;
+        private readonly IEnumerable<T> objects;
+        private readonly bool upsert;
+
+        public InsertQuery(IQuery tableTerm, IEnumerable<T> objects, bool upsert)
+        {
+            this.tableTerm = tableTerm;
+            this.objects = objects;
+            this.upsert = upsert;
+        }
+
+        Spec.Term IQuery.GenerateTerm()
+        {
+            throw new InvalidOperationException("Use GenerateTerm(IDatumConverter<T>)");
+        }
+
+        Spec.Term IWriteQuery<T>.GenerateTerm(IDatumConverter<T> converter)
+        {
+            var insertTerm = new Spec.Term() {
+                type = Spec.Term.TermType.INSERT,
+            };
+            insertTerm.args.Add(tableTerm.GenerateTerm());
+
+            var objectArray = new Spec.Datum() {
+                type = Spec.Datum.DatumType.R_ARRAY,
+            };
+            foreach (var obj in objects)
+            {
+                objectArray.r_array.Add(converter.ConvertObject(obj));
+            }
+            insertTerm.args.Add(new Spec.Term() {
+                type = Spec.Term.TermType.DATUM,
+                datum = objectArray,
+            });
+
+            if (upsert)
+            {
+                insertTerm.optargs.Add(new Spec.Term.AssocPair() {
+                    key = "upsert",
+                    val = new Spec.Term() {
+                        type = Spec.Term.TermType.DATUM,
+                        datum = new Spec.Datum() {
+                            type = Spec.Datum.DatumType.R_BOOL,
+                            r_bool = upsert,
+                        }
+                    }
+                });
+            }
+
+            return insertTerm;
+        }
+    }
+
     public class TableQuery : ISequenceQuery
     {
         private readonly IQuery dbTerm;
@@ -82,6 +143,16 @@ namespace RethinkDb
         public GetQuery Get(string primaryKey, string primaryAttribute = null)
         {
             return new GetQuery(this, primaryKey, primaryAttribute);
+        }
+
+        public InsertQuery<T> Insert<T>(T @object, bool upsert = false)
+        {
+            return new InsertQuery<T>(this, new T[] { @object }, upsert);
+        }
+
+        public InsertQuery<T> Insert<T>(T[] @objects, bool upsert = false)
+        {
+            return new InsertQuery<T>(this, @objects, upsert);
         }
 
         Spec.Term IQuery.GenerateTerm()

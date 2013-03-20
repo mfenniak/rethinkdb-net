@@ -167,15 +167,6 @@ namespace RethinkDb
             return (ulong)Interlocked.Increment(ref nextToken);
         }
 
-        private Task<Response> InternalRunQuery(IQuery queryObject)
-        {
-            var query = new Spec.Query();
-            query.token = GetNextToken();
-            query.type = Spec.Query.QueryType.START;
-            query.query = queryObject.GenerateTerm();
-            return InternalRunQuery(query);
-        }
-
         internal async Task<Response> InternalRunQuery(Spec.Query query)
         {
             var cancellationToken = new CancellationTokenSource(runQueryTimeout).Token;
@@ -208,8 +199,13 @@ namespace RethinkDb
             }
         }
 
-        public async Task<T> FetchSingleObject<T>(IDatumConverter<T> converter, ISingleObjectQuery query)
+        public async Task<T> Query<T>(IDatumConverter<T> converter, ISingleObjectQuery queryObject)
         {
+            var query = new Spec.Query();
+            query.token = GetNextToken();
+            query.type = Spec.Query.QueryType.START;
+            query.query = queryObject.GenerateTerm();
+
             var response = await InternalRunQuery(query);
 
             switch (response.type)
@@ -229,29 +225,65 @@ namespace RethinkDb
             }
         }
 
-        public Task<T> FetchSingleObject<T>(ISingleObjectQuery query)
+        public Task<T> Query<T>(ISingleObjectQuery queryObject)
         {
-            return FetchSingleObject<T>(DatumConverterFactory.Get<T>(), query);
+            return Query<T>(DatumConverterFactory.Get<T>(), queryObject);
         }
 
-        public Task<DmlResponse> ExecuteDml(IDatumConverter<DmlResponse> converter, IDmlQuery query)
+        public Task<DmlResponse> Write(IDatumConverter<DmlResponse> converter, IDmlQuery queryObject)
         {
-            return FetchSingleObject<DmlResponse>(DatumConverterFactory.Get<DmlResponse>(), query);
+            return Query<DmlResponse>(DatumConverterFactory.Get<DmlResponse>(), queryObject);
         }
 
-        public Task<DmlResponse> ExecuteDml(IDmlQuery query)
+        public Task<DmlResponse> Write(IDmlQuery queryObject)
         {
-            return ExecuteDml(DatumConverterFactory.Get<DmlResponse>(), query);
+            return Write(DatumConverterFactory.Get<DmlResponse>(), queryObject);
         }
 
-        public IAsyncEnumerator<T> Prepare<T>(IDatumConverter<T> converter, ISequenceQuery query)
+        public IAsyncEnumerator<T> Query<T>(IDatumConverter<T> converter, ISequenceQuery queryObject)
         {
-            return new QueryEnumerator<T>(this, converter, query);
+            return new QueryEnumerator<T>(this, converter, queryObject);
         }
 
-        public IAsyncEnumerator<T> Prepare<T>(ISequenceQuery query)
+        public IAsyncEnumerator<T> Query<T>(ISequenceQuery queryObject)
         {
-            return Prepare(DatumConverterFactory.Get<T>(), query);
+            return Query(DatumConverterFactory.Get<T>(), queryObject);
+        }
+
+        public async Task<DmlResponse> Write<T>(IDatumConverter<T> converter, IDatumConverter<DmlResponse> dmlResponseConverter, IWriteQuery<T> queryObject)
+        {
+            var query = new Spec.Query();
+            query.token = GetNextToken();
+            query.type = Spec.Query.QueryType.START;
+            query.query = queryObject.GenerateTerm(converter);
+
+            var response = await InternalRunQuery(query);
+
+            switch (response.type)
+            {
+                case Response.ResponseType.SUCCESS_SEQUENCE:
+                case Response.ResponseType.SUCCESS_ATOM:
+                    if (response.response.Count != 1)
+                        throw new InvalidOperationException(String.Format("Expected 1 object, received {0}", response.response.Count));
+                    return dmlResponseConverter.ConvertDatum(response.response[0]);
+                case Response.ResponseType.CLIENT_ERROR:
+                case Response.ResponseType.COMPILE_ERROR:
+                case Response.ResponseType.RUNTIME_ERROR:
+                    // FIXME: more robust error handling
+                    throw new Exception("Error: " + response.response[0].r_str);
+                default:
+                    throw new InvalidOperationException("Unhandled response type in FetchSingleObject<T>");
+            }
+        }
+
+        public Task<DmlResponse> Write<T>(IDatumConverter<T> converter, IWriteQuery<T> queryObject)
+        {
+            return Write(converter, DatumConverterFactory.Get<DmlResponse>(), queryObject);
+        }
+
+        public Task<DmlResponse> Write<T>(IWriteQuery<T> queryObject)
+        {
+            return Write(DatumConverterFactory.Get<T>(), DatumConverterFactory.Get<DmlResponse>(), queryObject);
         }
 
         private class QueryEnumerator<T> : IAsyncEnumerator<T>
@@ -325,7 +357,9 @@ namespace RethinkDb
                     return await MoveNext();
                 }
                 else
-                    throw new Exception("Unexpected response type to query");
+                {
+                    throw new InvalidOperationException("Unreachable code; ReissueQuery should prevent reaching this condition");
+                }
             }
         }
 

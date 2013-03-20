@@ -35,6 +35,24 @@ namespace RethinkDb
             }
         }
 
+        public Datum ConvertObject(T obj)
+        {
+            var retval = new Datum()
+            {
+                type = Datum.DatumType.R_OBJECT,
+            };
+
+            retval.r_object.Add(new Datum.AssocPair() {
+                key = "name",
+                val = new Datum() {
+                    type = Datum.DatumType.R_STR,
+                    r_str = "Test #55",
+                }
+            });
+
+            return retval;
+        }
+
         private void ConvertDatumToJson(StringBuilder builder, Datum datum)
         {
             switch (datum.type)

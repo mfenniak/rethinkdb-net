@@ -1,6 +1,6 @@
 ﻿namespace RethinkDb
 {
-    interface IDatumConverterFactory
+    public interface IDatumConverterFactory
     {
         IDatumConverter<T> Get<T>();
     }

@@ -2,8 +2,9 @@
 
 namespace RethinkDb
 {
-    interface IDatumConverter<T>
+    public interface IDatumConverter<T>
     {
         T ConvertDatum(Datum datum);
+        Datum ConvertObject(T @object);
     }
 }
