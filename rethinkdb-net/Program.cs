@@ -9,29 +9,11 @@ namespace RethinkDb
     [DataContract]
     class TestObject
     {
-        [DataMember(Name = "openid")]
-        public Uri OpenId;
-
-        [DataMember(Name = "name")]
-        public string Name;
-
-        [DataMember(Name = "email")]
-        public string Email;
-
         [DataMember(Name = "id")]
         public string Id;
 
-        [DataMember(Name = "phone_number")]
-        public string PhoneNumber;
-
-        [DataMember(Name = "phone_number_friendly")]
-        public string PhoneNumberFriendly;
-
-        [DataMember(Name = "customer_id")]
-        public string CustomerId;
-
-        [DataMember(Name = "phone_number_sid")]
-        public string PhoneNumberSid;
+        [DataMember(Name = "name")]
+        public string Name;
     }
 
     class Program
