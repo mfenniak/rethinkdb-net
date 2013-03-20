@@ -25,7 +25,7 @@ namespace RethinkDb.Test
         {
             try
             {
-                var factory = new DataContractDatumConverterFactory();
+                var factory = DataContractDatumConverterFactory.Instance;
 
                 //var stringConverter = factory.Get<string>();
 

@@ -7,23 +7,28 @@ namespace RethinkDb
 {
     public class DataContractDatumConverterFactory : IDatumConverterFactory
     {
-        private static PrimitiveDatumConverterFactory primitiveDatumConverterFactory = new PrimitiveDatumConverterFactory();
-        private static object dynamicModuleLock = new object();
+        public static readonly DataContractDatumConverterFactory Instance = new DataContractDatumConverterFactory();
+        private static readonly object dynamicModuleLock = new object();
         private static AssemblyBuilder assemblyBuilder = null;
         private static ModuleBuilder dynamicModule = null;
+
+        private DataContractDatumConverterFactory()
+        {
+        }
+
+        public IDatumConverter<T> Get<T>()
+        {
+            if (PrimitiveDatumConverterFactory.Instance.IsTypeSupported(typeof(T)))
+                return PrimitiveDatumConverterFactory.Instance.Get<T>();
+            else
+                return Cache<T>.Instance.Value;
+        }
 
         private static class Cache<TType>
         {
             public static Lazy<IDatumConverter<TType>> Instance = new Lazy<IDatumConverter<TType>>(DataContractDatumConverterFactory.Create<TType>);
         }
 
-        public IDatumConverter<T> Get<T>()
-        {
-            if (primitiveDatumConverterFactory.IsTypeSupported(typeof(T)))
-                return primitiveDatumConverterFactory.Get<T>();
-            else
-                return Cache<T>.Instance.Value;
-        }
 
         private static IDatumConverter<T> Create<T>()
         {
@@ -33,7 +38,7 @@ namespace RethinkDb
                 var dataContractAttribute = innerType.GetCustomAttribute<DataContractAttribute>();
                 if (dataContractAttribute == null)
                     throw new NotSupportedException(String.Format("Array inner type {0} is not marked with DataContractAttribute", typeof(T)));
-                return new ArrayDatumConverterFactory().Get<T>(new DataContractDatumConverterFactory());
+                return ArrayDatumConverterFactory.Instance.Get<T>(Instance);
             }
             else
             {
@@ -102,7 +107,7 @@ namespace RethinkDb
             gen.Emit(OpCodes.Stloc, retval);
 
             var factory = gen.DeclareLocal(typeof(IDatumConverterFactory));
-            gen.Emit(OpCodes.Newobj, typeof(DataContractDatumConverterFactory).GetConstructor(new Type[] { }));
+            gen.Emit(OpCodes.Ldsfld, typeof(DataContractDatumConverterFactory).GetField("Instance", BindingFlags.Public | BindingFlags.Static));
             gen.Emit(OpCodes.Stloc, factory);
 
             var index = gen.DeclareLocal(typeof(int));
@@ -217,7 +222,7 @@ namespace RethinkDb
             gen.Emit(OpCodes.Ceq);
             gen.Emit(OpCodes.Brtrue, nullObjectLabel);
 
-            gen.Emit(OpCodes.Newobj, typeof(DataContractDatumConverterFactory).GetConstructor(new Type[] { }));
+            gen.Emit(OpCodes.Ldsfld, typeof(DataContractDatumConverterFactory).GetField("Instance", BindingFlags.Public | BindingFlags.Static));
             gen.Emit(OpCodes.Stloc, factory);
 
             gen.Emit(OpCodes.Newobj, typeof(Spec.Datum).GetConstructor(new Type[] { }));
@@ -292,11 +297,6 @@ namespace RethinkDb
             gen.Emit(OpCodes.Callvirt, typeof(Spec.Datum).GetProperty("type").GetSetMethod());
             gen.Emit(OpCodes.Ldloc, retval);
             gen.Emit(OpCodes.Ret);
-        }
-
-        TType Test<TType>()
-        {
-            return default(TType);
         }
     }
 }

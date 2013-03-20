@@ -5,6 +5,12 @@ namespace RethinkDb
 {
     public class ArrayDatumConverterFactory
     {
+        public static readonly ArrayDatumConverterFactory Instance = new ArrayDatumConverterFactory();
+
+        private ArrayDatumConverterFactory()
+        {
+        }
+
         public IDatumConverter<T> Get<T>(IDatumConverterFactory innerTypeConverterFactory)
         {
             if (!typeof(T).IsArray)

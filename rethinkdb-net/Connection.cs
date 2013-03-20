@@ -24,7 +24,7 @@ namespace RethinkDb
 
         public Connection()
         {
-            DatumConverterFactory = new DataContractDatumConverterFactory();
+            DatumConverterFactory = DataContractDatumConverterFactory.Instance;
         }
 
         public IDatumConverterFactory DatumConverterFactory

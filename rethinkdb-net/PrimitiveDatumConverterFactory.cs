@@ -4,6 +4,12 @@ namespace RethinkDb
 {
     public class PrimitiveDatumConverterFactory : IDatumConverterFactory
     {
+        public static readonly PrimitiveDatumConverterFactory Instance = new PrimitiveDatumConverterFactory();
+
+        private PrimitiveDatumConverterFactory()
+        {
+        }
+
         public IDatumConverter<T> Get<T>()
         {
             if (typeof(T) == typeof(string))
@@ -17,7 +23,7 @@ namespace RethinkDb
             else if (typeof(T) == typeof(double?))
                 return (IDatumConverter<T>)NullableDoubleDatumConverter.Instance.Value;
             else if (typeof(T).IsArray && IsTypeSupported(typeof(T).GetElementType()))
-                return new ArrayDatumConverterFactory().Get<T>(this);
+                return ArrayDatumConverterFactory.Instance.Get<T>(this);
             else
                 throw new NotSupportedException(String.Format("Type {0} is not supported by PrimitiveDatumConverterFactory", typeof(T)));
         }
