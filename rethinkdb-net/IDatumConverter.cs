@@ -1,4 +1,6 @@
-﻿namespace RethinkDb
+﻿using RethinkDb.Spec;
+
+namespace RethinkDb
 {
     interface IDatumConverter<T>
     {

@@ -8,7 +8,7 @@
 //------------------------------------------------------------------------------
 
 // Generated from: rethinkdb_spec.proto
-namespace RethinkDb
+namespace RethinkDb.Spec
 {
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Query")]
   public partial class Query : global::ProtoBuf.IExtensible

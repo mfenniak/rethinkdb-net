@@ -43,10 +43,15 @@ namespace RethinkDb
                 var task1 = connection.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 28015));
                 task1.Wait();
 
-                var task2 = connection.FetchSingleObject<TestObject>();
+                var query2 = Query.Db("voicemail").Table("user");
+                var task2 = connection.FetchSingleObject<TestObject>(query2);
                 task2.Wait();
-
                 Console.WriteLine("User: {0} ({1})", task2.Result.Name, task2.Result.Email);
+
+                var query3 = Query.Db("voicemail").Table("user").Get("58379951-6208-46cc-a194-03da8ee1e13c");
+                var task3 = connection.FetchSingleObject<TestObject>(query3);
+                task3.Wait();
+                Console.WriteLine("User: {0}", task3.Result);
             }
             catch (Exception e)
             {

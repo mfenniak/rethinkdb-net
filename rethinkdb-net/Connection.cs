@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using ProtoBuf;
 using System.Collections.Generic;
 using System.Linq;
+using RethinkDb.Spec;
 
 namespace RethinkDb
 {
@@ -105,7 +106,7 @@ namespace RethinkDb
 
                 if (connectHeader == null)
                 {
-                    var header = BitConverter.GetBytes((int)Version.V0_1);
+                    var header = BitConverter.GetBytes((int)Spec.Version.V0_1);
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(header, 0, header.Length);
                     connectHeader = header;
@@ -160,51 +161,14 @@ namespace RethinkDb
             }
         }
 
-        private async Task<Response> InternalRunQuery()
+        private async Task<Response> InternalRunQuery(IQuery queryObject)
         {
             var cancellationToken = new CancellationTokenSource(runQueryTimeout).Token;
 
-            var dbTerm = new Term() {
-                type = Term.TermType.DB,
-            };
-            dbTerm.args.Add(
-                new Term() {
-                    type = Term.TermType.DATUM,
-                    datum = new Datum() {
-                        type = Datum.DatumType.R_STR,
-                        r_str = "voicemail",
-                    }
-                }
-            );
-
-            var tableTerm = new Term() {
-                type = Term.TermType.TABLE,
-            };
-            tableTerm.args.Add(dbTerm);
-            tableTerm.args.Add(
-                new Term() {
-                    type = Term.TermType.DATUM,
-                    datum = new Datum() {
-                        type = Datum.DatumType.R_STR,
-                        r_str = "user",
-                    }
-                }
-            );
-            tableTerm.optargs.Add(new Term.AssocPair() {
-                key = "use_outdated",
-                val = new Term() {
-                    type = Term.TermType.DATUM,
-                    datum = new Datum() {
-                        type = Datum.DatumType.R_BOOL,
-                        r_bool = false,
-                    }
-                }
-            });
-
-            var query = new Query();
+            var query = new Spec.Query();
             query.token = 1;
-            query.type = Query.QueryType.START;
-            query.query = tableTerm;
+            query.type = Spec.Query.QueryType.START;
+            query.query = queryObject.GenerateTerm();
 
             using (var memoryBuffer = new MemoryStream(1024))
             {
@@ -234,13 +198,14 @@ namespace RethinkDb
             }
         }
 
-        public async Task<T> FetchSingleObject<T>(IDatumConverter<T> converter)
+        public async Task<T> FetchSingleObject<T>(IDatumConverter<T> converter, IQuery query)
         {
-            var response = await InternalRunQuery();
+            var response = await InternalRunQuery(query);
 
             switch (response.type)
             {
                 case Response.ResponseType.SUCCESS_SEQUENCE:
+                case Response.ResponseType.SUCCESS_ATOM:
                     if (response.response.Count != 1)
                         throw new InvalidOperationException(String.Format("Expected 1 object, received {0}", response.response.Count));
                     return converter.ConvertDatum(response.response[0]);
@@ -254,9 +219,9 @@ namespace RethinkDb
             }
         }
 
-        public Task<T> FetchSingleObject<T>()
+        public Task<T> FetchSingleObject<T>(IQuery query)
         {
-            return FetchSingleObject<T>(DatumConverterFactory.Get<T>());
+            return FetchSingleObject<T>(DatumConverterFactory.Get<T>(), query);
         }
 
         #region IDisposable Members
