@@ -57,6 +57,8 @@
     <Compile Include="DataContractDatumConverterFactory.cs" />
     <Compile Include="DataContractDatumConverter.cs" />
     <Compile Include="Query.cs" />
+    <Compile Include="DmlResponse.cs" />
+    <Compile Include="IAsyncEnumerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

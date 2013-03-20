@@ -20,6 +20,7 @@ namespace RethinkDb
 
         private Socket socket;
         private NetworkStream stream;
+        private long nextToken = 1;
 
         public Connection()
         {
@@ -161,14 +162,23 @@ namespace RethinkDb
             }
         }
 
-        private async Task<Response> InternalRunQuery(IQuery queryObject)
+        internal ulong GetNextToken()
         {
-            var cancellationToken = new CancellationTokenSource(runQueryTimeout).Token;
+            return (ulong)Interlocked.Increment(ref nextToken);
+        }
 
+        private Task<Response> InternalRunQuery(IQuery queryObject)
+        {
             var query = new Spec.Query();
-            query.token = 1;
+            query.token = GetNextToken();
             query.type = Spec.Query.QueryType.START;
             query.query = queryObject.GenerateTerm();
+            return InternalRunQuery(query);
+        }
+
+        internal async Task<Response> InternalRunQuery(Spec.Query query)
+        {
+            var cancellationToken = new CancellationTokenSource(runQueryTimeout).Token;
 
             using (var memoryBuffer = new MemoryStream(1024))
             {
@@ -198,7 +208,7 @@ namespace RethinkDb
             }
         }
 
-        public async Task<T> FetchSingleObject<T>(IDatumConverter<T> converter, IQuery query)
+        public async Task<T> FetchSingleObject<T>(IDatumConverter<T> converter, ISingleObjectQuery query)
         {
             var response = await InternalRunQuery(query);
 
@@ -219,9 +229,104 @@ namespace RethinkDb
             }
         }
 
-        public Task<T> FetchSingleObject<T>(IQuery query)
+        public Task<T> FetchSingleObject<T>(ISingleObjectQuery query)
         {
             return FetchSingleObject<T>(DatumConverterFactory.Get<T>(), query);
+        }
+
+        public Task<DmlResponse> ExecuteDml(IDatumConverter<DmlResponse> converter, IDmlQuery query)
+        {
+            return FetchSingleObject<DmlResponse>(DatumConverterFactory.Get<DmlResponse>(), query);
+        }
+
+        public Task<DmlResponse> ExecuteDml(IDmlQuery query)
+        {
+            return ExecuteDml(DatumConverterFactory.Get<DmlResponse>(), query);
+        }
+
+        public IAsyncEnumerator<T> Prepare<T>(IDatumConverter<T> converter, ISequenceQuery query)
+        {
+            return new QueryEnumerator<T>(this, converter, query);
+        }
+
+        public IAsyncEnumerator<T> Prepare<T>(ISequenceQuery query)
+        {
+            return Prepare(DatumConverterFactory.Get<T>(), query);
+        }
+
+        private class QueryEnumerator<T> : IAsyncEnumerator<T>
+        {
+            private readonly Connection connection;
+            private readonly IDatumConverter<T> converter;
+            private readonly ISequenceQuery queryObject;
+
+            private Spec.Query query = null;
+            private Response lastResponse = null;
+            private int lastResponseIndex = 0;
+
+            public QueryEnumerator(Connection connection, IDatumConverter<T> converter, ISequenceQuery queryObject)
+            {
+                this.connection = connection;
+                this.converter = converter;
+                this.queryObject = queryObject;
+            }
+
+            public T Current
+            {
+                get
+                {
+                    if (lastResponse == null || lastResponseIndex == -1)
+                        throw new InvalidOperationException("Call MoveNext first");
+                    else if (lastResponseIndex >= lastResponse.response.Count)
+                        throw new InvalidOperationException("You moved past the end of the enumerator");
+                    else
+                        return converter.ConvertDatum(lastResponse.response[lastResponseIndex]);
+                }
+            }
+
+            private async Task ReissueQuery()
+            {
+                lastResponse = await connection.InternalRunQuery(query);
+                lastResponseIndex = -1;
+
+                if (lastResponse.type != Response.ResponseType.SUCCESS_SEQUENCE &&
+                    lastResponse.type != Response.ResponseType.SUCCESS_PARTIAL)
+                {
+                    throw new Exception("Unexpected response type to query");
+                }
+            }
+
+            public async Task<bool> MoveNext()
+            {
+                if (lastResponse == null)
+                {
+                    query = new Spec.Query();
+                    query.token = connection.GetNextToken();
+                    query.type = Spec.Query.QueryType.START;
+                    query.query = this.queryObject.GenerateTerm();
+                    await ReissueQuery();
+                }
+
+                if (lastResponseIndex < (lastResponse.response.Count - 1))
+                {
+                    lastResponseIndex += 1;
+                    return true;
+                }
+
+                if (lastResponse.type == Response.ResponseType.SUCCESS_SEQUENCE)
+                {
+                    return false;
+                }
+                else if (lastResponse.type == Response.ResponseType.SUCCESS_PARTIAL)
+                {
+                    query.type = RethinkDb.Spec.Query.QueryType.CONTINUE;
+                    query.query = null;
+                    await ReissueQuery();
+                    return await MoveNext();
+                }
+                else
+                    throw new Exception("Unexpected response type to query");
+            }
         }
 
         #region IDisposable Members

@@ -9,23 +9,19 @@ namespace RethinkDb
         Spec.Term GenerateTerm();
     }
 
-    public class NullQuery : IQuery
+    public interface ISingleObjectQuery : IQuery
     {
-        Spec.Term IQuery.GenerateTerm()
-        {
-            throw new NotImplementedException();
-        }
     }
 
-    public class SequenceQuery : IQuery
+    public interface IDmlQuery : ISingleObjectQuery
     {
-        Spec.Term IQuery.GenerateTerm()
-        {
-            throw new NotImplementedException();
-        }
     }
 
-    public class GetQuery : IQuery
+    public interface ISequenceQuery : IQuery
+    {
+    }
+
+    public class GetQuery : ISingleObjectQuery
     {
         private readonly IQuery tableTerm;
         private readonly string primaryKey;
@@ -70,7 +66,7 @@ namespace RethinkDb
         }
     }
 
-    public class TableQuery : IQuery
+    public class TableQuery : ISequenceQuery
     {
         private readonly IQuery dbTerm;
         private readonly string table;
@@ -120,6 +116,66 @@ namespace RethinkDb
         }
     }
 
+    public class TableCreateQuery : IDmlQuery
+    {
+        private readonly IQuery dbTerm;
+        private readonly string table;
+
+        public TableCreateQuery(IQuery dbTerm, string table)
+        {
+            this.dbTerm = dbTerm;
+            this.table = table;
+        }
+
+        Spec.Term IQuery.GenerateTerm()
+        {
+            var tableTerm = new Spec.Term() {
+                type = Spec.Term.TermType.TABLE_CREATE,
+            };
+            tableTerm.args.Add(dbTerm.GenerateTerm());
+            tableTerm.args.Add(
+                new Spec.Term() {
+                    type = Spec.Term.TermType.DATUM,
+                    datum = new Spec.Datum() {
+                        type = Spec.Datum.DatumType.R_STR,
+                        r_str = table,
+                    }
+                }
+            );
+            return tableTerm;
+        }
+    }
+
+    public class TableDropQuery : IDmlQuery
+    {
+        private readonly IQuery dbTerm;
+        private readonly string table;
+
+        public TableDropQuery(IQuery dbTerm, string table)
+        {
+            this.dbTerm = dbTerm;
+            this.table = table;
+        }
+
+        Spec.Term IQuery.GenerateTerm()
+        {
+            var tableTerm = new Spec.Term() {
+                type = Spec.Term.TermType.TABLE_DROP,
+            };
+            tableTerm.args.Add(dbTerm.GenerateTerm());
+            tableTerm.args.Add(
+                new Spec.Term() {
+                    type = Spec.Term.TermType.DATUM,
+                    datum = new Spec.Datum() {
+                        type = Spec.Datum.DatumType.R_STR,
+                        r_str = table,
+                    }
+                }
+            );
+            return tableTerm;
+        }
+    }
+
     public class DbQuery : IQuery
     {
         private readonly string db;
@@ -129,14 +185,14 @@ namespace RethinkDb
             this.db = db;
         }
 
-        public Query TableCreate(string table)
+        public TableCreateQuery TableCreate(string table)
         {
-            return null;
+            return new TableCreateQuery(this, table);
         }
 
-        public Query TableDrop(string table)
+        public TableDropQuery TableDrop(string table)
         {
-            return null;
+            return new TableDropQuery(this, table);
         }
 
         public Query TableList()
@@ -167,6 +223,71 @@ namespace RethinkDb
         }
     }
 
+    public class DbCreateQuery : IDmlQuery
+    {
+        private readonly string db;
+
+        public DbCreateQuery(string db)
+        {
+            this.db = db;
+        }
+
+        Spec.Term IQuery.GenerateTerm()
+        {
+            var dbTerm = new Spec.Term() {
+                type = Spec.Term.TermType.DB_CREATE,
+            };
+            dbTerm.args.Add(
+                new Spec.Term() {
+                    type = Spec.Term.TermType.DATUM,
+                    datum = new Spec.Datum() {
+                        type = Spec.Datum.DatumType.R_STR,
+                        r_str = db,
+                    }
+                }
+            );
+            return dbTerm;
+        }
+    }
+
+    public class DbDropQuery : IDmlQuery
+    {
+        private readonly string db;
+
+        public DbDropQuery(string db)
+        {
+            this.db = db;
+        }
+
+        Spec.Term IQuery.GenerateTerm()
+        {
+            var dbTerm = new Spec.Term() {
+                type = Spec.Term.TermType.DB_DROP,
+            };
+            dbTerm.args.Add(
+                new Spec.Term() {
+                    type = Spec.Term.TermType.DATUM,
+                    datum = new Spec.Datum() {
+                        type = Spec.Datum.DatumType.R_STR,
+                        r_str = db,
+                    }
+                }
+            );
+            return dbTerm;
+        }
+    }
+
+    public class DbListQuery : ISingleObjectQuery
+    {
+        Spec.Term IQuery.GenerateTerm()
+        {
+            var dbTerm = new Spec.Term() {
+                type = Spec.Term.TermType.DB_LIST,
+            };
+            return dbTerm;
+        }
+    }
+
     public class Query : IQuery
     {
         public static DbQuery Db(string db)
@@ -174,19 +295,19 @@ namespace RethinkDb
             return new DbQuery(db);
         }
 
-        public static NullQuery DbCreate(string db)
+        public static DbCreateQuery DbCreate(string db)
         {
-            return null;
+            return new DbCreateQuery(db);
         }
 
-        public static NullQuery DbDrop(string db)
+        public static DbDropQuery DbDrop(string db)
         {
-            return null;
+            return new DbDropQuery(db);
         }
 
-        public static SequenceQuery DbList()
+        public static DbListQuery DbList()
         {
-            return null;
+            return new DbListQuery();
         }
 
         Spec.Term IQuery.GenerateTerm()
