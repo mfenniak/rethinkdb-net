@@ -14,6 +14,9 @@ namespace RethinkDb
 
         [DataMember(Name = "name")]
         public string Name;
+
+        [DataMember(Name = "children")]
+        public TestObject[] Children;
     }
 
     class Program
@@ -74,7 +77,13 @@ namespace RethinkDb
                 if (count != 0)
                     throw new Exception("Table query found unexpected objects");
 
-                resp = await connection.Write(testTable.Insert<TestObject>(new TestObject() { Name = "Jim Brown" }));
+                obj = new TestObject() {
+                    Name = "Jim Brown",
+                    Children = new TestObject[] {
+                        new TestObject() { Name = "Scan" }
+                    }
+                };
+                resp = await connection.Write(testTable.Insert<TestObject>(obj));
                 if (resp.Inserted != 1)
                     throw new Exception("Insert failed");
                 else if (resp.GeneratedKeys == null || resp.GeneratedKeys.Length != 1)
