@@ -16,6 +16,8 @@ namespace RethinkDb
                 return (IDatumConverter<T>)DoubleDatumConverter.Instance.Value;
             else if (typeof(T) == typeof(double?))
                 return (IDatumConverter<T>)NullableDoubleDatumConverter.Instance.Value;
+            else if (typeof(T).IsArray && IsTypeSupported(typeof(T).GetElementType()))
+                return new ArrayDatumConverterFactory().Get<T>(this);
             else
                 throw new NotSupportedException(String.Format("Type {0} is not supported by PrimitiveDatumConverterFactory", typeof(T)));
         }
@@ -31,6 +33,8 @@ namespace RethinkDb
             else if (t == typeof(double))
                 return true;
             else if (t == typeof(double?))
+                return true;
+            else if (t.IsArray && IsTypeSupported(t.GetElementType()))
                 return true;
             else
                 return false;

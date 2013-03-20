@@ -27,9 +27,20 @@ namespace RethinkDb
 
         private static IDatumConverter<T> Create<T>()
         {
-            var dataContractAttribute = typeof(T).GetCustomAttribute<DataContractAttribute>();
-            if (dataContractAttribute == null)
-                throw new NotSupportedException(String.Format("Type {0} is not marked with DataContractAttribute", typeof(T)));
+            if (typeof(T).IsArray)
+            {
+                var innerType = typeof(T).GetElementType();
+                var dataContractAttribute = innerType.GetCustomAttribute<DataContractAttribute>();
+                if (dataContractAttribute == null)
+                    throw new NotSupportedException(String.Format("Array inner type {0} is not marked with DataContractAttribute", typeof(T)));
+                return new ArrayDatumConverterFactory().Get<T>(new DataContractDatumConverterFactory());
+            }
+            else
+            {
+                var dataContractAttribute = typeof(T).GetCustomAttribute<DataContractAttribute>();
+                if (dataContractAttribute == null)
+                    throw new NotSupportedException(String.Format("Type {0} is not marked with DataContractAttribute", typeof(T)));
+            }
 
             lock (dynamicModuleLock)
             {
@@ -138,7 +149,7 @@ namespace RethinkDb
                 gen.Emit(OpCodes.Ldloc, keyValue);
                 gen.Emit(OpCodes.Callvirt, typeof(Spec.Datum.AssocPair).GetProperty("key").GetGetMethod());
                 gen.Emit(OpCodes.Ldstr, fieldName);
-                gen.Emit(OpCodes.Ceq);
+                gen.Emit(OpCodes.Call, typeof(string).GetMethod("Equals", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(string), typeof(string) }, null));
                 // if false, skip
                 gen.Emit(OpCodes.Brfalse, keyCheckFail);
 
@@ -228,6 +239,21 @@ namespace RethinkDb
                 else
                     fieldName = field.Name;
 
+                Label? skipInclude = null;
+                if (!dataMemberAttribute.EmitDefaultValue)
+                {
+                    var local = gen.DeclareLocal(field.FieldType);
+                    gen.Emit(OpCodes.Ldloca, local);
+                    gen.Emit(OpCodes.Initobj, field.FieldType);
+
+                    skipInclude = gen.DefineLabel();
+                    gen.Emit(OpCodes.Ldarg_1);
+                    gen.Emit(OpCodes.Ldfld, field);
+                    gen.Emit(OpCodes.Ldloc, local);
+                    gen.Emit(OpCodes.Ceq);
+                    gen.Emit(OpCodes.Brtrue, skipInclude.Value);
+                }
+
                 gen.Emit(OpCodes.Ldloc, factory);
                 gen.Emit(OpCodes.Callvirt, typeof(IDatumConverterFactory).GetMethod("Get").MakeGenericMethod(field.FieldType));
                 gen.Emit(OpCodes.Ldarg_1);
@@ -250,6 +276,9 @@ namespace RethinkDb
                 gen.Emit(OpCodes.Callvirt, typeof(Spec.Datum).GetProperty("r_object").GetGetMethod());
                 gen.Emit(OpCodes.Ldloc, keyValue);
                 gen.Emit(OpCodes.Callvirt, typeof(System.Collections.Generic.List<Spec.Datum.AssocPair>).GetMethod("Add"));
+
+                if (skipInclude.HasValue)
+                    gen.MarkLabel(skipInclude.Value);
             }
 
             gen.Emit(OpCodes.Ldloc, retval);
@@ -263,6 +292,11 @@ namespace RethinkDb
             gen.Emit(OpCodes.Callvirt, typeof(Spec.Datum).GetProperty("type").GetSetMethod());
             gen.Emit(OpCodes.Ldloc, retval);
             gen.Emit(OpCodes.Ret);
+        }
+
+        TType Test<TType>()
+        {
+            return default(TType);
         }
     }
 }
