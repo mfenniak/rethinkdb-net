@@ -109,19 +109,6 @@ namespace RethinkDb
                 resp = await connection.Write(Query.DbDrop("test"));
                 if (resp.Dropped != 1)
                     throw new Exception("DbDrop failed");
-
-
-                /*
-                var query2 = Query.Db("voicemail").Table("user");
-                var task2 = connection.FetchSingleObject<TestObject>(query2);
-                task2.Wait();
-                Console.WriteLine("User: {0} ({1})", task2.Result.Name, task2.Result.Email);
-
-                var query3 = Query.Db("voicemail").Table("user").Get("58379951-6208-46cc-a194-03da8ee1e13c");
-                var task3 = connection.FetchSingleObject<TestObject>(query3);
-                task3.Wait();
-                Console.WriteLine("User: {0}", task3.Result);
-                */
             }
         }
     }
