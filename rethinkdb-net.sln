@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rethinkdb-net", "rethinkdb-net\rethinkdb-net.csproj", "{4632C7DA-1C4F-4DAB-B212-EF69059959C5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rethinkdb-net-test", "rethinkdb-net-test\rethinkdb-net-test.csproj", "{BA84988B-0D7C-468E-B412-1389C8D69852}"
@@ -20,11 +20,8 @@ Global
 		{BA84988B-0D7C-468E-B412-1389C8D69852}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA84988B-0D7C-468E-B412-1389C8D69852}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = rethinkdb-net\rethinkdb-net.csproj
+		StartupItem = rethinkdb-net-test\rethinkdb-net-test.csproj
 		Policies = $0
 		$0.DotNetNamingPolicy = $1
 		$1.DirectoryNamespaceAssociation = None
@@ -71,5 +68,8 @@ Global
 		$8.inheritsSet = Mono
 		$8.inheritsScope = application/xml
 		$8.scope = application/xml
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
