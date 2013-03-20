@@ -1,5 +1,7 @@
 rethinkdb-net/bin
 rethinkdb-net/obj
+rethinkdb-net-test/bin
+rethinkdb-net-test/obj
 *.suo
 *.userprefs
 rethinkdb_data

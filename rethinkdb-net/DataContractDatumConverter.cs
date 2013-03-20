@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using RethinkDb.Spec;
-using System.Globalization;
 
 namespace RethinkDb
 {

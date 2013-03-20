@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Runtime.Serialization;
-using System.Net;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Net;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
-namespace RethinkDb
+namespace RethinkDb.Test
 {
     [DataContract]
     class TestObject
@@ -40,7 +40,7 @@ namespace RethinkDb
             {
                 DmlResponse resp;
 
-                await connection.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 28015));
+                await connection.Connect(new IPEndPoint(IPAddress.Parse("10.210.27.106"), 28015));
 
                 var dbList = await connection.Query<string[]>(Query.DbList());
                 if (dbList.Contains("test"))
@@ -77,7 +77,8 @@ namespace RethinkDb
                 if (count != 0)
                     throw new Exception("Table query found unexpected objects");
 
-                obj = new TestObject() {
+                obj = new TestObject()
+                {
                     Name = "Jim Brown",
                     Children = new TestObject[] {
                         new TestObject() { Name = "Scan" }

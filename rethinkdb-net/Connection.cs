@@ -1,17 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using ProtoBuf;
-using System.Collections.Generic;
-using System.Linq;
 using RethinkDb.Spec;
 
 namespace RethinkDb
 {
-    sealed class Connection : IDisposable
+    public sealed class Connection : IDisposable
     {
         private static TaskFactory taskFactory = new TaskFactory();
         private static TimeSpan connectTimeout = TimeSpan.FromSeconds(30);
