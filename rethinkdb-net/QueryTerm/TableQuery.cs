@@ -1,4 +1,5 @@
 using RethinkDb.Spec;
+using System.Collections.Generic;
 
 namespace RethinkDb.QueryTerm
 {
@@ -25,7 +26,7 @@ namespace RethinkDb.QueryTerm
             return new InsertQuery<T>(this, new T[] { @object }, upsert);
         }
 
-        public InsertQuery<T> Insert(T[] @objects, bool upsert = false)
+        public InsertQuery<T> Insert(IEnumerable<T> @objects, bool upsert = false)
         {
             return new InsertQuery<T>(this, @objects, upsert);
         }

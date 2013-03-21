@@ -199,7 +199,7 @@ namespace RethinkDb
             }
         }
 
-        public async Task<T> Query<T>(IDatumConverter<T> converter, ISingleObjectQuery<T> queryObject)
+        public async Task<T> Run<T>(IDatumConverter<T> converter, ISingleObjectQuery<T> queryObject)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
@@ -225,32 +225,32 @@ namespace RethinkDb
             }
         }
 
-        public Task<T> Query<T>(ISingleObjectQuery<T> queryObject)
+        public Task<T> Run<T>(ISingleObjectQuery<T> queryObject)
         {
-            return Query<T>(DatumConverterFactory.Get<T>(), queryObject);
+            return Run<T>(DatumConverterFactory.Get<T>(), queryObject);
         }
 
-        public Task<DmlResponse> Write(IDatumConverter<DmlResponse> converter, IDmlQuery queryObject)
+        public Task<DmlResponse> Run(IDatumConverter<DmlResponse> converter, IDmlQuery queryObject)
         {
-            return Query<DmlResponse>(DatumConverterFactory.Get<DmlResponse>(), queryObject);
+            return Run<DmlResponse>(DatumConverterFactory.Get<DmlResponse>(), queryObject);
         }
 
-        public Task<DmlResponse> Write(IDmlQuery queryObject)
+        public Task<DmlResponse> Run(IDmlQuery queryObject)
         {
-            return Write(DatumConverterFactory.Get<DmlResponse>(), queryObject);
+            return Run(DatumConverterFactory.Get<DmlResponse>(), queryObject);
         }
 
-        public IAsyncEnumerator<T> Query<T>(IDatumConverter<T> converter, ISequenceQuery<T> queryObject)
+        public IAsyncEnumerator<T> Run<T>(IDatumConverter<T> converter, ISequenceQuery<T> queryObject)
         {
             return new QueryEnumerator<T>(this, converter, queryObject);
         }
 
-        public IAsyncEnumerator<T> Query<T>(ISequenceQuery<T> queryObject)
+        public IAsyncEnumerator<T> Run<T>(ISequenceQuery<T> queryObject)
         {
-            return Query(DatumConverterFactory.Get<T>(), queryObject);
+            return Run(DatumConverterFactory.Get<T>(), queryObject);
         }
 
-        public async Task<DmlResponse> Write<T>(IDatumConverter<T> converter, IDatumConverter<DmlResponse> dmlResponseConverter, IWriteQuery<T> queryObject)
+        public async Task<DmlResponse> Run<T>(IDatumConverter<T> converter, IDatumConverter<DmlResponse> dmlResponseConverter, IWriteQuery<T> queryObject)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
@@ -276,14 +276,14 @@ namespace RethinkDb
             }
         }
 
-        public Task<DmlResponse> Write<T>(IDatumConverter<T> converter, IWriteQuery<T> queryObject)
+        public Task<DmlResponse> Run<T>(IDatumConverter<T> converter, IWriteQuery<T> queryObject)
         {
-            return Write(converter, DatumConverterFactory.Get<DmlResponse>(), queryObject);
+            return Run(converter, DatumConverterFactory.Get<DmlResponse>(), queryObject);
         }
 
-        public Task<DmlResponse> Write<T>(IWriteQuery<T> queryObject)
+        public Task<DmlResponse> Run<T>(IWriteQuery<T> queryObject)
         {
-            return Write(DatumConverterFactory.Get<T>(), DatumConverterFactory.Get<DmlResponse>(), queryObject);
+            return Run(DatumConverterFactory.Get<T>(), DatumConverterFactory.Get<DmlResponse>(), queryObject);
         }
 
         private class QueryEnumerator<T> : IAsyncEnumerator<T>
