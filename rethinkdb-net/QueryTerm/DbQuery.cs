@@ -11,9 +11,9 @@ namespace RethinkDb.QueryTerm
             this.db = db;
         }
 
-        public TableCreateQuery TableCreate(string table)
+        public TableCreateQuery TableCreate(string table, string datacenter = null, string primaryKey = null, double? cacheSize = null)
         {
-            return new TableCreateQuery(this, table);
+            return new TableCreateQuery(this, table, datacenter, primaryKey, cacheSize);
         }
 
         public TableDropQuery TableDrop(string table)
