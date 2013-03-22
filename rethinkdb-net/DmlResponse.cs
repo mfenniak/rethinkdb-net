@@ -17,6 +17,9 @@ namespace RethinkDb
         [DataMember(Name = "updated")]
         public double Updated;
 
+        [DataMember(Name = "replaced")]
+        public double Replaced;
+
         [DataMember(Name = "deleted")]
         public double Deleted;
 

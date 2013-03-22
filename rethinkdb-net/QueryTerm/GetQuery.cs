@@ -1,4 +1,6 @@
 using RethinkDb.Spec;
+using System.Linq.Expressions;
+using System;
 
 namespace RethinkDb.QueryTerm
 {
@@ -13,6 +15,11 @@ namespace RethinkDb.QueryTerm
             this.tableTerm = tableTerm;
             this.primaryKey = primaryKey;
             this.primaryAttribute = primaryAttribute;
+        }
+
+        public ReplaceQuery<T> Replace(T newObject)
+        {
+            return new ReplaceQuery<T>(this, newObject);
         }
 
         Spec.Term ISingleObjectQuery<T>.GenerateTerm()

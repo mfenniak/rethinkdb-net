@@ -99,6 +99,10 @@ namespace RethinkDb.Test
                 if (obj == null)
                     throw new Exception("Get failed from FetchSingleObject");
 
+                resp = await connection.Run(testTable.Get(resp.GeneratedKeys[0]).Replace(new TestObject() { Id = resp.GeneratedKeys[0], Name = "Jack Black" }));
+                if (resp.Replaced != 1)
+                    throw new Exception("Replace failed");
+
                 // Insert more than 1000 objects to test the enumerable loading additional chunks of the sequence
                 var objectList = new List<TestObject>();
                 for (int i = 0; i < 1500; i++)
