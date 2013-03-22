@@ -36,6 +36,16 @@ namespace RethinkDb.QueryTerm
             return new DeleteQuery<T>(this);
         }
 
+        public BetweenQuery<T> Between(string leftKey, string rightKey)
+        {
+            return new BetweenQuery<T>(this, leftKey, rightKey);
+        }
+
+        public BetweenQuery<T> Between(double? leftKey, double? rightKey)
+        {
+            return new BetweenQuery<T>(this, leftKey, rightKey);
+        }
+
         Spec.Term ISequenceQuery<T>.GenerateTerm()
         {
             var tableTerm = new Spec.Term()

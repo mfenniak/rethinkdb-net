@@ -5,16 +5,16 @@ namespace RethinkDb.QueryTerm
     public class DeleteQuery<T> : IDmlQuery
     {
         private readonly GetQuery<T> getTerm;
-        private readonly TableQuery<T> tableTerm;
-
-        public DeleteQuery(TableQuery<T> tableTerm)
-        {
-            this.tableTerm = tableTerm;
-        }
+        private readonly ISequenceQuery<T> tableTerm;
 
         public DeleteQuery(GetQuery<T> getTerm)
         {
             this.getTerm = getTerm;
+        }
+
+        public DeleteQuery(ISequenceQuery<T> tableTerm)
+        {
+            this.tableTerm = tableTerm;
         }
 
         Spec.Term ISingleObjectQuery<DmlResponse>.GenerateTerm()

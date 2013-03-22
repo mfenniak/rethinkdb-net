@@ -113,6 +113,44 @@ namespace RethinkDb.Test
                 if (resp.Deleted != 0 || resp.FirstError != null)
                     throw new Exception("Delete failed");
 
+                resp = await connection.Run(testTable.Insert(new TestObject[] {
+                    new TestObject() { Id = "1", Name = "1" },
+                    new TestObject() { Id = "2", Name = "2" },
+                    new TestObject() { Id = "3", Name = "3" },
+                    new TestObject() { Id = "4", Name = "4" },
+                    new TestObject() { Id = "5", Name = "5" },
+                    new TestObject() { Id = "6", Name = "6" },
+                    new TestObject() { Id = "7", Name = "7" },
+                }));
+                if (resp.Inserted != 7)
+                    throw new Exception("Insert failed");
+
+                enumerable = connection.Run(testTable.Between("2", "4"));
+                count = 0;
+                while (true)
+                {
+                    if (!await enumerable.MoveNext())
+                        break;
+                    ++count;
+                }
+                if (count != 3)
+                    throw new Exception("Table query found unexpected objects");
+
+                enumerable = connection.Run(testTable.Between(null, "4"));
+                count = 0;
+                while (true)
+                {
+                    if (!await enumerable.MoveNext())
+                        break;
+                    ++count;
+                }
+                if (count != 4)
+                    throw new Exception("Table query found unexpected objects");
+
+                resp = await connection.Run(testTable.Between(null, "4").Delete());
+                if (resp.Deleted != 4)
+                    throw new Exception("Delete failed");
+
                 // Insert more than 1000 objects to test the enumerable loading additional chunks of the sequence
                 var objectList = new List<TestObject>();
                 for (int i = 0; i < 1500; i++)
