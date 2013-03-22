@@ -9,6 +9,7 @@ Currently this driver is capable of the following things:
     * Query.DbList -- lists databases
     * Query.Db().Table() -- reads an entire table
     * Query.Db().Table().Get() -- reads a single object by primary key
+    * Query.Db().Table().Between()
 
   * Executing a handful of modifying queries:
     * Query.DbCreate()
@@ -16,8 +17,11 @@ Currently this driver is capable of the following things:
     * Query.Db().TableCreate()
     * Query.Db().TableDrop()
     * Query.Db().Table().Insert()
+    * Query.Db().Table().Delete()
+    * Query.Db().Table().Replace()
+    * Query.Db().Table().Between().Delete()
 
-  * Reading streaming / chunked datasets (only applies to Query.Db().Table()).
+  * Reading streaming / chunked datasets (eg. Query.Db().Table() / .Between()).
 
   * Converting data into objects and objects into data; non-primtiive objects are marked up using [DataContract] and [DataMember] attributes similar to WCF data contracts, and only object fields are supported.
 
