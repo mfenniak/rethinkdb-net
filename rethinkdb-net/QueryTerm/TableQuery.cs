@@ -31,6 +31,11 @@ namespace RethinkDb.QueryTerm
             return new InsertQuery<T>(this, @objects, upsert);
         }
 
+        public DeleteQuery<T> Delete()
+        {
+            return new DeleteQuery<T>(this);
+        }
+
         Spec.Term ISequenceQuery<T>.GenerateTerm()
         {
             var tableTerm = new Spec.Term()

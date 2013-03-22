@@ -52,13 +52,13 @@ namespace RethinkDb.Test
                 }
 
                 resp = await connection.Run(Query.DbCreate("test"));
-                if (resp.Created != 1)
+                if (resp.Created != 1 || resp.FirstError != null)
                     throw new Exception("DbCreate failed");
 
                 var testDb = Query.Db("test");
 
                 resp = await connection.Run(testDb.TableCreate("table"));
-                if (resp.Created != 1)
+                if (resp.Created != 1 || resp.FirstError != null)
                     throw new Exception("TableCreate failed");
 
                 var tableList = await connection.Run(testDb.TableList());
@@ -90,18 +90,28 @@ namespace RethinkDb.Test
                     }
                 };
                 resp = await connection.Run(testTable.Insert(obj));
-                if (resp.Inserted != 1)
+                if (resp.Inserted != 1 || resp.FirstError != null)
                     throw new Exception("Insert failed");
                 else if (resp.GeneratedKeys == null || resp.GeneratedKeys.Length != 1)
                     throw new Exception("Insert failed; GeneratedKeys bad");
 
-                obj = await connection.Run(testTable.Get(resp.GeneratedKeys[0]));
+                var objKey = resp.GeneratedKeys[0];
+
+                obj = await connection.Run(testTable.Get(objKey));
                 if (obj == null)
                     throw new Exception("Get failed from FetchSingleObject");
 
-                resp = await connection.Run(testTable.Get(resp.GeneratedKeys[0]).Replace(new TestObject() { Id = resp.GeneratedKeys[0], Name = "Jack Black" }));
-                if (resp.Replaced != 1)
+                resp = await connection.Run(testTable.Get(objKey).Replace(new TestObject() { Id = objKey, Name = "Jack Black" }));
+                if (resp.Replaced != 1 || resp.FirstError != null)
                     throw new Exception("Replace failed");
+
+                resp = await connection.Run(testTable.Get(objKey).Delete());
+                if (resp.Deleted != 1 || resp.FirstError != null)
+                    throw new Exception("Delete failed");
+
+                resp = await connection.Run(testTable.Delete());
+                if (resp.Deleted != 0 || resp.FirstError != null)
+                    throw new Exception("Delete failed");
 
                 // Insert more than 1000 objects to test the enumerable loading additional chunks of the sequence
                 var objectList = new List<TestObject>();
@@ -119,15 +129,15 @@ namespace RethinkDb.Test
                         break;
                     ++count;
                 }
-                if (count != 1501)
+                if (count != 1500)
                     throw new Exception("Table query found unexpected objects");
 
                 resp = await connection.Run(testDb.TableDrop("table"));
-                if (resp.Dropped != 1)
+                if (resp.Dropped != 1 || resp.FirstError != null)
                     throw new Exception("TableDrop failed");
 
                 resp = await connection.Run(Query.DbDrop("test"));
-                if (resp.Dropped != 1)
+                if (resp.Dropped != 1 || resp.FirstError != null)
                     throw new Exception("DbDrop failed");
             }
         }

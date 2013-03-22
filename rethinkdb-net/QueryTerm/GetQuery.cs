@@ -22,6 +22,11 @@ namespace RethinkDb.QueryTerm
             return new ReplaceQuery<T>(this, newObject);
         }
 
+        public DeleteQuery<T> Delete()
+        {
+            return new DeleteQuery<T>(this);
+        }
+
         Spec.Term ISingleObjectQuery<T>.GenerateTerm()
         {
             var getTerm = new Spec.Term()

@@ -70,6 +70,7 @@
     <Compile Include="IAsyncEnumerator.cs" />
     <Compile Include="IDatumConverterFactory.cs" />
     <Compile Include="QueryTerm\ReplaceQuery.cs" />
+    <Compile Include="QueryTerm\DeleteQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
