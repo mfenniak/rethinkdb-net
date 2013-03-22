@@ -16,39 +16,39 @@ namespace RethinkDb.QueryTerm
             this.upsert = upsert;
         }
 
-        Spec.Term IWriteQuery<T>.GenerateTerm(IDatumConverter<T> converter)
+        public Term GenerateTerm(IDatumConverter<T> converter)
         {
-            var insertTerm = new Spec.Term()
+            var insertTerm = new Term()
             {
-                type = Spec.Term.TermType.INSERT,
+                type = Term.TermType.INSERT,
             };
-            insertTerm.args.Add(((ISequenceQuery<T>)tableTerm).GenerateTerm());
+            insertTerm.args.Add(tableTerm.GenerateTerm());
 
-            var objectArray = new Spec.Datum()
+            var objectArray = new Datum()
             {
-                type = Spec.Datum.DatumType.R_ARRAY,
+                type = Datum.DatumType.R_ARRAY,
             };
             foreach (var obj in objects)
             {
                 objectArray.r_array.Add(converter.ConvertObject(obj));
             }
-            insertTerm.args.Add(new Spec.Term()
+            insertTerm.args.Add(new Term()
             {
-                type = Spec.Term.TermType.DATUM,
+                type = Term.TermType.DATUM,
                 datum = objectArray,
             });
 
             if (upsert)
             {
-                insertTerm.optargs.Add(new Spec.Term.AssocPair()
+                insertTerm.optargs.Add(new Term.AssocPair()
                 {
                     key = "upsert",
-                    val = new Spec.Term()
+                    val = new Term()
                     {
-                        type = Spec.Term.TermType.DATUM,
-                        datum = new Spec.Datum()
+                        type = Term.TermType.DATUM,
+                        datum = new Datum()
                         {
-                            type = Spec.Datum.DatumType.R_BOOL,
+                            type = Datum.DatumType.R_BOOL,
                             r_bool = upsert,
                         }
                     }

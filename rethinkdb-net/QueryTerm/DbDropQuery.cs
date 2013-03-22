@@ -11,19 +11,19 @@ namespace RethinkDb.QueryTerm
             this.db = db;
         }
 
-        Spec.Term ISingleObjectQuery<DmlResponse>.GenerateTerm()
+        public Term GenerateTerm()
         {
-            var dbTerm = new Spec.Term()
+            var dbTerm = new Term()
             {
-                type = Spec.Term.TermType.DB_DROP,
+                type = Term.TermType.DB_DROP,
             };
             dbTerm.args.Add(
-                new Spec.Term()
+                new Term()
                 {
-                    type = Spec.Term.TermType.DATUM,
-                    datum = new Spec.Datum()
+                    type = Term.TermType.DATUM,
+                    datum = new Datum()
                     {
-                        type = Spec.Datum.DatumType.R_STR,
+                        type = Datum.DatumType.R_STR,
                         r_str = db,
                     }
                 }

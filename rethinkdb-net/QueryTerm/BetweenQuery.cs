@@ -1,6 +1,4 @@
 using RethinkDb.Spec;
-using System.Collections.Generic;
-using System;
 
 namespace RethinkDb.QueryTerm
 {
@@ -31,23 +29,23 @@ namespace RethinkDb.QueryTerm
             return new DeleteQuery<T>(this);
         }
 
-        Spec.Term ISequenceQuery<T>.GenerateTerm()
+        public Term GenerateTerm()
         {
-            var betweenTerm = new Spec.Term()
+            var betweenTerm = new Term()
             {
-                type = Spec.Term.TermType.BETWEEN,
+                type = Term.TermType.BETWEEN,
             };
-            betweenTerm.args.Add(((ISequenceQuery<T>)tableTerm).GenerateTerm());
+            betweenTerm.args.Add(tableTerm.GenerateTerm());
 
             if (leftKeyString != null)
             {
                 betweenTerm.optargs.Add(new Term.AssocPair() {
                     key = "left_bound",
-                    val = new Spec.Term() {
+                    val = new Term() {
                         type = Term.TermType.DATUM,
-                        datum = new Spec.Datum()
+                        datum = new Datum()
                         {
-                            type = Spec.Datum.DatumType.R_STR,
+                            type = Datum.DatumType.R_STR,
                             r_str = leftKeyString,
                         }
                     }
@@ -58,11 +56,11 @@ namespace RethinkDb.QueryTerm
             {
                 betweenTerm.optargs.Add(new Term.AssocPair() {
                     key = "right_bound",
-                    val = new Spec.Term() {
+                    val = new Term() {
                         type = Term.TermType.DATUM,
-                        datum = new Spec.Datum()
+                        datum = new Datum()
                         {
-                            type = Spec.Datum.DatumType.R_STR,
+                            type = Datum.DatumType.R_STR,
                             r_str = rightKeyString,
                         }
                     }
@@ -73,11 +71,11 @@ namespace RethinkDb.QueryTerm
             {
                 betweenTerm.optargs.Add(new Term.AssocPair() {
                     key = "left_bound",
-                    val = new Spec.Term() {
+                    val = new Term() {
                         type = Term.TermType.DATUM,
-                        datum = new Spec.Datum()
+                        datum = new Datum()
                         {
-                            type = Spec.Datum.DatumType.R_NUM,
+                            type = Datum.DatumType.R_NUM,
                             r_num = leftKeyNumber.Value,
                         }
                     }
@@ -88,11 +86,11 @@ namespace RethinkDb.QueryTerm
             {
                 betweenTerm.optargs.Add(new Term.AssocPair() {
                     key = "right_bound",
-                    val = new Spec.Term() {
+                    val = new Term() {
                         type = Term.TermType.DATUM,
-                        datum = new Spec.Datum()
+                        datum = new Datum()
                         {
-                            type = Spec.Datum.DatumType.R_NUM,
+                            type = Datum.DatumType.R_NUM,
                             r_num = rightKeyNumber.Value,
                         }
                     }

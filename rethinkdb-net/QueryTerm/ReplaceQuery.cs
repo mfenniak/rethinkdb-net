@@ -1,4 +1,4 @@
-using System;
+using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
@@ -13,15 +13,15 @@ namespace RethinkDb.QueryTerm
             this.newObject = newObject;
         }
 
-        Spec.Term IWriteQuery<T>.GenerateTerm(IDatumConverter<T> converter)
+        public Term GenerateTerm(IDatumConverter<T> converter)
         {
-            var replaceTerm = new Spec.Term()
+            var replaceTerm = new Term()
             {
-                type = Spec.Term.TermType.REPLACE,
+                type = Term.TermType.REPLACE,
             };
-            replaceTerm.args.Add(((ISingleObjectQuery<T>)getTerm).GenerateTerm());
-            replaceTerm.args.Add(new Spec.Term() {
-                type = RethinkDb.Spec.Term.TermType.DATUM,
+            replaceTerm.args.Add(getTerm.GenerateTerm());
+            replaceTerm.args.Add(new Term() {
+                type = Term.TermType.DATUM,
                 datum = converter.ConvertObject(newObject)
             });
             return replaceTerm;

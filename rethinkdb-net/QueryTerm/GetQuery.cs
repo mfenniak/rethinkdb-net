@@ -1,6 +1,4 @@
 using RethinkDb.Spec;
-using System.Linq.Expressions;
-using System;
 
 namespace RethinkDb.QueryTerm
 {
@@ -27,35 +25,35 @@ namespace RethinkDb.QueryTerm
             return new DeleteQuery<T>(this);
         }
 
-        Spec.Term ISingleObjectQuery<T>.GenerateTerm()
+        public Term GenerateTerm()
         {
-            var getTerm = new Spec.Term()
+            var getTerm = new Term()
             {
-                type = Spec.Term.TermType.GET,
+                type = Term.TermType.GET,
             };
-            getTerm.args.Add(((ISequenceQuery<T>)tableTerm).GenerateTerm());
+            getTerm.args.Add(tableTerm.GenerateTerm());
             getTerm.args.Add(
-                new Spec.Term()
+                new Term()
                 {
-                    type = Spec.Term.TermType.DATUM,
-                    datum = new Spec.Datum()
+                    type = Term.TermType.DATUM,
+                    datum = new Datum()
                     {
-                        type = Spec.Datum.DatumType.R_STR,
+                        type = Datum.DatumType.R_STR,
                         r_str = primaryKey,
                     }
                 }
             );
             if (primaryAttribute != null)
             {
-                getTerm.optargs.Add(new Spec.Term.AssocPair()
+                getTerm.optargs.Add(new Term.AssocPair()
                 {
                     key = "attribute",
-                    val = new Spec.Term()
+                    val = new Term()
                     {
-                        type = Spec.Term.TermType.DATUM,
-                        datum = new Spec.Datum()
+                        type = Term.TermType.DATUM,
+                        datum = new Datum()
                         {
-                            type = Spec.Datum.DatumType.R_STR,
+                            type = Datum.DatumType.R_STR,
                             r_str = primaryAttribute,
                         }
                     }

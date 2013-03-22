@@ -4,7 +4,7 @@ namespace RethinkDb.QueryTerm
 {
     public class DbListQuery : ISingleObjectQuery<string[]>
     {
-        Term ISingleObjectQuery<string[]>.GenerateTerm()
+        public Term GenerateTerm()
         {
             var dbTerm = new Term()
             {

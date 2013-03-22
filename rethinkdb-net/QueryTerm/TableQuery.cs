@@ -1,5 +1,5 @@
-using RethinkDb.Spec;
 using System.Collections.Generic;
+using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
@@ -46,35 +46,35 @@ namespace RethinkDb.QueryTerm
             return new BetweenQuery<T>(this, leftKey, rightKey);
         }
 
-        Spec.Term ISequenceQuery<T>.GenerateTerm()
+        public Term GenerateTerm()
         {
-            var tableTerm = new Spec.Term()
+            var tableTerm = new Term()
             {
-                type = Spec.Term.TermType.TABLE,
+                type = Term.TermType.TABLE,
             };
             tableTerm.args.Add(dbTerm.GenerateTerm());
             tableTerm.args.Add(
-                new Spec.Term()
+                new Term()
                 {
-                    type = Spec.Term.TermType.DATUM,
-                    datum = new Spec.Datum()
+                    type = Term.TermType.DATUM,
+                    datum = new Datum()
                     {
-                        type = Spec.Datum.DatumType.R_STR,
+                        type = Datum.DatumType.R_STR,
                         r_str = table,
                     }
                 }
             );
             if (useOutdated)
             {
-                tableTerm.optargs.Add(new Spec.Term.AssocPair()
+                tableTerm.optargs.Add(new Term.AssocPair()
                 {
                     key = "use_outdated",
-                    val = new Spec.Term()
+                    val = new Term()
                     {
-                        type = Spec.Term.TermType.DATUM,
-                        datum = new Spec.Datum()
+                        type = Term.TermType.DATUM,
+                        datum = new Datum()
                         {
-                            type = Spec.Datum.DatumType.R_BOOL,
+                            type = Datum.DatumType.R_BOOL,
                             r_bool = useOutdated,
                         }
                     }

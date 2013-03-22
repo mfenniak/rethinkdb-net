@@ -13,20 +13,20 @@ namespace RethinkDb.QueryTerm
             this.table = table;
         }
 
-        Spec.Term ISingleObjectQuery<DmlResponse>.GenerateTerm()
+        public Term GenerateTerm()
         {
-            var tableTerm = new Spec.Term()
+            var tableTerm = new Term()
             {
-                type = Spec.Term.TermType.TABLE_DROP,
+                type = Term.TermType.TABLE_DROP,
             };
             tableTerm.args.Add(dbTerm.GenerateTerm());
             tableTerm.args.Add(
-                new Spec.Term()
+                new Term()
                 {
-                    type = Spec.Term.TermType.DATUM,
-                    datum = new Spec.Datum()
+                    type = Term.TermType.DATUM,
+                    datum = new Datum()
                     {
-                        type = Spec.Datum.DatumType.R_STR,
+                        type = Datum.DatumType.R_STR,
                         r_str = table,
                     }
                 }

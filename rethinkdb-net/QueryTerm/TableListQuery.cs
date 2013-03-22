@@ -11,11 +11,11 @@ namespace RethinkDb.QueryTerm
             this.dbTerm = dbTerm;
         }
 
-        Spec.Term ISingleObjectQuery<string[]>.GenerateTerm()
+        public Term GenerateTerm()
         {
-            var tableTerm = new Spec.Term()
+            var tableTerm = new Term()
             {
-                type = Spec.Term.TermType.TABLE_LIST,
+                type = Term.TermType.TABLE_LIST,
             };
             tableTerm.args.Add(dbTerm.GenerateTerm());
             return tableTerm;

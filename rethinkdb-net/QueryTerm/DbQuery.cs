@@ -31,19 +31,19 @@ namespace RethinkDb.QueryTerm
             return new TableQuery<T>(this, table, useOutdated);
         }
 
-        public Spec.Term GenerateTerm()
+        public Term GenerateTerm()
         {
-            var dbTerm = new Spec.Term()
+            var dbTerm = new Term()
             {
-                type = Spec.Term.TermType.DB,
+                type = Term.TermType.DB,
             };
             dbTerm.args.Add(
-                new Spec.Term()
+                new Term()
                 {
-                    type = Spec.Term.TermType.DATUM,
-                    datum = new Spec.Datum()
+                    type = Term.TermType.DATUM,
+                    datum = new Datum()
                     {
-                        type = Spec.Datum.DatumType.R_STR,
+                        type = Datum.DatumType.R_STR,
                         r_str = db,
                     }
                 }

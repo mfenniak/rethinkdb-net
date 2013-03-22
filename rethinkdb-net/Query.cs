@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using RethinkDb.QueryTerm;
+using RethinkDb.Spec;
 
 namespace RethinkDb
 {
     [ImmutableObject(true)]
     public interface ISingleObjectQuery<T>
     {
-        Spec.Term GenerateTerm();
+        Term GenerateTerm();
     }
 
     [ImmutableObject(true)]
@@ -19,13 +20,13 @@ namespace RethinkDb
     [ImmutableObject(true)]
     public interface ISequenceQuery<T>
     {
-        Spec.Term GenerateTerm();
+        Term GenerateTerm();
     }
 
     [ImmutableObject(true)]
     public interface IWriteQuery<T>
     {
-        Spec.Term GenerateTerm(IDatumConverter<T> converter);
+        Term GenerateTerm(IDatumConverter<T> converter);
     }
 
     public static class Query

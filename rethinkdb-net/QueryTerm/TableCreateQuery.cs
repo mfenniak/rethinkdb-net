@@ -19,20 +19,20 @@ namespace RethinkDb.QueryTerm
             this.cacheSize = cacheSize;
         }
 
-        Spec.Term ISingleObjectQuery<DmlResponse>.GenerateTerm()
+        public Term GenerateTerm()
         {
-            var tableTerm = new Spec.Term()
+            var tableTerm = new Term()
             {
-                type = Spec.Term.TermType.TABLE_CREATE,
+                type = Term.TermType.TABLE_CREATE,
             };
             tableTerm.args.Add(dbTerm.GenerateTerm());
             tableTerm.args.Add(
-                new Spec.Term()
+                new Term()
                 {
-                    type = Spec.Term.TermType.DATUM,
-                    datum = new Spec.Datum()
+                    type = Term.TermType.DATUM,
+                    datum = new Datum()
                     {
-                        type = Spec.Datum.DatumType.R_STR,
+                        type = Datum.DatumType.R_STR,
                         r_str = table,
                     }
                 }
@@ -40,15 +40,15 @@ namespace RethinkDb.QueryTerm
 
             if (datacenter != null)
             {
-                tableTerm.optargs.Add(new Spec.Term.AssocPair()
+                tableTerm.optargs.Add(new Term.AssocPair()
                 {
                     key = "datacenter",
-                    val = new Spec.Term()
+                    val = new Term()
                     {
-                        type = Spec.Term.TermType.DATUM,
-                        datum = new Spec.Datum()
+                        type = Term.TermType.DATUM,
+                        datum = new Datum()
                         {
-                            type = Spec.Datum.DatumType.R_STR,
+                            type = Datum.DatumType.R_STR,
                             r_str = datacenter,
                         }
                     }
@@ -57,15 +57,15 @@ namespace RethinkDb.QueryTerm
 
             if (primaryKey != null)
             {
-                tableTerm.optargs.Add(new Spec.Term.AssocPair()
+                tableTerm.optargs.Add(new Term.AssocPair()
                 {
                     key = "primary_key",
-                    val = new Spec.Term()
+                    val = new Term()
                     {
-                        type = Spec.Term.TermType.DATUM,
-                        datum = new Spec.Datum()
+                        type = Term.TermType.DATUM,
+                        datum = new Datum()
                         {
-                            type = Spec.Datum.DatumType.R_STR,
+                            type = Datum.DatumType.R_STR,
                             r_str = primaryKey,
                         }
                     }
@@ -74,15 +74,15 @@ namespace RethinkDb.QueryTerm
 
             if (cacheSize.HasValue)
             {
-                tableTerm.optargs.Add(new Spec.Term.AssocPair()
+                tableTerm.optargs.Add(new Term.AssocPair()
                 {
                     key = "cache_size",
-                    val = new Spec.Term()
+                    val = new Term()
                     {
-                        type = Spec.Term.TermType.DATUM,
-                        datum = new Spec.Datum()
+                        type = Term.TermType.DATUM,
+                        datum = new Datum()
                         {
-                            type = Spec.Datum.DatumType.R_NUM,
+                            type = Datum.DatumType.R_NUM,
                             r_num = cacheSize.Value,
                         }
                     }

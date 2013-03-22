@@ -1,4 +1,4 @@
-using System;
+using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
@@ -17,16 +17,16 @@ namespace RethinkDb.QueryTerm
             this.tableTerm = tableTerm;
         }
 
-        Spec.Term ISingleObjectQuery<DmlResponse>.GenerateTerm()
+        public Term GenerateTerm()
         {
-            var replaceTerm = new Spec.Term()
+            var replaceTerm = new Term()
             {
-                type = Spec.Term.TermType.DELETE,
+                type = Term.TermType.DELETE,
             };
             if (getTerm != null)
-                replaceTerm.args.Add(((ISingleObjectQuery<T>)getTerm).GenerateTerm());
+                replaceTerm.args.Add(getTerm.GenerateTerm());
             else if (tableTerm != null)
-                replaceTerm.args.Add(((ISequenceQuery<T>)tableTerm).GenerateTerm());
+                replaceTerm.args.Add(tableTerm.GenerateTerm());
             return replaceTerm;
         }
     }
