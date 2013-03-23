@@ -1,5 +1,7 @@
-using System.Collections.Generic;
 using RethinkDb.Spec;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
@@ -44,6 +46,11 @@ namespace RethinkDb.QueryTerm
         public BetweenQuery<T> Between(double? leftKey, double? rightKey)
         {
             return new BetweenQuery<T>(this, leftKey, rightKey);
+        }
+
+        public UpdateQuery<T> Update(Expression<Func<T, T>> updateExpression)
+        {
+            return new UpdateQuery<T>(this, updateExpression);
         }
 
         public Term GenerateTerm()

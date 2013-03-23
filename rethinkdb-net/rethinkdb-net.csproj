@@ -72,6 +72,7 @@
     <Compile Include="QueryTerm\ReplaceQuery.cs" />
     <Compile Include="QueryTerm\DeleteQuery.cs" />
     <Compile Include="QueryTerm\BetweenQuery.cs" />
+    <Compile Include="QueryTerm\UpdateQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

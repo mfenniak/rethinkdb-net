@@ -1,4 +1,5 @@
 ﻿using RethinkDb.Spec;
+using System.Reflection;
 
 namespace RethinkDb
 {
@@ -6,5 +7,10 @@ namespace RethinkDb
     {
         T ConvertDatum(Datum datum);
         Datum ConvertObject(T @object);
+    }
+
+    public interface IObjectDatumConverter
+    {
+        string GetDatumFieldName(MemberInfo memberInfo);
     }
 }

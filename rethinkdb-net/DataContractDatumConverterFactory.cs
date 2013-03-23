@@ -63,9 +63,11 @@ namespace RethinkDb
 
                 TypeBuilder type = dynamicModule.DefineType("DataContractDatumConverterFactory." + typeof(T).FullName, TypeAttributes.Class | TypeAttributes.Public);
                 type.AddInterfaceImplementation(typeof(IDatumConverter<T>));
+                type.AddInterfaceImplementation(typeof(IObjectDatumConverter));
 
                 DefineConvertDatum<T>(type);
                 DefineConvertObject<T>(type);
+                DefineGetDatumFieldName<T>(type);
 
                 Type finalType = type.CreateType();
 
@@ -296,6 +298,55 @@ namespace RethinkDb
             gen.Emit(OpCodes.Ldc_I4, (int)Spec.Datum.DatumType.R_NULL);
             gen.Emit(OpCodes.Callvirt, typeof(Spec.Datum).GetProperty("type").GetSetMethod());
             gen.Emit(OpCodes.Ldloc, retval);
+            gen.Emit(OpCodes.Ret);
+        }
+
+        private static void DefineGetDatumFieldName<T>(TypeBuilder type)
+        {
+            // FIXME: current implementation is just a series of If checks; could be more efficient with a dictionary lookup.
+
+            MethodBuilder meth = type.DefineMethod(
+                "GetDatumFieldName",
+                MethodAttributes.Public | MethodAttributes.Virtual,
+                typeof(string),
+                new Type[] {
+                    typeof(MemberInfo)
+                });
+            meth.DefineParameter(1, System.Reflection.ParameterAttributes.None, "member");
+
+            var gen = meth.GetILGenerator();
+            var memberName = gen.DeclareLocal(typeof(string));
+
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.Emit(OpCodes.Callvirt, typeof(MemberInfo).GetProperty("Name").GetGetMethod());
+            gen.Emit(OpCodes.Stloc, memberName);
+
+            foreach (var field in typeof(T).GetFields(BindingFlags.Public | BindingFlags.Instance))
+            {
+                var dataMemberAttribute = field.GetCustomAttribute<DataMemberAttribute>();
+                if (dataMemberAttribute == null)
+                    continue;
+
+                string fieldName;
+                if (!String.IsNullOrEmpty(dataMemberAttribute.Name))
+                    fieldName = dataMemberAttribute.Name;
+                else
+                    fieldName = field.Name;
+
+                var nopeWrongField = gen.DefineLabel();
+
+                gen.Emit(OpCodes.Ldloc, memberName);
+                gen.Emit(OpCodes.Ldstr, field.Name); // the actual field name...
+                gen.Emit(OpCodes.Call, typeof(string).GetMethod("Equals", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(string), typeof(string) }, null));
+                gen.Emit(OpCodes.Brfalse, nopeWrongField);
+
+                gen.Emit(OpCodes.Ldstr, fieldName); // the dataMemberAttribute's field name
+                gen.Emit(OpCodes.Ret);
+
+                gen.MarkLabel(nopeWrongField);
+            }
+
+            gen.Emit(OpCodes.Ldnull);
             gen.Emit(OpCodes.Ret);
         }
     }
