@@ -21,7 +21,7 @@ Currently this driver is capable of the following things:
     * Query.Db().Table().Replace()
     * Query.Db().Table().Between().Delete()
 
-  * Executing Update queries using C# expressions (but with a very limited set of expressions); for example, Query.Db("db").Table<ObjectDefinition>("objects").Update(o => new ObjectDefinition { Name = o.Name + " (new name!)" }).
+  * Executing Update queries using C# expressions (but with a very limited set of expressions); for example, `Query.Db("db").Table<ObjectDefinition>("objects").Update(o => new ObjectDefinition { Name = o.Name + " (new name!)" })`.
 
   * Reading streaming / chunked datasets (eg. Query.Db().Table() / .Between()).
 
