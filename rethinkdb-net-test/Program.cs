@@ -191,11 +191,11 @@ namespace RethinkDb.Test
                 if (resp.Inserted != 7  || resp.FirstError != null)
                     throw new Exception("Insert failed");
 
-                resp = await connection.Run(testTable.Update(obj => new TestObject() { Name = "Hello!" }));
+                resp = await connection.Run(testTable.Update(o => new TestObject() { Name = "Hello!" }));
                 if (resp.Replaced != 7 || resp.FirstError != null) // "Replaced" seems weird here, but that's what RethinkDB returns in Data Explorer too
                     throw new Exception("Update failed");
 
-                resp = await connection.Run(testTable.Update(obj => new TestObject() { Name = "Hello " + obj.Id + "!" }));
+                resp = await connection.Run(testTable.Update(o => new TestObject() { Name = "Hello " + o.Id + "!" }));
                 if (resp.Replaced != 7 || resp.FirstError != null) // "Replaced" seems weird here, but that's what RethinkDB returns in Data Explorer too
                     throw new Exception("Update failed");
 
