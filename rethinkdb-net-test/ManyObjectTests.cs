@@ -10,7 +10,6 @@ using System.Collections.Generic;
 namespace RethinkDb.Test
 {
     [TestFixture]
-    [Ignore("Temp")]
     public class ManyObjectTests : TestBase
     {
         private TableQuery<TestObject> testTable;

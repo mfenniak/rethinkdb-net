@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace RethinkDb
         private Socket socket;
         private NetworkStream stream;
         private long nextToken = 1;
+        private long writeTokenLock = 0;
+        private IDictionary<ulong, TaskCompletionSource<Response>> tokenResponse = new ConcurrentDictionary<ulong, TaskCompletionSource<Response>>();
 
         public Connection()
         {
@@ -118,6 +121,10 @@ namespace RethinkDb
 
                 this.socket = socket;
                 this.stream = stream;
+
+#pragma warning disable 4014
+                ReadLoop();
+#pragma warning restore 4014
             }
             catch (Exception)
             {
@@ -147,12 +154,45 @@ namespace RethinkDb
             }
         }
 
-        private async Task ReadMyBytes(byte[] buffer, CancellationToken cancellationToken)
+        private async Task ReadLoop()
+        {
+            // FIXME: need a graceful way to abort this loop when the Connection is disposed... right now it will
+            // probably become unhandled and the task library will shut down the process.
+
+            while (true)
+            {
+                byte[] headerSize = new byte[4];
+                await ReadMyBytes(headerSize);
+                if (!BitConverter.IsLittleEndian)
+                    Array.Reverse(headerSize, 0, headerSize.Length);
+                var respSize = BitConverter.ToInt32(headerSize, 0);
+
+                byte[] retVal = new byte[respSize];
+                await ReadMyBytes(retVal);
+                using (var memoryBuffer = new MemoryStream(retVal))
+                {
+                    var response = Serializer.Deserialize<Response>(memoryBuffer);
+                    TaskCompletionSource<Response> tcs;
+                    if (tokenResponse.TryGetValue(response.token, out tcs))
+                    {
+                        tokenResponse.Remove(response.token);
+                        tcs.SetResult(response);
+                    }
+                    else
+                    {
+                        // FIXME: log some kind of error here; we've received a response to a query token
+                        // that wasn't expected.
+                    }
+                }
+            }
+        }
+
+        private async Task ReadMyBytes(byte[] buffer)
         {
             int totalBytesRead = 0;
             while (true)
             {
-                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length, cancellationToken);
+                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length);
                 totalBytesRead += bytesRead;
 
                 if (bytesRead == 0)
@@ -169,33 +209,43 @@ namespace RethinkDb
 
         internal async Task<Response> InternalRunQuery(Spec.Query query)
         {
+            var tcs = new TaskCompletionSource<Response>();
+            tokenResponse[query.token] = tcs;
+
             var cancellationToken = new CancellationTokenSource(runQueryTimeout).Token;
-
-            using (var memoryBuffer = new MemoryStream(1024))
+            Action abortToken = () => {
+                if (tokenResponse.Remove(query.token))
+                    tcs.SetCanceled();
+            };
+            using (cancellationToken.Register(abortToken))
             {
-                Serializer.Serialize(memoryBuffer, query);
+                using (var memoryBuffer = new MemoryStream(1024))
+                {
+                    Serializer.Serialize(memoryBuffer, query);
 
-                var data = memoryBuffer.ToArray();
-                var header = BitConverter.GetBytes(data.Length);
-                if (!BitConverter.IsLittleEndian)
-                    Array.Reverse(header, 0, header.Length);
+                    var data = memoryBuffer.ToArray();
+                    var header = BitConverter.GetBytes(data.Length);
+                    if (!BitConverter.IsLittleEndian)
+                        Array.Reverse(header, 0, header.Length);
 
-                await stream.WriteAsync(header, 0, header.Length, cancellationToken);
-                await stream.WriteAsync(data, 0, data.Length, cancellationToken);
-            }
+                    // Put query.token into writeTokenLock if writeTokenLock is 0 (ie. unlocked).  If it's not 0,
+                    // spin-lock on the compare exchange.
+                    while (Interlocked.CompareExchange(ref writeTokenLock, (long)query.token, 0) != 0)
+                        ;
 
-            byte[] headerSize = new byte[4];
-            await ReadMyBytes(headerSize, cancellationToken);
-            if (!BitConverter.IsLittleEndian)
-                Array.Reverse(headerSize, 0, headerSize.Length);
-            var respSize = BitConverter.ToInt32(headerSize, 0);
+                    try
+                    {
+                        await stream.WriteAsync(header, 0, header.Length, cancellationToken);
+                        await stream.WriteAsync(data, 0, data.Length, cancellationToken);
+                    }
+                    finally
+                    {
+                        // Revert writeTokenLock to 0.
+                        writeTokenLock = 0;
+                    }
+                }
 
-            byte[] retVal = new byte[respSize];
-            await ReadMyBytes(retVal, cancellationToken);
-            using (var memoryBuffer = new MemoryStream(retVal))
-            {
-                var response = Serializer.Deserialize<Response>(memoryBuffer);
-                return response;
+                return await tcs.Task;
             }
         }
 
