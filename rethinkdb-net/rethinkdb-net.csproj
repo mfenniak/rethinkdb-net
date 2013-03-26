@@ -73,6 +73,10 @@
     <Compile Include="QueryTerm\DeleteQuery.cs" />
     <Compile Include="QueryTerm\BetweenQuery.cs" />
     <Compile Include="QueryTerm\UpdateQuery.cs" />
+    <Compile Include="ILogger.cs" />
+    <Compile Include="LoggingUtils.cs" />
+    <Compile Include="LoggingCategory.cs" />
+    <Compile Include="DefaultLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

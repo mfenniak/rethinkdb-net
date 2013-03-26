@@ -36,6 +36,12 @@ namespace RethinkDb
             set;
         }
 
+        public ILogger Logger
+        {
+            get;
+            set;
+        }
+
         public async Task Connect(params EndPoint[] endpoints)
         {
             var cancellationToken = new CancellationTokenSource(connectTimeout).Token;
@@ -50,10 +56,12 @@ namespace RethinkDb
                     {
                         var ips = await Dns.GetHostAddressesAsync(dnsEndpoint.Host);
                         resolvedIpEndpoints = ips.Select(ip => new IPEndPoint(ip, dnsEndpoint.Port));
+                        if (Logger.DebugEnabled())
+                            Logger.Debug("DNS lookup {0} into: [{1}]", resolvedIpEndpoints.EnumerableToString());
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        // FIXME: Log: DNS resolution failed
+                        Logger.Warning("Failed to resolve DNS for DnsEndPoint {0}: {1}", dnsEndpoint.Host, e);
                         continue;
                     }
                 }
@@ -64,30 +72,33 @@ namespace RethinkDb
                 else
                 {
                     // FIXME: custom exception
-                    throw new ArgumentException("Unexpected type of System.Net.EndPoint");
+                    Logger.Error("Unsupported System.Net.EndPoint type ({0}); connection aborted", ep.GetType());
+                    throw new NotSupportedException("Unexpected type of System.Net.EndPoint");
                 }
 
                 foreach (var ipEndpoint in resolvedIpEndpoints)
                 {
                     try
                     {
+                        Logger.Debug("Connecting to {0}", ipEndpoint);
                         await DoTryConnect(ipEndpoint, cancellationToken);
                         return;
                     }
-                    catch (TaskCanceledException)
+                    catch (TaskCanceledException e)
                     {
-                        // FIXME: Log: timeout occurred trying to connect
+                        Logger.Error("Timeout occurred while connecting to endpoint {0}: {1}; connection aborted", ipEndpoint, e);
                         throw;
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        // FIXME: Log: exception occurred trying to connect
+                        Logger.Warning("Unexpected exception occurred while connecting to endpoint {0}: {1}; connection attempts will continue with any other addresses available", ipEndpoint, e);
                         continue;
                     }
                 }
             }
 
             // FIXME: Custom exception class
+            Logger.Error("Failed to resolve or connect to any provided address; connection failed");
             throw new Exception("Failed to resolve a connectable address.");
         }
 
@@ -108,6 +119,8 @@ namespace RethinkDb
                     null
                 );
 
+                Logger.Debug("Connected to {0}", endpoint);
+
                 if (connectHeader == null)
                 {
                     var header = BitConverter.GetBytes((int)Spec.Version.V0_1);
@@ -119,6 +132,8 @@ namespace RethinkDb
                 stream = new NetworkStream(socket, true);
                 await stream.WriteAsync(connectHeader, 0, connectHeader.Length, cancellationToken);
 
+                Logger.Debug("Sent ReQL header");
+
                 this.socket = socket;
                 this.stream = stream;
 
@@ -126,8 +141,9 @@ namespace RethinkDb
                 ReadLoop();
 #pragma warning restore 4014
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.Error("Unexpected exception occurred while connecting to endpoint {0}: {1}; tearing down connection", endpoint, e);
                 if (stream != null)
                 {
                     try
@@ -135,8 +151,9 @@ namespace RethinkDb
                         stream.Close();
                         stream.Dispose();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        Logger.Debug("Exception occurred while disposing network stream during exception handling: {0}; probably not important", ex);
                     }
                 }
                 if (socket != null)
@@ -146,8 +163,9 @@ namespace RethinkDb
                         socket.Close();
                         socket.Dispose();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        Logger.Debug("Exception occurred while disposing network socket during exception handling: {0}; probably not important", ex);
                     }
                 }
                 throw;
@@ -159,31 +177,40 @@ namespace RethinkDb
             // FIXME: need a graceful way to abort this loop when the Connection is disposed... right now it will
             // probably become unhandled and the task library will shut down the process.
 
-            while (true)
+            try
             {
-                byte[] headerSize = new byte[4];
-                await ReadMyBytes(headerSize);
-                if (!BitConverter.IsLittleEndian)
-                    Array.Reverse(headerSize, 0, headerSize.Length);
-                var respSize = BitConverter.ToInt32(headerSize, 0);
-
-                byte[] retVal = new byte[respSize];
-                await ReadMyBytes(retVal);
-                using (var memoryBuffer = new MemoryStream(retVal))
+                while (true)
                 {
-                    var response = Serializer.Deserialize<Response>(memoryBuffer);
-                    TaskCompletionSource<Response> tcs;
-                    if (tokenResponse.TryGetValue(response.token, out tcs))
+                    byte[] headerSize = new byte[4];
+                    await ReadMyBytes(headerSize);
+                    if (!BitConverter.IsLittleEndian)
+                        Array.Reverse(headerSize, 0, headerSize.Length);
+                    var respSize = BitConverter.ToInt32(headerSize, 0);
+                    Logger.Debug("Received packet header, packet is {0} bytes", respSize);
+
+                    byte[] retVal = new byte[respSize];
+                    await ReadMyBytes(retVal);
+                    Logger.Debug("Received packet");
+                    using (var memoryBuffer = new MemoryStream(retVal))
                     {
-                        tokenResponse.Remove(response.token);
-                        tcs.SetResult(response);
-                    }
-                    else
-                    {
-                        // FIXME: log some kind of error here; we've received a response to a query token
-                        // that wasn't expected.
+                        var response = Serializer.Deserialize<Response>(memoryBuffer);
+                        Logger.Debug("Received response to query token {0}, type: {1}", response.token, response.type);
+
+                        TaskCompletionSource<Response> tcs;
+                        if (tokenResponse.TryGetValue(response.token, out tcs))
+                        {
+                            tokenResponse.Remove(response.token);
+                            tcs.SetResult(response);
+                        } else
+                        {
+                            Logger.Warning("Received response to query token {0}, but no handler was waiting for that response.  This can occur if the query times out around the same time a response is received.", response.token);
+                        }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                Logger.Fatal("Exception occurred in Connection.ReadLoop: {0}; this connection will no longer function correctly, no error recovery will take place", e);
             }
         }
 
@@ -214,6 +241,7 @@ namespace RethinkDb
 
             var cancellationToken = new CancellationTokenSource(runQueryTimeout).Token;
             Action abortToken = () => {
+                Logger.Warning("Query token {0} timed out after {1}", query.token, runQueryTimeout);
                 if (tokenResponse.Remove(query.token))
                     tcs.SetCanceled();
             };
@@ -235,6 +263,7 @@ namespace RethinkDb
 
                     try
                     {
+                        Logger.Debug("Writing packet, {0} bytes", data.Length);
                         await stream.WriteAsync(header, 0, header.Length, cancellationToken);
                         await stream.WriteAsync(data, 0, data.Length, cancellationToken);
                     }
@@ -417,6 +446,7 @@ namespace RethinkDb
 
         public void Dispose()
         {
+            Logger.Debug("Disposing Connection");
             if (stream != null)
             {
                 try
