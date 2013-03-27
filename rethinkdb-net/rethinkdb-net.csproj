@@ -78,6 +78,8 @@
     <Compile Include="LoggingCategory.cs" />
     <Compile Include="DefaultLogger.cs" />
     <Compile Include="QueryTerm\CountQuery.cs" />
+    <Compile Include="QueryTerm\FilterQuery.cs" />
+    <Compile Include="QueryTerm\ExpressionUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

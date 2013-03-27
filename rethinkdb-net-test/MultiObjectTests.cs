@@ -190,6 +190,30 @@ namespace RethinkDb.Test
             var resp = await connection.Run(testTable.Between(null, "4").Count());
             Assert.That(resp, Is.EqualTo(4));
         }
+
+        [Test]
+        public void Filter()
+        {
+            DoFilter().Wait();
+        }
+
+        private async Task DoFilter()
+        {
+            var enumerable = connection.Run(testTable.Filter(o => o.Name == "5"));
+            Assert.That(enumerable, Is.Not.Null);
+            List<TestObject> objects = new List<TestObject>();
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                objects.Add(enumerable.Current);
+                ++count;
+            }
+            Assert.That(count, Is.EqualTo(1));
+            Assert.That(objects, Has.Count.EqualTo(1));
+            Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "5" }));
+        }
     }
 }
 

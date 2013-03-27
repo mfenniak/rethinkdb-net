@@ -62,6 +62,11 @@ namespace RethinkDb
             return new GetQuery<T>(target, primaryKey, primaryAttribute);
         }
 
+        public static FilterQuery<T> Filter<T>(this ISequenceQuery<T> target, Expression<Func<T, bool>> filterExpression)
+        {
+            return new FilterQuery<T>(target, filterExpression);
+        }
+
         public static UpdateQuery<T> Update<T>(this ISequenceQuery<T> target, Expression<Func<T, T>> updateExpression)
         {
             return new UpdateQuery<T>(target, updateExpression);
