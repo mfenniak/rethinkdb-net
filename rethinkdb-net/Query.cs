@@ -96,5 +96,10 @@ namespace RethinkDb
         {
             return new BetweenQuery<T>(target, leftKey, rightKey);
         }
+
+        public static CountQuery<T> Count<T>(this ISequenceQuery<T> target)
+        {
+            return new CountQuery<T>(target);
+        }
     }
 }

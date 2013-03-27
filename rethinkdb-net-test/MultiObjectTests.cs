@@ -166,6 +166,30 @@ namespace RethinkDb.Test
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Replaced, Is.EqualTo(4));
         }
+
+        [Test]
+        public void Count()
+        {
+            DoCount().Wait();
+        }
+
+        private async Task DoCount()
+        {
+            var resp = await connection.Run(testTable.Count());
+            Assert.That(resp, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void BetweenCount()
+        {
+            DoBetweenCount().Wait();
+        }
+
+        private async Task DoBetweenCount()
+        {
+            var resp = await connection.Run(testTable.Between(null, "4").Count());
+            Assert.That(resp, Is.EqualTo(4));
+        }
     }
 }
 
