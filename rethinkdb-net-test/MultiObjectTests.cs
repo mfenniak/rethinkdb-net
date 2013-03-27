@@ -258,5 +258,11 @@ namespace RethinkDb.Test
         {
             DoFilterExpectedObjects(o => o.Name != "3", new string[] { "1", "2", "4", "5", "6", "7" }).Wait();
         }
+
+        [Test]
+        public void FilterNot()
+        {
+            DoFilterExpectedObjects(o => !(o.Name == "3"), new string[] { "1", "2", "4", "5", "6", "7" }).Wait();
+        }
     }
 }

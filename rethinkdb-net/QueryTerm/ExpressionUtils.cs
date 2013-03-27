@@ -16,6 +16,15 @@ namespace RethinkDb.QueryTerm
             return term;
         }
 
+        private static Term ConvertUnaryExpressionToTerm<T>(UnaryExpression expr, Term.TermType termType)
+        {
+            var term = new Term() {
+                type = termType
+            };
+            term.args.Add(MapExpressionToTerm<T>(expr.Operand));
+            return term;
+        }
+
         public static Term MapExpressionToTerm<T>(Expression expr)
         {
             // FIXME: datum converter should be passed in from the connection?
@@ -64,6 +73,9 @@ namespace RethinkDb.QueryTerm
                     return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.ANY);
                 case ExpressionType.NotEqual:
                     return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.NE);
+
+                case ExpressionType.Not:
+                    return ConvertUnaryExpressionToTerm<T>((UnaryExpression)expr, Term.TermType.NOT);
 
                 case ExpressionType.MemberAccess:
                 {
