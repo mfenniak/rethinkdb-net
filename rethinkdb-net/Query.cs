@@ -129,5 +129,20 @@ namespace RethinkDb
         {
             return new MapQuery<TOriginal, TTarget>(sequenceQuery, mapExpression);
         }
+
+        public static OrderByQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, params Expression<Func<T, object>>[] memberReferenceExpressions)
+        {
+            return new OrderByQuery<T>(sequenceQuery, memberReferenceExpressions);
+        }
+
+        public static object Asc(object value)
+        {
+            throw new InvalidOperationException("This method should never actually be invoked; it should only be used as part of expressions to Query.OrderBy");
+        }
+
+        public static object Desc(object value)
+        {
+            throw new InvalidOperationException("This method should never actually be invoked; it should only be used as part of expressions to Query.OrderBy");
+        }
     }
 }

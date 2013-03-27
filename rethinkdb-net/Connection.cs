@@ -23,7 +23,7 @@ namespace RethinkDb
         private NetworkStream stream;
         private long nextToken = 1;
         private long writeTokenLock = 0;
-        private IDictionary<ulong, TaskCompletionSource<Response>> tokenResponse = new ConcurrentDictionary<ulong, TaskCompletionSource<Response>>();
+        private IDictionary<long, TaskCompletionSource<Response>> tokenResponse = new ConcurrentDictionary<long, TaskCompletionSource<Response>>();
 
         public Connection()
         {
@@ -123,7 +123,7 @@ namespace RethinkDb
 
                 if (connectHeader == null)
                 {
-                    var header = BitConverter.GetBytes((int)Spec.Version.V0_1);
+                    var header = BitConverter.GetBytes((int)Spec.VersionDummy.Version.V0_1);
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(header, 0, header.Length);
                     connectHeader = header;
@@ -229,9 +229,9 @@ namespace RethinkDb
             }
         }
 
-        internal ulong GetNextToken()
+        internal long GetNextToken()
         {
-            return (ulong)Interlocked.Increment(ref nextToken);
+            return Interlocked.Increment(ref nextToken);
         }
 
         internal async Task<Response> InternalRunQuery(Spec.Query query)

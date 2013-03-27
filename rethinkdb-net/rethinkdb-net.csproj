@@ -83,6 +83,7 @@
     <Compile Include="QueryTerm\ExprQuery.cs" />
     <Compile Include="QueryTerm\ExprSequenceQuery.cs" />
     <Compile Include="QueryTerm\MapQuery.cs" />
+    <Compile Include="QueryTerm\OrderByQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

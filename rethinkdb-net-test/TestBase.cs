@@ -22,12 +22,14 @@ namespace RethinkDb.Test
             connection = new Connection();
             await connection.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 28015));
 
-            var dbList = await connection.Run(Query.DbList());
-            if (dbList.Contains("test"))
+            try
             {
-                var resp = await connection.Run(Query.DbDrop("test"));
-                if (resp.Dropped != 1)
-                    throw new Exception("DbDrop failed");
+                var dbList = await connection.Run(Query.DbList());
+                if (dbList.Contains("test"))
+                    await connection.Run(Query.DbDrop("test"));
+            }
+            catch (Exception)
+            {
             }
         }
     }

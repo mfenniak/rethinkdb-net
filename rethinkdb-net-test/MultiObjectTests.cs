@@ -288,5 +288,30 @@ namespace RethinkDb.Test
             }
             Assert.That(count, Is.EqualTo(7));
         }
+
+        [Test]
+        public void OrderBy()
+        {
+            DoOrderBy().Wait();
+        }
+
+        private async Task DoOrderBy()
+        {
+            var enumerable = connection.Run(testTable.OrderBy<TestObject>(
+                o => o.Name,
+                o => Query.Asc(o.Name),
+                o => Query.Desc(o.Name)
+            ));
+            Assert.That(enumerable, Is.Not.Null);
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                ++count;
+                Assert.That(enumerable.Current.Name, Is.EqualTo(count.ToString()));
+            }
+            Assert.That(count, Is.EqualTo(7));
+        }
     }
 }

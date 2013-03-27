@@ -10,13 +10,33 @@
 // Generated from: rethinkdb_spec.proto
 namespace RethinkDb.Spec
 {
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"VersionDummy")]
+  public partial class VersionDummy : global::ProtoBuf.IExtensible
+  {
+    public VersionDummy() {}
+    
+    [global::ProtoBuf.ProtoContract(Name=@"Version")]
+    public enum Version
+    {
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"V0_1", Value=1063369270)]
+      V0_1 = 1063369270
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Query")]
   public partial class Query : global::ProtoBuf.IExtensible
   {
     public Query() {}
     
-    private Query.QueryType _type;
+
+    private Query.QueryType _type = Query.QueryType.START;
     [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(Query.QueryType.START)]
     public Query.QueryType type
     {
       get { return _type; }
@@ -31,9 +51,11 @@ namespace RethinkDb.Spec
       get { return _query; }
       set { _query = value; }
     }
-    private ulong _token;
-    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"token", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public ulong token
+
+    private long _token = default(long);
+    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"token", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(long))]
+    public long token
     {
       get { return _token; }
       set { _token = value; }
@@ -47,6 +69,41 @@ namespace RethinkDb.Spec
       get { return _noreply; }
       set { _noreply = value; }
     }
+    private readonly global::System.Collections.Generic.List<Query.AssocPair> _global_optargs = new global::System.Collections.Generic.List<Query.AssocPair>();
+    [global::ProtoBuf.ProtoMember(6, Name=@"global_optargs", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public global::System.Collections.Generic.List<Query.AssocPair> global_optargs
+    {
+      get { return _global_optargs; }
+    }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"AssocPair")]
+  public partial class AssocPair : global::ProtoBuf.IExtensible
+  {
+    public AssocPair() {}
+    
+
+    private string _key = "";
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"key", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string key
+    {
+      get { return _key; }
+      set { _key = value; }
+    }
+
+    private Term _val = null;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"val", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(null)]
+    public Term val
+    {
+      get { return _val; }
+      set { _val = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
     [global::ProtoBuf.ProtoContract(Name=@"QueryType")]
     public enum QueryType
     {
@@ -66,56 +123,25 @@ namespace RethinkDb.Spec
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Response")]
-  public partial class Response : global::ProtoBuf.IExtensible
-  {
-    public Response() {}
-    
-    private Response.ResponseType _type;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public Response.ResponseType type
-    {
-      get { return _type; }
-      set { _type = value; }
-    }
-    private ulong _token;
-    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"token", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public ulong token
-    {
-      get { return _token; }
-      set { _token = value; }
-    }
-    private readonly global::System.Collections.Generic.List<Datum> _response = new global::System.Collections.Generic.List<Datum>();
-    [global::ProtoBuf.ProtoMember(3, Name=@"response", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    public global::System.Collections.Generic.List<Datum> response
-    {
-      get { return _response; }
-    }
-  
-    private readonly global::System.Collections.Generic.List<Response.Frame> _backtrace = new global::System.Collections.Generic.List<Response.Frame>();
-    [global::ProtoBuf.ProtoMember(4, Name=@"backtrace", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    public global::System.Collections.Generic.List<Response.Frame> backtrace
-    {
-      get { return _backtrace; }
-    }
-  
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Frame")]
   public partial class Frame : global::ProtoBuf.IExtensible
   {
     public Frame() {}
     
-    private Response.Frame.FrameType _type;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public Response.Frame.FrameType type
+
+    private Frame.FrameType _type = Frame.FrameType.POS;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(Frame.FrameType.POS)]
+    public Frame.FrameType type
     {
       get { return _type; }
       set { _type = value; }
     }
 
-    private ulong _pos = default(ulong);
+    private long _pos = default(long);
     [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"pos", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(ulong))]
-    public ulong pos
+    [global::System.ComponentModel.DefaultValue(default(long))]
+    public long pos
     {
       get { return _pos; }
       set { _pos = value; }
@@ -145,6 +171,62 @@ namespace RethinkDb.Spec
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Backtrace")]
+  public partial class Backtrace : global::ProtoBuf.IExtensible
+  {
+    public Backtrace() {}
+    
+    private readonly global::System.Collections.Generic.List<Frame> _frames = new global::System.Collections.Generic.List<Frame>();
+    [global::ProtoBuf.ProtoMember(1, Name=@"frames", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public global::System.Collections.Generic.List<Frame> frames
+    {
+      get { return _frames; }
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Response")]
+  public partial class Response : global::ProtoBuf.IExtensible
+  {
+    public Response() {}
+    
+
+    private Response.ResponseType _type = Response.ResponseType.SUCCESS_ATOM;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(Response.ResponseType.SUCCESS_ATOM)]
+    public Response.ResponseType type
+    {
+      get { return _type; }
+      set { _type = value; }
+    }
+
+    private long _token = default(long);
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"token", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(long))]
+    public long token
+    {
+      get { return _token; }
+      set { _token = value; }
+    }
+    private readonly global::System.Collections.Generic.List<Datum> _response = new global::System.Collections.Generic.List<Datum>();
+    [global::ProtoBuf.ProtoMember(3, Name=@"response", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public global::System.Collections.Generic.List<Datum> response
+    {
+      get { return _response; }
+    }
+  
+
+    private Backtrace _backtrace = null;
+    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"backtrace", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(null)]
+    public Backtrace backtrace
+    {
+      get { return _backtrace; }
+      set { _backtrace = value; }
+    }
     [global::ProtoBuf.ProtoContract(Name=@"ResponseType")]
     public enum ResponseType
     {
@@ -178,8 +260,10 @@ namespace RethinkDb.Spec
   {
     public Datum() {}
     
-    private Datum.DatumType _type;
+
+    private Datum.DatumType _type = Datum.DatumType.R_NULL;
     [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(Datum.DatumType.R_NULL)]
     public Datum.DatumType type
     {
       get { return _type; }
@@ -231,15 +315,19 @@ namespace RethinkDb.Spec
   {
     public AssocPair() {}
     
-    private string _key;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"key", DataFormat = global::ProtoBuf.DataFormat.Default)]
+
+    private string _key = "";
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"key", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
     public string key
     {
       get { return _key; }
       set { _key = value; }
     }
-    private Datum _val;
-    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"val", DataFormat = global::ProtoBuf.DataFormat.Default)]
+
+    private Datum _val = null;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"val", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(null)]
     public Datum val
     {
       get { return _val; }
@@ -283,8 +371,10 @@ namespace RethinkDb.Spec
   {
     public Term() {}
     
-    private Term.TermType _type;
+
+    private Term.TermType _type = Term.TermType.DATUM;
     [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(Term.TermType.DATUM)]
     public Term.TermType type
     {
       get { return _type; }
@@ -318,15 +408,19 @@ namespace RethinkDb.Spec
   {
     public AssocPair() {}
     
-    private string _key;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"key", DataFormat = global::ProtoBuf.DataFormat.Default)]
+
+    private string _key = "";
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"key", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
     public string key
     {
       get { return _key; }
       set { _key = value; }
     }
-    private Term _val;
-    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"val", DataFormat = global::ProtoBuf.DataFormat.Default)]
+
+    private Term _val = null;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"val", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(null)]
     public Term val
     {
       get { return _val; }
@@ -413,6 +507,12 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"SLICE", Value=30)]
       SLICE = 30,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"SKIP", Value=70)]
+      SKIP = 70,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"LIMIT", Value=71)]
+      LIMIT = 71,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"GETATTR", Value=31)]
       GETATTR = 31,
             
@@ -473,8 +573,11 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"EQ_JOIN", Value=50)]
       EQ_JOIN = 50,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"COERCE", Value=51)]
-      COERCE = 51,
+      [global::ProtoBuf.ProtoEnum(Name=@"ZIP", Value=72)]
+      ZIP = 72,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"COERCE_TO", Value=51)]
+      COERCE_TO = 51,
             
       [global::ProtoBuf.ProtoEnum(Name=@"TYPEOF", Value=52)]
       TYPEOF = 52,
@@ -525,20 +628,18 @@ namespace RethinkDb.Spec
       FOREACH = 68,
             
       [global::ProtoBuf.ProtoEnum(Name=@"FUNC", Value=69)]
-      FUNC = 69
+      FUNC = 69,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"ASC", Value=73)]
+      ASC = 73,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DESC", Value=74)]
+      DESC = 74
     }
   
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
-  
-    [global::ProtoBuf.ProtoContract(Name=@"Version")]
-    public enum Version
-    {
-            
-      [global::ProtoBuf.ProtoEnum(Name=@"V0_1", Value=1063369270)]
-      V0_1 = 1063369270
-    }
   
 }
