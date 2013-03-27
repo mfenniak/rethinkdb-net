@@ -152,6 +152,20 @@ namespace RethinkDb.Test
             // "Replaced" seems weird here, rather than Updated, but that's what RethinkDB returns in the Data Explorer too...
             Assert.That(resp.Replaced, Is.EqualTo(7));
         }
+
+        [Test]
+        public void BetweenUpdate()
+        {
+            DoBetweenUpdate().Wait();
+        }
+
+        private async Task DoBetweenUpdate()
+        {
+            var resp = await connection.Run(testTable.Between(null, "4").Update(o => new TestObject() { Name = "Hello " + o.Id + "!" }));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.FirstError, Is.Null);
+            Assert.That(resp.Replaced, Is.EqualTo(4));
+        }
     }
 }
 

@@ -6,13 +6,13 @@ namespace RethinkDb.QueryTerm
 {
     public class UpdateQuery<T> : IWriteQuery<T>
     {
-        private readonly TableQuery<T> tableTerm;
+        private readonly ISequenceQuery<T> sequenceTerm;
         private readonly ISingleObjectQuery<T> singleObjectTerm;
         private readonly Expression<Func<T, T>> updateExpression;
 
-        public UpdateQuery(TableQuery<T> tableTerm, Expression<Func<T, T>> updateExpression)
+        public UpdateQuery(ISequenceQuery<T> tableTerm, Expression<Func<T, T>> updateExpression)
         {
-            this.tableTerm = tableTerm;
+            this.sequenceTerm = tableTerm;
             this.updateExpression = updateExpression;
         }
 
@@ -31,7 +31,7 @@ namespace RethinkDb.QueryTerm
             if (singleObjectTerm != null)
                 updateTerm.args.Add(singleObjectTerm.GenerateTerm());
             else
-                updateTerm.args.Add(tableTerm.GenerateTerm());
+                updateTerm.args.Add(sequenceTerm.GenerateTerm());
 
             if (updateExpression.NodeType != ExpressionType.Lambda)
                 throw new NotSupportedException("Unsupported expression type");
