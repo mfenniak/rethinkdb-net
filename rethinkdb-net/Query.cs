@@ -109,5 +109,20 @@ namespace RethinkDb
         {
             return new CountQuery<T>(target);
         }
+
+        public static ExprQuery<T> Expr<T>(T @object)
+        {
+            return new ExprQuery<T>(@object);
+        }
+
+        public static ExprQuery<T> Expr<T>(Expression<Func<T>> objectExpr)
+        {
+            return new ExprQuery<T>(objectExpr);
+        }
+
+        public static ExprSequenceQuery<T> Expr<T>(IEnumerable<T> enumerable)
+        {
+            return new ExprSequenceQuery<T>(enumerable);
+        }
     }
 }

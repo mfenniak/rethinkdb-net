@@ -80,6 +80,8 @@
     <Compile Include="QueryTerm\CountQuery.cs" />
     <Compile Include="QueryTerm\FilterQuery.cs" />
     <Compile Include="QueryTerm\ExpressionUtils.cs" />
+    <Compile Include="QueryTerm\ExprQuery.cs" />
+    <Compile Include="QueryTerm\ExprSequenceQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
