@@ -26,13 +26,13 @@ namespace RethinkDb.Test
         {
             testTable = Query.Db("test").Table<TestObject>("table");
             connection.Run(testTable.Insert(new TestObject[] {
-                new TestObject() { Id = "1", Name = "1" },
-                new TestObject() { Id = "2", Name = "2" },
-                new TestObject() { Id = "3", Name = "3" },
-                new TestObject() { Id = "4", Name = "4" },
-                new TestObject() { Id = "5", Name = "5" },
-                new TestObject() { Id = "6", Name = "6" },
-                new TestObject() { Id = "7", Name = "7" },
+                new TestObject() { Id = "1", Name = "1", SomeNumber = 1 },
+                new TestObject() { Id = "2", Name = "2", SomeNumber = 2 },
+                new TestObject() { Id = "3", Name = "3", SomeNumber = 3 },
+                new TestObject() { Id = "4", Name = "4", SomeNumber = 4 },
+                new TestObject() { Id = "5", Name = "5", SomeNumber = 5 },
+                new TestObject() { Id = "6", Name = "6", SomeNumber = 6 },
+                new TestObject() { Id = "7", Name = "7", SomeNumber = 7 },
             })).Wait();
         }
 
@@ -151,6 +151,32 @@ namespace RethinkDb.Test
             Assert.That(resp.FirstError, Is.Null);
             // "Replaced" seems weird here, rather than Updated, but that's what RethinkDB returns in the Data Explorer too...
             Assert.That(resp.Replaced, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void UpdateWithNumericalOperators()
+        {
+            DoUpdateWithNumericalOperators().Wait();
+        }
+
+        private async Task DoUpdateWithNumericalOperators()
+        {
+            var resp = await connection.Run(testTable.Update(o => new TestObject() { SomeNumber = (((o.SomeNumber + 1 - 1) * 2) / 2) % 1 }));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.FirstError, Is.Null);
+            // "Replaced" seems weird here, rather than Updated, but that's what RethinkDB returns in the Data Explorer too...
+            Assert.That(resp.Replaced, Is.EqualTo(7));
+
+            var enumerable = connection.Run(testTable);
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+
+                var obj = enumerable.Current;
+                var originalNum = Double.Parse(obj.Id);
+                Assert.That(obj.SomeNumber, Is.EqualTo((((originalNum + 1 - 1) * 2) / 2) % 1));
+            }
         }
     }
 }

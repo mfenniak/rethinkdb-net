@@ -96,6 +96,16 @@ namespace RethinkDb.QueryTerm
             return retval;
         }
 
+        private Term ConvertBinaryExpressionToTerm(BinaryExpression expr, Term.TermType termType)
+        {
+            var term = new Term() {
+                type = termType
+            };
+            term.args.Add(MapExpressionToTerm(expr.Left));
+            term.args.Add(MapExpressionToTerm(expr.Right));
+            return term;
+        }
+
         private Term MapExpressionToTerm(Expression expr)
         {
             // FIXME: datum converter should be passed in from the connection?
@@ -119,15 +129,15 @@ namespace RethinkDb.QueryTerm
                 }
 
                 case ExpressionType.Add:
-                {
-                    var addExpression = (BinaryExpression)expr;
-                    var term = new Term() {
-                        type = Term.TermType.ADD
-                    };
-                    term.args.Add(MapExpressionToTerm(addExpression.Left));
-                    term.args.Add(MapExpressionToTerm(addExpression.Right));
-                    return term;
-                }
+                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.ADD);
+                case ExpressionType.Modulo:
+                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.MOD);
+                case ExpressionType.Divide:
+                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.DIV);
+                case ExpressionType.Multiply:
+                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.MUL);
+                case ExpressionType.Subtract:
+                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.SUB);
 
                 case ExpressionType.MemberAccess:
                 {
@@ -171,7 +181,7 @@ namespace RethinkDb.QueryTerm
                 }
 
                 default:
-                    throw new NotSupportedException("Unsupported expression type");
+                    throw new NotSupportedException(String.Format("Unsupported expression type: {0}", expr.NodeType));
             }
         }
 

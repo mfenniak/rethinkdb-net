@@ -15,6 +15,9 @@ namespace RethinkDb.Test
         [DataMember(Name = "children")]
         public TestObject[] Children;
 
+        [DataMember(Name = "number")]
+        public double SomeNumber;
+
         public override bool Equals(object obj)
         {
             var objTo = obj as TestObject;
