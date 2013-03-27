@@ -2,9 +2,9 @@ using RethinkDb.Spec;
 using System;
 using System.Linq.Expressions;
 
-namespace RethinkDb
+namespace RethinkDb.QueryTerm
 {
-    public static class ExpressionUtils
+    static class ExpressionUtils
     {
         private static Term ConvertBinaryExpressionToTerm<T>(BinaryExpression expr, Term.TermType termType)
         {
