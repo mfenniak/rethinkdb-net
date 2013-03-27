@@ -58,6 +58,12 @@ namespace RethinkDb.QueryTerm
                     return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.GT);
                 case ExpressionType.GreaterThanOrEqual:
                     return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.GE);
+                case ExpressionType.AndAlso:
+                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.ALL);
+                case ExpressionType.OrElse:
+                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.ANY);
+                case ExpressionType.NotEqual:
+                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.NE);
 
                 case ExpressionType.MemberAccess:
                 {

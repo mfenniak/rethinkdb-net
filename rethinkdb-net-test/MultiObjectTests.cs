@@ -192,7 +192,7 @@ namespace RethinkDb.Test
             Assert.That(resp, Is.EqualTo(4));
         }
 
-        private async Task DoFilterSingleObject(Expression<Func<TestObject, bool>> expr, string expectedId)
+        private async Task DoFilterExpectedObjects(Expression<Func<TestObject, bool>> expr, params string[] expectedIds)
         {
             var enumerable = connection.Run(testTable.Filter(expr));
             Assert.That(enumerable, Is.Not.Null);
@@ -205,39 +205,58 @@ namespace RethinkDb.Test
                 objects.Add(enumerable.Current);
                 ++count;
             }
-            Assert.That(count, Is.EqualTo(1));
-            Assert.That(objects, Has.Count.EqualTo(1));
-            Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = expectedId }));
+            Assert.That(count, Is.EqualTo(expectedIds.Length));
+            Assert.That(objects, Has.Count.EqualTo(expectedIds.Length));
+            foreach (var id in expectedIds)
+                Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = id }));
         }
 
         [Test]
         public void FilterEqual()
         {
-            DoFilterSingleObject(o => o.Name ==  "5", "5").Wait();
+            DoFilterExpectedObjects(o => o.Name ==  "5", "5").Wait();
         }
 
         [Test]
         public void FilterLessThan()
         {
-            DoFilterSingleObject(o => o.SomeNumber < 2, "1").Wait();
+            DoFilterExpectedObjects(o => o.SomeNumber < 2, "1").Wait();
         }
 
         [Test]
         public void FilterLessThanEqual()
         {
-            DoFilterSingleObject(o => o.SomeNumber <= 1, "1").Wait();
+            DoFilterExpectedObjects(o => o.SomeNumber <= 1, "1").Wait();
         }
 
         [Test]
         public void FilterGreaterThan()
         {
-            DoFilterSingleObject(o => o.SomeNumber > 6, "7").Wait();
+            DoFilterExpectedObjects(o => o.SomeNumber > 6, "7").Wait();
         }
 
         [Test]
         public void FilterGreaterThanEqual()
         {
-            DoFilterSingleObject(o => o.SomeNumber >= 7, "7").Wait();
+            DoFilterExpectedObjects(o => o.SomeNumber >= 7, "7").Wait();
+        }
+
+        [Test]
+        public void FilterAnd()
+        {
+            DoFilterExpectedObjects(o => o.SomeNumber == 7 && o.Name == "7", "7").Wait();
+        }
+
+        [Test]
+        public void FilterOr()
+        {
+            DoFilterExpectedObjects(o => o.Name == "2" || o.Name == "4", "2", "4").Wait();
+        }
+
+        [Test]
+        public void FilterNotEqual()
+        {
+            DoFilterExpectedObjects(o => o.Name != "3", new string[] { "1", "2", "4", "5", "6", "7" }).Wait();
         }
     }
 }
