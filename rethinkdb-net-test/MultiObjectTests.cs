@@ -152,32 +152,6 @@ namespace RethinkDb.Test
             // "Replaced" seems weird here, rather than Updated, but that's what RethinkDB returns in the Data Explorer too...
             Assert.That(resp.Replaced, Is.EqualTo(7));
         }
-
-        [Test]
-        public void UpdateWithNumericalOperators()
-        {
-            DoUpdateWithNumericalOperators().Wait();
-        }
-
-        private async Task DoUpdateWithNumericalOperators()
-        {
-            var resp = await connection.Run(testTable.Update(o => new TestObject() { SomeNumber = (((o.SomeNumber + 1 - 1) * 2) / 2) % 1 }));
-            Assert.That(resp, Is.Not.Null);
-            Assert.That(resp.FirstError, Is.Null);
-            // "Replaced" seems weird here, rather than Updated, but that's what RethinkDB returns in the Data Explorer too...
-            Assert.That(resp.Replaced, Is.EqualTo(7));
-
-            var enumerable = connection.Run(testTable);
-            while (true)
-            {
-                if (!await enumerable.MoveNext())
-                    break;
-
-                var obj = enumerable.Current;
-                var originalNum = Double.Parse(obj.Id);
-                Assert.That(obj.SomeNumber, Is.EqualTo((((originalNum + 1 - 1) * 2) / 2) % 1));
-            }
-        }
     }
 }
 

@@ -7,11 +7,18 @@ namespace RethinkDb.QueryTerm
     public class UpdateQuery<T> : IWriteQuery<T>
     {
         private readonly TableQuery<T> tableTerm;
+        private readonly ISingleObjectQuery<T> singleObjectTerm;
         private readonly Expression<Func<T, T>> updateExpression;
 
         public UpdateQuery(TableQuery<T> tableTerm, Expression<Func<T, T>> updateExpression)
         {
             this.tableTerm = tableTerm;
+            this.updateExpression = updateExpression;
+        }
+
+        public UpdateQuery(ISingleObjectQuery<T> singleObjectTerm, Expression<Func<T, T>> updateExpression)
+        {
+            this.singleObjectTerm = singleObjectTerm;
             this.updateExpression = updateExpression;
         }
 
@@ -21,7 +28,10 @@ namespace RethinkDb.QueryTerm
             {
                 type = Term.TermType.UPDATE,
             };
-            updateTerm.args.Add(tableTerm.GenerateTerm());
+            if (singleObjectTerm != null)
+                updateTerm.args.Add(singleObjectTerm.GenerateTerm());
+            else
+                updateTerm.args.Add(tableTerm.GenerateTerm());
 
             if (updateExpression.NodeType != ExpressionType.Lambda)
                 throw new NotSupportedException("Unsupported expression type");

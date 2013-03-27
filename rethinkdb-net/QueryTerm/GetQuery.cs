@@ -1,4 +1,6 @@
 using RethinkDb.Spec;
+using System;
+using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
@@ -23,6 +25,11 @@ namespace RethinkDb.QueryTerm
         public DeleteQuery<T> Delete()
         {
             return new DeleteQuery<T>(this);
+        }
+
+        public UpdateQuery<T> Update(Expression<Func<T, T>> updateExpression)
+        {
+            return new UpdateQuery<T>(this, updateExpression);
         }
 
         public Term GenerateTerm()

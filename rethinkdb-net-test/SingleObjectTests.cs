@@ -5,6 +5,7 @@ using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
 using RethinkDb.QueryTerm;
+using System.Linq.Expressions;
 
 namespace RethinkDb.Test
 {
@@ -35,7 +36,8 @@ namespace RethinkDb.Test
                 Name = "Jim Brown",
                 Children = new TestObject[] {
                     new TestObject() { Name = "Scan" }
-                }
+                },
+                SomeNumber = 1234
             };
             var resp = await connection.Run(testTable.Insert(insertedObject));
             insertedObject.Id = resp.GeneratedKeys[0];
@@ -88,6 +90,49 @@ namespace RethinkDb.Test
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Deleted, Is.EqualTo(1));
             Assert.That(resp.GeneratedKeys, Is.Null);
+        }
+
+        [Test]
+        public void GetUpdateNumericAdd()
+        {
+            DoGetUpdateNumeric(o => new TestObject() { SomeNumber = o.SomeNumber + 1 }, 1235).Wait();
+        }
+
+        [Test]
+        public void GetUpdateNumericSub()
+        {
+            DoGetUpdateNumeric(o => new TestObject() { SomeNumber = o.SomeNumber - 1 }, 1233).Wait();
+        }
+
+        [Test]
+        public void GetUpdateNumericDiv()
+        {
+            DoGetUpdateNumeric(o => new TestObject() { SomeNumber = o.SomeNumber / 2 }, 617).Wait();
+        }
+
+        [Test]
+        public void GetUpdateNumericMul()
+        {
+            DoGetUpdateNumeric(o => new TestObject() { SomeNumber = o.SomeNumber * 2 }, 2468).Wait();
+        }
+
+        [Test]
+        public void GetUpdateNumericMod()
+        {
+            DoGetUpdateNumeric(o => new TestObject() { SomeNumber = o.SomeNumber % 600 }, 34).Wait();
+        }
+
+        private async Task DoGetUpdateNumeric(Expression<Func<TestObject, TestObject>> expr, double expected)
+        {
+            var resp = await connection.Run(testTable.Get(insertedObject.Id).Update(expr));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.FirstError, Is.Null);
+            // "Replaced" seems weird here, rather than Updated, but that's what RethinkDB returns in the Data Explorer too...
+            Assert.That(resp.Replaced, Is.EqualTo(1));
+
+            var obj = await connection.Run(testTable.Get(insertedObject.Id));
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj.SomeNumber, Is.EqualTo(expected));
         }
     }
 }
