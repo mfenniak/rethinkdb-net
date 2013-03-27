@@ -290,12 +290,12 @@ namespace RethinkDb.Test
         }
 
         [Test]
-        public void OrderBy()
+        public void OrderByMultiField()
         {
-            DoOrderBy().Wait();
+            DoOrderByMultiField().Wait();
         }
 
-        private async Task DoOrderBy()
+        private async Task DoOrderByMultiField()
         {
             var enumerable = connection.Run(testTable.OrderBy<TestObject>(
                 o => o.Name,
@@ -310,6 +310,48 @@ namespace RethinkDb.Test
                     break;
                 ++count;
                 Assert.That(enumerable.Current.Name, Is.EqualTo(count.ToString()));
+            }
+            Assert.That(count, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void OrderByAsc()
+        {
+            DoOrderByAsc().Wait();
+        }
+
+        private async Task DoOrderByAsc()
+        {
+            var enumerable = connection.Run(testTable.OrderBy<TestObject>(o => Query.Asc(o.Name)));
+            Assert.That(enumerable, Is.Not.Null);
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                ++count;
+                Assert.That(enumerable.Current.Name, Is.EqualTo(count.ToString()));
+            }
+            Assert.That(count, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void OrderByDesc()
+        {
+            DoOrderByDesc().Wait();
+        }
+
+        private async Task DoOrderByDesc()
+        {
+            var enumerable = connection.Run(testTable.OrderBy<TestObject>(o => Query.Desc(o.Name)));
+            Assert.That(enumerable, Is.Not.Null);
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                ++count;
+                Assert.That(enumerable.Current.Name, Is.EqualTo((8 - count).ToString()));
             }
             Assert.That(count, Is.EqualTo(7));
         }
