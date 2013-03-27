@@ -6,34 +6,24 @@ namespace RethinkDb.QueryTerm
 {
     public class BetweenQuery<T> : ISequenceQuery<T>
     {
-        private readonly TableQuery<T> tableTerm;
+        private readonly ISequenceQuery<T> tableTerm;
         private readonly string leftKeyString;
         private readonly string rightKeyString;
         private readonly double? leftKeyNumber;
         private readonly double? rightKeyNumber;
 
-        public BetweenQuery(TableQuery<T> tableTerm, string leftKey, string rightKey)
+        public BetweenQuery(ISequenceQuery<T> tableTerm, string leftKey, string rightKey)
         {
             this.tableTerm = tableTerm;
             this.leftKeyString = leftKey;
             this.rightKeyString = rightKey;
         }
 
-        public BetweenQuery(TableQuery<T> tableTerm, double? leftKey, double? rightKey)
+        public BetweenQuery(ISequenceQuery<T> tableTerm, double? leftKey, double? rightKey)
         {
             this.tableTerm = tableTerm;
             this.leftKeyNumber = leftKey;
             this.rightKeyNumber = rightKey;
-        }
-
-        public DeleteQuery<T> Delete()
-        {
-            return new DeleteQuery<T>(this);
-        }
-
-        public UpdateQuery<T> Update(Expression<Func<T, T>> updateExpression)
-        {
-            return new UpdateQuery<T>(this, updateExpression);
         }
 
         public Term GenerateTerm()

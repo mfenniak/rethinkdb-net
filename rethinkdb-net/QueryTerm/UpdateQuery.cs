@@ -7,7 +7,7 @@ namespace RethinkDb.QueryTerm
     public class UpdateQuery<T> : IWriteQuery<T>
     {
         private readonly ISequenceQuery<T> sequenceTerm;
-        private readonly ISingleObjectQuery<T> singleObjectTerm;
+        private readonly IMutableSingleObjectQuery<T> singleObjectTerm;
         private readonly Expression<Func<T, T>> updateExpression;
 
         public UpdateQuery(ISequenceQuery<T> tableTerm, Expression<Func<T, T>> updateExpression)
@@ -16,7 +16,7 @@ namespace RethinkDb.QueryTerm
             this.updateExpression = updateExpression;
         }
 
-        public UpdateQuery(ISingleObjectQuery<T> singleObjectTerm, Expression<Func<T, T>> updateExpression)
+        public UpdateQuery(IMutableSingleObjectQuery<T> singleObjectTerm, Expression<Func<T, T>> updateExpression)
         {
             this.singleObjectTerm = singleObjectTerm;
             this.updateExpression = updateExpression;

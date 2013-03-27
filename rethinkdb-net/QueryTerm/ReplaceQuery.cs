@@ -4,10 +4,10 @@ namespace RethinkDb.QueryTerm
 {
     public class ReplaceQuery<T> : IWriteQuery<T>
     {
-        private readonly GetQuery<T> getTerm;
+        private readonly IMutableSingleObjectQuery<T> getTerm;
         private readonly T newObject;
 
-        public ReplaceQuery(GetQuery<T> getTerm, T newObject)
+        public ReplaceQuery(IMutableSingleObjectQuery<T> getTerm, T newObject)
         {
             this.getTerm = getTerm;
             this.newObject = newObject;

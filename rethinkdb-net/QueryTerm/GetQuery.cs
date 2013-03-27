@@ -4,32 +4,17 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class GetQuery<T> : ISingleObjectQuery<T>
+    public class GetQuery<T> : ISingleObjectQuery<T>, IMutableSingleObjectQuery<T>
     {
-        private readonly TableQuery<T> tableTerm;
+        private readonly ISequenceQuery<T> tableTerm;
         private readonly string primaryKey;
         private readonly string primaryAttribute;
 
-        public GetQuery(TableQuery<T> tableTerm, string primaryKey, string primaryAttribute)
+        public GetQuery(ISequenceQuery<T> tableTerm, string primaryKey, string primaryAttribute)
         {
             this.tableTerm = tableTerm;
             this.primaryKey = primaryKey;
             this.primaryAttribute = primaryAttribute;
-        }
-
-        public ReplaceQuery<T> Replace(T newObject)
-        {
-            return new ReplaceQuery<T>(this, newObject);
-        }
-
-        public DeleteQuery<T> Delete()
-        {
-            return new DeleteQuery<T>(this);
-        }
-
-        public UpdateQuery<T> Update(Expression<Func<T, T>> updateExpression)
-        {
-            return new UpdateQuery<T>(this, updateExpression);
         }
 
         public Term GenerateTerm()

@@ -18,11 +18,6 @@ namespace RethinkDb.QueryTerm
             this.useOutdated = useOutdated;
         }
 
-        public GetQuery<T> Get(string primaryKey, string primaryAttribute = null)
-        {
-            return new GetQuery<T>(this, primaryKey, primaryAttribute);
-        }
-
         public InsertQuery<T> Insert(T @object, bool upsert = false)
         {
             return new InsertQuery<T>(this, new T[] { @object }, upsert);
@@ -31,26 +26,6 @@ namespace RethinkDb.QueryTerm
         public InsertQuery<T> Insert(IEnumerable<T> @objects, bool upsert = false)
         {
             return new InsertQuery<T>(this, @objects, upsert);
-        }
-
-        public DeleteQuery<T> Delete()
-        {
-            return new DeleteQuery<T>(this);
-        }
-
-        public BetweenQuery<T> Between(string leftKey, string rightKey)
-        {
-            return new BetweenQuery<T>(this, leftKey, rightKey);
-        }
-
-        public BetweenQuery<T> Between(double? leftKey, double? rightKey)
-        {
-            return new BetweenQuery<T>(this, leftKey, rightKey);
-        }
-
-        public UpdateQuery<T> Update(Expression<Func<T, T>> updateExpression)
-        {
-            return new UpdateQuery<T>(this, updateExpression);
         }
 
         public Term GenerateTerm()
