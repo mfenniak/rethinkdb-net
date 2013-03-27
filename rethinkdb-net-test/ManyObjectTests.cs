@@ -35,17 +35,23 @@ namespace RethinkDb.Test
         }
 
         [Test]
-        public void GetQueryNull()
+        public void StreamingEnumerator()
         {
-            DoGetQueryNull().Wait();
+            DoStreamingEnumerator().Wait();
         }
 
-        private async Task DoGetQueryNull()
+        private async Task DoStreamingEnumerator()
         {
-            var obj = await connection.Run(testTable.Get("58379951-6208-46cc-a194-03da8ee1e13c"));
-            Assert.That(obj, Is.Null);
+            var enumerable = connection.Run(testTable);
+            int count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                ++count;
+            }
+            Assert.That(count, Is.EqualTo(1005));
         }
-
     }
 }
 
