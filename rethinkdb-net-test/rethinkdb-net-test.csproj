@@ -63,6 +63,7 @@
     <Compile Include="SingleObjectTests.cs" />
     <Compile Include="MultiObjectTests.cs" />
     <Compile Include="ManyObjectTests.cs" />
+    <Compile Include="AnotherTestObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

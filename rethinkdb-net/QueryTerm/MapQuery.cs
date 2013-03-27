@@ -4,52 +4,41 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class UpdateQuery<T> : IWriteQuery<T>
+    public class MapQuery<TOriginal, TTarget> : ISequenceQuery<TTarget>
     {
-        private readonly ISequenceQuery<T> sequenceTerm;
-        private readonly IMutableSingleObjectQuery<T> singleObjectTerm;
-        private readonly Expression<Func<T, T>> updateExpression;
+        private readonly ISequenceQuery<TOriginal> sequenceQuery;
+        private readonly Expression<Func<TOriginal, TTarget>> mapExpression;
 
-        public UpdateQuery(ISequenceQuery<T> tableTerm, Expression<Func<T, T>> updateExpression)
+        public MapQuery(ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TTarget>> mapExpression)
         {
-            this.sequenceTerm = tableTerm;
-            this.updateExpression = updateExpression;
-        }
-
-        public UpdateQuery(IMutableSingleObjectQuery<T> singleObjectTerm, Expression<Func<T, T>> updateExpression)
-        {
-            this.singleObjectTerm = singleObjectTerm;
-            this.updateExpression = updateExpression;
+            this.sequenceQuery = sequenceQuery;
+            this.mapExpression = mapExpression;
         }
 
         public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
         {
-            var updateTerm = new Term()
+            var mapTerm = new Term()
             {
-                type = Term.TermType.UPDATE,
+                type = Term.TermType.MAP,
             };
-            if (singleObjectTerm != null)
-                updateTerm.args.Add(singleObjectTerm.GenerateTerm(datumConverterFactory));
-            else
-                updateTerm.args.Add(sequenceTerm.GenerateTerm(datumConverterFactory));
+            mapTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
 
-            if (updateExpression.NodeType != ExpressionType.Lambda)
+            if (mapExpression.NodeType != ExpressionType.Lambda)
                 throw new NotSupportedException("Unsupported expression type");
 
-            // FIXME: map could actually map to primitives, not just member init...
-            var body = updateExpression.Body;
+            var body = mapExpression.Body;
             if (body.NodeType != ExpressionType.MemberInit)
                 throw new NotSupportedException("Only MemberInit expression type is supported inside lambda");
 
             var memberInit = (MemberInitExpression)body;
-            if (memberInit.Type != typeof(T))
+            if (memberInit.Type != typeof(TTarget))
                 throw new InvalidOperationException("Only expression types matching the table type are supported");
             else if (memberInit.NewExpression.Arguments.Count != 0)
                 throw new NotSupportedException("Constructors will not work here, only field member initialization");
 
-            updateTerm.args.Add(MapMemberInitToTerm(datumConverterFactory, memberInit));
+            mapTerm.args.Add(MapMemberInitToTerm(datumConverterFactory, memberInit));
 
-            return updateTerm;
+            return mapTerm;
         }
 
         private Term MapMemberInitToTerm(IDatumConverterFactory datumConverterFactory, MemberInitExpression memberInit)
@@ -95,13 +84,13 @@ namespace RethinkDb.QueryTerm
         {
             var retval = new Term.AssocPair();
 
-            var datumConverter = datumConverterFactory.Get<T>();
+            var datumConverter = datumConverterFactory.Get<TTarget>();
             var fieldConverter = datumConverter as IObjectDatumConverter;
             if (fieldConverter == null)
                 throw new NotSupportedException("Cannot map member assignments into ReQL without implementing IObjectDatumConverter");
 
             retval.key = fieldConverter.GetDatumFieldName(memberAssignment.Member);
-            retval.val = ExpressionUtils.MapExpressionToTerm<T>(datumConverterFactory, memberAssignment.Expression);
+            retval.val = ExpressionUtils.MapExpressionToTerm<TOriginal>(datumConverterFactory, memberAssignment.Expression);
 
             return retval;
         }

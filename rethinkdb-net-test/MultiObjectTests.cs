@@ -264,5 +264,29 @@ namespace RethinkDb.Test
         {
             DoFilterExpectedObjects(o => !(o.Name == "3"), new string[] { "1", "2", "4", "5", "6", "7" }).Wait();
         }
+
+        [Test]
+        public void Map()
+        {
+            DoMap().Wait();
+        }
+
+        private async Task DoMap()
+        {
+            var enumerable = connection.Run(testTable.Map(original => new AnotherTestObject() {
+                FirstName = original.Name,
+                LastName = original.Name + " (?)",
+            }));
+
+            Assert.That(enumerable, Is.Not.Null);
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                ++count;
+            }
+            Assert.That(count, Is.EqualTo(7));
+        }
     }
 }

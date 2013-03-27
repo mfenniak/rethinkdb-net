@@ -124,5 +124,10 @@ namespace RethinkDb
         {
             return new ExprSequenceQuery<T>(enumerable);
         }
+
+        public static MapQuery<TOriginal, TTarget> Map<TOriginal, TTarget>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TTarget>> mapExpression)
+        {
+            return new MapQuery<TOriginal, TTarget>(sequenceQuery, mapExpression);
+        }
     }
 }
