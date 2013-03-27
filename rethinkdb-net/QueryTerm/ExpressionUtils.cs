@@ -6,30 +6,27 @@ namespace RethinkDb.QueryTerm
 {
     static class ExpressionUtils
     {
-        private static Term ConvertBinaryExpressionToTerm<T>(BinaryExpression expr, Term.TermType termType)
+        private static Term ConvertBinaryExpressionToTerm<T>(IDatumConverterFactory datumConverterFactory, BinaryExpression expr, Term.TermType termType)
         {
             var term = new Term() {
                 type = termType
             };
-            term.args.Add(MapExpressionToTerm<T>(expr.Left));
-            term.args.Add(MapExpressionToTerm<T>(expr.Right));
+            term.args.Add(MapExpressionToTerm<T>(datumConverterFactory, expr.Left));
+            term.args.Add(MapExpressionToTerm<T>(datumConverterFactory, expr.Right));
             return term;
         }
 
-        private static Term ConvertUnaryExpressionToTerm<T>(UnaryExpression expr, Term.TermType termType)
+        private static Term ConvertUnaryExpressionToTerm<T>(IDatumConverterFactory datumConverterFactory, UnaryExpression expr, Term.TermType termType)
         {
             var term = new Term() {
                 type = termType
             };
-            term.args.Add(MapExpressionToTerm<T>(expr.Operand));
+            term.args.Add(MapExpressionToTerm<T>(datumConverterFactory, expr.Operand));
             return term;
         }
 
-        public static Term MapExpressionToTerm<T>(Expression expr)
+        public static Term MapExpressionToTerm<T>(IDatumConverterFactory datumConverterFactory, Expression expr)
         {
-            // FIXME: datum converter should be passed in from the connection?
-            var datumConverterFactory = DataContractDatumConverterFactory.Instance;
-
             switch (expr.NodeType)
             {
                 case ExpressionType.Constant:
@@ -48,34 +45,34 @@ namespace RethinkDb.QueryTerm
                 }
 
                 case ExpressionType.Add:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.ADD);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.ADD);
                 case ExpressionType.Modulo:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.MOD);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.MOD);
                 case ExpressionType.Divide:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.DIV);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.DIV);
                 case ExpressionType.Multiply:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.MUL);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.MUL);
                 case ExpressionType.Subtract:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.SUB);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.SUB);
                 case ExpressionType.Equal:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.EQ);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.EQ);
                 case ExpressionType.LessThan:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.LT);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.LT);
                 case ExpressionType.LessThanOrEqual:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.LE);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.LE);
                 case ExpressionType.GreaterThan:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.GT);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.GT);
                 case ExpressionType.GreaterThanOrEqual:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.GE);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.GE);
                 case ExpressionType.AndAlso:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.ALL);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.ALL);
                 case ExpressionType.OrElse:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.ANY);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.ANY);
                 case ExpressionType.NotEqual:
-                    return ConvertBinaryExpressionToTerm<T>((BinaryExpression)expr, Term.TermType.NE);
+                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.NE);
 
                 case ExpressionType.Not:
-                    return ConvertUnaryExpressionToTerm<T>((UnaryExpression)expr, Term.TermType.NOT);
+                    return ConvertUnaryExpressionToTerm<T>(datumConverterFactory, (UnaryExpression)expr, Term.TermType.NOT);
 
                 case ExpressionType.MemberAccess:
                 {
@@ -101,8 +98,7 @@ namespace RethinkDb.QueryTerm
                         }
                     });
 
-                    // FIXME: datum converter should be passed in from the connection?
-                    var datumConverter = DataContractDatumConverterFactory.Instance.Get<T>();
+                    var datumConverter = datumConverterFactory.Get<T>();
                     var fieldConverter = datumConverter as IObjectDatumConverter;
                     if (fieldConverter == null)
                         throw new NotSupportedException("Cannot map member access into ReQL without implementing IObjectDatumConverter");

@@ -8,9 +8,14 @@ using RethinkDb.Spec;
 namespace RethinkDb
 {
     [ImmutableObject(true)]
-    public interface ISingleObjectQuery<T>
+    public interface IQuery
     {
-        Term GenerateTerm();
+        Term GenerateTerm(IDatumConverterFactory datumConverterFactory);
+    }
+
+    [ImmutableObject(true)]
+    public interface ISingleObjectQuery<T> : IQuery
+    {
     }
 
     [ImmutableObject(true)]
@@ -24,15 +29,13 @@ namespace RethinkDb
     }
 
     [ImmutableObject(true)]
-    public interface ISequenceQuery<T>
+    public interface ISequenceQuery<T> : IQuery
     {
-        Term GenerateTerm();
     }
 
     [ImmutableObject(true)]
-    public interface IWriteQuery<T>
+    public interface IWriteQuery<T> : IQuery
     {
-        Term GenerateTerm(IDatumConverter<T> converter);
     }
 
     public static class Query

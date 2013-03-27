@@ -22,16 +22,16 @@ namespace RethinkDb.QueryTerm
             this.updateExpression = updateExpression;
         }
 
-        public Term GenerateTerm(IDatumConverter<T> datumConverter)
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
         {
             var updateTerm = new Term()
             {
                 type = Term.TermType.UPDATE,
             };
             if (singleObjectTerm != null)
-                updateTerm.args.Add(singleObjectTerm.GenerateTerm());
+                updateTerm.args.Add(singleObjectTerm.GenerateTerm(datumConverterFactory));
             else
-                updateTerm.args.Add(sequenceTerm.GenerateTerm());
+                updateTerm.args.Add(sequenceTerm.GenerateTerm(datumConverterFactory));
 
             if (updateExpression.NodeType != ExpressionType.Lambda)
                 throw new NotSupportedException("Unsupported expression type");
@@ -46,12 +46,12 @@ namespace RethinkDb.QueryTerm
             else if (memberInit.NewExpression.Arguments.Count != 0)
                 throw new NotSupportedException("Constructors will not work here, only field member initialization");
 
-            updateTerm.args.Add(MapMemberInitToTerm(memberInit));
+            updateTerm.args.Add(MapMemberInitToTerm(datumConverterFactory, memberInit));
 
             return updateTerm;
         }
 
-        private Term MapMemberInitToTerm(MemberInitExpression memberInit)
+        private Term MapMemberInitToTerm(IDatumConverterFactory datumConverterFactory, MemberInitExpression memberInit)
         {
             var funcTerm = new Term() {
                 type = Term.TermType.FUNC
@@ -79,7 +79,7 @@ namespace RethinkDb.QueryTerm
                 switch (binding.BindingType)
                 {
                     case MemberBindingType.Assignment:
-                        makeObjTerm.optargs.Add(MapMemberAssignmentToMakeObjArg((MemberAssignment)binding));
+                        makeObjTerm.optargs.Add(MapMemberAssignmentToMakeObjArg(datumConverterFactory, (MemberAssignment)binding));
                         break;
                     case MemberBindingType.ListBinding:
                     case MemberBindingType.MemberBinding:
@@ -90,18 +90,17 @@ namespace RethinkDb.QueryTerm
             return funcTerm;
         }
 
-        private Term.AssocPair MapMemberAssignmentToMakeObjArg(MemberAssignment memberAssignment)
+        private Term.AssocPair MapMemberAssignmentToMakeObjArg(IDatumConverterFactory datumConverterFactory, MemberAssignment memberAssignment)
         {
             var retval = new Term.AssocPair();
 
-            var datumConverter = DataContractDatumConverterFactory.Instance.Get<T>();
-
+            var datumConverter = datumConverterFactory.Get<T>();
             var fieldConverter = datumConverter as IObjectDatumConverter;
             if (fieldConverter == null)
                 throw new NotSupportedException("Cannot map member assignments into ReQL without implementing IObjectDatumConverter");
 
             retval.key = fieldConverter.GetDatumFieldName(memberAssignment.Member);
-            retval.val = ExpressionUtils.MapExpressionToTerm<T>(memberAssignment.Expression);
+            retval.val = ExpressionUtils.MapExpressionToTerm<T>(datumConverterFactory, memberAssignment.Expression);
 
             return retval;
         }

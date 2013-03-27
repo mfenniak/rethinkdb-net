@@ -26,13 +26,13 @@ namespace RethinkDb.QueryTerm
             this.rightKeyNumber = rightKey;
         }
 
-        public Term GenerateTerm()
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
         {
             var betweenTerm = new Term()
             {
                 type = Term.TermType.BETWEEN,
             };
-            betweenTerm.args.Add(tableTerm.GenerateTerm());
+            betweenTerm.args.Add(tableTerm.GenerateTerm(datumConverterFactory));
 
             if (leftKeyString != null)
             {

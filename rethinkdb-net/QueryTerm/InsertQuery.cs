@@ -16,18 +16,19 @@ namespace RethinkDb.QueryTerm
             this.upsert = upsert;
         }
 
-        public Term GenerateTerm(IDatumConverter<T> converter)
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
         {
             var insertTerm = new Term()
             {
                 type = Term.TermType.INSERT,
             };
-            insertTerm.args.Add(tableTerm.GenerateTerm());
+            insertTerm.args.Add(tableTerm.GenerateTerm(datumConverterFactory));
 
             var objectArray = new Datum()
             {
                 type = Datum.DatumType.R_ARRAY,
             };
+            var converter = datumConverterFactory.Get<T>();
             foreach (var obj in objects)
             {
                 objectArray.r_array.Add(converter.ConvertObject(obj));

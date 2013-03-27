@@ -15,24 +15,24 @@ namespace RethinkDb.QueryTerm
             this.filterExpression = filterExpression;
         }
 
-        public Term GenerateTerm()
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
         {
             var filterTerm = new Term()
             {
                 type = Term.TermType.FILTER,
             };
-            filterTerm.args.Add(sequenceQuery.GenerateTerm());
+            filterTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
 
             if (filterExpression.NodeType != ExpressionType.Lambda)
                 throw new NotSupportedException("Unsupported expression type");
 
             var body = filterExpression.Body;
-            filterTerm.args.Add(MapLambdaToTerm(body));
+            filterTerm.args.Add(MapLambdaToTerm(datumConverterFactory, body));
 
             return filterTerm;
         }
 
-        private Term MapLambdaToTerm(Expression lambdaBody)
+        private Term MapLambdaToTerm(IDatumConverterFactory datumConverterFactory, Expression lambdaBody)
         {
             var funcTerm = new Term() {
                 type = Term.TermType.FUNC
@@ -49,7 +49,7 @@ namespace RethinkDb.QueryTerm
                 }
             });
             funcTerm.args.Add(parametersTerm);
-            funcTerm.args.Add(ExpressionUtils.MapExpressionToTerm<T>(lambdaBody));
+            funcTerm.args.Add(ExpressionUtils.MapExpressionToTerm<T>(datumConverterFactory, lambdaBody));
             return funcTerm;
         }
 

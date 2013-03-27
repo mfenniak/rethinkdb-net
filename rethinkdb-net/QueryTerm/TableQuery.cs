@@ -28,13 +28,13 @@ namespace RethinkDb.QueryTerm
             return new InsertQuery<T>(this, @objects, upsert);
         }
 
-        public Term GenerateTerm()
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
         {
             var tableTerm = new Term()
             {
                 type = Term.TermType.TABLE,
             };
-            tableTerm.args.Add(dbTerm.GenerateTerm());
+            tableTerm.args.Add(dbTerm.GenerateTerm(datumConverterFactory));
             tableTerm.args.Add(
                 new Term()
                 {

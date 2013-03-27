@@ -17,13 +17,13 @@ namespace RethinkDb.QueryTerm
             this.primaryAttribute = primaryAttribute;
         }
 
-        public Term GenerateTerm()
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
         {
             var getTerm = new Term()
             {
                 type = Term.TermType.GET,
             };
-            getTerm.args.Add(tableTerm.GenerateTerm());
+            getTerm.args.Add(tableTerm.GenerateTerm(datumConverterFactory));
             getTerm.args.Add(
                 new Term()
                 {

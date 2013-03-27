@@ -278,12 +278,12 @@ namespace RethinkDb
             }
         }
 
-        public async Task<T> Run<T>(IDatumConverter<T> converter, ISingleObjectQuery<T> queryObject)
+        public async Task<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
             query.type = Spec.Query.QueryType.START;
-            query.query = queryObject.GenerateTerm();
+            query.query = queryObject.GenerateTerm(datumConverterFactory);
 
             var response = await InternalRunQuery(query);
 
@@ -293,7 +293,7 @@ namespace RethinkDb
                 case Response.ResponseType.SUCCESS_ATOM:
                     if (response.response.Count != 1)
                         throw new InvalidOperationException(String.Format("Expected 1 object, received {0}", response.response.Count));
-                    return converter.ConvertDatum(response.response[0]);
+                    return datumConverterFactory.Get<T>().ConvertDatum(response.response[0]);
                 case Response.ResponseType.CLIENT_ERROR:
                 case Response.ResponseType.COMPILE_ERROR:
                 case Response.ResponseType.RUNTIME_ERROR:
@@ -306,35 +306,35 @@ namespace RethinkDb
 
         public Task<T> Run<T>(ISingleObjectQuery<T> queryObject)
         {
-            return Run<T>(DatumConverterFactory.Get<T>(), queryObject);
+            return Run<T>(DatumConverterFactory, queryObject);
         }
 
-        public Task<DmlResponse> Run(IDatumConverter<DmlResponse> converter, IDmlQuery queryObject)
+        public Task<DmlResponse> Run(IDatumConverterFactory datumConverterFactory, IDmlQuery queryObject)
         {
-            return Run<DmlResponse>(DatumConverterFactory.Get<DmlResponse>(), queryObject);
+            return Run<DmlResponse>(datumConverterFactory, queryObject);
         }
 
         public Task<DmlResponse> Run(IDmlQuery queryObject)
         {
-            return Run(DatumConverterFactory.Get<DmlResponse>(), queryObject);
+            return Run(DatumConverterFactory, queryObject);
         }
 
-        public IAsyncEnumerator<T> Run<T>(IDatumConverter<T> converter, ISequenceQuery<T> queryObject)
+        public IAsyncEnumerator<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
         {
-            return new QueryEnumerator<T>(this, converter, queryObject);
+            return new QueryEnumerator<T>(this, datumConverterFactory, queryObject);
         }
 
         public IAsyncEnumerator<T> Run<T>(ISequenceQuery<T> queryObject)
         {
-            return Run(DatumConverterFactory.Get<T>(), queryObject);
+            return Run(DatumConverterFactory, queryObject);
         }
 
-        public async Task<DmlResponse> Run<T>(IDatumConverter<T> converter, IDatumConverter<DmlResponse> dmlResponseConverter, IWriteQuery<T> queryObject)
+        public async Task<DmlResponse> Run<T>(IDatumConverterFactory datumConverterFactory, IWriteQuery<T> queryObject)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
             query.type = Spec.Query.QueryType.START;
-            query.query = queryObject.GenerateTerm(converter);
+            query.query = queryObject.GenerateTerm(datumConverterFactory);
 
             var response = await InternalRunQuery(query);
 
@@ -344,7 +344,7 @@ namespace RethinkDb
                 case Response.ResponseType.SUCCESS_ATOM:
                     if (response.response.Count != 1)
                         throw new InvalidOperationException(String.Format("Expected 1 object, received {0}", response.response.Count));
-                    return dmlResponseConverter.ConvertDatum(response.response[0]);
+                    return datumConverterFactory.Get<DmlResponse>().ConvertDatum(response.response[0]);
                 case Response.ResponseType.CLIENT_ERROR:
                 case Response.ResponseType.COMPILE_ERROR:
                 case Response.ResponseType.RUNTIME_ERROR:
@@ -355,30 +355,27 @@ namespace RethinkDb
             }
         }
 
-        public Task<DmlResponse> Run<T>(IDatumConverter<T> converter, IWriteQuery<T> queryObject)
-        {
-            return Run(converter, DatumConverterFactory.Get<DmlResponse>(), queryObject);
-        }
-
         public Task<DmlResponse> Run<T>(IWriteQuery<T> queryObject)
         {
-            return Run(DatumConverterFactory.Get<T>(), DatumConverterFactory.Get<DmlResponse>(), queryObject);
+            return Run(DatumConverterFactory, queryObject);
         }
 
         private class QueryEnumerator<T> : IAsyncEnumerator<T>
         {
             private readonly Connection connection;
-            private readonly IDatumConverter<T> converter;
+            private readonly IDatumConverterFactory datumConverterFactory;
+            private readonly IDatumConverter<T> datumConverter;
             private readonly ISequenceQuery<T> queryObject;
 
             private Spec.Query query = null;
             private Response lastResponse = null;
             private int lastResponseIndex = 0;
 
-            public QueryEnumerator(Connection connection, IDatumConverter<T> converter, ISequenceQuery<T> queryObject)
+            public QueryEnumerator(Connection connection, IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
             {
                 this.connection = connection;
-                this.converter = converter;
+                this.datumConverterFactory = datumConverterFactory;
+                this.datumConverter = datumConverterFactory.Get<T>();
                 this.queryObject = queryObject;
             }
 
@@ -391,7 +388,7 @@ namespace RethinkDb
                     else if (lastResponseIndex >= lastResponse.response.Count)
                         throw new InvalidOperationException("You moved past the end of the enumerator");
                     else
-                        return converter.ConvertDatum(lastResponse.response[lastResponseIndex]);
+                        return datumConverter.ConvertDatum(lastResponse.response[lastResponseIndex]);
                 }
             }
 
@@ -414,7 +411,7 @@ namespace RethinkDb
                     query = new Spec.Query();
                     query.token = connection.GetNextToken();
                     query.type = Spec.Query.QueryType.START;
-                    query.query = this.queryObject.GenerateTerm();
+                    query.query = this.queryObject.GenerateTerm(datumConverterFactory);
                     await ReissueQuery();
                 }
 
