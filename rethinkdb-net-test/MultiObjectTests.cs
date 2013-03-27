@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RethinkDb.QueryTerm;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace RethinkDb.Test
 {
@@ -191,15 +192,9 @@ namespace RethinkDb.Test
             Assert.That(resp, Is.EqualTo(4));
         }
 
-        [Test]
-        public void Filter()
+        private async Task DoFilterSingleObject(Expression<Func<TestObject, bool>> expr, string expectedId)
         {
-            DoFilter().Wait();
-        }
-
-        private async Task DoFilter()
-        {
-            var enumerable = connection.Run(testTable.Filter(o => o.Name == "5"));
+            var enumerable = connection.Run(testTable.Filter(expr));
             Assert.That(enumerable, Is.Not.Null);
             List<TestObject> objects = new List<TestObject>();
             var count = 0;
@@ -212,8 +207,37 @@ namespace RethinkDb.Test
             }
             Assert.That(count, Is.EqualTo(1));
             Assert.That(objects, Has.Count.EqualTo(1));
-            Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "5" }));
+            Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = expectedId }));
+        }
+
+        [Test]
+        public void FilterEqual()
+        {
+            DoFilterSingleObject(o => o.Name ==  "5", "5").Wait();
+        }
+
+        [Test]
+        public void FilterLessThan()
+        {
+            DoFilterSingleObject(o => o.SomeNumber < 2, "1").Wait();
+        }
+
+        [Test]
+        public void FilterLessThanEqual()
+        {
+            DoFilterSingleObject(o => o.SomeNumber <= 1, "1").Wait();
+        }
+
+        [Test]
+        public void FilterGreaterThan()
+        {
+            DoFilterSingleObject(o => o.SomeNumber > 6, "7").Wait();
+        }
+
+        [Test]
+        public void FilterGreaterThanEqual()
+        {
+            DoFilterSingleObject(o => o.SomeNumber >= 7, "7").Wait();
         }
     }
 }
-
