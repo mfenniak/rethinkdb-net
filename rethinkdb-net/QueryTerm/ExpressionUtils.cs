@@ -91,14 +91,14 @@ namespace RethinkDb.QueryTerm
                 type = Term.TermType.DATUM,
                 datum = new Datum() {
                     type = Datum.DatumType.R_NUM,
-                    r_num = 1
+                    r_num = 3
                 }
             });
             parametersTerm.args.Add(new Term() {
                 type = Term.TermType.DATUM,
                 datum = new Datum() {
                     type = Datum.DatumType.R_NUM,
-                    r_num = 2
+                    r_num = 4
                 }
             });
             funcTerm.args.Add(parametersTerm);
@@ -112,6 +112,31 @@ namespace RethinkDb.QueryTerm
 
             switch (expr.NodeType)
             {
+                case ExpressionType.Parameter:
+                {
+                    var parameterExpr = (ParameterExpression)expr;
+                    int parameterIndex;
+                    if (parameterExpr.Name == parameter1Name)
+                        parameterIndex = 3;
+                    else if (parameterExpr.Name == parameter2Name)
+                        parameterIndex = 4;
+                    else
+                        throw new InvalidOperationException("Unmatched parameter name:" + parameterExpr.Name);
+
+                    return new Term() {
+                        type = Term.TermType.VAR,
+                        args = {
+                            new Term() {
+                                type = Term.TermType.DATUM,
+                                datum = new Datum() {
+                                    type = Datum.DatumType.R_NUM,
+                                    r_num = parameterIndex
+                                },
+                            }
+                        }
+                    };
+                }
+
                 case ExpressionType.MemberAccess:
                 {
                     var memberExpr = (MemberExpression)expr;
@@ -122,9 +147,9 @@ namespace RethinkDb.QueryTerm
                     var parameterExpr = (ParameterExpression)memberExpr.Expression;
                     int parameterIndex;
                     if (parameterExpr.Name == parameter1Name)
-                        parameterIndex = 1;
+                        parameterIndex = 3;
                     else if (parameterExpr.Name == parameter2Name)
-                        parameterIndex = 2;
+                        parameterIndex = 4;
                     else
                         throw new InvalidOperationException("Unmatched parameter name:" + parameterExpr.Name);
 
@@ -145,7 +170,7 @@ namespace RethinkDb.QueryTerm
                         }
                     });
 
-                    if (parameterIndex == 1)
+                    if (parameterIndex == 3)
                     {
                         var datumConverter = datumConverterFactory.Get<TParameter1>();
                         var fieldConverter = datumConverter as IObjectDatumConverter;
@@ -160,7 +185,7 @@ namespace RethinkDb.QueryTerm
                             }
                         });
                     }
-                    else if (parameterIndex == 2)
+                    else if (parameterIndex == 4)
                     {
                         var datumConverter = datumConverterFactory.Get<TParameter2>();
                         var fieldConverter = datumConverter as IObjectDatumConverter;

@@ -297,7 +297,7 @@ namespace RethinkDb.Test
 
         private async Task DoOrderByMultiField()
         {
-            var enumerable = connection.Run(testTable.OrderBy<TestObject>(
+            var enumerable = connection.Run(testTable.OrderBy(
                 o => o.Name,
                 o => Query.Asc(o.Name),
                 o => Query.Desc(o.Name)
@@ -322,7 +322,7 @@ namespace RethinkDb.Test
 
         private async Task DoOrderByAsc()
         {
-            var enumerable = connection.Run(testTable.OrderBy<TestObject>(o => Query.Asc(o.Name)));
+            var enumerable = connection.Run(testTable.OrderBy(o => Query.Asc(o.Name)));
             Assert.That(enumerable, Is.Not.Null);
             var count = 0;
             while (true)
@@ -343,7 +343,7 @@ namespace RethinkDb.Test
 
         private async Task DoOrderByDesc()
         {
-            var enumerable = connection.Run(testTable.OrderBy<TestObject>(o => Query.Desc(o.Name)));
+            var enumerable = connection.Run(testTable.OrderBy(o => Query.Desc(o.Name)));
             Assert.That(enumerable, Is.Not.Null);
             var count = 0;
             while (true)
@@ -354,6 +354,18 @@ namespace RethinkDb.Test
                 Assert.That(enumerable.Current.Name, Is.EqualTo((8 - count).ToString()));
             }
             Assert.That(count, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void Reduce()
+        {
+            DoReduce().Wait();
+        }
+
+        private async Task DoReduce()
+        {
+            var resp = await connection.Run(testTable.Reduce((acc, val) => acc + val.SomeNumber, 0.0));
+            Assert.That(resp, Is.EqualTo(7 + 6 + 5 + 4 + 3 + 2 + 1 + 0));
         }
     }
 }

@@ -149,5 +149,10 @@ namespace RethinkDb
         {
             return new InnerJoinQuery<TLeft, TRight>(leftQuery, rightQuery, joinPredicate);
         }
+
+        public static ISingleObjectQuery<TReduce> Reduce<TOriginal, TReduce>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TReduce, TOriginal, TReduce>> reduceFunction, TReduce seed)
+        {
+            return new ReduceQuery<TOriginal, TReduce>(sequenceQuery, reduceFunction, seed);
+        }
     }
 }
