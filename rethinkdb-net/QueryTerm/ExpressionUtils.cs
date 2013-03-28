@@ -6,26 +6,26 @@ namespace RethinkDb.QueryTerm
 {
     static class ExpressionUtils
     {
-        private static Term ConvertBinaryExpressionToTerm<T>(IDatumConverterFactory datumConverterFactory, BinaryExpression expr, Term.TermType termType)
+        private static Term ConvertBinaryExpressionToTerm(Func<Expression, Term> recursiveMap, BinaryExpression expr, Term.TermType termType)
         {
             var term = new Term() {
                 type = termType
             };
-            term.args.Add(MapExpressionToTerm<T>(datumConverterFactory, expr.Left));
-            term.args.Add(MapExpressionToTerm<T>(datumConverterFactory, expr.Right));
+            term.args.Add(recursiveMap(expr.Left));
+            term.args.Add(recursiveMap(expr.Right));
             return term;
         }
 
-        private static Term ConvertUnaryExpressionToTerm<T>(IDatumConverterFactory datumConverterFactory, UnaryExpression expr, Term.TermType termType)
+        private static Term ConvertUnaryExpressionToTerm(Func<Expression, Term> recursiveMap, UnaryExpression expr, Term.TermType termType)
         {
             var term = new Term() {
                 type = termType
             };
-            term.args.Add(MapExpressionToTerm<T>(datumConverterFactory, expr.Operand));
+            term.args.Add(recursiveMap(expr.Operand));
             return term;
         }
 
-        public static Term MapExpressionToTerm<T>(IDatumConverterFactory datumConverterFactory, Expression expr)
+        private static Term SimpleMap(IDatumConverterFactory datumConverterFactory, Func<Expression, Term> recursiveMap, Expression expr)
         {
             switch (expr.NodeType)
             {
@@ -45,35 +45,151 @@ namespace RethinkDb.QueryTerm
                 }
 
                 case ExpressionType.Add:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.ADD);
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.ADD);
                 case ExpressionType.Modulo:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.MOD);
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.MOD);
                 case ExpressionType.Divide:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.DIV);
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.DIV);
                 case ExpressionType.Multiply:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.MUL);
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.MUL);
                 case ExpressionType.Subtract:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.SUB);
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.SUB);
                 case ExpressionType.Equal:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.EQ);
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.EQ);
                 case ExpressionType.LessThan:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.LT);
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.LT);
                 case ExpressionType.LessThanOrEqual:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.LE);
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.LE);
                 case ExpressionType.GreaterThan:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.GT);
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.GT);
                 case ExpressionType.GreaterThanOrEqual:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.GE);
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.GE);
                 case ExpressionType.AndAlso:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.ALL);
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.ALL);
                 case ExpressionType.OrElse:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.ANY);
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.ANY);
                 case ExpressionType.NotEqual:
-                    return ConvertBinaryExpressionToTerm<T>(datumConverterFactory, (BinaryExpression)expr, Term.TermType.NE);
-
+                    return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.NE);
                 case ExpressionType.Not:
-                    return ConvertUnaryExpressionToTerm<T>(datumConverterFactory, (UnaryExpression)expr, Term.TermType.NOT);
+                    return ConvertUnaryExpressionToTerm(recursiveMap, (UnaryExpression)expr, Term.TermType.NOT);
 
+                default:
+                    throw new NotSupportedException(String.Format("Unsupported expression type: {0}", expr.NodeType));
+            }
+        }
+
+        public static Term MapLambdaToFunction<TParameter1, TParameter2>(IDatumConverterFactory datumConverterFactory, LambdaExpression expr)
+        {
+            var funcTerm = new Term() {
+                type = Term.TermType.FUNC
+            };
+
+            var parametersTerm = new Term() {
+                type = Term.TermType.MAKE_ARRAY,
+            };
+            parametersTerm.args.Add(new Term() {
+                type = Term.TermType.DATUM,
+                datum = new Datum() {
+                    type = Datum.DatumType.R_NUM,
+                    r_num = 1
+                }
+            });
+            parametersTerm.args.Add(new Term() {
+                type = Term.TermType.DATUM,
+                datum = new Datum() {
+                    type = Datum.DatumType.R_NUM,
+                    r_num = 2
+                }
+            });
+            funcTerm.args.Add(parametersTerm);
+            funcTerm.args.Add(ExpressionUtils.MapExpressionToTerm<TParameter1, TParameter2>(datumConverterFactory, expr.Body, expr.Parameters[0].Name, expr.Parameters[1].Name));
+            return funcTerm;
+        }
+
+        public static Term MapExpressionToTerm<TParameter1, TParameter2>(IDatumConverterFactory datumConverterFactory, Expression expr, string parameter1Name, string parameter2Name)
+        {
+            Func<Expression, Term> recursiveMap = (innerExpr) => MapExpressionToTerm<TParameter1, TParameter2>(datumConverterFactory, innerExpr, parameter1Name, parameter2Name);
+
+            switch (expr.NodeType)
+            {
+                case ExpressionType.MemberAccess:
+                {
+                    var memberExpr = (MemberExpression)expr;
+
+                    if (memberExpr.Expression.NodeType != ExpressionType.Parameter)
+                        throw new NotSupportedException("Unrecognized member access pattern");
+
+                    var parameterExpr = (ParameterExpression)memberExpr.Expression;
+                    int parameterIndex;
+                    if (parameterExpr.Name == parameter1Name)
+                        parameterIndex = 1;
+                    else if (parameterExpr.Name == parameter2Name)
+                        parameterIndex = 2;
+                    else
+                        throw new InvalidOperationException("Unmatched parameter name:" + parameterExpr.Name);
+
+                    var getAttrTerm = new Term() {
+                        type = Term.TermType.GETATTR
+                    };
+
+                    getAttrTerm.args.Add(new Term() {
+                        type = Term.TermType.VAR,
+                        args = {
+                            new Term() {
+                                type = Term.TermType.DATUM,
+                                datum = new Datum() {
+                                    type = Datum.DatumType.R_NUM,
+                                    r_num = parameterIndex
+                                },
+                            }
+                        }
+                    });
+
+                    if (parameterIndex == 1)
+                    {
+                        var datumConverter = datumConverterFactory.Get<TParameter1>();
+                        var fieldConverter = datumConverter as IObjectDatumConverter;
+                        if (fieldConverter == null)
+                            throw new NotSupportedException("Cannot map member access into ReQL without implementing IObjectDatumConverter");
+
+                        getAttrTerm.args.Add(new Term() {
+                            type = Term.TermType.DATUM,
+                            datum = new Datum() {
+                                type = Datum.DatumType.R_STR,
+                                r_str = fieldConverter.GetDatumFieldName(memberExpr.Member)
+                            }
+                        });
+                    }
+                    else if (parameterIndex == 2)
+                    {
+                        var datumConverter = datumConverterFactory.Get<TParameter2>();
+                        var fieldConverter = datumConverter as IObjectDatumConverter;
+                        if (fieldConverter == null)
+                            throw new NotSupportedException("Cannot map member access into ReQL without implementing IObjectDatumConverter");
+
+                        getAttrTerm.args.Add(new Term() {
+                            type = Term.TermType.DATUM,
+                            datum = new Datum() {
+                                type = Datum.DatumType.R_STR,
+                                r_str = fieldConverter.GetDatumFieldName(memberExpr.Member)
+                            }
+                        });
+                    }
+
+                    return getAttrTerm;
+                }
+
+                default:
+                    return SimpleMap(datumConverterFactory, recursiveMap, expr);
+            }
+        }
+
+        public static Term MapExpressionToTerm<TParameter1>(IDatumConverterFactory datumConverterFactory, Expression expr)
+        {
+            Func<Expression, Term> recursiveMap = (innerExpr) => MapExpressionToTerm<TParameter1>(datumConverterFactory, innerExpr);
+
+            switch (expr.NodeType)
+            {
                 case ExpressionType.MemberAccess:
                 {
                     var memberExpr = (MemberExpression)expr;
@@ -98,7 +214,7 @@ namespace RethinkDb.QueryTerm
                         }
                     });
 
-                    var datumConverter = datumConverterFactory.Get<T>();
+                    var datumConverter = datumConverterFactory.Get<TParameter1>();
                     var fieldConverter = datumConverter as IObjectDatumConverter;
                     if (fieldConverter == null)
                         throw new NotSupportedException("Cannot map member access into ReQL without implementing IObjectDatumConverter");
@@ -115,7 +231,7 @@ namespace RethinkDb.QueryTerm
                 }
 
                 default:
-                    throw new NotSupportedException(String.Format("Unsupported expression type: {0}", expr.NodeType));
+                    return SimpleMap(datumConverterFactory, recursiveMap, expr);
             }
         }
 

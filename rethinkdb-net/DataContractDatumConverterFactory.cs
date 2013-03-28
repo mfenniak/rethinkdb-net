@@ -20,6 +20,8 @@ namespace RethinkDb
         {
             if (PrimitiveDatumConverterFactory.Instance.IsTypeSupported(typeof(T)))
                 return PrimitiveDatumConverterFactory.Instance.Get<T>();
+            else if (TupleDatumConverterFactory.Instance.IsTypeSupported(typeof(T)))
+                return TupleDatumConverterFactory.Instance.Get<T>(this);
             else
                 return Cache<T>.Instance.Value;
         }
@@ -28,7 +30,6 @@ namespace RethinkDb
         {
             public static Lazy<IDatumConverter<TType>> Instance = new Lazy<IDatumConverter<TType>>(DataContractDatumConverterFactory.Create<TType>);
         }
-
 
         private static IDatumConverter<T> Create<T>()
         {
