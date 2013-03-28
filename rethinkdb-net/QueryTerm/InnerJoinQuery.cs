@@ -4,13 +4,13 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class JoinQuery<TLeft, TRight> : ISequenceQuery<Tuple<TLeft, TRight>>
+    public class InnerJoinQuery<TLeft, TRight> : ISequenceQuery<Tuple<TLeft, TRight>>
     {
         private ISequenceQuery<TLeft> leftQuery;
         private ISequenceQuery<TRight> rightQuery;
         private Expression<Func<TLeft, TRight, bool>> joinPredicate;
 
-        public JoinQuery(ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
+        public InnerJoinQuery(ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
         {
             this.leftQuery = leftQuery;
             this.rightQuery = rightQuery;

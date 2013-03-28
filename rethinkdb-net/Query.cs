@@ -145,9 +145,9 @@ namespace RethinkDb
             throw new InvalidOperationException("This method should never actually be invoked; it should only be used as part of expressions to Query.OrderBy");
         }
 
-        public static JoinQuery<TLeft, TRight> Join<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
+        public static InnerJoinQuery<TLeft, TRight> InnerJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
         {
-            return new JoinQuery<TLeft, TRight>(leftQuery, rightQuery, joinPredicate);
+            return new InnerJoinQuery<TLeft, TRight>(leftQuery, rightQuery, joinPredicate);
         }
     }
 }

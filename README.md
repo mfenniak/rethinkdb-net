@@ -22,7 +22,7 @@ Currently this driver is capable of the following things:
     * Count
     * Map
     * OrderBy
-    * Join
+    * InnerJoin
 
   * Filter, Update, Map, and Join can be built using C# expressions (with limitations) that are compile-time safe, and are automatically translated into RethinkDB's query language.  For example, `Query.Db("db").Table<ObjectDefinition>("objects").Update(o => new ObjectDefinition { Name = o.Name + " (new name!)" })`.
 

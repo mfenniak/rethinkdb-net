@@ -84,8 +84,8 @@
     <Compile Include="QueryTerm\ExprSequenceQuery.cs" />
     <Compile Include="QueryTerm\MapQuery.cs" />
     <Compile Include="QueryTerm\OrderByQuery.cs" />
-    <Compile Include="QueryTerm\JoinQuery.cs" />
     <Compile Include="TupleDatumConverterFactory.cs" />
+    <Compile Include="QueryTerm\InnerJoinQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -59,7 +59,7 @@ namespace RethinkDb.Test
         private async Task DoJoin()
         {
             var enumerable = connection.Run(
-                testTable.Join(
+                testTable.InnerJoin(
                     anotherTestTable,
                     (testObject, anotherTestObject) => testObject.Name == anotherTestObject.FirstName
                 )
