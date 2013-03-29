@@ -385,7 +385,7 @@ namespace RethinkDb.Test
 
         private async Task DoReduce()
         {
-            var resp = await connection.Run(testTable.Reduce((acc, val) => new TestObject() { SomeNumber = acc.SomeNumber + val.SomeNumber }, new TestObject() { SomeNumber = 0 }));
+            var resp = await connection.Run(testTable.Reduce((acc, val) => new TestObject() { SomeNumber = acc.SomeNumber + val.SomeNumber }));
             Assert.That(resp.SomeNumber, Is.EqualTo(7 + 6 + 5 + 4 + 3 + 2 + 1 + 0));
         }
 
@@ -397,7 +397,7 @@ namespace RethinkDb.Test
 
         private async Task DoReduceToPrimitive()
         {
-            var resp = await connection.Run(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val, 0.0));
+            var resp = await connection.Run(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val));
             Assert.That(resp, Is.EqualTo(7 + 6 + 5 + 4 + 3 + 2 + 1 + 0));
         }
     }

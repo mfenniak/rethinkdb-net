@@ -134,6 +134,30 @@ namespace RethinkDb.Test
             Assert.That(obj, Is.Not.Null);
             Assert.That(obj.SomeNumber, Is.EqualTo(expected));
         }
+
+        [Test]
+        public void Reduce()
+        {
+            DoReduce().Wait();
+        }
+
+        private async Task DoReduce()
+        {
+            var resp = await connection.Run(testTable.Reduce((acc, val) => new TestObject() { SomeNumber = acc.SomeNumber + val.SomeNumber }));
+            Assert.That(resp.SomeNumber, Is.EqualTo(1234));
+        }
+
+        [Test]
+        public void ReduceToPrimitive()
+        {
+            DoReduceToPrimitive().Wait();
+        }
+
+        private async Task DoReduceToPrimitive()
+        {
+            var resp = await connection.Run(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val));
+            Assert.That(resp, Is.EqualTo(1234));
+        }
     }
 }
 

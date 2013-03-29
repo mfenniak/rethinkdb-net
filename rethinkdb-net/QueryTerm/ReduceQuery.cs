@@ -6,15 +6,23 @@ namespace RethinkDb.QueryTerm
 {
     public class ReduceQuery<T> : ISingleObjectQuery<T>
     {
-        private ISequenceQuery<T> sequenceQuery;
-        private Expression<Func<T, T, T>> reduceFunction;
-        private T seed;
+        private readonly ISequenceQuery<T> sequenceQuery;
+        private readonly Expression<Func<T, T, T>> reduceFunction;
+        private readonly bool baseProvided;
+        private readonly T @base;
 
-        public ReduceQuery(ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction, T seed)
+        public ReduceQuery(ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction)
         {
             this.sequenceQuery = sequenceQuery;
             this.reduceFunction = reduceFunction;
-            this.seed = seed;
+            this.baseProvided = false;
+        }
+
+        public ReduceQuery(ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction, T @base)
+           : this (sequenceQuery, reduceFunction)
+        {
+            this.baseProvided = true;
+            this.@base = @base;
         }
 
         public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
@@ -31,13 +39,16 @@ namespace RethinkDb.QueryTerm
             var body = reduceFunction.Body;
             reduceTerm.args.Add(ExpressionUtils.MapLambdaToFunction<T, T, T>(datumConverterFactory, (LambdaExpression)reduceFunction));
 
-            reduceTerm.optargs.Add(new Term.AssocPair() {
-                key = "base",
-                val = new Term() {
-                    type = Term.TermType.DATUM,
-                    datum = datumConverterFactory.Get<T>().ConvertObject(seed)
-                }
-            });
+            if (this.baseProvided)
+            {
+                reduceTerm.optargs.Add(new Term.AssocPair() {
+                    key = "base",
+                    val = new Term() {
+                        type = Term.TermType.DATUM,
+                        datum = datumConverterFactory.Get<T>().ConvertObject(@base)
+                    }
+                });
+            }
 
             return reduceTerm;
         }

@@ -127,6 +127,30 @@ namespace RethinkDb.Test
             Assert.That(resp.Inserted, Is.EqualTo(7));
             Assert.That(resp.GeneratedKeys, Is.Null);
         }
+
+        [Test]
+        public void Reduce()
+        {
+            DoReduce().Wait();
+        }
+
+        private async Task DoReduce()
+        {
+            var resp = await connection.Run(testTable.Reduce((acc, val) => new TestObject() { SomeNumber = acc.SomeNumber + val.SomeNumber }, new TestObject() { SomeNumber = -1 }));
+            Assert.That(resp.SomeNumber, Is.EqualTo(-1));
+        }
+
+        [Test]
+        public void ReduceToPrimitive()
+        {
+            DoReduceToPrimitive().Wait();
+        }
+
+        private async Task DoReduceToPrimitive()
+        {
+            var resp = await connection.Run(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val, -1.0));
+            Assert.That(resp, Is.EqualTo(-1.0));
+        }
     }
 }
 
