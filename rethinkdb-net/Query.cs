@@ -155,6 +155,11 @@ namespace RethinkDb
             return new OuterJoinQuery<TLeft, TRight>(leftQuery, rightQuery, joinPredicate);
         }
 
+        public static ZipQuery<TLeft, TRight, TTarget> Zip<TLeft, TRight, TTarget>(this ISequenceQuery<Tuple<TLeft, TRight>> sequenceQuery)
+        {
+            return new ZipQuery<TLeft, TRight, TTarget>(sequenceQuery);
+        }
+
         public static EqJoinQuery<TLeft, TRight> EqJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, Expression<Func<TLeft, object>> leftMemberReferenceExpression, ISequenceQuery<TRight> rightQuery)
         {
             return new EqJoinQuery<TLeft, TRight>(leftQuery, leftMemberReferenceExpression, rightQuery);

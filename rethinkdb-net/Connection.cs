@@ -379,14 +379,24 @@ namespace RethinkDb
                 this.queryObject = queryObject;
             }
 
+            private int LoadedRecordCount()
+            {
+                if (lastResponse.type == Response.ResponseType.SUCCESS_ATOM)
+                    return lastResponse.response[0].r_array.Count;
+                else
+                    return lastResponse.response.Count;
+            }
+
             public T Current
             {
                 get
                 {
                     if (lastResponse == null || lastResponseIndex == -1)
                         throw new InvalidOperationException("Call MoveNext first");
-                    else if (lastResponseIndex >= lastResponse.response.Count)
+                    else if (lastResponseIndex >= LoadedRecordCount())
                         throw new InvalidOperationException("You moved past the end of the enumerator");
+                    else if (lastResponse.type == Response.ResponseType.SUCCESS_ATOM)
+                        return datumConverter.ConvertDatum(lastResponse.response[0].r_array[lastResponseIndex]);
                     else
                         return datumConverter.ConvertDatum(lastResponse.response[lastResponseIndex]);
                 }
@@ -397,10 +407,21 @@ namespace RethinkDb
                 lastResponse = await connection.InternalRunQuery(query);
                 lastResponseIndex = -1;
 
-                if (lastResponse.type != Response.ResponseType.SUCCESS_SEQUENCE &&
-                    lastResponse.type != Response.ResponseType.SUCCESS_PARTIAL)
+                switch (lastResponse.type)
                 {
-                    throw new Exception("Unexpected response type to query: " + lastResponse.type + "; " + lastResponse.response[0].r_str);
+                    case Response.ResponseType.SUCCESS_SEQUENCE:
+                    case Response.ResponseType.SUCCESS_PARTIAL:
+                        break;
+                    case Response.ResponseType.SUCCESS_ATOM:
+                        if (lastResponse.response[0].type != Datum.DatumType.R_ARRAY)
+                            throw new Exception("Received an unexpected non-enumerable response to an enumeration query");
+                        break;
+                    case Response.ResponseType.CLIENT_ERROR:
+                    case Response.ResponseType.COMPILE_ERROR:
+                    case Response.ResponseType.RUNTIME_ERROR:
+                        throw new Exception("Unexpected response type to query: " + lastResponse.type + "; " + lastResponse.response [0].r_str);
+                    default:
+                        throw new Exception("Unexpected response type to query: " + lastResponse.type);
                 }
             }
 
@@ -415,13 +436,14 @@ namespace RethinkDb
                     await ReissueQuery();
                 }
 
-                if (lastResponseIndex < (lastResponse.response.Count - 1))
+                if (lastResponseIndex < (LoadedRecordCount() - 1))
                 {
                     lastResponseIndex += 1;
                     return true;
                 }
 
-                if (lastResponse.type == Response.ResponseType.SUCCESS_SEQUENCE)
+                if (lastResponse.type == Response.ResponseType.SUCCESS_SEQUENCE ||
+                    lastResponse.type == Response.ResponseType.SUCCESS_ATOM)
                 {
                     return false;
                 }
