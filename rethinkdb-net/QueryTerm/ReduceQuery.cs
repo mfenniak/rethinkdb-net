@@ -32,12 +32,7 @@ namespace RethinkDb.QueryTerm
                 type = Term.TermType.REDUCE,
             };
             reduceTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
-
-            if (reduceFunction.NodeType != ExpressionType.Lambda)
-                throw new NotSupportedException("Unsupported expression type");
-
-            var body = reduceFunction.Body;
-            reduceTerm.args.Add(ExpressionUtils.MapLambdaToFunction<T, T, T>(datumConverterFactory, (LambdaExpression)reduceFunction));
+            reduceTerm.args.Add(ExpressionUtils.CreateFunctionTerm<T, T, T>(datumConverterFactory, reduceFunction));
 
             if (this.baseProvided)
             {

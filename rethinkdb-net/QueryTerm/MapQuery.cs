@@ -22,11 +22,7 @@ namespace RethinkDb.QueryTerm
                 type = Term.TermType.MAP,
             };
             mapTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
-
-            if (mapExpression.NodeType != ExpressionType.Lambda)
-                throw new NotSupportedException("Unsupported expression type");
-            mapTerm.args.Add(ExpressionUtils.ConvertMapFunctionToTerm<TOriginal, TTarget>(datumConverterFactory, (LambdaExpression)mapExpression));
-
+            mapTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TOriginal, TTarget>(datumConverterFactory, mapExpression));
             return mapTerm;
         }
     }

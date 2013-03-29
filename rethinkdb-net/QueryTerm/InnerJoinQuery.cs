@@ -25,13 +25,7 @@ namespace RethinkDb.QueryTerm
             };
             filterTerm.args.Add(leftQuery.GenerateTerm(datumConverterFactory));
             filterTerm.args.Add(rightQuery.GenerateTerm(datumConverterFactory));
-
-            if (joinPredicate.NodeType != ExpressionType.Lambda)
-                throw new NotSupportedException("Unsupported expression type");
-
-            var body = joinPredicate.Body;
-            filterTerm.args.Add(ExpressionUtils.MapLambdaToFunction<TLeft, TRight, bool>(datumConverterFactory, (LambdaExpression)joinPredicate));
-
+            filterTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TLeft, TRight, bool>(datumConverterFactory, joinPredicate));
             return filterTerm;
         }
     }

@@ -23,11 +23,7 @@ namespace RethinkDb.QueryTerm
         {
             if (objectExpr != null)
             {
-                if (objectExpr.NodeType != ExpressionType.Lambda)
-                    throw new NotSupportedException("Unsupported expression type");
-
-                var body = objectExpr.Body;
-                return ExpressionUtils.MapExpressionToTerm<T>(datumConverterFactory, body);
+                return ExpressionUtils.CreateValueTerm<T>(datumConverterFactory, objectExpr);
             }
             else
             {
