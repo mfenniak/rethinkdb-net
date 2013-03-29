@@ -150,12 +150,17 @@ namespace RethinkDb
             return new InnerJoinQuery<TLeft, TRight>(leftQuery, rightQuery, joinPredicate);
         }
 
-        public static ISingleObjectQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction)
+        public static OuterJoinQuery<TLeft, TRight> OuterJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
+        {
+            return new OuterJoinQuery<TLeft, TRight>(leftQuery, rightQuery, joinPredicate);
+        }
+
+        public static ReduceQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction)
         {
             return new ReduceQuery<T>(sequenceQuery, reduceFunction);
         }
 
-        public static ISingleObjectQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction, T @base)
+        public static ReduceQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction, T @base)
         {
             return new ReduceQuery<T>(sequenceQuery, reduceFunction, @base);
         }

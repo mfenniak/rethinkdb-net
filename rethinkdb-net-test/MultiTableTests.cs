@@ -34,6 +34,7 @@ namespace RethinkDb.Test
                 new TestObject() { Id = "1", Name = "1", SomeNumber = 1 },
                 new TestObject() { Id = "2", Name = "2", SomeNumber = 2 },
                 new TestObject() { Id = "3", Name = "3", SomeNumber = 3 },
+                new TestObject() { Id = "4", Name = "4", SomeNumber = 4 },
             })).Wait();
 
             connection.Run(anotherTestTable.Insert(new AnotherTestObject[] {
@@ -51,12 +52,12 @@ namespace RethinkDb.Test
         }
 
         [Test]
-        public void Join()
+        public void InnerJoin()
         {
-            DoJoin().Wait();
+            DoInnerJoin().Wait();
         }
 
-        private async Task DoJoin()
+        private async Task DoInnerJoin()
         {
             var enumerable = connection.Run(
                 testTable.InnerJoin(
@@ -82,6 +83,48 @@ namespace RethinkDb.Test
             }
             Assert.That(count, Is.EqualTo(3));
             Assert.That(objects, Has.Count.EqualTo(3));
+        }
+
+        [Test]
+        public void OuterJoin()
+        {
+            DoOuterJoin().Wait();
+        }
+
+        private async Task DoOuterJoin()
+        {
+            var enumerable = connection.Run(
+                testTable.OuterJoin(
+                    anotherTestTable,
+                    (testObject, anotherTestObject) => testObject.Name == anotherTestObject.FirstName
+                )
+            );
+            Assert.That(enumerable, Is.Not.Null);
+
+            var objects = new List<Tuple<TestObject, AnotherTestObject>>();
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                objects.Add(enumerable.Current);
+                ++count;
+
+                var tup = enumerable.Current;
+                Assert.That(tup.Item1, Is.Not.Null);
+
+                if (tup.Item1.Id == "4")
+                {
+                    Assert.That(tup.Item2, Is.Null);
+                }
+                else
+                {
+                    Assert.That(tup.Item2, Is.Not.Null);
+                    Assert.That(tup.Item1.Name, Is.EqualTo(tup.Item2.FirstName));
+                }
+            }
+            Assert.That(count, Is.EqualTo(4));
+            Assert.That(objects, Has.Count.EqualTo(4));
         }
     }
 }

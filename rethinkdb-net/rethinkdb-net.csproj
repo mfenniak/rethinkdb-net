@@ -87,6 +87,7 @@
     <Compile Include="TupleDatumConverterFactory.cs" />
     <Compile Include="QueryTerm\InnerJoinQuery.cs" />
     <Compile Include="QueryTerm\ReduceQuery.cs" />
+    <Compile Include="QueryTerm\OuterJoinQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
