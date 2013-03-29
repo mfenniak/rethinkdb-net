@@ -126,5 +126,40 @@ namespace RethinkDb.Test
             Assert.That(count, Is.EqualTo(4));
             Assert.That(objects, Has.Count.EqualTo(4));
         }
+
+        [Test]
+        public void EqJoin()
+        {
+            DoEqJoin().Wait();
+        }
+
+        private async Task DoEqJoin()
+        {
+            var enumerable = connection.Run(
+                testTable.EqJoin(
+                    testObject => testObject.Name,
+                    anotherTestTable
+                )
+            );
+            Assert.That(enumerable, Is.Not.Null);
+
+            var objects = new List<Tuple<TestObject, AnotherTestObject>>();
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                objects.Add(enumerable.Current);
+                ++count;
+
+                var tup = enumerable.Current;
+                Assert.That(tup.Item1, Is.Not.Null);
+
+                Assert.That(tup.Item2, Is.Not.Null);
+                Assert.That(tup.Item1.Name, Is.EqualTo(tup.Item2.FirstName));
+            }
+            Assert.That(count, Is.EqualTo(3));
+            Assert.That(objects, Has.Count.EqualTo(3));
+        }
     }
 }

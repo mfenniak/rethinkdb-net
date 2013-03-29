@@ -155,6 +155,11 @@ namespace RethinkDb
             return new OuterJoinQuery<TLeft, TRight>(leftQuery, rightQuery, joinPredicate);
         }
 
+        public static EqJoinQuery<TLeft, TRight> EqJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, Expression<Func<TLeft, object>> leftMemberReferenceExpression, ISequenceQuery<TRight> rightQuery)
+        {
+            return new EqJoinQuery<TLeft, TRight>(leftQuery, leftMemberReferenceExpression, rightQuery);
+        }
+
         public static ReduceQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction)
         {
             return new ReduceQuery<T>(sequenceQuery, reduceFunction);

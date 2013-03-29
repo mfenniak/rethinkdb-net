@@ -88,6 +88,7 @@
     <Compile Include="QueryTerm\InnerJoinQuery.cs" />
     <Compile Include="QueryTerm\ReduceQuery.cs" />
     <Compile Include="QueryTerm\OuterJoinQuery.cs" />
+    <Compile Include="QueryTerm\EqJoinQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
