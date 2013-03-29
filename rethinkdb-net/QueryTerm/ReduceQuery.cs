@@ -29,7 +29,7 @@ namespace RethinkDb.QueryTerm
                 throw new NotSupportedException("Unsupported expression type");
 
             var body = reduceFunction.Body;
-            reduceTerm.args.Add(ExpressionUtils.MapLambdaToFunction<T, T>(datumConverterFactory, (LambdaExpression)reduceFunction));
+            reduceTerm.args.Add(ExpressionUtils.MapLambdaToFunction<T, T, T>(datumConverterFactory, (LambdaExpression)reduceFunction));
 
             reduceTerm.optargs.Add(new Term.AssocPair() {
                 key = "base",

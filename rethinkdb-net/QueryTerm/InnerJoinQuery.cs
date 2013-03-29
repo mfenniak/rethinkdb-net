@@ -30,7 +30,7 @@ namespace RethinkDb.QueryTerm
                 throw new NotSupportedException("Unsupported expression type");
 
             var body = joinPredicate.Body;
-            filterTerm.args.Add(ExpressionUtils.MapLambdaToFunction<TLeft, TRight>(datumConverterFactory, (LambdaExpression)joinPredicate));
+            filterTerm.args.Add(ExpressionUtils.MapLambdaToFunction<TLeft, TRight, bool>(datumConverterFactory, (LambdaExpression)joinPredicate));
 
             return filterTerm;
         }

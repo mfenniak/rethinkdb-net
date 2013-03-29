@@ -400,7 +400,7 @@ namespace RethinkDb
                 if (lastResponse.type != Response.ResponseType.SUCCESS_SEQUENCE &&
                     lastResponse.type != Response.ResponseType.SUCCESS_PARTIAL)
                 {
-                    throw new Exception("Unexpected response type to query: " + lastResponse.type);
+                    throw new Exception("Unexpected response type to query: " + lastResponse.type + "; " + lastResponse.response[0].r_str);
                 }
             }
 

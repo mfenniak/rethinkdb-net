@@ -78,7 +78,80 @@ namespace RethinkDb.QueryTerm
             }
         }
 
-        public static Term MapLambdaToFunction<TParameter1, TParameter2>(IDatumConverterFactory datumConverterFactory, LambdaExpression expr)
+        public static Term ConvertMapFunctionToTerm<TParameter1, TReturn>(IDatumConverterFactory datumConverterFactory, LambdaExpression expr)
+        {
+            var funcTerm = new Term() {
+                type = Term.TermType.FUNC
+            };
+
+            var parametersTerm = new Term() {
+                type = Term.TermType.MAKE_ARRAY,
+            };
+            parametersTerm.args.Add(new Term() {
+                type = Term.TermType.DATUM,
+                datum = new Datum() {
+                    type = Datum.DatumType.R_NUM,
+                    r_num = 2
+                }
+            });
+            funcTerm.args.Add(parametersTerm);
+
+            var body = expr.Body;
+            if (body.NodeType == ExpressionType.MemberInit)
+            {
+                var memberInit = (MemberInitExpression)body;
+                if (!memberInit.Type.Equals(typeof(TReturn)))
+                    throw new InvalidOperationException("Only expression types matching the table type are supported");
+                else if (memberInit.NewExpression.Arguments.Count != 0)
+                    throw new NotSupportedException("Constructors will not work here, only field member initialization");
+                funcTerm.args.Add(MapMemberInitToTerm<TParameter1, TReturn>(datumConverterFactory, memberInit));
+            }
+            else
+            {
+                funcTerm.args.Add(ExpressionUtils.MapExpressionToTerm<TParameter1>(datumConverterFactory, expr.Body));
+            }
+
+            return funcTerm;
+        }
+
+        private static Term MapMemberInitToTerm<TParameter1, TReturn>(IDatumConverterFactory datumConverterFactory, MemberInitExpression memberInit)
+        {
+            var makeObjTerm = new Term() {
+                type = Term.TermType.MAKE_OBJ,
+            };
+
+            foreach (var binding in memberInit.Bindings)
+            {
+                switch (binding.BindingType)
+                {
+                    case MemberBindingType.Assignment:
+                        makeObjTerm.optargs.Add(MapMemberAssignmentToMakeObjArg<TParameter1, TReturn>(datumConverterFactory, (MemberAssignment)binding));
+                        break;
+                    case MemberBindingType.ListBinding:
+                    case MemberBindingType.MemberBinding:
+                        throw new NotSupportedException("Binding type not currently supported");
+                }
+            }
+
+            return makeObjTerm;
+        }
+
+        private static Term.AssocPair MapMemberAssignmentToMakeObjArg<TParameter1, TReturn>(IDatumConverterFactory datumConverterFactory, MemberAssignment memberAssignment)
+        {
+            var retval = new Term.AssocPair();
+
+            var datumConverter = datumConverterFactory.Get<TReturn>();
+            var fieldConverter = datumConverter as IObjectDatumConverter;
+            if (fieldConverter == null)
+                throw new NotSupportedException("Cannot map member assignments into ReQL without implementing IObjectDatumConverter");
+
+            retval.key = fieldConverter.GetDatumFieldName(memberAssignment.Member);
+            retval.val = ExpressionUtils.MapExpressionToTerm<TParameter1>(datumConverterFactory, memberAssignment.Expression);
+
+            return retval;
+        }
+
+        public static Term MapLambdaToFunction<TParameter1, TParameter2, TReturn>(IDatumConverterFactory datumConverterFactory, LambdaExpression expr)
         {
             var funcTerm = new Term() {
                 type = Term.TermType.FUNC
@@ -102,11 +175,63 @@ namespace RethinkDb.QueryTerm
                 }
             });
             funcTerm.args.Add(parametersTerm);
-            funcTerm.args.Add(ExpressionUtils.MapExpressionToTerm<TParameter1, TParameter2>(datumConverterFactory, expr.Body, expr.Parameters[0].Name, expr.Parameters[1].Name));
+
+            var body = expr.Body;
+            if (body.NodeType == ExpressionType.MemberInit)
+            {
+                var memberInit = (MemberInitExpression)body;
+                if (!memberInit.Type.Equals(typeof(TReturn)))
+                    throw new InvalidOperationException("Only expression types matching the table type are supported");
+                else if (memberInit.NewExpression.Arguments.Count != 0)
+                    throw new NotSupportedException("Constructors will not work here, only field member initialization");
+                funcTerm.args.Add(MapMemberInitToTerm<TParameter1, TParameter2, TReturn>(datumConverterFactory, memberInit, expr.Parameters[0].Name, expr.Parameters[1].Name));
+            }
+            else
+            {
+                funcTerm.args.Add(ExpressionUtils.MapExpressionToTerm<TParameter1, TParameter2>(datumConverterFactory, expr.Body, expr.Parameters[0].Name, expr.Parameters[1].Name));
+            }
+
             return funcTerm;
         }
 
-        public static Term MapExpressionToTerm<TParameter1, TParameter2>(IDatumConverterFactory datumConverterFactory, Expression expr, string parameter1Name, string parameter2Name)
+        private static Term MapMemberInitToTerm<TParameter1, TParameter2, TReturn>(IDatumConverterFactory datumConverterFactory, MemberInitExpression memberInit, string parameter1Name, string parameter2Name)
+        {
+            var makeObjTerm = new Term() {
+                type = Term.TermType.MAKE_OBJ,
+            };
+
+            foreach (var binding in memberInit.Bindings)
+            {
+                switch (binding.BindingType)
+                {
+                    case MemberBindingType.Assignment:
+                        makeObjTerm.optargs.Add(MapMemberAssignmentToMakeObjArg<TParameter1, TParameter2, TReturn>(datumConverterFactory, (MemberAssignment)binding, parameter1Name, parameter2Name));
+                        break;
+                    case MemberBindingType.ListBinding:
+                    case MemberBindingType.MemberBinding:
+                        throw new NotSupportedException("Binding type not currently supported");
+                }
+            }
+
+            return makeObjTerm;
+        }
+
+        private static Term.AssocPair MapMemberAssignmentToMakeObjArg<TParameter1, TParameter2, TReturn>(IDatumConverterFactory datumConverterFactory, MemberAssignment memberAssignment, string parameter1Name, string parameter2Name)
+        {
+            var retval = new Term.AssocPair();
+
+            var datumConverter = datumConverterFactory.Get<TReturn>();
+            var fieldConverter = datumConverter as IObjectDatumConverter;
+            if (fieldConverter == null)
+                throw new NotSupportedException("Cannot map member assignments into ReQL without implementing IObjectDatumConverter");
+
+            retval.key = fieldConverter.GetDatumFieldName(memberAssignment.Member);
+            retval.val = ExpressionUtils.MapExpressionToTerm<TParameter1, TParameter2>(datumConverterFactory, memberAssignment.Expression, parameter1Name, parameter2Name);
+
+            return retval;
+        }
+
+        private static Term MapExpressionToTerm<TParameter1, TParameter2>(IDatumConverterFactory datumConverterFactory, Expression expr, string parameter1Name, string parameter2Name)
         {
             Func<Expression, Term> recursiveMap = (innerExpr) => MapExpressionToTerm<TParameter1, TParameter2>(datumConverterFactory, innerExpr, parameter1Name, parameter2Name);
 
@@ -177,11 +302,15 @@ namespace RethinkDb.QueryTerm
                         if (fieldConverter == null)
                             throw new NotSupportedException("Cannot map member access into ReQL without implementing IObjectDatumConverter");
 
+                        var datumFieldName = fieldConverter.GetDatumFieldName(memberExpr.Member);
+                        if (string.IsNullOrEmpty(datumFieldName))
+                            throw new NotSupportedException(String.Format("Member {0} on type {1} could not be mapped to a datum field", memberExpr.Member.Name, memberExpr.Type));
+
                         getAttrTerm.args.Add(new Term() {
                             type = Term.TermType.DATUM,
                             datum = new Datum() {
                                 type = Datum.DatumType.R_STR,
-                                r_str = fieldConverter.GetDatumFieldName(memberExpr.Member)
+                                r_str = datumFieldName
                             }
                         });
                     }
@@ -192,11 +321,15 @@ namespace RethinkDb.QueryTerm
                         if (fieldConverter == null)
                             throw new NotSupportedException("Cannot map member access into ReQL without implementing IObjectDatumConverter");
 
+                        var datumFieldName = fieldConverter.GetDatumFieldName(memberExpr.Member);
+                        if (string.IsNullOrEmpty(datumFieldName))
+                            throw new NotSupportedException(String.Format("Member {0} on type {1} could not be mapped to a datum field", memberExpr.Member.Name, memberExpr.Type));
+
                         getAttrTerm.args.Add(new Term() {
                             type = Term.TermType.DATUM,
                             datum = new Datum() {
                                 type = Datum.DatumType.R_STR,
-                                r_str = fieldConverter.GetDatumFieldName(memberExpr.Member)
+                                r_str = datumFieldName
                             }
                         });
                     }
@@ -244,11 +377,15 @@ namespace RethinkDb.QueryTerm
                     if (fieldConverter == null)
                         throw new NotSupportedException("Cannot map member access into ReQL without implementing IObjectDatumConverter");
 
+                    var datumFieldName = fieldConverter.GetDatumFieldName(memberExpr.Member);
+                    if (string.IsNullOrEmpty(datumFieldName))
+                        throw new NotSupportedException(String.Format("Member {0} on type {1} could not be mapped to a datum field", memberExpr.Member.Name, memberExpr.Type));
+
                     getAttrTerm.args.Add(new Term() {
                         type = Term.TermType.DATUM,
                         datum = new Datum() {
                             type = Datum.DatumType.R_STR,
-                            r_str = fieldConverter.GetDatumFieldName(memberExpr.Member)
+                            r_str = datumFieldName
                         }
                     });
 
