@@ -90,6 +90,9 @@
     <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Interfaces\IAsyncEnumerator.cs" />
     <Compile Include="QueryTerm\ZipQuery.cs" />
+    <Compile Include="QueryTerm\SkipQuery.cs" />
+    <Compile Include="QueryTerm\LImitQuery.cs" />
+    <Compile Include="QueryTerm\SliceQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

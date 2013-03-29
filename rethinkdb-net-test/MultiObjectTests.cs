@@ -400,5 +400,91 @@ namespace RethinkDb.Test
             var resp = await connection.Run(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val));
             Assert.That(resp, Is.EqualTo(7 + 6 + 5 + 4 + 3 + 2 + 1 + 0));
         }
+
+        [Test]
+        [Ignore("Causes RethinkDB segfault, issue rethinkdb/rethinkdb#522")]
+        public void Skip()
+        {
+            DoSkip().Wait();
+        }
+
+        private async Task DoSkip()
+        {
+            var enumerable = connection.Run(testTable.OrderBy(o => o.Name).Skip(6));
+            Assert.That(enumerable, Is.Not.Null);
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                ++count;
+                Assert.That(enumerable.Current.Name, Is.EqualTo("7"));
+            }
+            Assert.That(count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Limit()
+        {
+            DoLimit().Wait();
+        }
+
+        private async Task DoLimit()
+        {
+            var enumerable = connection.Run(testTable.OrderBy(o => o.Name).Limit(1));
+            Assert.That(enumerable, Is.Not.Null);
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                ++count;
+                Assert.That(enumerable.Current.Name, Is.EqualTo("1"));
+            }
+            Assert.That(count, Is.EqualTo(1));
+        }
+
+        [Test]
+        [Ignore("Causes RethinkDB segfault, issue rethinkdb/rethinkdb#522")]
+        public void Slice()
+        {
+            DoSlice().Wait();
+        }
+
+        private async Task DoSlice()
+        {
+            var enumerable = connection.Run(testTable.OrderBy(o => o.Name).Slice(1, 2));
+            Assert.That(enumerable, Is.Not.Null);
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                ++count;
+            }
+            Assert.That(count, Is.EqualTo(1));
+        }
+
+        [Test]
+        [Ignore("Causes RethinkDB segfault, issue rethinkdb/rethinkdb#522")]
+        public void SliceStartOnly()
+        {
+            DoSliceStartOnly().Wait();
+        }
+
+        private async Task DoSliceStartOnly()
+        {
+            var enumerable = connection.Run(testTable.OrderBy(o => o.Name).Slice(6));
+            Assert.That(enumerable, Is.Not.Null);
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                ++count;
+                Assert.That(enumerable.Current.Name, Is.EqualTo("7"));
+            }
+            Assert.That(count, Is.EqualTo(1));
+        }
     }
 }

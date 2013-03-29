@@ -135,6 +135,21 @@ namespace RethinkDb
             return new OrderByQuery<T>(sequenceQuery, memberReferenceExpressions);
         }
 
+        public static SkipQuery<T> Skip<T>(this ISequenceQuery<T> sequenceQuery, int count)
+        {
+            return new SkipQuery<T>(sequenceQuery, count);
+        }
+
+        public static LimitQuery<T> Limit<T>(this ISequenceQuery<T> sequenceQuery, int count)
+        {
+            return new LimitQuery<T>(sequenceQuery, count);
+        }
+
+        public static SliceQuery<T> Slice<T>(this ISequenceQuery<T> sequenceQuery, int startIndex, int? endIndex = null)
+        {
+            return new SliceQuery<T>(sequenceQuery, startIndex, endIndex);
+        }
+
         public static object Asc(object value)
         {
             throw new InvalidOperationException("This method should never actually be invoked; it should only be used as part of expressions to Query.OrderBy");

@@ -41,7 +41,6 @@ namespace RethinkDb.QueryTerm
 
             var body = leftMemberReferenceExpression.Body;
             MemberExpression memberExpr;
-            string direction = null;
 
             if (body.NodeType == ExpressionType.MemberAccess)
                 memberExpr = (MemberExpression)body;
