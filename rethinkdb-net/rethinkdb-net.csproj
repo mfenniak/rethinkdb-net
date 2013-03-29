@@ -49,8 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Connection.cs" />
-    <Compile Include="ArrayDatumConverterFactory.cs" />
-    <Compile Include="PrimitiveDatumConverterFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryTerm\TableListQuery.cs" />
     <Compile Include="QueryTerm\DbCreateQuery.cs" />
@@ -63,20 +61,12 @@
     <Compile Include="QueryTerm\TableDropQuery.cs" />
     <Compile Include="QueryTerm\TableQuery.cs" />
     <Compile Include="rethinkdb_spec.cs" />
-    <Compile Include="IDatumConverter.cs" />
-    <Compile Include="DataContractDatumConverterFactory.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="DmlResponse.cs" />
-    <Compile Include="IAsyncEnumerator.cs" />
-    <Compile Include="IDatumConverterFactory.cs" />
     <Compile Include="QueryTerm\ReplaceQuery.cs" />
     <Compile Include="QueryTerm\DeleteQuery.cs" />
     <Compile Include="QueryTerm\BetweenQuery.cs" />
     <Compile Include="QueryTerm\UpdateQuery.cs" />
-    <Compile Include="ILogger.cs" />
-    <Compile Include="LoggingUtils.cs" />
-    <Compile Include="LoggingCategory.cs" />
-    <Compile Include="DefaultLogger.cs" />
     <Compile Include="QueryTerm\CountQuery.cs" />
     <Compile Include="QueryTerm\FilterQuery.cs" />
     <Compile Include="QueryTerm\ExpressionUtils.cs" />
@@ -84,11 +74,21 @@
     <Compile Include="QueryTerm\ExprSequenceQuery.cs" />
     <Compile Include="QueryTerm\MapQuery.cs" />
     <Compile Include="QueryTerm\OrderByQuery.cs" />
-    <Compile Include="TupleDatumConverterFactory.cs" />
     <Compile Include="QueryTerm\InnerJoinQuery.cs" />
     <Compile Include="QueryTerm\ReduceQuery.cs" />
     <Compile Include="QueryTerm\OuterJoinQuery.cs" />
     <Compile Include="QueryTerm\EqJoinQuery.cs" />
+    <Compile Include="Logging\DefaultLogger.cs" />
+    <Compile Include="Logging\LoggingCategory.cs" />
+    <Compile Include="Logging\LoggingUtils.cs" />
+    <Compile Include="DatumConverters\ArrayDatumConverterFactory.cs" />
+    <Compile Include="DatumConverters\DataContractDatumConverterFactory.cs" />
+    <Compile Include="DatumConverters\PrimitiveDatumConverterFactory.cs" />
+    <Compile Include="DatumConverters\TupleDatumConverterFactory.cs" />
+    <Compile Include="Interfaces\IDatumConverter.cs" />
+    <Compile Include="Interfaces\IDatumConverterFactory.cs" />
+    <Compile Include="Interfaces\ILogger.cs" />
+    <Compile Include="Interfaces\IAsyncEnumerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -107,4 +107,9 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Logging\" />
+    <Folder Include="DatumConverters\" />
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
 </Project>
