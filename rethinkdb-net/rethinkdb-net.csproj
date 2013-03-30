@@ -93,6 +93,7 @@
     <Compile Include="QueryTerm\SkipQuery.cs" />
     <Compile Include="QueryTerm\LImitQuery.cs" />
     <Compile Include="QueryTerm\SliceQuery.cs" />
+    <Compile Include="QueryTerm\NthQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

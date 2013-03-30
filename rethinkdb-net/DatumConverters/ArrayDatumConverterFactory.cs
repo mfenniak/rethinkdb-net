@@ -55,7 +55,7 @@ namespace RethinkDb
                     return (T)Convert.ChangeType(retval, typeof(T));
                 }
                 else
-                    throw new NotSupportedException("Attempted to cast Datum to string, but Datum was unsupported type " + datum.type);
+                    throw new NotSupportedException("Attempted to cast Datum to array, but Datum was unsupported type " + datum.type);
             }
 
             public Spec.Datum ConvertObject(T arrayObject)

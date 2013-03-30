@@ -95,7 +95,7 @@ namespace RethinkDb
                     return (T)(tupleConstructor.Invoke(new object[] { item1, item2 }));
                 }
                 else
-                    throw new NotSupportedException("Attempted to cast Datum to string, but Datum was unsupported type " + datum.type);
+                    throw new NotSupportedException("Attempted to cast Datum to tuple, but Datum was unsupported type " + datum.type);
             }
 
             public Spec.Datum ConvertObject(T arrayObject)

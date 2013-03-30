@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RethinkDb.QueryTerm
 {
-    public class ExprSequenceQuery<T> : ISingleObjectQuery<T[]>
+    public class ExprSequenceQuery<T> : ISequenceQuery<T>
     {
         private readonly IEnumerable<T> enumerable;
 

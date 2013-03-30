@@ -76,8 +76,28 @@ namespace RethinkDb.Test
 
         private async Task DoExprSequence<T>(IEnumerable<T> enumerable)
         {
-            var retval = await connection.Run(Query.Expr(enumerable));
-            Assert.That(retval.ToList(), Is.EqualTo(enumerable.ToList()));
+            var asyncEnumerable = connection.Run(Query.Expr(enumerable));
+            var count = 0;
+            while (true)
+            {
+                if (!await asyncEnumerable.MoveNext())
+                    break;
+                ++count;
+                Assert.That(asyncEnumerable.Current, Is.EqualTo(count));
+            }
+            Assert.That(count, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ExprNth()
+        {
+            DoExprSequence(new double[] { 1, 2, 3 }).Wait();
+        }
+
+        private async Task DoExprNth<T>(IEnumerable<T> enumerable)
+        {
+            var resp = await connection.Run(Query.Expr(enumerable).Nth(2));
+            Assert.That(resp, Is.EqualTo(2));
         }
     }
 }

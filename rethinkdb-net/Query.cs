@@ -189,5 +189,10 @@ namespace RethinkDb
         {
             return new ReduceQuery<T>(sequenceQuery, reduceFunction, @base);
         }
+
+        public static NthQuery<T> Nth<T>(this ISequenceQuery<T> sequenceQuery, int index)
+        {
+            return new NthQuery<T>(sequenceQuery, index);
+        }
     }
 }
