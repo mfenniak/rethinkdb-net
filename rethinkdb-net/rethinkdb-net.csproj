@@ -94,6 +94,7 @@
     <Compile Include="QueryTerm\LImitQuery.cs" />
     <Compile Include="QueryTerm\SliceQuery.cs" />
     <Compile Include="QueryTerm\NthQuery.cs" />
+    <Compile Include="QueryTerm\DistinctQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

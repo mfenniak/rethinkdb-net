@@ -91,13 +91,33 @@ namespace RethinkDb.Test
         [Test]
         public void ExprNth()
         {
-            DoExprSequence(new double[] { 1, 2, 3 }).Wait();
+            DoExprNth(new double[] { 1, 2, 3 }).Wait();
         }
 
         private async Task DoExprNth<T>(IEnumerable<T> enumerable)
         {
-            var resp = await connection.Run(Query.Expr(enumerable).Nth(2));
+            var resp = await connection.Run(Query.Expr(enumerable).Nth(1));
             Assert.That(resp, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void ExprDistinct()
+        {
+            DoExprDistinct().Wait();
+        }
+
+        private async Task DoExprDistinct()
+        {
+            var asyncEnumerable = connection.Run(Query.Expr((IEnumerable<double>)new double[] { 1, 2, 3, 2, 1 }).Distinct());
+            var count = 0;
+            while (true)
+            {
+                if (!await asyncEnumerable.MoveNext())
+                    break;
+                ++count;
+                Assert.That(asyncEnumerable.Current, Is.EqualTo(count));
+            }
+            Assert.That(count, Is.EqualTo(3));
         }
     }
 }
