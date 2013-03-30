@@ -20,16 +20,16 @@ namespace RethinkDb.Test
 
         private async Task DoDbCreateTest()
         {
-            var resp = await connection.Run(Query.DbCreate("test"));
+            var resp = await connection.RunAsync(Query.DbCreate("test"));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Created, Is.EqualTo(1));
 
-            var dbList = await connection.Run(Query.DbList());
+            var dbList = await connection.RunAsync(Query.DbList());
             Assert.That(dbList, Is.Not.Null);
             Assert.That(dbList, Contains.Item("test"));
 
-            resp = await connection.Run(Query.DbDrop("test"));
+            resp = await connection.RunAsync(Query.DbDrop("test"));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Dropped, Is.EqualTo(1));
@@ -51,7 +51,7 @@ namespace RethinkDb.Test
                     new TestObject() { Id = "987", Name = "654", SomeNumber = 321 },
                 },
             };
-            var resp = await connection.Run(Query.Expr(obj));
+            var resp = await connection.RunAsync(Query.Expr(obj));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp, Is.EqualTo(obj));
         }
@@ -64,7 +64,7 @@ namespace RethinkDb.Test
 
         private async Task DoExprExpression<T>(Expression<Func<T>> objectExpr, T value)
         {
-            var resp = await connection.Run(Query.Expr(objectExpr));
+            var resp = await connection.RunAsync(Query.Expr(objectExpr));
             Assert.That(resp, Is.EqualTo(value));
         }
 
@@ -76,7 +76,7 @@ namespace RethinkDb.Test
 
         private async Task DoExprSequence<T>(IEnumerable<T> enumerable)
         {
-            var asyncEnumerable = connection.Run(Query.Expr(enumerable));
+            var asyncEnumerable = connection.RunAsync(Query.Expr(enumerable));
             var count = 0;
             while (true)
             {
@@ -96,7 +96,7 @@ namespace RethinkDb.Test
 
         private async Task DoExprNth<T>(IEnumerable<T> enumerable)
         {
-            var resp = await connection.Run(Query.Expr(enumerable).Nth(1));
+            var resp = await connection.RunAsync(Query.Expr(enumerable).Nth(1));
             Assert.That(resp, Is.EqualTo(2));
         }
 
@@ -108,7 +108,7 @@ namespace RethinkDb.Test
 
         private async Task DoExprDistinct()
         {
-            var asyncEnumerable = connection.Run(Query.Expr((IEnumerable<double>)new double[] { 1, 2, 3, 2, 1 }).Distinct());
+            var asyncEnumerable = connection.RunAsync(Query.Expr((IEnumerable<double>)new double[] { 1, 2, 3, 2, 1 }).Distinct());
             var count = 0;
             while (true)
             {

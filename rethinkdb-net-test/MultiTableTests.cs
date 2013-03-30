@@ -19,9 +19,9 @@ namespace RethinkDb.Test
         public override void TestFixtureSetUp()
         {
             base.TestFixtureSetUp();
-            connection.Run(Query.DbCreate("test")).Wait();
-            connection.Run(Query.Db("test").TableCreate("table1")).Wait();
-            connection.Run(Query.Db("test").TableCreate("table2")).Wait();
+            connection.RunAsync(Query.DbCreate("test")).Wait();
+            connection.RunAsync(Query.Db("test").TableCreate("table1")).Wait();
+            connection.RunAsync(Query.Db("test").TableCreate("table2")).Wait();
         }
 
         [SetUp]
@@ -30,14 +30,14 @@ namespace RethinkDb.Test
             testTable = Query.Db("test").Table<TestObject>("table1");
             anotherTestTable = Query.Db("test").Table<AnotherTestObject>("table2");
 
-            connection.Run(testTable.Insert(new TestObject[] {
+            connection.RunAsync(testTable.Insert(new TestObject[] {
                 new TestObject() { Id = "1", Name = "1", SomeNumber = 1, Children = new TestObject[1] },
                 new TestObject() { Id = "2", Name = "2", SomeNumber = 2, Children = new TestObject[2] },
                 new TestObject() { Id = "3", Name = "3", SomeNumber = 3, Children = new TestObject[3] },
                 new TestObject() { Id = "4", Name = "4", SomeNumber = 4, Children = new TestObject[4] },
             })).Wait();
 
-            connection.Run(anotherTestTable.Insert(new AnotherTestObject[] {
+            connection.RunAsync(anotherTestTable.Insert(new AnotherTestObject[] {
                 new AnotherTestObject() { Id = "1", FirstName = "1", LastName = "1" },
                 new AnotherTestObject() { Id = "2", FirstName = "2", LastName = "2" },
                 new AnotherTestObject() { Id = "3", FirstName = "3", LastName = "3" },
@@ -47,8 +47,8 @@ namespace RethinkDb.Test
         [TearDown]
         public virtual void TearDown()
         {
-            connection.Run(testTable.Delete()).Wait();
-            connection.Run(anotherTestTable.Delete()).Wait();
+            connection.RunAsync(testTable.Delete()).Wait();
+            connection.RunAsync(anotherTestTable.Delete()).Wait();
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace RethinkDb.Test
 
         private async Task DoInnerJoin()
         {
-            var enumerable = connection.Run(
+            var enumerable = connection.RunAsync(
                 testTable.InnerJoin(
                     anotherTestTable,
                     (testObject, anotherTestObject) => testObject.Name == anotherTestObject.FirstName
@@ -93,7 +93,7 @@ namespace RethinkDb.Test
 
         private async Task DoOuterJoin()
         {
-            var enumerable = connection.Run(
+            var enumerable = connection.RunAsync(
                 testTable.OuterJoin(
                     anotherTestTable,
                     (testObject, anotherTestObject) => testObject.Name == anotherTestObject.FirstName
@@ -135,7 +135,7 @@ namespace RethinkDb.Test
 
         private async Task DoEqJoin()
         {
-            var enumerable = connection.Run(
+            var enumerable = connection.RunAsync(
                 testTable.EqJoin(
                     testObject => testObject.Name,
                     anotherTestTable
@@ -170,7 +170,7 @@ namespace RethinkDb.Test
 
         private async Task DoZip()
         {
-            var enumerable = connection.Run(
+            var enumerable = connection.RunAsync(
                 testTable.EqJoin(
                     testObject => testObject.Name,
                     anotherTestTable

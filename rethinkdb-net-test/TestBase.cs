@@ -20,13 +20,13 @@ namespace RethinkDb.Test
         private async Task DoTestFixtureSetUp()
         {
             connection = new Connection();
-            await connection.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 28015));
+            await connection.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 28015));
 
             try
             {
-                var dbList = await connection.Run(Query.DbList());
+                var dbList = await connection.RunAsync(Query.DbList());
                 if (dbList.Contains("test"))
-                    await connection.Run(Query.DbDrop("test"));
+                    await connection.RunAsync(Query.DbDrop("test"));
             }
             catch (Exception)
             {

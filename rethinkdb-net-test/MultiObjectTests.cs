@@ -18,15 +18,15 @@ namespace RethinkDb.Test
         public override void TestFixtureSetUp()
         {
             base.TestFixtureSetUp();
-            connection.Run(Query.DbCreate("test")).Wait();
-            connection.Run(Query.Db("test").TableCreate("table")).Wait();
+            connection.RunAsync(Query.DbCreate("test")).Wait();
+            connection.RunAsync(Query.Db("test").TableCreate("table")).Wait();
         }
 
         [SetUp]
         public virtual void SetUp()
         {
             testTable = Query.Db("test").Table<TestObject>("table");
-            connection.Run(testTable.Insert(new TestObject[] {
+            connection.RunAsync(testTable.Insert(new TestObject[] {
                 new TestObject() { Id = "1", Name = "1", SomeNumber = 1 },
                 new TestObject() { Id = "2", Name = "2", SomeNumber = 2 },
                 new TestObject() { Id = "3", Name = "3", SomeNumber = 3 },
@@ -40,7 +40,7 @@ namespace RethinkDb.Test
         [TearDown]
         public virtual void TearDown()
         {
-            connection.Run(testTable.Delete()).Wait();
+            connection.RunAsync(testTable.Delete()).Wait();
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace RethinkDb.Test
 
         private async Task DoDelete()
         {
-            var resp = await connection.Run(testTable.Delete());
+            var resp = await connection.RunAsync(testTable.Delete());
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Deleted, Is.EqualTo(7));
@@ -65,7 +65,7 @@ namespace RethinkDb.Test
 
         private async Task DoBetween()
         {
-            var enumerable = connection.Run(testTable.Between("2", "4"));
+            var enumerable = connection.RunAsync(testTable.Between("2", "4"));
             List<TestObject> objects = new List<TestObject>();
             var count = 0;
             while (true)
@@ -91,7 +91,7 @@ namespace RethinkDb.Test
 
         private async Task DoBetweenNull()
         {
-            var enumerable = connection.Run(testTable.Between(null, "4"));
+            var enumerable = connection.RunAsync(testTable.Between(null, "4"));
             List<TestObject> objects = new List<TestObject>();
             var count = 0;
             while (true)
@@ -118,7 +118,7 @@ namespace RethinkDb.Test
 
         private async Task DoBetweenDelete()
         {
-            var resp = await connection.Run(testTable.Between(null, "4").Delete());
+            var resp = await connection.RunAsync(testTable.Between(null, "4").Delete());
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Deleted, Is.EqualTo(4));
@@ -132,7 +132,7 @@ namespace RethinkDb.Test
 
         private async Task DoSimpleUpdate()
         {
-            var resp = await connection.Run(testTable.Update(o => new TestObject() { Name = "Hello!" }));
+            var resp = await connection.RunAsync(testTable.Update(o => new TestObject() { Name = "Hello!" }));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             // "Replaced" seems weird here, rather than Updated, but that's what RethinkDB returns in the Data Explorer too...
@@ -147,7 +147,7 @@ namespace RethinkDb.Test
 
         private async Task DoRecordReferencingUpdate()
         {
-            var resp = await connection.Run(testTable.Update(o => new TestObject() { Name = "Hello " + o.Id + "!" }));
+            var resp = await connection.RunAsync(testTable.Update(o => new TestObject() { Name = "Hello " + o.Id + "!" }));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             // "Replaced" seems weird here, rather than Updated, but that's what RethinkDB returns in the Data Explorer too...
@@ -162,7 +162,7 @@ namespace RethinkDb.Test
 
         private async Task DoBetweenUpdate()
         {
-            var resp = await connection.Run(testTable.Between(null, "4").Update(o => new TestObject() { Name = "Hello " + o.Id + "!" }));
+            var resp = await connection.RunAsync(testTable.Between(null, "4").Update(o => new TestObject() { Name = "Hello " + o.Id + "!" }));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Replaced, Is.EqualTo(4));
@@ -176,7 +176,7 @@ namespace RethinkDb.Test
 
         private async Task DoCount()
         {
-            var resp = await connection.Run(testTable.Count());
+            var resp = await connection.RunAsync(testTable.Count());
             Assert.That(resp, Is.EqualTo(7));
         }
 
@@ -188,13 +188,13 @@ namespace RethinkDb.Test
 
         private async Task DoBetweenCount()
         {
-            var resp = await connection.Run(testTable.Between(null, "4").Count());
+            var resp = await connection.RunAsync(testTable.Between(null, "4").Count());
             Assert.That(resp, Is.EqualTo(4));
         }
 
         private async Task DoFilterExpectedObjects(Expression<Func<TestObject, bool>> expr, params string[] expectedIds)
         {
-            var enumerable = connection.Run(testTable.Filter(expr));
+            var enumerable = connection.RunAsync(testTable.Filter(expr));
             Assert.That(enumerable, Is.Not.Null);
             List<TestObject> objects = new List<TestObject>();
             var count = 0;
@@ -273,7 +273,7 @@ namespace RethinkDb.Test
 
         private async Task DoMap()
         {
-            var enumerable = connection.Run(testTable.Map(original => new AnotherTestObject() {
+            var enumerable = connection.RunAsync(testTable.Map(original => new AnotherTestObject() {
                 FirstName = original.Name,
                 LastName = original.Name + " (?)",
             }));
@@ -297,7 +297,7 @@ namespace RethinkDb.Test
 
         private async Task DoMapToPrimitive()
         {
-            var enumerable = connection.Run(testTable.Map(original => original.SomeNumber));
+            var enumerable = connection.RunAsync(testTable.Map(original => original.SomeNumber));
 
             Assert.That(enumerable, Is.Not.Null);
             var count = 0;
@@ -318,7 +318,7 @@ namespace RethinkDb.Test
 
         private async Task DoOrderByMultiField()
         {
-            var enumerable = connection.Run(testTable.OrderBy(
+            var enumerable = connection.RunAsync(testTable.OrderBy(
                 o => o.Name,
                 o => Query.Asc(o.Name),
                 o => Query.Desc(o.Name)
@@ -343,7 +343,7 @@ namespace RethinkDb.Test
 
         private async Task DoOrderByAsc()
         {
-            var enumerable = connection.Run(testTable.OrderBy(o => Query.Asc(o.Name)));
+            var enumerable = connection.RunAsync(testTable.OrderBy(o => Query.Asc(o.Name)));
             Assert.That(enumerable, Is.Not.Null);
             var count = 0;
             while (true)
@@ -364,7 +364,7 @@ namespace RethinkDb.Test
 
         private async Task DoOrderByDesc()
         {
-            var enumerable = connection.Run(testTable.OrderBy(o => Query.Desc(o.Name)));
+            var enumerable = connection.RunAsync(testTable.OrderBy(o => Query.Desc(o.Name)));
             Assert.That(enumerable, Is.Not.Null);
             var count = 0;
             while (true)
@@ -385,7 +385,7 @@ namespace RethinkDb.Test
 
         private async Task DoReduce()
         {
-            var resp = await connection.Run(testTable.Reduce((acc, val) => new TestObject() { SomeNumber = acc.SomeNumber + val.SomeNumber }));
+            var resp = await connection.RunAsync(testTable.Reduce((acc, val) => new TestObject() { SomeNumber = acc.SomeNumber + val.SomeNumber }));
             Assert.That(resp.SomeNumber, Is.EqualTo(7 + 6 + 5 + 4 + 3 + 2 + 1 + 0));
         }
 
@@ -397,7 +397,7 @@ namespace RethinkDb.Test
 
         private async Task DoReduceToPrimitive()
         {
-            var resp = await connection.Run(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val));
+            var resp = await connection.RunAsync(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val));
             Assert.That(resp, Is.EqualTo(7 + 6 + 5 + 4 + 3 + 2 + 1 + 0));
         }
 
@@ -409,7 +409,7 @@ namespace RethinkDb.Test
 
         private async Task DoSkip()
         {
-            var enumerable = connection.Run(testTable.OrderBy(o => o.Name).Skip(6));
+            var enumerable = connection.RunAsync(testTable.OrderBy(o => o.Name).Skip(6));
             Assert.That(enumerable, Is.Not.Null);
             var count = 0;
             while (true)
@@ -430,7 +430,7 @@ namespace RethinkDb.Test
 
         private async Task DoLimit()
         {
-            var enumerable = connection.Run(testTable.OrderBy(o => o.Name).Limit(1));
+            var enumerable = connection.RunAsync(testTable.OrderBy(o => o.Name).Limit(1));
             Assert.That(enumerable, Is.Not.Null);
             var count = 0;
             while (true)
@@ -451,7 +451,7 @@ namespace RethinkDb.Test
 
         private async Task DoSlice()
         {
-            var enumerable = connection.Run(testTable.OrderBy(o => o.Name).Slice(1, 2));
+            var enumerable = connection.RunAsync(testTable.OrderBy(o => o.Name).Slice(1, 2));
             Assert.That(enumerable, Is.Not.Null);
             var count = 0;
             while (true)
@@ -472,7 +472,7 @@ namespace RethinkDb.Test
 
         private async Task DoSliceStartOnly()
         {
-            var enumerable = connection.Run(testTable.OrderBy(o => o.Name).Slice(6));
+            var enumerable = connection.RunAsync(testTable.OrderBy(o => o.Name).Slice(6));
             Assert.That(enumerable, Is.Not.Null);
             var count = 0;
             while (true)

@@ -18,8 +18,8 @@ namespace RethinkDb.Test
         public override void TestFixtureSetUp()
         {
             base.TestFixtureSetUp();
-            connection.Run(Query.DbCreate("test")).Wait();
-            connection.Run(Query.Db("test").TableCreate("table")).Wait();
+            connection.RunAsync(Query.DbCreate("test")).Wait();
+            connection.RunAsync(Query.Db("test").TableCreate("table")).Wait();
         }
 
         [SetUp]
@@ -39,14 +39,14 @@ namespace RethinkDb.Test
                 },
                 SomeNumber = 1234
             };
-            var resp = await connection.Run(testTable.Insert(insertedObject));
+            var resp = await connection.RunAsync(testTable.Insert(insertedObject));
             insertedObject.Id = resp.GeneratedKeys[0];
         }
 
         [TearDown]
         public virtual void TearDown()
         {
-            connection.Run(testTable.Delete()).Wait();
+            connection.RunAsync(testTable.Delete()).Wait();
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace RethinkDb.Test
 
         private async Task DoGetQueryNull()
         {
-            var obj = await connection.Run(testTable.Get(insertedObject.Id));
+            var obj = await connection.RunAsync(testTable.Get(insertedObject.Id));
             Assert.That(obj, Is.Not.Null);
             Assert.That(obj.Id, Is.EqualTo(insertedObject.Id));
         }
@@ -70,7 +70,7 @@ namespace RethinkDb.Test
 
         private async Task DoReplace()
         {
-            var resp = await connection.Run(testTable.Get(insertedObject.Id).Replace(new TestObject() { Id = insertedObject.Id, Name = "Jack Black" }));
+            var resp = await connection.RunAsync(testTable.Get(insertedObject.Id).Replace(new TestObject() { Id = insertedObject.Id, Name = "Jack Black" }));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Replaced, Is.EqualTo(1));
@@ -85,7 +85,7 @@ namespace RethinkDb.Test
 
         private async Task DoDelete()
         {
-            var resp = await connection.Run(testTable.Get(insertedObject.Id).Delete());
+            var resp = await connection.RunAsync(testTable.Get(insertedObject.Id).Delete());
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Deleted, Is.EqualTo(1));
@@ -124,13 +124,13 @@ namespace RethinkDb.Test
 
         private async Task DoGetUpdateNumeric(Expression<Func<TestObject, TestObject>> expr, double expected)
         {
-            var resp = await connection.Run(testTable.Get(insertedObject.Id).Update(expr));
+            var resp = await connection.RunAsync(testTable.Get(insertedObject.Id).Update(expr));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             // "Replaced" seems weird here, rather than Updated, but that's what RethinkDB returns in the Data Explorer too...
             Assert.That(resp.Replaced, Is.EqualTo(1));
 
-            var obj = await connection.Run(testTable.Get(insertedObject.Id));
+            var obj = await connection.RunAsync(testTable.Get(insertedObject.Id));
             Assert.That(obj, Is.Not.Null);
             Assert.That(obj.SomeNumber, Is.EqualTo(expected));
         }
@@ -143,7 +143,7 @@ namespace RethinkDb.Test
 
         private async Task DoReduce()
         {
-            var resp = await connection.Run(testTable.Reduce((acc, val) => new TestObject() { SomeNumber = acc.SomeNumber + val.SomeNumber }));
+            var resp = await connection.RunAsync(testTable.Reduce((acc, val) => new TestObject() { SomeNumber = acc.SomeNumber + val.SomeNumber }));
             Assert.That(resp.SomeNumber, Is.EqualTo(1234));
         }
 
@@ -155,7 +155,7 @@ namespace RethinkDb.Test
 
         private async Task DoReduceToPrimitive()
         {
-            var resp = await connection.Run(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val));
+            var resp = await connection.RunAsync(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val));
             Assert.That(resp, Is.EqualTo(1234));
         }
     }

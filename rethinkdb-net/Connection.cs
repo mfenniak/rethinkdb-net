@@ -12,7 +12,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb
 {
-    public sealed class Connection : IDisposable
+    public sealed class Connection : IAsyncConnection, IConnection, IDisposable
     {
         private static TaskFactory taskFactory = new TaskFactory();
         private static TimeSpan connectTimeout = TimeSpan.FromSeconds(30);
@@ -42,7 +42,7 @@ namespace RethinkDb
             set;
         }
 
-        public async Task Connect(params EndPoint[] endpoints)
+        public async Task ConnectAsync(params EndPoint[] endpoints)
         {
             var cancellationToken = new CancellationTokenSource(connectTimeout).Token;
 
@@ -278,7 +278,7 @@ namespace RethinkDb
             }
         }
 
-        public async Task<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
+        public async Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
@@ -304,32 +304,32 @@ namespace RethinkDb
             }
         }
 
-        public Task<T> Run<T>(ISingleObjectQuery<T> queryObject)
+        public Task<T> RunAsync<T>(ISingleObjectQuery<T> queryObject)
         {
-            return Run<T>(DatumConverterFactory, queryObject);
+            return RunAsync<T>(DatumConverterFactory, queryObject);
         }
 
-        public Task<DmlResponse> Run(IDatumConverterFactory datumConverterFactory, IDmlQuery queryObject)
+        public Task<DmlResponse> RunAsync(IDatumConverterFactory datumConverterFactory, IDmlQuery queryObject)
         {
-            return Run<DmlResponse>(datumConverterFactory, queryObject);
+            return RunAsync<DmlResponse>(datumConverterFactory, queryObject);
         }
 
-        public Task<DmlResponse> Run(IDmlQuery queryObject)
+        public Task<DmlResponse> RunAsync(IDmlQuery queryObject)
         {
-            return Run(DatumConverterFactory, queryObject);
+            return RunAsync(DatumConverterFactory, queryObject);
         }
 
-        public IAsyncEnumerator<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
+        public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
         {
             return new QueryEnumerator<T>(this, datumConverterFactory, queryObject);
         }
 
-        public IAsyncEnumerator<T> Run<T>(ISequenceQuery<T> queryObject)
+        public IAsyncEnumerator<T> RunAsync<T>(ISequenceQuery<T> queryObject)
         {
-            return Run(DatumConverterFactory, queryObject);
+            return RunAsync(DatumConverterFactory, queryObject);
         }
 
-        public async Task<DmlResponse> Run<T>(IDatumConverterFactory datumConverterFactory, IWriteQuery<T> queryObject)
+        public async Task<DmlResponse> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IWriteQuery<T> queryObject)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
@@ -355,9 +355,9 @@ namespace RethinkDb
             }
         }
 
-        public Task<DmlResponse> Run<T>(IWriteQuery<T> queryObject)
+        public Task<DmlResponse> RunAsync<T>(IWriteQuery<T> queryObject)
         {
-            return Run(DatumConverterFactory, queryObject);
+            return RunAsync(DatumConverterFactory, queryObject);
         }
 
         private class QueryEnumerator<T> : IAsyncEnumerator<T>
@@ -490,6 +490,104 @@ namespace RethinkDb
                 }
                 socket = null;
             }
+        }
+
+        #endregion
+        #region IConnection implementation
+
+        public void Connect(params EndPoint[] endpoints)
+        {
+            ConnectAsync(endpoints).Wait();
+        }
+
+        public T Run<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
+        {
+            return RunAsync(datumConverterFactory, queryObject).Result;
+        }
+
+        public T Run<T>(ISingleObjectQuery<T> queryObject)
+        {
+            return RunAsync(queryObject).Result;
+        }
+
+        public IEnumerator<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
+        {
+            return new AsyncEnumeratorSynchronizer<T>(RunAsync(datumConverterFactory, queryObject));
+        }
+
+        public IEnumerator<T> Run<T>(ISequenceQuery<T> queryObject)
+        {
+            return new AsyncEnumeratorSynchronizer<T>(RunAsync(queryObject));
+        }
+
+        public DmlResponse Run(IDatumConverterFactory datumConverterFactory, IDmlQuery queryObject)
+        {
+            return RunAsync(datumConverterFactory, queryObject).Result;
+        }
+
+        public DmlResponse Run(IDmlQuery queryObject)
+        {
+            return RunAsync(queryObject).Result;
+        }
+
+        public DmlResponse Run<T>(IDatumConverterFactory datumConverterFactory, IWriteQuery<T> queryObject)
+        {
+            return RunAsync(datumConverterFactory, queryObject).Result;
+        }
+
+        public DmlResponse Run<T>(IWriteQuery<T> queryObject)
+        {
+            return RunAsync(queryObject).Result;
+        }
+
+        private class AsyncEnumeratorSynchronizer<T> : IEnumerator<T>
+        {
+            private readonly IAsyncEnumerator<T> asyncEnumerator;
+
+            public AsyncEnumeratorSynchronizer(IAsyncEnumerator<T> asyncEnumerator)
+            {
+                this.asyncEnumerator = asyncEnumerator;
+            }
+
+            #region IDisposable implementation
+
+            public void Dispose ()
+            {
+            }
+
+            #endregion
+            #region IEnumerator implementation
+
+            public bool MoveNext ()
+            {
+                return asyncEnumerator.MoveNext().Result;
+            }
+
+            public void Reset ()
+            {
+                throw new NotSupportedException();
+            }
+
+            public object Current
+            {
+                get
+                {
+                    return asyncEnumerator.Current;
+                }
+            }
+
+            #endregion
+            #region IEnumerator implementation
+
+            T IEnumerator<T>.Current
+            {
+                get
+                {
+                    return asyncEnumerator.Current;
+                }
+            }
+
+            #endregion
         }
 
         #endregion

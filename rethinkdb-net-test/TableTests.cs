@@ -16,15 +16,15 @@ namespace RethinkDb.Test
         [SetUp]
         public virtual void SetUp()
         {
-            connection.Run(Query.DbCreate("test")).Wait();
-            connection.Run(Query.Db("test").TableCreate("table")).Wait();
+            connection.RunAsync(Query.DbCreate("test")).Wait();
+            connection.RunAsync(Query.Db("test").TableCreate("table")).Wait();
             testTable = Query.Db("test").Table<TestObject>("table");
         }
 
         [TearDown]
         public virtual void TearDown()
         {
-            connection.Run(Query.DbDrop("test")).Wait();
+            connection.RunAsync(Query.DbDrop("test")).Wait();
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace RethinkDb.Test
 
         private async Task DoGetQueryNull()
         {
-            var obj = await connection.Run(testTable.Get("58379951-6208-46cc-a194-03da8ee1e13c"));
+            var obj = await connection.RunAsync(testTable.Get("58379951-6208-46cc-a194-03da8ee1e13c"));
             Assert.That(obj, Is.Null);
         }
 
@@ -47,7 +47,7 @@ namespace RethinkDb.Test
 
         private async Task DoEmptyEnumerator()
         {
-            var enumerable = connection.Run(testTable);
+            var enumerable = connection.RunAsync(testTable);
             int count = 0;
             while (true)
             {
@@ -73,7 +73,7 @@ namespace RethinkDb.Test
                     new TestObject() { Name = "Scan" }
                 }
             };
-            var resp = await connection.Run(testTable.Insert(obj));
+            var resp = await connection.RunAsync(testTable.Insert(obj));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Inserted, Is.EqualTo(1));
@@ -89,7 +89,7 @@ namespace RethinkDb.Test
 
         private async Task DoMultiInsert()
         {
-            var resp = await connection.Run(testTable.Insert(new TestObject[] {
+            var resp = await connection.RunAsync(testTable.Insert(new TestObject[] {
                 new TestObject() { Name = "1" },
                 new TestObject() { Name = "2" },
                 new TestObject() { Name = "3" },
@@ -113,7 +113,7 @@ namespace RethinkDb.Test
 
         private async Task DoMultiInsertWithIds()
         {
-            var resp = await connection.Run(testTable.Insert(new TestObject[] {
+            var resp = await connection.RunAsync(testTable.Insert(new TestObject[] {
                 new TestObject() { Id = "1", Name = "1" },
                 new TestObject() { Id = "2", Name = "2" },
                 new TestObject() { Id = "3", Name = "3" },
@@ -136,7 +136,7 @@ namespace RethinkDb.Test
 
         private async Task DoReduce()
         {
-            var resp = await connection.Run(testTable.Reduce((acc, val) => new TestObject() { SomeNumber = acc.SomeNumber + val.SomeNumber }, new TestObject() { SomeNumber = -1 }));
+            var resp = await connection.RunAsync(testTable.Reduce((acc, val) => new TestObject() { SomeNumber = acc.SomeNumber + val.SomeNumber }, new TestObject() { SomeNumber = -1 }));
             Assert.That(resp.SomeNumber, Is.EqualTo(-1));
         }
 
@@ -148,7 +148,7 @@ namespace RethinkDb.Test
 
         private async Task DoReduceToPrimitive()
         {
-            var resp = await connection.Run(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val, -1.0));
+            var resp = await connection.RunAsync(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val, -1.0));
             Assert.That(resp, Is.EqualTo(-1.0));
         }
     }
