@@ -402,7 +402,6 @@ namespace RethinkDb.Test
         }
 
         [Test]
-        [Ignore("Causes RethinkDB segfault, issue rethinkdb/rethinkdb#522")]
         public void Skip()
         {
             DoSkip().Wait();
@@ -445,7 +444,6 @@ namespace RethinkDb.Test
         }
 
         [Test]
-        [Ignore("Causes RethinkDB segfault, issue rethinkdb/rethinkdb#522")]
         public void Slice()
         {
             DoSlice().Wait();
@@ -461,12 +459,12 @@ namespace RethinkDb.Test
                 if (!await enumerable.MoveNext())
                     break;
                 ++count;
+                Assert.That(enumerable.Current.SomeNumber, Is.EqualTo(count + 1));
             }
-            Assert.That(count, Is.EqualTo(1));
+            Assert.That(count, Is.EqualTo(2));
         }
 
         [Test]
-        [Ignore("Causes RethinkDB segfault, issue rethinkdb/rethinkdb#522")]
         public void SliceStartOnly()
         {
             DoSliceStartOnly().Wait();
