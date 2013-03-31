@@ -84,12 +84,20 @@ namespace RethinkDb
 
                     foreach (var assocPair in datum.r_object)
                     {
+                        // left/right for a join
                         if (assocPair.key == "left")
                             item1 = ReflectedConversion(assocPair.val, item1TypeDatumConverter);
                         else if (assocPair.key == "right")
                             item2 = ReflectedConversion(assocPair.val, item2TypeDatumConverter);
+
+                        // group/reduction for a grouped map reduce
+                        else if (assocPair.key == "group")
+                            item1 = ReflectedConversion(assocPair.val, item1TypeDatumConverter);
+                        else if (assocPair.key == "reduction")
+                            item2 = ReflectedConversion(assocPair.val, item2TypeDatumConverter);
+
                         else
-                            throw new InvalidOperationException("Unexpected key/value pair in tuple object: " + assocPair.key + "; expected only left and right");
+                            throw new InvalidOperationException("Unexpected key/value pair in tuple object: " + assocPair.key + "; expected left/right or group/reduction");
                     }
 
                     return (T)(tupleConstructor.Invoke(new object[] { item1, item2 }));

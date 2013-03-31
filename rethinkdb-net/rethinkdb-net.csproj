@@ -97,6 +97,7 @@
     <Compile Include="QueryTerm\DistinctQuery.cs" />
     <Compile Include="Interfaces\IConnection.cs" />
     <Compile Include="Interfaces\IAsyncConnection.cs" />
+    <Compile Include="QueryTerm\GroupedMapReduceQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -510,14 +510,14 @@ namespace RethinkDb
             return RunAsync(queryObject).Result;
         }
 
-        public IEnumerator<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
+        public IEnumerable<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
         {
-            return new AsyncEnumeratorSynchronizer<T>(RunAsync(datumConverterFactory, queryObject));
+            return new AsyncEnumerableSynchronizer<T>(RunAsync(datumConverterFactory, queryObject));
         }
 
-        public IEnumerator<T> Run<T>(ISequenceQuery<T> queryObject)
+        public IEnumerable<T> Run<T>(ISequenceQuery<T> queryObject)
         {
-            return new AsyncEnumeratorSynchronizer<T>(RunAsync(queryObject));
+            return new AsyncEnumerableSynchronizer<T>(RunAsync(queryObject));
         }
 
         public DmlResponse Run(IDatumConverterFactory datumConverterFactory, IDmlQuery queryObject)
@@ -538,6 +538,26 @@ namespace RethinkDb
         public DmlResponse Run<T>(IWriteQuery<T> queryObject)
         {
             return RunAsync(queryObject).Result;
+        }
+
+        private class AsyncEnumerableSynchronizer<T> : IEnumerable<T>
+        {
+            private readonly IEnumerator<T> enumerator;
+
+            public AsyncEnumerableSynchronizer(IAsyncEnumerator<T> asyncEnumerator)
+            {
+                this.enumerator = new AsyncEnumeratorSynchronizer<T>(asyncEnumerator);
+            }
+
+            public System.Collections.IEnumerator GetEnumerator()
+            {
+                return enumerator;
+            }
+
+            IEnumerator<T> IEnumerable<T>.GetEnumerator()
+            {
+                return enumerator;
+            }
         }
 
         private class AsyncEnumeratorSynchronizer<T> : IEnumerator<T>

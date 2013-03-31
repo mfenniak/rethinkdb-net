@@ -24,9 +24,9 @@ namespace RethinkDb
 
         T Run<T>(ISingleObjectQuery<T> queryObject);
 
-        IEnumerator<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject);
+        IEnumerable<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject);
 
-        IEnumerator<T> Run<T>(ISequenceQuery<T> queryObject);
+        IEnumerable<T> Run<T>(ISequenceQuery<T> queryObject);
 
         DmlResponse Run(IDatumConverterFactory datumConverterFactory, IDmlQuery queryObject);
 

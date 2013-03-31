@@ -46,7 +46,7 @@ namespace RethinkDb
                 return false;
         }
 
-        private class StringDatumConverter : IDatumConverter<string>
+        public class StringDatumConverter : IDatumConverter<string>
         {
             public static readonly Lazy<StringDatumConverter> Instance = new Lazy<StringDatumConverter>(() => new StringDatumConverter());
 
@@ -73,7 +73,7 @@ namespace RethinkDb
             #endregion
         }
 
-        private class BoolDatumConverter : IDatumConverter<bool>
+        public class BoolDatumConverter : IDatumConverter<bool>
         {
             public static readonly Lazy<BoolDatumConverter> Instance = new Lazy<BoolDatumConverter>(() => new BoolDatumConverter());
 
@@ -97,7 +97,7 @@ namespace RethinkDb
             #endregion
         }
 
-        private class NullableBoolDatumConverter : IDatumConverter<bool?>
+        public class NullableBoolDatumConverter : IDatumConverter<bool?>
         {
             public static readonly Lazy<NullableBoolDatumConverter> Instance = new Lazy<NullableBoolDatumConverter>(() => new NullableBoolDatumConverter());
 
@@ -124,7 +124,7 @@ namespace RethinkDb
             #endregion
         }
 
-        private class DoubleDatumConverter : IDatumConverter<double>
+        public class DoubleDatumConverter : IDatumConverter<double>
         {
             public static readonly Lazy<DoubleDatumConverter> Instance = new Lazy<DoubleDatumConverter>(() => new DoubleDatumConverter());
 
@@ -148,7 +148,7 @@ namespace RethinkDb
             #endregion
         }
 
-        private class NullableDoubleDatumConverter : IDatumConverter<double?>
+        public class NullableDoubleDatumConverter : IDatumConverter<double?>
         {
             public static readonly Lazy<NullableDoubleDatumConverter> Instance = new Lazy<NullableDoubleDatumConverter>(() => new NullableDoubleDatumConverter());
 
