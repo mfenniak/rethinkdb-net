@@ -535,5 +535,16 @@ namespace RethinkDb.Test
 
             Assert.That(count, Is.EqualTo(7));
         }
+
+        [Test]
+        public void MapReduceAnonymousTypes()
+        {
+            var retval = connection.Run(
+                testTable
+                    .Map(to => new { Value = to.SomeNumber, Count = 1.0 })
+                    .Reduce((l, r) => new { Value = l.Value + r.Value, Count = l.Count + r.Count }));
+            Assert.That(retval.Value, Is.EqualTo(28.0));
+            Assert.That(retval.Count, Is.EqualTo(7.0));
+        }
     }
 }

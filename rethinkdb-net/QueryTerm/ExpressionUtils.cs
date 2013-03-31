@@ -1,5 +1,6 @@
 using RethinkDb.Spec;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
@@ -408,6 +409,26 @@ namespace RethinkDb.QueryTerm
                     return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.NE);
                 case ExpressionType.Not:
                     return ConvertUnaryExpressionToTerm(recursiveMap, (UnaryExpression)expr, Term.TermType.NOT);
+
+                case ExpressionType.New:
+                {
+                    var newExpression = (NewExpression)expr;
+                    if (!AnonymousTypeDatumConverterFactory.Instance.IsTypeSupported(newExpression.Type))
+                        throw new NotSupportedException(String.Format("Unsupported type in New expression: {0}; only anonymous types are supported", expr.Type));
+
+                    var retval = new Term() {
+                        type = Term.TermType.MAKE_OBJ,
+                    };
+                    foreach (var property in newExpression.Type.GetProperties().Select((p, i) => new { Property = p, Index = i }))
+                    {
+                        var key = property.Property.Name;
+                        var value = recursiveMap(newExpression.Arguments[property.Index]);
+                        retval.optargs.Add(new Term.AssocPair() {
+                            key = key, val = value
+                        });
+                    }
+                    return retval;
+                }
 
                 default:
                     throw new NotSupportedException(String.Format("Unsupported expression type: {0}", expr.NodeType));

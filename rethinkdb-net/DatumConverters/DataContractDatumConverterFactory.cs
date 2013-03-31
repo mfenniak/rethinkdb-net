@@ -22,6 +22,8 @@ namespace RethinkDb
                 return PrimitiveDatumConverterFactory.Instance.Get<T>();
             else if (TupleDatumConverterFactory.Instance.IsTypeSupported(typeof(T)))
                 return TupleDatumConverterFactory.Instance.Get<T>(this);
+            else if (AnonymousTypeDatumConverterFactory.Instance.IsTypeSupported(typeof(T)))
+                return AnonymousTypeDatumConverterFactory.Instance.Get<T>(this);
             else
                 return Cache<T>.Instance.Value;
         }

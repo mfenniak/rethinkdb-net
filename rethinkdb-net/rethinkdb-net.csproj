@@ -98,6 +98,7 @@
     <Compile Include="Interfaces\IConnection.cs" />
     <Compile Include="Interfaces\IAsyncConnection.cs" />
     <Compile Include="QueryTerm\GroupedMapReduceQuery.cs" />
+    <Compile Include="DatumConverters\AnonymousTypeDatumConverterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -119,6 +119,24 @@ namespace RethinkDb.Test
             }
             Assert.That(count, Is.EqualTo(3));
         }
+
+        [Test]
+        public void AnonymousTypeExpression()
+        {
+            var anonValue = connection.Run(Query.Expr(() => new { Prop1 = 1.0, Prop2 = 2.0, Prop3 = "3" }));
+            Assert.That(anonValue.Prop1, Is.EqualTo(1.0));
+            Assert.That(anonValue.Prop2, Is.EqualTo(2.0));
+            Assert.That(anonValue.Prop3, Is.EqualTo("3"));
+        }
+
+        [Test]
+        public void AnonymousTypeValue()
+        {
+            var anonValue = connection.Run(Query.Expr(new { Prop1 = 1.0, Prop2 = 2.0, Prop3 = "3" }));
+            Assert.That(anonValue.Prop1, Is.EqualTo(1.0));
+            Assert.That(anonValue.Prop2, Is.EqualTo(2.0));
+            Assert.That(anonValue.Prop3, Is.EqualTo("3"));
+        }
     }
 }
 
