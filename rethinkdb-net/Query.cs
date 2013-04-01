@@ -209,5 +209,10 @@ namespace RethinkDb
         {
             return new GroupedMapReduceQuery<TOriginal, TGroup, TMap>(sequenceQuery, grouping, mapping, reduction, @base);
         }
+
+        public static ConcatMapQuery<TOriginal, TTarget> ConcatMap<TOriginal, TTarget>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, IEnumerable<TTarget>>> mapping)
+        {
+            return new ConcatMapQuery<TOriginal, TTarget>(sequenceQuery, mapping);
+        }
     }
 }

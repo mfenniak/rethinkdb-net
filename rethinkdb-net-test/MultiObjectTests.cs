@@ -27,13 +27,13 @@ namespace RethinkDb.Test
         {
             testTable = Query.Db("test").Table<TestObject>("table");
             connection.RunAsync(testTable.Insert(new TestObject[] {
-                new TestObject() { Id = "1", Name = "1", SomeNumber = 1 },
-                new TestObject() { Id = "2", Name = "2", SomeNumber = 2 },
-                new TestObject() { Id = "3", Name = "3", SomeNumber = 3 },
-                new TestObject() { Id = "4", Name = "4", SomeNumber = 4 },
-                new TestObject() { Id = "5", Name = "5", SomeNumber = 5 },
-                new TestObject() { Id = "6", Name = "6", SomeNumber = 6 },
-                new TestObject() { Id = "7", Name = "7", SomeNumber = 7 },
+                new TestObject() { Id = "1", Name = "1", SomeNumber = 1, Children = new TestObject[] { new TestObject() { Name = "C1" } } },
+                new TestObject() { Id = "2", Name = "2", SomeNumber = 2, Children = new TestObject[] { } },
+                new TestObject() { Id = "3", Name = "3", SomeNumber = 3, Children = new TestObject[] { new TestObject() { Name = "C3" } }  },
+                new TestObject() { Id = "4", Name = "4", SomeNumber = 4, Children = new TestObject[] { } },
+                new TestObject() { Id = "5", Name = "5", SomeNumber = 5, Children = new TestObject[] { new TestObject() { Name = "C5" } }  },
+                new TestObject() { Id = "6", Name = "6", SomeNumber = 6, Children = new TestObject[] { } },
+                new TestObject() { Id = "7", Name = "7", SomeNumber = 7, Children = new TestObject[] { new TestObject() { Name = "C7" } }  },
             })).Wait();
         }
 
@@ -545,6 +545,20 @@ namespace RethinkDb.Test
                     .Reduce((l, r) => new { Value = l.Value + r.Value, Count = l.Count + r.Count }));
             Assert.That(retval.Value, Is.EqualTo(28.0));
             Assert.That(retval.Count, Is.EqualTo(7.0));
+        }
+
+        [Test]
+        public void ConcatMap()
+        {
+            var enumerable = connection.Run(
+                testTable.ConcatMap(to => to.Children));
+            int count = 0;
+            foreach (var testObject in enumerable)
+            {
+                count++;
+                Assert.That(testObject.Name, Is.StringStarting("C"));
+            }
+            Assert.That(count, Is.EqualTo(4));
         }
     }
 }
