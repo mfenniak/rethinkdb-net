@@ -18,6 +18,10 @@ namespace RethinkDb
             set;
         }
 
+        int ConnectTimeoutSeconds {set;}
+
+        int QueryTimeoutSeconds {set;}
+
         Task ConnectAsync(params EndPoint[] endpoints);
 
         Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject);

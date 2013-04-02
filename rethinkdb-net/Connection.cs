@@ -15,10 +15,10 @@ namespace RethinkDb
     public sealed class Connection : IAsyncConnection, IConnection, IDisposable
     {
         private static TaskFactory taskFactory = new TaskFactory();
-        private static TimeSpan connectTimeout = TimeSpan.FromSeconds(30);
-        private static TimeSpan runQueryTimeout = TimeSpan.FromSeconds(30);
         private static byte[] connectHeader = null;
 
+        private TimeSpan connectTimeout;
+        private TimeSpan queryTimeout;
         private Socket socket;
         private NetworkStream stream;
         private long nextToken = 1;
@@ -42,9 +42,25 @@ namespace RethinkDb
             set;
         }
 
+        public int ConnectTimeoutSeconds 
+        {
+            set
+            {
+                connectTimeout = TimeSpan.FromSeconds(value);
+            }
+        }       
+
+        public int QueryTimeoutSeconds
+        {
+            set
+            {
+                queryTimeout = TimeSpan.FromSeconds(value);
+            }
+        }
+
         public async Task ConnectAsync(params EndPoint[] endpoints)
         {
-            var cancellationToken = new CancellationTokenSource(connectTimeout).Token;
+            var cancellationToken = new CancellationTokenSource(this.connectTimeout).Token;
 
             foreach (var ep in endpoints)
             {
@@ -239,9 +255,9 @@ namespace RethinkDb
             var tcs = new TaskCompletionSource<Response>();
             tokenResponse[query.token] = tcs;
 
-            var cancellationToken = new CancellationTokenSource(runQueryTimeout).Token;
+            var cancellationToken = new CancellationTokenSource(this.queryTimeout).Token;
             Action abortToken = () => {
-                Logger.Warning("Query token {0} timed out after {1}", query.token, runQueryTimeout);
+                Logger.Warning("Query token {0} timed out after {1}", query.token, this.queryTimeout);
                 if (tokenResponse.Remove(query.token))
                     tcs.SetCanceled();
             };
