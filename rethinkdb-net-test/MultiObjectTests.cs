@@ -486,57 +486,6 @@ namespace RethinkDb.Test
         }
 
         [Test]
-        public void GroupedMapReduce()
-        {
-            // Ins. a bit of extra data; new objects w/ same names as original
-            connection.Run(testTable.Insert(new TestObject[] {
-                new TestObject() { Name = "1", SomeNumber = 1 },
-                new TestObject() { Name = "1", SomeNumber = 1 },
-                new TestObject() { Name = "2", SomeNumber = 2 },
-                new TestObject() { Name = "2", SomeNumber = 2 },
-                new TestObject() { Name = "2", SomeNumber = 2 },
-                new TestObject() { Name = "3", SomeNumber = 3 },
-                new TestObject() { Name = "4", SomeNumber = 4 },
-            }));
-
-            var query = testTable.GroupedMapReduce(
-                to => to.Name,  // group
-                to => 1.0,        // map
-                (leftCount, rightCount) => leftCount + rightCount // reduce
-            );
-
-            int count = 0;
-            foreach (var record in connection.Run(query))
-            {
-                var groupName = record.Item1;
-                var reduceCount = record.Item2;
-
-                switch (groupName)
-                {
-                    case "1":
-                        Assert.That(reduceCount, Is.EqualTo(3));
-                        break;
-                    case "2":
-                        Assert.That(reduceCount, Is.EqualTo(4));
-                        break;
-                    case "3":
-                    case "4":
-                        Assert.That(reduceCount, Is.EqualTo(2));
-                        break;
-                    case "5":
-                    case "6":
-                    case "7":
-                        Assert.That(reduceCount, Is.EqualTo(1));
-                        break;
-                }
-
-                ++count;
-            }
-
-            Assert.That(count, Is.EqualTo(7));
-        }
-
-        [Test]
         public void MapReduceAnonymousTypes()
         {
             var retval = connection.Run(

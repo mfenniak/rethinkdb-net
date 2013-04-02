@@ -101,6 +101,8 @@
     <Compile Include="DatumConverters\AnonymousTypeDatumConverterFactory.cs" />
     <Compile Include="QueryTerm\ConcatMapQuery.cs" />
     <Compile Include="QueryTerm\UnionQuery.cs" />
+    <Compile Include="QueryTerm\GroupByQuery.cs" />
+    <Compile Include="QueryTerm\CountReduction.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

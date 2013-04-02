@@ -66,6 +66,7 @@
     <Compile Include="AnotherTestObject.cs" />
     <Compile Include="MultiTableTests.cs" />
     <Compile Include="ZipTestObject.cs" />
+    <Compile Include="GroupingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

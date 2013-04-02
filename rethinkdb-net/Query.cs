@@ -38,6 +38,12 @@ namespace RethinkDb
     {
     }
 
+    [ImmutableObject(true)]
+    public interface IGroupByReduction<TReductionType>
+    {
+        Term GenerateReductionObject(IDatumConverterFactory datumConverterFactory);
+    }
+
     public static class Query
     {
         public static DbQuery Db(string db)
@@ -218,6 +224,16 @@ namespace RethinkDb
         public static UnionQuery<T> Union<T>(this ISequenceQuery<T> query1, ISequenceQuery<T> query2)
         {
             return new UnionQuery<T>(query1, query2);
+        }
+
+        public static GroupByQuery<TObject, TReductionType, TGroupByType1> GroupBy<TObject, TReductionType, TGroupByType1>(this ISequenceQuery<TObject> sequenceQuery, IGroupByReduction<TReductionType> reductionObject, Expression<Func<TObject, TGroupByType1>> groupMemberReference1)
+        {
+            return new GroupByQuery<TObject, TReductionType, TGroupByType1>(sequenceQuery, reductionObject, groupMemberReference1);
+        }
+
+        public static CountReduction Count()
+        {
+            return CountReduction.Instance;
         }
     }
 }

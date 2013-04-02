@@ -16,7 +16,7 @@ namespace RethinkDb
 
         public IDatumConverter<T> Get<T>(IDatumConverterFactory innerTypeConverterFactory)
         {
-            if (typeof(T).GetGenericTypeDefinition().Equals(typeof(Tuple<,>)))
+            if (IsTypeSupported(typeof(T)))
             {
                 IDictionary<IDatumConverterFactory, object> datumConverterBasedCache;
                 if (!tupleConverterCache.TryGetValue(typeof(T), out datumConverterBasedCache))
@@ -36,32 +36,36 @@ namespace RethinkDb
 
         public bool IsTypeSupported(Type t)
         {
-            if (t.IsGenericType && t.GetGenericTypeDefinition().Equals(typeof(Tuple<,>)))
-                return true;
-            return false;
+            if (!t.IsGenericType)
+                return false;
+
+            var gtd = t.GetGenericTypeDefinition();
+            return
+                gtd.GetGenericTypeDefinition().Equals(typeof(Tuple<>)) ||
+                gtd.GetGenericTypeDefinition().Equals(typeof(Tuple<,>)) ||
+                gtd.GetGenericTypeDefinition().Equals(typeof(Tuple<,,>)) ||
+                gtd.GetGenericTypeDefinition().Equals(typeof(Tuple<,,,>)) ||
+                gtd.GetGenericTypeDefinition().Equals(typeof(Tuple<,,,,>)) ||
+                gtd.GetGenericTypeDefinition().Equals(typeof(Tuple<,,,,,>)) ||
+                gtd.GetGenericTypeDefinition().Equals(typeof(Tuple<,,,,,,>));
         }
 
         // FIXME: This TupleConverter, using reflection, is likely to be many, many times slower than doing an emitted
         // class like DataContractDatumConverterFactory does.
         private class TupleConverter<T> : IDatumConverter<T>
         {
-            private readonly Type item1Type;
-            private readonly Type item2Type;
-            private readonly object item1TypeDatumConverter;
-            private readonly object item2TypeDatumConverter;
-            private readonly ConstructorInfo tupleConstructor; 
+            private readonly ConstructorInfo tupleConstructor;
+            private readonly object[] itemConverters;
 
             public TupleConverter(IDatumConverterFactory innerTypeConverterFactory)
             {
-                var typeArguments = typeof(T).GetGenericArguments();
-                item1Type = typeArguments[0];
-                item2Type = typeArguments[1];
-
-                tupleConstructor = typeof(T).GetConstructor(new Type[] { item1Type, item2Type });
-
                 var genericGetMethod = innerTypeConverterFactory.GetType().GetMethod("Get");
-                item1TypeDatumConverter = genericGetMethod.MakeGenericMethod(item1Type).Invoke(innerTypeConverterFactory, new object[0]);
-                item2TypeDatumConverter = genericGetMethod.MakeGenericMethod(item2Type).Invoke(innerTypeConverterFactory, new object[0]);
+
+                var typeArguments = typeof(T).GetGenericArguments();
+                tupleConstructor = typeof(T).GetConstructor(typeArguments);
+                itemConverters = new object[typeArguments.Length];
+                for (int i = 0; i < typeArguments.Length; i++)
+                    itemConverters[i] = genericGetMethod.MakeGenericMethod(typeArguments[i]).Invoke(innerTypeConverterFactory, new object[0]);
             }
 
             private object ReflectedConversion(Spec.Datum datum, dynamic typeDatumConverter)
@@ -79,6 +83,9 @@ namespace RethinkDb
                 }
                 else if (datum.type == Spec.Datum.DatumType.R_OBJECT)
                 {
+                    if (itemConverters.Length != 2)
+                        throw new NotSupportedException("TupleDatumConverter only supports OBJECT values if it's a two-tuple; this one is a " + typeof(T).FullName);
+
                     object item1 = null;
                     object item2 = null;
 
@@ -86,21 +93,31 @@ namespace RethinkDb
                     {
                         // left/right for a join
                         if (assocPair.key == "left")
-                            item1 = ReflectedConversion(assocPair.val, item1TypeDatumConverter);
+                            item1 = ReflectedConversion(assocPair.val, itemConverters[0]);
                         else if (assocPair.key == "right")
-                            item2 = ReflectedConversion(assocPair.val, item2TypeDatumConverter);
+                            item2 = ReflectedConversion(assocPair.val, itemConverters[1]);
 
                         // group/reduction for a grouped map reduce
                         else if (assocPair.key == "group")
-                            item1 = ReflectedConversion(assocPair.val, item1TypeDatumConverter);
+                            item1 = ReflectedConversion(assocPair.val, itemConverters[0]);
                         else if (assocPair.key == "reduction")
-                            item2 = ReflectedConversion(assocPair.val, item2TypeDatumConverter);
-
+                            item2 = ReflectedConversion(assocPair.val, itemConverters[1]);
                         else
                             throw new InvalidOperationException("Unexpected key/value pair in tuple object: " + assocPair.key + "; expected left/right or group/reduction");
                     }
 
                     return (T)(tupleConstructor.Invoke(new object[] { item1, item2 }));
+                }
+                else if (datum.type == Spec.Datum.DatumType.R_ARRAY)
+                {
+                    if (itemConverters.Length != datum.r_array.Count)
+                        return default(T);
+                        //throw new InvalidOperationException(String.Format("Unexpected array of length {0} where tuple of type {1} was expected", datum.r_array.Count, typeof(T)));
+
+                    object[] values = new object[itemConverters.Length];
+                    for (int i = 0; i < itemConverters.Length; i++)
+                        values[i] = ReflectedConversion(datum.r_array[i], itemConverters[i]);
+                    return (T)(tupleConstructor.Invoke(values));
                 }
                 else
                     throw new NotSupportedException("Attempted to cast Datum to tuple, but Datum was unsupported type " + datum.type);
