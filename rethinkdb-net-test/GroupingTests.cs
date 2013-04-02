@@ -158,5 +158,89 @@ namespace RethinkDb.Test
 
             Assert.That(count, Is.EqualTo(8));
         }
+
+        [Test]
+        public void GroupBySum()
+        {
+            var query = testTable.GroupBy(Query.Sum<TestObject>(to => to.SomeNumber), to => to.Name);
+
+            int count = 0;
+            foreach (var record in connection.Run(query))
+            {
+                var groupName = record.Item1.Item1;
+                var reduceSum = record.Item2;
+
+                switch (groupName)
+                {
+                    case "1":
+                        Assert.That(reduceSum, Is.EqualTo(2));
+                        break;
+                    case "2":
+                        Assert.That(reduceSum, Is.EqualTo(204));
+                        break;
+                    case "3":
+                        Assert.That(reduceSum, Is.EqualTo(6));
+                        break;
+                    case "4":
+                        Assert.That(reduceSum, Is.EqualTo(4));
+                        break;
+                    case "5":
+                        Assert.That(reduceSum, Is.EqualTo(5));
+                        break;
+                    case "6":
+                        Assert.That(reduceSum, Is.EqualTo(12));
+                        break;
+                    case "7":
+                        Assert.That(reduceSum, Is.EqualTo(7));
+                        break;
+                }
+
+                ++count;
+            }
+
+            Assert.That(count, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void GroupByAvg()
+        {
+            var query = testTable.GroupBy(Query.Avg<TestObject>(to => to.SomeNumber), to => to.Name);
+
+            int count = 0;
+            foreach (var record in connection.Run(query))
+            {
+                var groupName = record.Item1.Item1;
+                var reduceSum = record.Item2;
+
+                switch (groupName)
+                {
+                    case "1":
+                        Assert.That(reduceSum, Is.EqualTo(1));
+                        break;
+                    case "2":
+                        Assert.That(reduceSum, Is.EqualTo(68));
+                        break;
+                    case "3":
+                        Assert.That(reduceSum, Is.EqualTo(3));
+                        break;
+                    case "4":
+                        Assert.That(reduceSum, Is.EqualTo(4));
+                        break;
+                    case "5":
+                        Assert.That(reduceSum, Is.EqualTo(5));
+                        break;
+                    case "6":
+                        Assert.That(reduceSum, Is.EqualTo(6));
+                        break;
+                    case "7":
+                        Assert.That(reduceSum, Is.EqualTo(7));
+                        break;
+                }
+
+                ++count;
+            }
+
+            Assert.That(count, Is.EqualTo(7));
+        }
     }
 }

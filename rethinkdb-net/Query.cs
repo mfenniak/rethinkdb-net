@@ -245,5 +245,15 @@ namespace RethinkDb
         {
             return CountReduction.Instance;
         }
+
+        public static SumReduction<TObject> Sum<TObject>(Expression<Func<TObject, double>> numericMemberReference)
+        {
+            return new SumReduction<TObject>(numericMemberReference);
+        }
+
+        public static AvgReduction<TObject> Avg<TObject>(Expression<Func<TObject, double>> numericMemberReference)
+        {
+            return new AvgReduction<TObject>(numericMemberReference);
+        }
     }
 }

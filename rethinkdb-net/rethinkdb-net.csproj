@@ -103,6 +103,8 @@
     <Compile Include="QueryTerm\UnionQuery.cs" />
     <Compile Include="QueryTerm\GroupByQuery.cs" />
     <Compile Include="QueryTerm\CountReduction.cs" />
+    <Compile Include="QueryTerm\SumReduction.cs" />
+    <Compile Include="QueryTerm\AvgReduction.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
