@@ -120,5 +120,43 @@ namespace RethinkDb.Test
 
             Assert.That(count, Is.EqualTo(7));
         }
+
+        [Test]
+        public void GroupByTwoParams()
+        {
+            var query = testTable.GroupBy(Query.Count(), to => to.Name, to => to.SomeNumber);
+
+            int count = 0;
+            foreach (var record in connection.Run(query))
+            {
+                var groupName = record.Item1.Item1;
+                var someNumber = record.Item1.Item2;
+                var reduceCount = record.Item2;
+
+                switch (groupName)
+                {
+                    case "1":
+                    case "3":
+                    case "6":
+                        Assert.That(reduceCount, Is.EqualTo(2));
+                        break;
+                    case "2":
+                        if (someNumber == 2)
+                            Assert.That(reduceCount, Is.EqualTo(2));
+                        else if (someNumber == 200)
+                            Assert.That(reduceCount, Is.EqualTo(1));
+                        break;
+                    case "4":
+                    case "5":
+                    case "7":
+                        Assert.That(reduceCount, Is.EqualTo(1));
+                        break;
+                }
+
+                ++count;
+            }
+
+            Assert.That(count, Is.EqualTo(8));
+        }
     }
 }

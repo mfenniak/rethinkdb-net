@@ -1,20 +1,21 @@
 using System;
 using RethinkDb.Spec;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace RethinkDb.QueryTerm
 {
-    public class GroupByQuery<TObject, TReductionType, TGroupByType1> : ISequenceQuery<Tuple<Tuple<TGroupByType1>, TReductionType>>
+    public abstract class GroupByQueryBase<TObject, TReductionType>
     {
         private readonly ISequenceQuery<TObject> sequenceQuery;
         private readonly IGroupByReduction<TReductionType> reductionObject;
-        private readonly Expression<Func<TObject, TGroupByType1>> groupMemberReference1;
+        private readonly IEnumerable<Expression> memberReferences;
 
-        public GroupByQuery(ISequenceQuery<TObject> sequenceQuery, IGroupByReduction<TReductionType> reductionObject, Expression<Func<TObject, TGroupByType1>> groupMemberReference1)
+        protected GroupByQueryBase(ISequenceQuery<TObject> sequenceQuery, IGroupByReduction<TReductionType> reductionObject, params Expression[] groupMemberReferences)
         {
             this.sequenceQuery = sequenceQuery;
             this.reductionObject = reductionObject;
-            this.groupMemberReference1 = groupMemberReference1;
+            this.memberReferences = groupMemberReferences;
         }
 
         public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
@@ -28,10 +29,13 @@ namespace RethinkDb.QueryTerm
             var propertyTerm = new Term() {
                 type = Term.TermType.MAKE_ARRAY
             };
-            propertyTerm.args.Add(new Term() {
-                type = Term.TermType.DATUM,
-                datum = GetMemberName(datumConverterFactory)
-            });
+            foreach (var memberReference in memberReferences)
+            {
+                propertyTerm.args.Add(new Term() {
+                    type = Term.TermType.DATUM,
+                    datum = GetMemberName(memberReference, datumConverterFactory)
+                });
+            }
             term.args.Add(propertyTerm);
 
             term.args.Add(reductionObject.GenerateReductionObject(datumConverterFactory));
@@ -39,17 +43,17 @@ namespace RethinkDb.QueryTerm
             return term;
         }
 
-        private Datum GetMemberName(IDatumConverterFactory datumConverterFactory)
+        private Datum GetMemberName(Expression memberReference, IDatumConverterFactory datumConverterFactory)
         {
             var datumConverter = datumConverterFactory.Get<TObject>();
             var fieldConverter = datumConverter as IObjectDatumConverter;
             if (fieldConverter == null)
                 throw new NotSupportedException("Cannot map member access into ReQL without implementing IObjectDatumConverter");
 
-            if (groupMemberReference1.NodeType != ExpressionType.Lambda)
-                throw new NotSupportedException("Unsupported expression type " + groupMemberReference1.Type + "; expected Lambda");
+            if (memberReference.NodeType != ExpressionType.Lambda)
+                throw new NotSupportedException("Unsupported expression type " + memberReference.Type + "; expected Lambda");
 
-            var body = groupMemberReference1.Body;
+            var body = ((LambdaExpression)memberReference).Body;
             MemberExpression memberExpr;
 
             if (body.NodeType == ExpressionType.MemberAccess)
@@ -66,5 +70,40 @@ namespace RethinkDb.QueryTerm
             };
         }
     }
-}
 
+    public class GroupByQuery<TObject, TReductionType, TGroupByType1>
+        : GroupByQueryBase<TObject, TReductionType>, ISequenceQuery<Tuple<Tuple<TGroupByType1>, TReductionType>>
+    {
+        public GroupByQuery(ISequenceQuery<TObject> sequenceQuery,
+                            IGroupByReduction<TReductionType> reductionObject,
+                            Expression<Func<TObject, TGroupByType1>> groupMemberReference1)
+            : base(sequenceQuery, reductionObject, groupMemberReference1)
+        {
+        }
+    }
+
+    public class GroupByQuery<TObject, TReductionType, TGroupByType1, TGroupByType2>
+        : GroupByQueryBase<TObject, TReductionType>, ISequenceQuery<Tuple<Tuple<TGroupByType1, TGroupByType2>, TReductionType>>
+    {
+        public GroupByQuery(ISequenceQuery<TObject> sequenceQuery,
+                            IGroupByReduction<TReductionType> reductionObject,
+                            Expression<Func<TObject, TGroupByType1>> groupMemberReference1,
+                            Expression<Func<TObject, TGroupByType2>> groupMemberReference2)
+            : base(sequenceQuery, reductionObject, groupMemberReference1, groupMemberReference2)
+        {
+        }
+    }
+
+    public class GroupByQuery<TObject, TReductionType, TGroupByType1, TGroupByType2, TGroupByType3>
+        : GroupByQueryBase<TObject, TReductionType>, ISequenceQuery<Tuple<Tuple<TGroupByType1, TGroupByType2, TGroupByType3>, TReductionType>>
+    {
+        public GroupByQuery(ISequenceQuery<TObject> sequenceQuery,
+                            IGroupByReduction<TReductionType> reductionObject,
+                            Expression<Func<TObject, TGroupByType1>> groupMemberReference1,
+                            Expression<Func<TObject, TGroupByType2>> groupMemberReference2,
+                            Expression<Func<TObject, TGroupByType3>> groupMemberReference3)
+            : base(sequenceQuery, reductionObject, groupMemberReference1, groupMemberReference2, groupMemberReference3)
+        {
+        }
+    }
+}
