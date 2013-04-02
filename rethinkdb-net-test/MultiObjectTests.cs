@@ -560,5 +560,15 @@ namespace RethinkDb.Test
             }
             Assert.That(count, Is.EqualTo(4));
         }
+
+        [Test]
+        public void Union()
+        {
+            var enumerable = connection.Run(testTable.Union(testTable));
+            int count = 0;
+            foreach (var testObject in enumerable)
+                count++;
+            Assert.That(count, Is.EqualTo(14));
+        }
     }
 }

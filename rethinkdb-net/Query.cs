@@ -214,5 +214,10 @@ namespace RethinkDb
         {
             return new ConcatMapQuery<TOriginal, TTarget>(sequenceQuery, mapping);
         }
+
+        public static UnionQuery<T> Union<T>(this ISequenceQuery<T> query1, ISequenceQuery<T> query2)
+        {
+            return new UnionQuery<T>(query1, query2);
+        }
     }
 }
