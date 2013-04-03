@@ -18,6 +18,10 @@ namespace RethinkDb
             set;
         }
 
+        TimeSpan ConnectTimeout { get; set; }
+        
+        TimeSpan QueryTimeout { get; set; }
+
         void Connect(params EndPoint[] endpoints);
 
         T Run<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject);
