@@ -26,6 +26,7 @@ namespace RethinkDb
         public Connection()
         {
             DatumConverterFactory = DataContractDatumConverterFactory.Instance;
+            ConnectTimeout = QueryTimeout = TimeSpan.FromSeconds(30);
         }
 
         public IDatumConverterFactory DatumConverterFactory

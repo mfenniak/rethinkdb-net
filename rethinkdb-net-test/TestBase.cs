@@ -19,11 +19,7 @@ namespace RethinkDb.Test
 
         private async Task DoTestFixtureSetUp()
         {
-            connection = new Connection
-            {
-                ConnectTimeout = TimeSpan.FromSeconds(30),
-                QueryTimeout = TimeSpan.FromSeconds(30)
-            };
+            connection = new Connection();
 
             await connection.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 28015));
 
