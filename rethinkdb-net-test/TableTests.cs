@@ -12,6 +12,7 @@ namespace RethinkDb.Test
     public class TableTests : TestBase
     {
         private TableQuery<TestObject> testTable;
+        private TableQuery<TestObject2> testTable2;
 
         [SetUp]
         public virtual void SetUp()
@@ -19,6 +20,7 @@ namespace RethinkDb.Test
             connection.RunAsync(Query.DbCreate("test")).Wait();
             connection.RunAsync(Query.Db("test").TableCreate("table")).Wait();
             testTable = Query.Db("test").Table<TestObject>("table");
+            testTable2 = Query.Db("test").Table<TestObject2>("table");
         }
 
         [TearDown]
@@ -150,6 +152,28 @@ namespace RethinkDb.Test
         {
             var resp = await connection.RunAsync(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val, -1.0));
             Assert.That(resp, Is.EqualTo(-1.0));
+        }
+
+        [Test]
+        public void NumericIdInsert()
+        {
+            var resp = connection.Run(testTable2.Insert(new TestObject2() { Id = 1, Name = "Woot" }));
+            Assert.That(resp.Inserted, Is.EqualTo(1));
+            resp = connection.Run(testTable2.Insert(new TestObject2() { Id = 1, Name = "Woot" }));
+            Assert.That(resp.Errors, Is.EqualTo(1));
+            resp = connection.Run(testTable2.Insert(new TestObject2() { Id = 1, Name = "Woot" }));
+            Assert.That(resp.Errors, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void NumericIdGet()
+        {
+            var resp = connection.Run(testTable2.Insert(new TestObject2() { Id = 1, Name = "Woot" }));
+            Assert.That(resp.Inserted, Is.EqualTo(1));
+
+            var to = connection.Run(testTable2.Get(1));
+            Assert.That(to, Is.Not.Null);
+            Assert.That(to.Id, Is.EqualTo(1));
         }
     }
 }

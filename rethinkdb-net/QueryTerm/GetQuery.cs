@@ -7,13 +7,21 @@ namespace RethinkDb.QueryTerm
     public class GetQuery<T> : ISingleObjectQuery<T>, IMutableSingleObjectQuery<T>
     {
         private readonly ISequenceQuery<T> tableTerm;
-        private readonly string primaryKey;
+        private readonly string primaryKeyString;
+        private readonly double? primaryKeyNumeric;
         private readonly string primaryAttribute;
 
-        public GetQuery(ISequenceQuery<T> tableTerm, string primaryKey, string primaryAttribute)
+        public GetQuery(ISequenceQuery<T> tableTerm, string primaryKeyString, string primaryAttribute)
         {
             this.tableTerm = tableTerm;
-            this.primaryKey = primaryKey;
+            this.primaryKeyString = primaryKeyString;
+            this.primaryAttribute = primaryAttribute;
+        }
+
+        public GetQuery(ISequenceQuery<T> tableTerm, double primaryKeyNumeric, string primaryAttribute)
+        {
+            this.tableTerm = tableTerm;
+            this.primaryKeyNumeric = primaryKeyNumeric;
             this.primaryAttribute = primaryAttribute;
         }
 
@@ -24,17 +32,34 @@ namespace RethinkDb.QueryTerm
                 type = Term.TermType.GET,
             };
             getTerm.args.Add(tableTerm.GenerateTerm(datumConverterFactory));
-            getTerm.args.Add(
-                new Term()
-                {
-                    type = Term.TermType.DATUM,
-                    datum = new Datum()
+            if (primaryKeyNumeric.HasValue)
+            {
+                getTerm.args.Add(
+                    new Term()
                     {
-                        type = Datum.DatumType.R_STR,
-                        r_str = primaryKey,
+                        type = Term.TermType.DATUM,
+                        datum = new Datum()
+                        {
+                            type = Datum.DatumType.R_NUM,
+                            r_num = primaryKeyNumeric.Value,
+                        }
                     }
-                }
-            );
+                );
+            }
+            else
+            {
+                getTerm.args.Add(
+                    new Term()
+                    {
+                        type = Term.TermType.DATUM,
+                        datum = new Datum()
+                        {
+                            type = Datum.DatumType.R_STR,
+                            r_str = primaryKeyString,
+                        }
+                    }
+                );
+            }
             if (primaryAttribute != null)
             {
                 getTerm.optargs.Add(new Term.AssocPair()
