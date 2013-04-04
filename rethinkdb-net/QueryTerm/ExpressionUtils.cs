@@ -11,7 +11,8 @@ namespace RethinkDb.QueryTerm
 
         public static Term CreateValueTerm<TReturn>(IDatumConverterFactory datumConverterFactory, Expression<Func<TReturn>> expression)
         {
-            Func<Expression, Term> recursiveMap = (expr) => SimpleMap(datumConverterFactory, recursiveMap, expr);
+            Func<Expression, Term> recursiveMap = null;
+            recursiveMap = (expr) => SimpleMap(datumConverterFactory, recursiveMap, expr);
             return SimpleMap(datumConverterFactory, recursiveMap, expression.Body);
         }
 
