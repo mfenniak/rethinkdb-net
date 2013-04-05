@@ -29,7 +29,7 @@ namespace RethinkDb.Test
         private async Task DoTestFixtureSetUp()
         {
             connection = ConfigConnectionFactory.Instance.Get("testCluster");
-            connection.Logger = new DefaultLogger(LoggingCategory.Debug, Console.Out);
+            connection.Logger = new DefaultLogger(LoggingCategory.Warning, Console.Out);
 
             await connection.ConnectAsync();
 
