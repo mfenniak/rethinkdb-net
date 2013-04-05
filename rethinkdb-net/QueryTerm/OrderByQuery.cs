@@ -58,8 +58,15 @@ namespace RethinkDb.QueryTerm
                         throw new NotSupportedException("Only a single argument is supported to Query.Asc/Query.Desc");
 
                     var arg = methodCall.Arguments[0];
+                    if (arg.NodeType == ExpressionType.Convert)
+                    {
+                        // If we're order-bying a primitive, the expr will be a cast to object for the Asc/Desc method call
+                        if (arg.Type == typeof(object))
+                            arg = ((UnaryExpression)arg).Operand;
+                    }
+
                     if (arg.NodeType != ExpressionType.MemberAccess)
-                        throw new NotSupportedException("Unsupported expression type " + body.NodeType + "; expected MemberAccess");
+                        throw new NotSupportedException("Unsupported expression type " + arg.NodeType + " inside Query.Asc/Desc; expected MemberAccess");
 
                     memberExpr = (MemberExpression)arg;
                 }
@@ -68,7 +75,7 @@ namespace RethinkDb.QueryTerm
                     memberExpr = (MemberExpression)body;
                 }
                 else
-                    throw new NotSupportedException("Unsupported expression type " + body.NodeType + "; expected MemberAccess");
+                    throw new NotSupportedException("Unsupported expression type " + body.NodeType + "; expected MemberAccess or Call");
 
                 if (memberExpr.Expression.NodeType != ExpressionType.Parameter)
                     throw new NotSupportedException("Unrecognized member access pattern");

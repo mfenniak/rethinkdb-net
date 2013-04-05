@@ -378,6 +378,19 @@ namespace RethinkDb.Test
         }
 
         [Test]
+        public void OrderByDescPrimitive()
+        {
+            var enumerable = connection.Run(testTable.OrderBy(o => Query.Desc(o.SomeNumber)));
+            var count = 0;
+            foreach (var obj in enumerable)
+            {
+                ++count;
+                Assert.That(obj.Name, Is.EqualTo((8 - count).ToString()));
+            }
+            Assert.That(count, Is.EqualTo(7));
+        }
+
+        [Test]
         public void Reduce()
         {
             DoReduce().Wait();
