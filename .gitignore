@@ -7,3 +7,4 @@ rethinkdb-net-test/test-results
 *.userprefs
 rethinkdb_data
 test-results
+TestResult.xml
