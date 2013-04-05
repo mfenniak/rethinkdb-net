@@ -4,24 +4,34 @@ using RethinkDb;
 using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
+using RethinkDb.Configuration;
 
 namespace RethinkDb.Test
 {
     public class TestBase
     {
-        protected Connection connection;
+        protected IConnection connection;
 
         [TestFixtureSetUp]
         public virtual void TestFixtureSetUp()
         {
-            DoTestFixtureSetUp().Wait();
+            try
+            {
+                DoTestFixtureSetUp().Wait();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("TestFixtureSetUp failed: {0}", e);
+                throw;
+            }
         }
 
         private async Task DoTestFixtureSetUp()
         {
-            connection = new Connection();
+            connection = ConfigConnectionFactory.Instance.Get("testCluster");
+            connection.Logger = new DefaultLogger(LoggingCategory.Debug, Console.Out);
 
-            await connection.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 28015));
+            await connection.ConnectAsync();
 
             try
             {

@@ -12,7 +12,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb
 {
-    public sealed class Connection : IAsyncConnection, IConnection, IDisposable
+    public sealed class Connection : IConnection, IDisposable
     {
         private static TaskFactory taskFactory = new TaskFactory();
         private static byte[] connectHeader = null;
@@ -27,6 +27,18 @@ namespace RethinkDb
         {
             DatumConverterFactory = DataContractDatumConverterFactory.Instance;
             ConnectTimeout = QueryTimeout = TimeSpan.FromSeconds(30);
+        }
+
+        public Connection(params EndPoint[] endPoints)
+            : this()
+        {
+            this.EndPoints = endPoints;
+        }
+
+        public IEnumerable<EndPoint> EndPoints
+        {
+            get;
+            set;
         }
 
         public IDatumConverterFactory DatumConverterFactory
@@ -53,11 +65,11 @@ namespace RethinkDb
             set;
         }
 
-        public async Task ConnectAsync(params EndPoint[] endpoints)
+        public async Task ConnectAsync()
         {
             var cancellationToken = new CancellationTokenSource(this.ConnectTimeout).Token;
 
-            foreach (var ep in endpoints)
+            foreach (var ep in EndPoints)
             {
                 IEnumerable<IPEndPoint> resolvedIpEndpoints = null;
                 if (ep is DnsEndPoint)
@@ -506,9 +518,9 @@ namespace RethinkDb
         #endregion
         #region IConnection implementation
 
-        public void Connect(params EndPoint[] endpoints)
+        public void Connect()
         {
-            ConnectAsync(endpoints).Wait();
+            ConnectAsync().Wait();
         }
 
         public T Run<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)

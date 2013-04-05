@@ -1,11 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace RethinkDb
 {
     public interface IConnection
     {
+        IEnumerable<EndPoint> EndPoints
+        {
+            get;
+            set;
+        }
+
         IDatumConverterFactory DatumConverterFactory
         {
             get;
@@ -22,7 +29,30 @@ namespace RethinkDb
         
         TimeSpan QueryTimeout { get; set; }
 
-        void Connect(params EndPoint[] endpoints);
+        #region Asynchronous API
+
+        Task ConnectAsync();
+
+        Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject);
+
+        Task<T> RunAsync<T>(ISingleObjectQuery<T> queryObject);
+
+        IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject);
+
+        IAsyncEnumerator<T> RunAsync<T>(ISequenceQuery<T> queryObject);
+
+        Task<DmlResponse> RunAsync(IDatumConverterFactory datumConverterFactory, IDmlQuery queryObject);
+
+        Task<DmlResponse> RunAsync(IDmlQuery queryObject);
+
+        Task<DmlResponse> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IWriteQuery<T> queryObject);
+
+        Task<DmlResponse> RunAsync<T>(IWriteQuery<T> queryObject);
+
+        #endregion
+        #region Synchronous API
+
+        void Connect();
 
         T Run<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject);
 
@@ -39,6 +69,8 @@ namespace RethinkDb
         DmlResponse Run<T>(IDatumConverterFactory datumConverterFactory, IWriteQuery<T> queryObject);
 
         DmlResponse Run<T>(IWriteQuery<T> queryObject);
+
+        #endregion
     }
 }
 

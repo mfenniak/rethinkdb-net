@@ -6,9 +6,9 @@ namespace RethinkDb
     public class DefaultLogger : ILogger
     {
         private LoggingCategory minimumCategory;
-        private StringWriter output;
+        private TextWriter output;
 
-        public DefaultLogger(LoggingCategory minimumCategory, StringWriter output)
+        public DefaultLogger(LoggingCategory minimumCategory, TextWriter output)
         {
             this.minimumCategory = minimumCategory;
             this.output = output;

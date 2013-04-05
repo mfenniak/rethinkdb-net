@@ -47,6 +47,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Connection.cs" />
@@ -97,7 +98,6 @@
     <Compile Include="QueryTerm\NthQuery.cs" />
     <Compile Include="QueryTerm\DistinctQuery.cs" />
     <Compile Include="Interfaces\IConnection.cs" />
-    <Compile Include="Interfaces\IAsyncConnection.cs" />
     <Compile Include="QueryTerm\GroupedMapReduceQuery.cs" />
     <Compile Include="DatumConverters\AnonymousTypeDatumConverterFactory.cs" />
     <Compile Include="QueryTerm\ConcatMapQuery.cs" />
@@ -106,6 +106,13 @@
     <Compile Include="QueryTerm\CountReduction.cs" />
     <Compile Include="QueryTerm\SumReduction.cs" />
     <Compile Include="QueryTerm\AvgReduction.cs" />
+    <Compile Include="Interfaces\IConnectionFactory.cs" />
+    <Compile Include="Configuration\ConfigConnectionFactory.cs" />
+    <Compile Include="Configuration\EndPointElement.cs" />
+    <Compile Include="Configuration\EndPointElementCollection.cs" />
+    <Compile Include="Configuration\ClusterElement.cs" />
+    <Compile Include="Configuration\ClusterElementCollection.cs" />
+    <Compile Include="Configuration\RethinkDbClientSection.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -120,5 +127,10 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Logging\" />
+    <Folder Include="DatumConverters\" />
+    <Folder Include="Interfaces\" />
+    <Folder Include="Configuration\" />
+  </ItemGroup>
 </Project>
