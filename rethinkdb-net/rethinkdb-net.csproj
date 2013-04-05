@@ -113,6 +113,10 @@
     <Compile Include="Configuration\ClusterElement.cs" />
     <Compile Include="Configuration\ClusterElementCollection.cs" />
     <Compile Include="Configuration\RethinkDbClientSection.cs" />
+    <Compile Include="Exceptions\RethinkDbException.cs" />
+    <Compile Include="Exceptions\RethinkDbNetworkException.cs" />
+    <Compile Include="Exceptions\RethinkDbInternalErrorException.cs" />
+    <Compile Include="Exceptions\RethinkDbRuntimeException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -132,5 +136,6 @@
     <Folder Include="DatumConverters\" />
     <Folder Include="Interfaces\" />
     <Folder Include="Configuration\" />
+    <Folder Include="Exceptions\" />
   </ItemGroup>
 </Project>

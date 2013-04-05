@@ -111,8 +111,7 @@ namespace RethinkDb
                 else if (datum.type == Spec.Datum.DatumType.R_ARRAY)
                 {
                     if (itemConverters.Length != datum.r_array.Count)
-                        return default(T);
-                        //throw new InvalidOperationException(String.Format("Unexpected array of length {0} where tuple of type {1} was expected", datum.r_array.Count, typeof(T)));
+                        throw new InvalidOperationException(String.Format("Unexpected array of length {0} where tuple of type {1} was expected", datum.r_array.Count, typeof(T)));
 
                     object[] values = new object[itemConverters.Length];
                     for (int i = 0; i < itemConverters.Length; i++)

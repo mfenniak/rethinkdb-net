@@ -94,7 +94,6 @@ namespace RethinkDb
                 }
                 else
                 {
-                    // FIXME: custom exception
                     Logger.Error("Unsupported System.Net.EndPoint type ({0}); connection aborted", ep.GetType());
                     throw new NotSupportedException("Unexpected type of System.Net.EndPoint");
                 }
@@ -120,9 +119,8 @@ namespace RethinkDb
                 }
             }
 
-            // FIXME: Custom exception class
             Logger.Error("Failed to resolve or connect to any provided address; connection failed");
-            throw new Exception("Failed to resolve a connectable address.");
+            throw new RethinkDbNetworkException("Failed to resolve a connectable address.");
         }
 
         private async Task DoTryConnect(IPEndPoint endpoint, CancellationToken cancellationToken)
@@ -166,7 +164,11 @@ namespace RethinkDb
             }
             catch (Exception e)
             {
-                Logger.Error("Unexpected exception occurred while connecting to endpoint {0}: {1}; tearing down connection", endpoint, e);
+                bool networkException = (e is SocketException || e is IOException);
+                if (networkException)
+                    Logger.Error("Network related exception occurred while connecting to endpoint {0}: {1}; tearing down connection", endpoint, e);
+                else
+                    Logger.Error("Unexpected exception occurred while connecting to endpoint {0}: {1}; tearing down connection", endpoint, e);
                 if (stream != null)
                 {
                     try
@@ -191,7 +193,10 @@ namespace RethinkDb
                         Logger.Debug("Exception occurred while disposing network socket during exception handling: {0}; probably not important", ex);
                     }
                 }
-                throw;
+                if (networkException)
+                    throw new RethinkDbNetworkException(e.Message, e);
+                else
+                    throw new RethinkDbInternalErrorException("Unexpected exception: " + e.Message, e);
             }
         }
 
@@ -224,7 +229,8 @@ namespace RethinkDb
                         {
                             tokenResponse.Remove(response.token);
                             tcs.SetResult(response);
-                        } else
+                        }
+                        else
                         {
                             Logger.Warning("Received response to query token {0}, but no handler was waiting for that response.  This can occur if the query times out around the same time a response is received.", response.token);
                         }
@@ -246,7 +252,7 @@ namespace RethinkDb
                 totalBytesRead += bytesRead;
 
                 if (bytesRead == 0)
-                    throw new EndOfStreamException("Network stream closed while attempting to read.");
+                    throw new RethinkDbNetworkException("Network stream closed while attempting to read");
                 else if (totalBytesRead == buffer.Length)
                     break;
             }
@@ -315,15 +321,15 @@ namespace RethinkDb
                 case Response.ResponseType.SUCCESS_SEQUENCE:
                 case Response.ResponseType.SUCCESS_ATOM:
                     if (response.response.Count != 1)
-                        throw new InvalidOperationException(String.Format("Expected 1 object, received {0}", response.response.Count));
+                        throw new RethinkDbRuntimeException(String.Format("Expected 1 object, received {0}", response.response.Count));
                     return datumConverterFactory.Get<T>().ConvertDatum(response.response[0]);
                 case Response.ResponseType.CLIENT_ERROR:
                 case Response.ResponseType.COMPILE_ERROR:
+                    throw new RethinkDbInternalErrorException("Client error: " + response.response[0].r_str);
                 case Response.ResponseType.RUNTIME_ERROR:
-                    // FIXME: more robust error handling
-                    throw new Exception("Error: " + response.response[0].r_str);
+                    throw new RethinkDbRuntimeException("Runtime error: " + response.response[0].r_str);
                 default:
-                    throw new InvalidOperationException("Unhandled response type in FetchSingleObject<T>");
+                    throw new RethinkDbInternalErrorException("Unhandled response type: " + response.type);
             }
         }
 
@@ -366,15 +372,15 @@ namespace RethinkDb
                 case Response.ResponseType.SUCCESS_SEQUENCE:
                 case Response.ResponseType.SUCCESS_ATOM:
                     if (response.response.Count != 1)
-                        throw new InvalidOperationException(String.Format("Expected 1 object, received {0}", response.response.Count));
+                        throw new RethinkDbRuntimeException(String.Format("Expected 1 object, received {0}", response.response.Count));
                     return datumConverterFactory.Get<DmlResponse>().ConvertDatum(response.response[0]);
                 case Response.ResponseType.CLIENT_ERROR:
                 case Response.ResponseType.COMPILE_ERROR:
+                    throw new RethinkDbInternalErrorException("Client error: " + response.response[0].r_str);
                 case Response.ResponseType.RUNTIME_ERROR:
-                    // FIXME: more robust error handling
-                    throw new Exception("Error: " + response.response[0].r_str);
+                    throw new RethinkDbRuntimeException("Runtime error: " + response.response[0].r_str);
                 default:
-                    throw new InvalidOperationException("Unhandled response type in FetchSingleObject<T>");
+                    throw new RethinkDbInternalErrorException("Unhandled response type: " + response.type);
             }
         }
 
@@ -437,14 +443,15 @@ namespace RethinkDb
                         break;
                     case Response.ResponseType.SUCCESS_ATOM:
                         if (lastResponse.response[0].type != Datum.DatumType.R_ARRAY)
-                            throw new Exception("Received an unexpected non-enumerable response to an enumeration query");
+                            throw new RethinkDbRuntimeException("Received an unexpected non-enumerable response to an enumeration query");
                         break;
                     case Response.ResponseType.CLIENT_ERROR:
                     case Response.ResponseType.COMPILE_ERROR:
+                        throw new RethinkDbInternalErrorException("Client error: " + lastResponse.response[0].r_str);
                     case Response.ResponseType.RUNTIME_ERROR:
-                        throw new Exception("Unexpected response type to query: " + lastResponse.type + "; " + lastResponse.response [0].r_str);
+                        throw new RethinkDbRuntimeException("Runtime error: " + lastResponse.response[0].r_str);
                     default:
-                        throw new Exception("Unexpected response type to query: " + lastResponse.type);
+                        throw new RethinkDbInternalErrorException("Unhandled response type: " + lastResponse.type);
                 }
             }
 
@@ -479,7 +486,7 @@ namespace RethinkDb
                 }
                 else
                 {
-                    throw new InvalidOperationException("Unreachable code; ReissueQuery should prevent reaching this condition");
+                    throw new RethinkDbInternalErrorException("Unreachable code; ReissueQuery should prevent reaching this condition");
                 }
             }
         }
