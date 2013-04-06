@@ -248,7 +248,7 @@ namespace RethinkDb
             int totalBytesRead = 0;
             while (true)
             {
-                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length);
+                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length - totalBytesRead);
                 totalBytesRead += bytesRead;
 
                 if (bytesRead == 0)
