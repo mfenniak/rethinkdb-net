@@ -218,11 +218,11 @@ namespace RethinkDb
 
                     byte[] retVal = new byte[respSize];
                     await ReadMyBytes(retVal);
-                    Logger.Debug("Received packet");
+                    Logger.Debug("Received packet completely");
                     using (var memoryBuffer = new MemoryStream(retVal))
                     {
                         var response = Serializer.Deserialize<Response>(memoryBuffer);
-                        Logger.Debug("Received response to query token {0}, type: {1}", response.token, response.type);
+                        Logger.Debug("Received packet deserialized to response for query token {0}, type: {1}", response.token, response.type);
 
                         TaskCompletionSource<Response> tcs;
                         if (tokenResponse.TryGetValue(response.token, out tcs))
@@ -250,6 +250,7 @@ namespace RethinkDb
             {
                 int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length - totalBytesRead);
                 totalBytesRead += bytesRead;
+                Logger.Debug("Received {0} / {1} bytes of packet", bytesRead, buffer.Length);
 
                 if (bytesRead == 0)
                     throw new RethinkDbNetworkException("Network stream closed while attempting to read");
