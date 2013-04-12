@@ -22,6 +22,14 @@ namespace RethinkDb
                 return (IDatumConverter<T>)DoubleDatumConverter.Instance.Value;
             else if (typeof(T) == typeof(double?))
                 return (IDatumConverter<T>)NullableDoubleDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof (int))
+                return (IDatumConverter<T>) IntDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof (int?))
+                return (IDatumConverter<T>) NullableIntDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof (long))
+                return (IDatumConverter<T>) LongDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof (long?))
+                return (IDatumConverter<T>) NullableLongDatumConverter.Instance.Value;
             else if (typeof(T).IsArray && IsTypeSupported(typeof(T).GetElementType()))
                 return ArrayDatumConverterFactory.Instance.Get<T>(this);
             else
@@ -40,15 +48,24 @@ namespace RethinkDb
                 return true;
             else if (t == typeof(double?))
                 return true;
+            else if (t == typeof (int))
+                return true;
+            else if (t == typeof (int?))
+                return true;
+            else if (t == typeof (long))
+                return true;
+            else if (t == typeof (long?))
+                return true;
             else if (t.IsArray && IsTypeSupported(t.GetElementType()))
                 return true;
             else
                 return false;
         }
 
-        public class StringDatumConverter : IDatumConverter<string>
+public class StringDatumConverter : IDatumConverter<string>
         {
-            public static readonly Lazy<StringDatumConverter> Instance = new Lazy<StringDatumConverter>(() => new StringDatumConverter());
+            public static readonly Lazy<StringDatumConverter> Instance =
+                new Lazy<StringDatumConverter>(() => new StringDatumConverter());
 
             #region IDatumConverter<string> Members
 
@@ -65,9 +82,9 @@ namespace RethinkDb
             public Spec.Datum ConvertObject(string str)
             {
                 if (str == null)
-                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NULL};
                 else
-                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_STR, r_str = str };
+                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_STR, r_str = str};
             }
 
             #endregion
@@ -75,9 +92,10 @@ namespace RethinkDb
 
         public class BoolDatumConverter : IDatumConverter<bool>
         {
-            public static readonly Lazy<BoolDatumConverter> Instance = new Lazy<BoolDatumConverter>(() => new BoolDatumConverter());
+            public static readonly Lazy<BoolDatumConverter> Instance =
+                new Lazy<BoolDatumConverter>(() => new BoolDatumConverter());
 
-            #region IDatumConverter<string> Members
+            #region IDatumConverter<bool> Members
 
             public bool ConvertDatum(Spec.Datum datum)
             {
@@ -91,7 +109,7 @@ namespace RethinkDb
 
             public Spec.Datum ConvertObject(bool value)
             {
-                return new Spec.Datum() { type = Spec.Datum.DatumType.R_BOOL, r_bool = value };
+                return new Spec.Datum() {type = Spec.Datum.DatumType.R_BOOL, r_bool = value};
             }
 
             #endregion
@@ -99,9 +117,10 @@ namespace RethinkDb
 
         public class NullableBoolDatumConverter : IDatumConverter<bool?>
         {
-            public static readonly Lazy<NullableBoolDatumConverter> Instance = new Lazy<NullableBoolDatumConverter>(() => new NullableBoolDatumConverter());
+            public static readonly Lazy<NullableBoolDatumConverter> Instance =
+                new Lazy<NullableBoolDatumConverter>(() => new NullableBoolDatumConverter());
 
-            #region IDatumConverter<string> Members
+            #region IDatumConverter<bool?> Members
 
             public bool? ConvertDatum(Spec.Datum datum)
             {
@@ -116,9 +135,9 @@ namespace RethinkDb
             public Spec.Datum ConvertObject(bool? value)
             {
                 if (!value.HasValue)
-                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NULL};
                 else
-                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_BOOL, r_bool = value.Value };
+                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_BOOL, r_bool = value.Value};
             }
 
             #endregion
@@ -126,9 +145,10 @@ namespace RethinkDb
 
         public class DoubleDatumConverter : IDatumConverter<double>
         {
-            public static readonly Lazy<DoubleDatumConverter> Instance = new Lazy<DoubleDatumConverter>(() => new DoubleDatumConverter());
+            public static readonly Lazy<DoubleDatumConverter> Instance =
+                new Lazy<DoubleDatumConverter>(() => new DoubleDatumConverter());
 
-            #region IDatumConverter<string> Members
+            #region IDatumConverter<double> Members
 
             public double ConvertDatum(Spec.Datum datum)
             {
@@ -142,7 +162,7 @@ namespace RethinkDb
 
             public Spec.Datum ConvertObject(double value)
             {
-                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
+                return new Spec.Datum() {type = Spec.Datum.DatumType.R_NUM, r_num = value};
             }
 
             #endregion
@@ -150,9 +170,10 @@ namespace RethinkDb
 
         public class NullableDoubleDatumConverter : IDatumConverter<double?>
         {
-            public static readonly Lazy<NullableDoubleDatumConverter> Instance = new Lazy<NullableDoubleDatumConverter>(() => new NullableDoubleDatumConverter());
+            public static readonly Lazy<NullableDoubleDatumConverter> Instance =
+                new Lazy<NullableDoubleDatumConverter>(() => new NullableDoubleDatumConverter());
 
-            #region IDatumConverter<string> Members
+            #region IDatumConverter<double?> Members
 
             public double? ConvertDatum(Spec.Datum datum)
             {
@@ -167,9 +188,114 @@ namespace RethinkDb
             public Spec.Datum ConvertObject(double? value)
             {
                 if (!value.HasValue)
-                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NULL};
                 else
-                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
+                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NUM, r_num = value.Value};
+            }
+
+            #endregion
+        }
+
+        public class IntDatumConverter : IDatumConverter<int>
+        {
+            public static readonly Lazy<IntDatumConverter> Instance = new Lazy<IntDatumConverter>(() => new IntDatumConverter());
+
+            #region IDatumConverter<int> Members
+
+            public int ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable int, but Datum was null");
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                    return (int)datum.r_num;
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Int, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(int value)
+            {
+                return new Spec.Datum() {type = Spec.Datum.DatumType.R_NUM, r_num = value};
+            }
+
+            #endregion
+        }
+
+        public class NullableIntDatumConverter : IDatumConverter<int?>
+        {
+            public static readonly Lazy<NullableIntDatumConverter> Instance =
+                new Lazy<NullableIntDatumConverter>(() => new NullableIntDatumConverter());
+
+            #region IDatumConverter<int?> Members
+
+            public int? ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    return null;
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                    return (int?)datum.r_num;
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Int, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(int? value)
+            {
+                if (!value.HasValue)
+                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NULL};
+                else
+                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NUM, r_num = value.Value};
+            }
+
+            #endregion
+        }
+
+        public class LongDatumConverter : IDatumConverter<long>
+        {
+            public static readonly Lazy<LongDatumConverter> Instance =
+                new Lazy<LongDatumConverter>(() => new LongDatumConverter());
+
+            #region IDatumConverter<long> Members
+
+            public long ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable long, but Datum was null");
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                    return (long)datum.r_num;
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Long, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(long value)
+            {
+                return new Spec.Datum() {type = Spec.Datum.DatumType.R_NUM, r_num = value};
+            }
+
+            #endregion
+        }
+
+        public class NullableLongDatumConverter : IDatumConverter<long?>
+        {
+            public static readonly Lazy<NullableLongDatumConverter> Instance =
+                new Lazy<NullableLongDatumConverter>(() => new NullableLongDatumConverter());
+
+            #region IDatumConverter<long?> Members
+
+            public long? ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    return null;
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                    return (int?)datum.r_num;
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Long, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(long? value)
+            {
+                if (!value.HasValue)
+                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NULL};
+                else
+                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NUM, r_num = value.Value};
             }
 
             #endregion
