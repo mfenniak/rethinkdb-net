@@ -13,6 +13,7 @@ namespace RethinkDb.Test
     {
         private TableQuery<TestObject> testTable;
         private TableQuery<TestObject2> testTable2;
+        private TableQuery<TestObject3> testTable3;
 
         [SetUp]
         public virtual void SetUp()
@@ -21,6 +22,7 @@ namespace RethinkDb.Test
             connection.RunAsync(Query.Db("test").TableCreate("table")).Wait();
             testTable = Query.Db("test").Table<TestObject>("table");
             testTable2 = Query.Db("test").Table<TestObject2>("table");
+            testTable3 = Query.Db("test").Table<TestObject3>("table");
         }
 
         [TearDown]
@@ -175,6 +177,26 @@ namespace RethinkDb.Test
             Assert.That(to, Is.Not.Null);
             Assert.That(to.Id, Is.EqualTo(1));
         }
+
+        [Test]
+        public void LongAndIntTests()
+        {
+            var testObj = new TestObject3()
+            {
+                Id = 3,
+                Value_Int = 1354353535,
+                Value_Int_Nullable = 3,
+                Value_Long = 2222222222222222222,
+                Value_Long_Nullable = 2
+            };
+
+            var resp = connection.Run(testTable3.Insert(testObj));
+
+            Assert.That(resp.Inserted, Is.EqualTo(1));
+
+            var to = connection.Run(testTable3.Get(3));
+            Assert.That(to, Is.Not.Null);
+            Assert.That(to.Id, Is.EqualTo(3));
+        }
     }
 }
-
