@@ -2,8 +2,15 @@ This is a prototype of a RethinkDB client driver written in C# for the .NET plat
 
 Currently this driver is capable of the following things:
   
-  * Connecting to a RethinkDB database.
-  
+  * Connecting to a RethinkDB database. For example:
+    ```
+    IConnection connection;
+    connection = ConfigConnectionFactory.Instance.Get("testCluster");
+    connection.Logger = new DefaultLogger(LoggingCategory.Debug, Console.Out);
+      
+    await connection.ConnectAsync();      
+    ```
+
   * All of the RethinkDB queries, joins, transformations, aggregations, and reductions:
 
     * DbList
