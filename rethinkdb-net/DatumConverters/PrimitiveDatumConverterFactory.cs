@@ -22,14 +22,14 @@ namespace RethinkDb
                 return (IDatumConverter<T>)DoubleDatumConverter.Instance.Value;
             else if (typeof(T) == typeof(double?))
                 return (IDatumConverter<T>)NullableDoubleDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof (int))
-                return (IDatumConverter<T>) IntDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof (int?))
-                return (IDatumConverter<T>) NullableIntDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof (long))
-                return (IDatumConverter<T>) LongDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof (long?))
-                return (IDatumConverter<T>) NullableLongDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(int))
+                return (IDatumConverter<T>)IntDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(int?))
+                return (IDatumConverter<T>)NullableIntDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(long))
+                return (IDatumConverter<T>)LongDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(long?))
+                return (IDatumConverter<T>)NullableLongDatumConverter.Instance.Value;
             else if (typeof(T).IsArray && IsTypeSupported(typeof(T).GetElementType()))
                 return ArrayDatumConverterFactory.Instance.Get<T>(this);
             else
@@ -48,13 +48,13 @@ namespace RethinkDb
                 return true;
             else if (t == typeof(double?))
                 return true;
-            else if (t == typeof (int))
+            else if (t == typeof(int))
                 return true;
-            else if (t == typeof (int?))
+            else if (t == typeof(int?))
                 return true;
-            else if (t == typeof (long))
+            else if (t == typeof(long))
                 return true;
-            else if (t == typeof (long?))
+            else if (t == typeof(long?))
                 return true;
             else if (t.IsArray && IsTypeSupported(t.GetElementType()))
                 return true;
@@ -62,10 +62,9 @@ namespace RethinkDb
                 return false;
         }
 
-public class StringDatumConverter : IDatumConverter<string>
+        public class StringDatumConverter : IDatumConverter<string>
         {
-            public static readonly Lazy<StringDatumConverter> Instance =
-                new Lazy<StringDatumConverter>(() => new StringDatumConverter());
+            public static readonly Lazy<StringDatumConverter> Instance = new Lazy<StringDatumConverter>(() => new StringDatumConverter());
 
             #region IDatumConverter<string> Members
 
@@ -82,9 +81,9 @@ public class StringDatumConverter : IDatumConverter<string>
             public Spec.Datum ConvertObject(string str)
             {
                 if (str == null)
-                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NULL};
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
                 else
-                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_STR, r_str = str};
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_STR, r_str = str };
             }
 
             #endregion
@@ -92,8 +91,7 @@ public class StringDatumConverter : IDatumConverter<string>
 
         public class BoolDatumConverter : IDatumConverter<bool>
         {
-            public static readonly Lazy<BoolDatumConverter> Instance =
-                new Lazy<BoolDatumConverter>(() => new BoolDatumConverter());
+            public static readonly Lazy<BoolDatumConverter> Instance = new Lazy<BoolDatumConverter>(() => new BoolDatumConverter());
 
             #region IDatumConverter<bool> Members
 
@@ -109,7 +107,7 @@ public class StringDatumConverter : IDatumConverter<string>
 
             public Spec.Datum ConvertObject(bool value)
             {
-                return new Spec.Datum() {type = Spec.Datum.DatumType.R_BOOL, r_bool = value};
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_BOOL, r_bool = value };
             }
 
             #endregion
@@ -117,8 +115,7 @@ public class StringDatumConverter : IDatumConverter<string>
 
         public class NullableBoolDatumConverter : IDatumConverter<bool?>
         {
-            public static readonly Lazy<NullableBoolDatumConverter> Instance =
-                new Lazy<NullableBoolDatumConverter>(() => new NullableBoolDatumConverter());
+            public static readonly Lazy<NullableBoolDatumConverter> Instance = new Lazy<NullableBoolDatumConverter>(() => new NullableBoolDatumConverter());
 
             #region IDatumConverter<bool?> Members
 
@@ -135,9 +132,9 @@ public class StringDatumConverter : IDatumConverter<string>
             public Spec.Datum ConvertObject(bool? value)
             {
                 if (!value.HasValue)
-                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NULL};
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
                 else
-                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_BOOL, r_bool = value.Value};
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_BOOL, r_bool = value.Value };
             }
 
             #endregion
@@ -145,8 +142,7 @@ public class StringDatumConverter : IDatumConverter<string>
 
         public class DoubleDatumConverter : IDatumConverter<double>
         {
-            public static readonly Lazy<DoubleDatumConverter> Instance =
-                new Lazy<DoubleDatumConverter>(() => new DoubleDatumConverter());
+            public static readonly Lazy<DoubleDatumConverter> Instance = new Lazy<DoubleDatumConverter>(() => new DoubleDatumConverter());
 
             #region IDatumConverter<double> Members
 
@@ -162,7 +158,7 @@ public class StringDatumConverter : IDatumConverter<string>
 
             public Spec.Datum ConvertObject(double value)
             {
-                return new Spec.Datum() {type = Spec.Datum.DatumType.R_NUM, r_num = value};
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
 
             #endregion
@@ -170,8 +166,7 @@ public class StringDatumConverter : IDatumConverter<string>
 
         public class NullableDoubleDatumConverter : IDatumConverter<double?>
         {
-            public static readonly Lazy<NullableDoubleDatumConverter> Instance =
-                new Lazy<NullableDoubleDatumConverter>(() => new NullableDoubleDatumConverter());
+            public static readonly Lazy<NullableDoubleDatumConverter> Instance = new Lazy<NullableDoubleDatumConverter>(() => new NullableDoubleDatumConverter());
 
             #region IDatumConverter<double?> Members
 
@@ -188,9 +183,9 @@ public class StringDatumConverter : IDatumConverter<string>
             public Spec.Datum ConvertObject(double? value)
             {
                 if (!value.HasValue)
-                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NULL};
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
                 else
-                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NUM, r_num = value.Value};
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
             }
 
             #endregion
@@ -214,7 +209,7 @@ public class StringDatumConverter : IDatumConverter<string>
 
             public Spec.Datum ConvertObject(int value)
             {
-                return new Spec.Datum() {type = Spec.Datum.DatumType.R_NUM, r_num = value};
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
 
             #endregion
@@ -222,8 +217,7 @@ public class StringDatumConverter : IDatumConverter<string>
 
         public class NullableIntDatumConverter : IDatumConverter<int?>
         {
-            public static readonly Lazy<NullableIntDatumConverter> Instance =
-                new Lazy<NullableIntDatumConverter>(() => new NullableIntDatumConverter());
+            public static readonly Lazy<NullableIntDatumConverter> Instance = new Lazy<NullableIntDatumConverter>(() => new NullableIntDatumConverter());
 
             #region IDatumConverter<int?> Members
 
@@ -240,9 +234,9 @@ public class StringDatumConverter : IDatumConverter<string>
             public Spec.Datum ConvertObject(int? value)
             {
                 if (!value.HasValue)
-                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NULL};
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
                 else
-                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NUM, r_num = value.Value};
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
             }
 
             #endregion
@@ -250,8 +244,7 @@ public class StringDatumConverter : IDatumConverter<string>
 
         public class LongDatumConverter : IDatumConverter<long>
         {
-            public static readonly Lazy<LongDatumConverter> Instance =
-                new Lazy<LongDatumConverter>(() => new LongDatumConverter());
+            public static readonly Lazy<LongDatumConverter> Instance = new Lazy<LongDatumConverter>(() => new LongDatumConverter());
 
             #region IDatumConverter<long> Members
 
@@ -267,7 +260,7 @@ public class StringDatumConverter : IDatumConverter<string>
 
             public Spec.Datum ConvertObject(long value)
             {
-                return new Spec.Datum() {type = Spec.Datum.DatumType.R_NUM, r_num = value};
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
 
             #endregion
@@ -275,8 +268,7 @@ public class StringDatumConverter : IDatumConverter<string>
 
         public class NullableLongDatumConverter : IDatumConverter<long?>
         {
-            public static readonly Lazy<NullableLongDatumConverter> Instance =
-                new Lazy<NullableLongDatumConverter>(() => new NullableLongDatumConverter());
+            public static readonly Lazy<NullableLongDatumConverter> Instance = new Lazy<NullableLongDatumConverter>(() => new NullableLongDatumConverter());
 
             #region IDatumConverter<long?> Members
 
@@ -293,9 +285,9 @@ public class StringDatumConverter : IDatumConverter<string>
             public Spec.Datum ConvertObject(long? value)
             {
                 if (!value.HasValue)
-                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NULL};
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
                 else
-                    return new Spec.Datum() {type = Spec.Datum.DatumType.R_NUM, r_num = value.Value};
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
             }
 
             #endregion
