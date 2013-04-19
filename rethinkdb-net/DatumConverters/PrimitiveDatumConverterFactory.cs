@@ -274,9 +274,6 @@ namespace RethinkDb
         {
             public static readonly Lazy<LongDatumConverter> Instance = new Lazy<LongDatumConverter>(() => new LongDatumConverter());
 
-            public static long MinValue = (long) Math.Pow(-2, 53);
-            public static long MaxValue = (long) Math.Pow(2, 53);
-
             #region IDatumConverter<long> Members
 
             public long ConvertDatum(Spec.Datum datum)
@@ -291,7 +288,7 @@ namespace RethinkDb
 
             public Spec.Datum ConvertObject(long value)
             {
-                if (value > LongDatumConverter.MaxValue || value < LongDatumConverter.MinValue)
+                if (value > LongDatumConstants.MaxValue || value < LongDatumConstants.MinValue)
                 {
                     throw new NotSupportedException("Attempted to cast long with a value outside the range of a double to Datum");
                 }
