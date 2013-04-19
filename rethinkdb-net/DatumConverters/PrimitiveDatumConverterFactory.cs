@@ -281,18 +281,28 @@ namespace RethinkDb
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable long, but Datum was null");
                 else if (datum.type == Spec.Datum.DatumType.R_NUM)
-                    return (long)datum.r_num;
+                {
+                    var valueAsLong = (long)datum.r_num;
+
+                    if (valueAsLong >= long.MaxValue || valueAsLong <= long.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum to non-nullable long, but Datum outside range of valid long");
+                    }
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (long)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to non-nullable long");
+                    }
+                }
                 else
                     throw new NotSupportedException("Attempted to cast Datum to Long, but Datum was unsupported type " + datum.type);
             }
 
             public Spec.Datum ConvertObject(long value)
             {
-                if (value > LongDatumConstants.MaxValue || value < LongDatumConstants.MinValue)
-                {
-                    throw new NotSupportedException("Attempted to cast long with a value outside the range of a double to Datum");
-                }
-
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
 
@@ -310,7 +320,22 @@ namespace RethinkDb
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     return null;
                 else if (datum.type == Spec.Datum.DatumType.R_NUM)
-                    return (int?)datum.r_num;
+                {
+                    var valueAsLong = (long)datum.r_num;
+
+                    if (valueAsLong >= long.MaxValue || valueAsLong <= long.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast long with a value outside the range of a double to Datum");
+                    }
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (long?)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to long");
+                    }
+                }
                 else
                     throw new NotSupportedException("Attempted to cast Datum to Long, but Datum was unsupported type " + datum.type);
             }
@@ -320,14 +345,7 @@ namespace RethinkDb
                 if (!value.HasValue)
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
                 else
-                {
-                    if (value > LongDatumConstants.MaxValue || value < LongDatumConstants.MinValue)
-                    {
-                        throw new NotSupportedException("Attempted to cast long with a value outside the range of a double to Datum");
-                    }
-
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
-                }
             }
 
             #endregion
