@@ -186,7 +186,7 @@ namespace RethinkDb.Test
                 Id = 3,
                 Value_Int = 1354353535,
                 Value_Int_Nullable = 3,
-                Value_Long = 2222222222222222222,
+                Value_Long = 2222222222,
                 Value_Long_Nullable = 2
             };
 

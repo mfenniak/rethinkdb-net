@@ -202,7 +202,21 @@ namespace RethinkDb
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable int, but Datum was null");
                 else if (datum.type == Spec.Datum.DatumType.R_NUM)
-                    return (int)datum.r_num;
+                {
+                    if (datum.r_num > int.MaxValue || datum.r_num < int.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of int");
+                    }
+
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (int)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to int");
+                    }
+                }                    
                 else
                     throw new NotSupportedException("Attempted to cast Datum to Int, but Datum was unsupported type " + datum.type);
             }
@@ -226,7 +240,21 @@ namespace RethinkDb
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     return null;
                 else if (datum.type == Spec.Datum.DatumType.R_NUM)
-                    return (int?)datum.r_num;
+                {
+                    if (datum.r_num > int.MaxValue || datum.r_num < int.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of int");
+                    }
+
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (int?)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to int");
+                    }
+                }
                 else
                     throw new NotSupportedException("Attempted to cast Datum to Int, but Datum was unsupported type " + datum.type);
             }
@@ -246,6 +274,9 @@ namespace RethinkDb
         {
             public static readonly Lazy<LongDatumConverter> Instance = new Lazy<LongDatumConverter>(() => new LongDatumConverter());
 
+            public static long MinValue = (long) Math.Pow(-2, 53);
+            public static long MaxValue = (long) Math.Pow(2, 53);
+
             #region IDatumConverter<long> Members
 
             public long ConvertDatum(Spec.Datum datum)
@@ -260,6 +291,11 @@ namespace RethinkDb
 
             public Spec.Datum ConvertObject(long value)
             {
+                if (value > LongDatumConverter.MaxValue || value < LongDatumConverter.MinValue)
+                {
+                    throw new NotSupportedException("Attempted to cast long with a value outside the range of a double to Datum");
+                }
+
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
 
@@ -287,7 +323,14 @@ namespace RethinkDb
                 if (!value.HasValue)
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
                 else
+                {
+                    if (value > LongDatumConstants.MaxValue || value < LongDatumConstants.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast long with a value outside the range of a double to Datum");
+                    }
+
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
+                }
             }
 
             #endregion
