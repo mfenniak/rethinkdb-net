@@ -43,6 +43,11 @@ namespace RethinkDb.Test
             {
             }
         }
+
+        [TestFixtureTearDown]
+        public virtual void TestFixtureTearDown()
+        {
+        }
     }
 }
 

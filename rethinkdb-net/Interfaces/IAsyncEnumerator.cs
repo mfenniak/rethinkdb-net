@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 namespace RethinkDb
@@ -6,6 +7,6 @@ namespace RethinkDb
     {
         T Current { get; }
         Task<bool> MoveNext();
+        Task Dispose();
     }
 }
-

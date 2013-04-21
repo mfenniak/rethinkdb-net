@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ProtoBuf;
 using RethinkDb.Spec;
+using System.Diagnostics;
 
 namespace RethinkDb
 {
@@ -396,10 +397,12 @@ namespace RethinkDb
             private readonly IDatumConverterFactory datumConverterFactory;
             private readonly IDatumConverter<T> datumConverter;
             private readonly ISequenceQuery<T> queryObject;
+            private readonly StackTrace stackTrace;
 
             private Spec.Query query = null;
             private Response lastResponse = null;
             private int lastResponseIndex = 0;
+            private bool disposed = false;
 
             public QueryEnumerator(Connection connection, IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
             {
@@ -407,6 +410,55 @@ namespace RethinkDb
                 this.datumConverterFactory = datumConverterFactory;
                 this.datumConverter = datumConverterFactory.Get<T>();
                 this.queryObject = queryObject;
+                this.stackTrace = new StackTrace(true);
+            }
+
+            ~QueryEnumerator()
+            {
+                if (!disposed)
+                {
+                    var c = connection;
+                    if (c == null)
+                        return;
+
+                    var l = c.Logger;
+                    if (l != null)
+                        return;
+
+                    l.Warning("QueryEnumerator finalizer was called and object was not disposed; originally created at: {0}", stackTrace);
+                }
+            }
+
+            public async Task Dispose()
+            {
+                if (disposed)
+                    return;
+
+                disposed = true;
+                GC.SuppressFinalize(this);
+
+                if (query == null)
+                    return;
+                if (lastResponse != null && lastResponse.type != Response.ResponseType.SUCCESS_PARTIAL)
+                    return;
+
+                // Looks like we have a query in-progress that we should stop on the server-side to free up resources.
+                query.type = Spec.Query.QueryType.STOP;
+                query.query = null;
+                var response = await connection.InternalRunQuery(query);
+
+                switch (response.type)
+                {
+                    case Response.ResponseType.SUCCESS_ATOM:
+                        break;
+                    case Response.ResponseType.CLIENT_ERROR:
+                    case Response.ResponseType.COMPILE_ERROR:
+                        throw new RethinkDbInternalErrorException("Client error: " + response.response[0].r_str);
+                    case Response.ResponseType.RUNTIME_ERROR:
+                        throw new RethinkDbRuntimeException("Runtime error: " + response.response[0].r_str);
+                    default:
+                        throw new RethinkDbInternalErrorException("Unhandled response type: " + response.type);
+                }
             }
 
             private int LoadedRecordCount()
@@ -421,6 +473,8 @@ namespace RethinkDb
             {
                 get
                 {
+                    if (disposed)
+                        throw new ObjectDisposedException(GetType().FullName);
                     if (lastResponse == null || lastResponseIndex == -1)
                         throw new InvalidOperationException("Call MoveNext first");
                     else if (lastResponseIndex >= LoadedRecordCount())
@@ -458,6 +512,9 @@ namespace RethinkDb
 
             public async Task<bool> MoveNext()
             {
+                if (disposed)
+                    throw new ObjectDisposedException(GetType().FullName);
+
                 if (lastResponse == null)
                 {
                     query = new Spec.Query();
@@ -543,12 +600,12 @@ namespace RethinkDb
 
         public IEnumerable<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
         {
-            return new AsyncEnumerableSynchronizer<T>(RunAsync(datumConverterFactory, queryObject));
+            return new AsyncEnumerableSynchronizer<T>(() => RunAsync(datumConverterFactory, queryObject));
         }
 
         public IEnumerable<T> Run<T>(ISequenceQuery<T> queryObject)
         {
-            return new AsyncEnumerableSynchronizer<T>(RunAsync(queryObject));
+            return new AsyncEnumerableSynchronizer<T>(() => RunAsync(queryObject));
         }
 
         public DmlResponse Run(IDatumConverterFactory datumConverterFactory, IDmlQuery queryObject)
@@ -573,27 +630,27 @@ namespace RethinkDb
 
         private class AsyncEnumerableSynchronizer<T> : IEnumerable<T>
         {
-            private readonly IEnumerator<T> enumerator;
+            private readonly Func<IAsyncEnumerator<T>> asyncEnumeratorFactory;
 
-            public AsyncEnumerableSynchronizer(IAsyncEnumerator<T> asyncEnumerator)
+            public AsyncEnumerableSynchronizer(Func<IAsyncEnumerator<T>> asyncEnumeratorFactory)
             {
-                this.enumerator = new AsyncEnumeratorSynchronizer<T>(asyncEnumerator);
+                this.asyncEnumeratorFactory = asyncEnumeratorFactory;
             }
 
             public System.Collections.IEnumerator GetEnumerator()
             {
-                return enumerator;
+                return new AsyncEnumeratorSynchronizer<T>(asyncEnumeratorFactory());
             }
 
             IEnumerator<T> IEnumerable<T>.GetEnumerator()
             {
-                return enumerator;
+                return new AsyncEnumeratorSynchronizer<T>(asyncEnumeratorFactory());
             }
         }
 
-        private class AsyncEnumeratorSynchronizer<T> : IEnumerator<T>
+        private sealed class AsyncEnumeratorSynchronizer<T> : IEnumerator<T>
         {
-            private readonly IAsyncEnumerator<T> asyncEnumerator;
+            private IAsyncEnumerator<T> asyncEnumerator;
 
             public AsyncEnumeratorSynchronizer(IAsyncEnumerator<T> asyncEnumerator)
             {
@@ -602,19 +659,26 @@ namespace RethinkDb
 
             #region IDisposable implementation
 
-            public void Dispose ()
+            public void Dispose()
             {
+                if (this.asyncEnumerator != null)
+                {
+                    this.asyncEnumerator.Dispose().Wait();
+                    this.asyncEnumerator = null;
+                }
             }
 
             #endregion
             #region IEnumerator implementation
 
-            public bool MoveNext ()
+            public bool MoveNext()
             {
+                if (asyncEnumerator == null)
+                    throw new ObjectDisposedException(GetType().FullName);
                 return asyncEnumerator.MoveNext().Result;
             }
 
-            public void Reset ()
+            public void Reset()
             {
                 throw new NotSupportedException();
             }
@@ -623,6 +687,8 @@ namespace RethinkDb
             {
                 get
                 {
+                    if (asyncEnumerator == null)
+                        throw new ObjectDisposedException(GetType().FullName);
                     return asyncEnumerator.Current;
                 }
             }
@@ -634,6 +700,8 @@ namespace RethinkDb
             {
                 get
                 {
+                    if (asyncEnumerator == null)
+                        throw new ObjectDisposedException(GetType().FullName);
                     return asyncEnumerator.Current;
                 }
             }
