@@ -22,6 +22,14 @@ namespace RethinkDb
                 return (IDatumConverter<T>)DoubleDatumConverter.Instance.Value;
             else if (typeof(T) == typeof(double?))
                 return (IDatumConverter<T>)NullableDoubleDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(int))
+                return (IDatumConverter<T>)IntDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(int?))
+                return (IDatumConverter<T>)NullableIntDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(long))
+                return (IDatumConverter<T>)LongDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(long?))
+                return (IDatumConverter<T>)NullableLongDatumConverter.Instance.Value;
             else if (typeof(T).IsArray && IsTypeSupported(typeof(T).GetElementType()))
                 return ArrayDatumConverterFactory.Instance.Get<T>(this);
             else
@@ -39,6 +47,14 @@ namespace RethinkDb
             else if (t == typeof(double))
                 return true;
             else if (t == typeof(double?))
+                return true;
+            else if (t == typeof(int))
+                return true;
+            else if (t == typeof(int?))
+                return true;
+            else if (t == typeof(long))
+                return true;
+            else if (t == typeof(long?))
                 return true;
             else if (t.IsArray && IsTypeSupported(t.GetElementType()))
                 return true;
@@ -77,7 +93,7 @@ namespace RethinkDb
         {
             public static readonly Lazy<BoolDatumConverter> Instance = new Lazy<BoolDatumConverter>(() => new BoolDatumConverter());
 
-            #region IDatumConverter<string> Members
+            #region IDatumConverter<bool> Members
 
             public bool ConvertDatum(Spec.Datum datum)
             {
@@ -101,7 +117,7 @@ namespace RethinkDb
         {
             public static readonly Lazy<NullableBoolDatumConverter> Instance = new Lazy<NullableBoolDatumConverter>(() => new NullableBoolDatumConverter());
 
-            #region IDatumConverter<string> Members
+            #region IDatumConverter<bool?> Members
 
             public bool? ConvertDatum(Spec.Datum datum)
             {
@@ -128,7 +144,7 @@ namespace RethinkDb
         {
             public static readonly Lazy<DoubleDatumConverter> Instance = new Lazy<DoubleDatumConverter>(() => new DoubleDatumConverter());
 
-            #region IDatumConverter<string> Members
+            #region IDatumConverter<double> Members
 
             public double ConvertDatum(Spec.Datum datum)
             {
@@ -152,7 +168,7 @@ namespace RethinkDb
         {
             public static readonly Lazy<NullableDoubleDatumConverter> Instance = new Lazy<NullableDoubleDatumConverter>(() => new NullableDoubleDatumConverter());
 
-            #region IDatumConverter<string> Members
+            #region IDatumConverter<double?> Members
 
             public double? ConvertDatum(Spec.Datum datum)
             {
@@ -165,6 +181,166 @@ namespace RethinkDb
             }
 
             public Spec.Datum ConvertObject(double? value)
+            {
+                if (!value.HasValue)
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                else
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
+            }
+
+            #endregion
+        }
+
+        public class IntDatumConverter : IDatumConverter<int>
+        {
+            public static readonly Lazy<IntDatumConverter> Instance = new Lazy<IntDatumConverter>(() => new IntDatumConverter());
+
+            #region IDatumConverter<int> Members
+
+            public int ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable int, but Datum was null");
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    if (datum.r_num > int.MaxValue || datum.r_num < int.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of int");
+                    }
+
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (int)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to int");
+                    }
+                }                    
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Int, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(int value)
+            {
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
+            }
+
+            #endregion
+        }
+
+        public class NullableIntDatumConverter : IDatumConverter<int?>
+        {
+            public static readonly Lazy<NullableIntDatumConverter> Instance = new Lazy<NullableIntDatumConverter>(() => new NullableIntDatumConverter());
+
+            #region IDatumConverter<int?> Members
+
+            public int? ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    return null;
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    if (datum.r_num > int.MaxValue || datum.r_num < int.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of int");
+                    }
+
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (int?)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to int");
+                    }
+                }
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Int, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(int? value)
+            {
+                if (!value.HasValue)
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                else
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
+            }
+
+            #endregion
+        }
+
+        public class LongDatumConverter : IDatumConverter<long>
+        {
+            public static readonly Lazy<LongDatumConverter> Instance = new Lazy<LongDatumConverter>(() => new LongDatumConverter());
+
+            #region IDatumConverter<long> Members
+
+            public long ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable long, but Datum was null");
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    var valueAsLong = (long)datum.r_num;
+
+                    if (valueAsLong >= long.MaxValue || valueAsLong <= long.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum to non-nullable long, but Datum outside range of valid long");
+                    }
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (long)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to non-nullable long");
+                    }
+                }
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Long, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(long value)
+            {
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
+            }
+
+            #endregion
+        }
+
+        public class NullableLongDatumConverter : IDatumConverter<long?>
+        {
+            public static readonly Lazy<NullableLongDatumConverter> Instance = new Lazy<NullableLongDatumConverter>(() => new NullableLongDatumConverter());
+
+            #region IDatumConverter<long?> Members
+
+            public long? ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    return null;
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    var valueAsLong = (long)datum.r_num;
+
+                    if (valueAsLong >= long.MaxValue || valueAsLong <= long.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast long with a value outside the range of a double to Datum");
+                    }
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (long?)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to long");
+                    }
+                }
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Long, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(long? value)
             {
                 if (!value.HasValue)
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
