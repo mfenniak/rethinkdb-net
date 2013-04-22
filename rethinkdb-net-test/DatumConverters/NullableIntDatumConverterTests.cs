@@ -26,6 +26,15 @@ namespace RethinkDb.Test
         {
             PrimitiveDatumConverterFactory.Instance.Get<int?>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_NUM, r_num = 0.25});
         }
+
+        [Test]
+        public void ConvertDatum_ValueWithinRange_ReturnsValue()
+        {
+            const int expectedValue = 3000;
+            var value = PrimitiveDatumConverterFactory.Instance.Get<int?>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_NUM, r_num = expectedValue});
+
+            Assert.AreEqual(expectedValue, value, "should be equal");
+        }
     }
 }
 
