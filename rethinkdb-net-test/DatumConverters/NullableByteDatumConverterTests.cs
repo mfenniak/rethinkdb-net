@@ -31,7 +31,7 @@ namespace RethinkDb.Test
         public void ConvertDatum_ValueWithinRange_ReturnsValue()
         {
             const byte expectedValue = 6;
-            var value = PrimitiveDatumConverterFactory.Instance.Get<short?>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_NUM, r_num = expectedValue});
+            var value = PrimitiveDatumConverterFactory.Instance.Get<byte?>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_NUM, r_num = expectedValue});
 
             Assert.AreEqual(expectedValue, value, "should be equal");
         }

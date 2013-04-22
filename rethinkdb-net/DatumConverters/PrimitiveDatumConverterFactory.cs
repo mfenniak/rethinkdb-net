@@ -62,6 +62,10 @@ namespace RethinkDb
                 return (IDatumConverter<T>)ByteDatumConverter.Instance.Value;
             else if (typeof (T) == typeof(byte?))
                 return (IDatumConverter<T>)NullableByteDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(sbyte))
+                return (IDatumConverter<T>)SignedByteDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(sbyte?))
+                return (IDatumConverter<T>)NullableSignedByteDatumConverter.Instance.Value;
             else if (typeof(T).IsArray && IsTypeSupported(typeof(T).GetElementType()))
                 return ArrayDatumConverterFactory.Instance.Get<T>(this);
             else
@@ -119,6 +123,10 @@ namespace RethinkDb
             else if (t == typeof(byte))
                 return true;
             else if (t == typeof(byte?))
+                return true;
+            else if (t == typeof(sbyte))
+                return true;
+            else if (t == typeof(sbyte?))
                 return true;
             else if (t.IsArray && IsTypeSupported(t.GetElementType()))
                 return true;
@@ -1009,6 +1017,85 @@ namespace RethinkDb
             }
 
             public Spec.Datum ConvertObject(byte? value)
+            {
+                if (!value.HasValue)
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                else
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
+            }
+
+            #endregion
+        }
+
+        public class SignedByteDatumConverter : IDatumConverter<sbyte>
+        {
+            public static readonly Lazy<SignedByteDatumConverter> Instance = new Lazy<SignedByteDatumConverter>(() => new SignedByteDatumConverter());
+
+            #region IDatumConverter<sbyte> Members
+
+            public sbyte ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable signed byte, but Datum was null");
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    if (datum.r_num > sbyte.MaxValue || datum.r_num < sbyte.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of signed byte");
+                    }
+
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (sbyte)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to signed byte");
+                    }
+                }                    
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to signed Byte, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(sbyte value)
+            {
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
+            }
+
+            #endregion
+        }
+
+        public class NullableSignedByteDatumConverter : IDatumConverter<sbyte?>
+        {
+            public static readonly Lazy<NullableSignedByteDatumConverter> Instance = new Lazy<NullableSignedByteDatumConverter>(() => new NullableSignedByteDatumConverter());
+
+            #region IDatumConverter<sbyte?> Members
+
+            public sbyte? ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    return null;
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    if (datum.r_num > sbyte.MaxValue || datum.r_num < sbyte.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of signed byte");
+                    }
+
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (sbyte?)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to signed byte");
+                    }
+                }
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to signed Byte, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(sbyte? value)
             {
                 if (!value.HasValue)
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
