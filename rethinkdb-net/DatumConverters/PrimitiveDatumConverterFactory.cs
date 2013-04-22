@@ -34,6 +34,10 @@ namespace RethinkDb
                 return (IDatumConverter<T>)LongDatumConverter.Instance.Value;
             else if (typeof (T) == typeof(long?))
                 return (IDatumConverter<T>)NullableLongDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(ulong))
+                return (IDatumConverter<T>)UnsignedLongDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(ulong?))
+                return (IDatumConverter<T>)NullableUnsignedLongDatumConverter.Instance.Value;
             else if (typeof (T) == typeof(short))
                 return (IDatumConverter<T>)ShortDatumConverter.Instance.Value;
             else if (typeof (T) == typeof(short?))
@@ -436,6 +440,87 @@ namespace RethinkDb
             }
 
             public Spec.Datum ConvertObject(long? value)
+            {
+                if (!value.HasValue)
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                else
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
+            }
+
+            #endregion
+        }
+
+        public class UnsignedLongDatumConverter : IDatumConverter<ulong>
+        {
+            public static readonly Lazy<UnsignedLongDatumConverter> Instance = new Lazy<UnsignedLongDatumConverter>(() => new UnsignedLongDatumConverter());
+
+            #region IDatumConverter<ulong> Members
+
+            public ulong ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable unsigned long, but Datum was null");
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    var valueAsLong = (ulong)datum.r_num;
+
+                    if (valueAsLong >= ulong.MaxValue || valueAsLong <= ulong.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum to non-nullable unsigned long, but Datum outside range of valid unsigned long");
+                    }
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (ulong)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to non-nullable unsigned long");
+                    }
+                }
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to unsigned Long, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(ulong value)
+            {
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
+            }
+
+            #endregion
+        }
+
+        public class NullableUnsignedLongDatumConverter : IDatumConverter<ulong?>
+        {
+            public static readonly Lazy<NullableUnsignedLongDatumConverter> Instance = new Lazy<NullableUnsignedLongDatumConverter>(() => new NullableUnsignedLongDatumConverter());
+
+            #region IDatumConverter<ulong?> Members
+
+            public ulong? ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    return null;
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    var valueAsLong = (ulong)datum.r_num;
+
+                    if (valueAsLong >= ulong.MaxValue || valueAsLong <= ulong.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast unsigned long with a value outside the range of a double to Datum");
+                    }
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (ulong?)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to unsigned long");
+                    }
+                }
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to unsigned Long, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(ulong? value)
             {
                 if (!value.HasValue)
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
