@@ -14,6 +14,10 @@ namespace RethinkDb
         {
             if (typeof(T) == typeof(string))
                 return (IDatumConverter<T>)StringDatumConverter.Instance.Value;
+            else if (typeof(T) == typeof(char))
+                return (IDatumConverter<T>)CharDatumConverter.Instance.Value;
+            else if (typeof(T) == typeof(char?))
+                return (IDatumConverter<T>)NullableCharDatumConverter.Instance.Value;
             else if (typeof(T) == typeof(bool))
                 return (IDatumConverter<T>)BoolDatumConverter.Instance.Value;
             else if (typeof(T) == typeof(bool?))
@@ -64,6 +68,10 @@ namespace RethinkDb
         {
             if (t == typeof(string))
                 return true;
+            else if (t == typeof(char))
+                return true;
+            else if (t == typeof(char?))
+                return true;
             else if (t == typeof(bool))
                 return true;
             else if (t == typeof(bool?))
@@ -76,13 +84,33 @@ namespace RethinkDb
                 return true;
             else if (t == typeof(int?))
                 return true;
+            else if (t == typeof(uint))
+                return true;
+            else if (t == typeof(uint?))
+                return true;
             else if (t == typeof(long))
                 return true;
             else if (t == typeof(long?))
                 return true;
+            else if (t == typeof(ulong))
+                return true;
+            else if (t == typeof(ulong?))
+                return true;
             else if (t == typeof(short))
                 return true;
             else if (t == typeof(short?))
+                return true;
+            else if (t == typeof(ushort))
+                return true;
+            else if (t == typeof(ushort?))
+                return true;
+            else if (t == typeof(float))
+                return true;
+            else if (t == typeof(float?))
+                return true;
+            else if (t == typeof(decimal))
+                return true;
+            else if (t == typeof(decimal?))
                 return true;
             else if (t.IsArray && IsTypeSupported(t.GetElementType()))
                 return true;
@@ -112,6 +140,71 @@ namespace RethinkDb
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
                 else
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_STR, r_str = str };
+            }
+
+            #endregion
+        }
+
+        public class CharDatumConverter : IDatumConverter<char>
+        {
+            public static readonly Lazy<CharDatumConverter> Instance = new Lazy<CharDatumConverter>(() => new CharDatumConverter());
+
+            #region IDatumConverter<char> Members
+
+            public char ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable char, but Datum was null");
+                else if (datum.type == Spec.Datum.DatumType.R_STR)
+                {
+                    if (datum.r_str.Length != 1)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum to char, but Datum was not a single character");
+                    }
+
+                    return datum.r_str[0];
+                }                 
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable char, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(char str)
+            {
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_STR, r_str = str.ToString() };
+            }
+
+            #endregion
+        }
+
+        public class NullableCharDatumConverter : IDatumConverter<char?>
+        {
+            public static readonly Lazy<NullableCharDatumConverter> Instance = new Lazy<NullableCharDatumConverter>(() => new NullableCharDatumConverter());
+
+            #region IDatumConverter<char?> Members
+
+            public char? ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    return null;
+                else if (datum.type == Spec.Datum.DatumType.R_STR)
+                {
+                    if (datum.r_str.Length != 1)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum to char, but Datum was not a single character");
+                    }
+
+                    return datum.r_str[0];
+                }                 
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to char, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(char? str)
+            {
+                if (str == null)
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                else
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_STR, r_str = str.ToString() };
             }
 
             #endregion
