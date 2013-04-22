@@ -58,6 +58,10 @@ namespace RethinkDb
                 return (IDatumConverter<T>)DecimalDatumConverter.Instance.Value;
             else if (typeof (T) == typeof(decimal?))
                 return (IDatumConverter<T>)NullableDecimalDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(byte))
+                return (IDatumConverter<T>)ByteDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(byte?))
+                return (IDatumConverter<T>)NullableByteDatumConverter.Instance.Value;
             else if (typeof(T).IsArray && IsTypeSupported(typeof(T).GetElementType()))
                 return ArrayDatumConverterFactory.Instance.Get<T>(this);
             else
@@ -111,6 +115,10 @@ namespace RethinkDb
             else if (t == typeof(decimal))
                 return true;
             else if (t == typeof(decimal?))
+                return true;
+            else if (t == typeof(byte))
+                return true;
+            else if (t == typeof(byte?))
                 return true;
             else if (t.IsArray && IsTypeSupported(t.GetElementType()))
                 return true;
@@ -927,6 +935,85 @@ namespace RethinkDb
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
                 else
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = Convert.ToDouble(value.Value) };
+            }
+
+            #endregion
+        }
+
+        public class ByteDatumConverter : IDatumConverter<byte>
+        {
+            public static readonly Lazy<ByteDatumConverter> Instance = new Lazy<ByteDatumConverter>(() => new ByteDatumConverter());
+
+            #region IDatumConverter<byte> Members
+
+            public byte ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable byte, but Datum was null");
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    if (datum.r_num > byte.MaxValue || datum.r_num < byte.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of byte");
+                    }
+
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (byte)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to byte");
+                    }
+                }                    
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Byte, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(byte value)
+            {
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
+            }
+
+            #endregion
+        }
+
+        public class NullableByteDatumConverter : IDatumConverter<byte?>
+        {
+            public static readonly Lazy<NullableByteDatumConverter> Instance = new Lazy<NullableByteDatumConverter>(() => new NullableByteDatumConverter());
+
+            #region IDatumConverter<byte?> Members
+
+            public byte? ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    return null;
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    if (datum.r_num > byte.MaxValue || datum.r_num < byte.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of byte");
+                    }
+
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (byte?)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to byte");
+                    }
+                }
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Byte, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(byte? value)
+            {
+                if (!value.HasValue)
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                else
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
             }
 
             #endregion

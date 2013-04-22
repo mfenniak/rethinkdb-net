@@ -82,6 +82,8 @@
     <Compile Include="DatumConverters\NullableDecimalDatumConverterTests.cs" />
     <Compile Include="DatumConverters\CharDatumConverterTests.cs" />
     <Compile Include="DatumConverters\NullableCharDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\ByteDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\NullableByteDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
