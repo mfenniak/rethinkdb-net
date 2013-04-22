@@ -30,6 +30,10 @@ namespace RethinkDb
                 return (IDatumConverter<T>)LongDatumConverter.Instance.Value;
             else if (typeof (T) == typeof(long?))
                 return (IDatumConverter<T>)NullableLongDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(short))
+                return (IDatumConverter<T>)ShortDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(short?))
+                return (IDatumConverter<T>)NullableShortDatumConverter.Instance.Value;
             else if (typeof(T).IsArray && IsTypeSupported(typeof(T).GetElementType()))
                 return ArrayDatumConverterFactory.Instance.Get<T>(this);
             else
@@ -55,6 +59,10 @@ namespace RethinkDb
             else if (t == typeof(long))
                 return true;
             else if (t == typeof(long?))
+                return true;
+            else if (t == typeof(short))
+                return true;
+            else if (t == typeof(short?))
                 return true;
             else if (t.IsArray && IsTypeSupported(t.GetElementType()))
                 return true;
@@ -341,6 +349,85 @@ namespace RethinkDb
             }
 
             public Spec.Datum ConvertObject(long? value)
+            {
+                if (!value.HasValue)
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                else
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
+            }
+
+            #endregion
+        }
+
+        public class ShortDatumConverter : IDatumConverter<short>
+        {
+            public static readonly Lazy<ShortDatumConverter> Instance = new Lazy<ShortDatumConverter>(() => new ShortDatumConverter());
+
+            #region IDatumConverter<short> Members
+
+            public short ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable short, but Datum was null");
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    if (datum.r_num > short.MaxValue || datum.r_num < short.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of short");
+                    }
+
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (short)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to short");
+                    }
+                }                    
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Short, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(short value)
+            {
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
+            }
+
+            #endregion
+        }
+
+        public class NullableShortDatumConverter : IDatumConverter<short?>
+        {
+            public static readonly Lazy<NullableShortDatumConverter> Instance = new Lazy<NullableShortDatumConverter>(() => new NullableShortDatumConverter());
+
+            #region IDatumConverter<short?> Members
+
+            public short? ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    return null;
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    if (datum.r_num > short.MaxValue || datum.r_num < short.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of short");
+                    }
+
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (short?)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to short");
+                    }
+                }
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Short, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(short? value)
             {
                 if (!value.HasValue)
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };

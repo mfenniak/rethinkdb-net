@@ -68,6 +68,8 @@
     <Compile Include="DatumConverters\NullableIntDatumConverterTests.cs" />
     <Compile Include="DatumConverters\LongDatumConverterTests.cs" />
     <Compile Include="DatumConverters\NullableLongDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\ShortDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\NullableShortDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
