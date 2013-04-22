@@ -72,6 +72,8 @@
     <Compile Include="DatumConverters\NullableShortDatumConverterTests.cs" />
     <Compile Include="DatumConverters\UnsignedShortDatumConverterTests.cs" />
     <Compile Include="DatumConverters\NullableUnsignedShortDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\NullableUnsignedIntDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\UnsignedIntDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

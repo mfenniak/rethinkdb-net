@@ -26,6 +26,10 @@ namespace RethinkDb
                 return (IDatumConverter<T>)IntDatumConverter.Instance.Value;
             else if (typeof (T) == typeof(int?))
                 return (IDatumConverter<T>)NullableIntDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(uint))
+                return (IDatumConverter<T>)UnsignedIntDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(uint?))
+                return (IDatumConverter<T>)NullableUnsignedIntDatumConverter.Instance.Value;
             else if (typeof (T) == typeof(long))
                 return (IDatumConverter<T>)LongDatumConverter.Instance.Value;
             else if (typeof (T) == typeof(long?))
@@ -272,6 +276,85 @@ namespace RethinkDb
             }
 
             public Spec.Datum ConvertObject(int? value)
+            {
+                if (!value.HasValue)
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                else
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
+            }
+
+            #endregion
+        }
+
+        public class UnsignedIntDatumConverter : IDatumConverter<uint>
+        {
+            public static readonly Lazy<UnsignedIntDatumConverter> Instance = new Lazy<UnsignedIntDatumConverter>(() => new UnsignedIntDatumConverter());
+
+            #region IDatumConverter<uint> Members
+
+            public uint ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable unsigned int, but Datum was null");
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    if (datum.r_num > uint.MaxValue || datum.r_num < uint.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of unsigned int");
+                    }
+
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (uint)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to unsigned int");
+                    }
+                }                    
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to unsigned Int, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(uint value)
+            {
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
+            }
+
+            #endregion
+        }
+
+        public class NullableUnsignedIntDatumConverter : IDatumConverter<uint?>
+        {
+            public static readonly Lazy<NullableUnsignedIntDatumConverter> Instance = new Lazy<NullableUnsignedIntDatumConverter>(() => new NullableUnsignedIntDatumConverter());
+
+            #region IDatumConverter<uint?> Members
+
+            public uint? ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    return null;
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    if (datum.r_num > uint.MaxValue || datum.r_num < uint.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of unsigned int");
+                    }
+
+                    if (datum.r_num % 1 == 0)
+                    {
+                        return (uint?)datum.r_num;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Attempted to cast fractional Datum to unsigned int");
+                    }
+                }
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to unsigned Int, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(uint? value)
             {
                 if (!value.HasValue)
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
