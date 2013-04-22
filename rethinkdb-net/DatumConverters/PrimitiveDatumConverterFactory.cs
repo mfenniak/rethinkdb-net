@@ -50,6 +50,10 @@ namespace RethinkDb
                 return (IDatumConverter<T>)FloatDatumConverter.Instance.Value;
             else if (typeof (T) == typeof(float?))
                 return (IDatumConverter<T>)NullableFloatDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(decimal))
+                return (IDatumConverter<T>)DecimalDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(decimal?))
+                return (IDatumConverter<T>)NullableDecimalDatumConverter.Instance.Value;
             else if (typeof(T).IsArray && IsTypeSupported(typeof(T).GetElementType()))
                 return ArrayDatumConverterFactory.Instance.Get<T>(this);
             else
@@ -761,6 +765,75 @@ namespace RethinkDb
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
                 else
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
+            }
+
+            #endregion
+        }
+
+        public class DecimalDatumConverter : IDatumConverter<decimal>
+        {
+            public static readonly Lazy<DecimalDatumConverter> Instance = new Lazy<DecimalDatumConverter>(() => new DecimalDatumConverter());
+
+            #region IDatumConverter<decimal> Members
+
+            public decimal ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable decimal, but Datum was null");
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    if (datum.r_num >= Convert.ToDouble(decimal.MaxValue) || datum.r_num <= Convert.ToDouble(decimal.MinValue))
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of decimal");
+                    }
+                    else
+                    {
+                        return Convert.ToDecimal(datum.r_num);
+                    }
+                }                    
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Decimal, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(decimal value)
+            {
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = Convert.ToDouble(value) };
+            }
+
+            #endregion
+        }
+
+        public class NullableDecimalDatumConverter : IDatumConverter<decimal?>
+        {
+            public static readonly Lazy<NullableDecimalDatumConverter> Instance = new Lazy<NullableDecimalDatumConverter>(() => new NullableDecimalDatumConverter());
+
+            #region IDatumConverter<decimal?> Members
+
+            public decimal? ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    return null;
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    if (datum.r_num >= (double)decimal.MaxValue || datum.r_num <= (double)decimal.MinValue)
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of decimal");
+                    }
+                    else
+                    {
+                        return Convert.ToDecimal(datum.r_num);
+                    }
+                }
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Decimal, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(decimal? value)
+            {
+                if (!value.HasValue)
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                else
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = Convert.ToDouble(value.Value) };
             }
 
             #endregion

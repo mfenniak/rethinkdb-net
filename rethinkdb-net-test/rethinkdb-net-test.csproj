@@ -78,6 +78,8 @@
     <Compile Include="DatumConverters\NullableUnsignedLongDatumConverterTests.cs" />
     <Compile Include="DatumConverters\FloatDatumConverterTests.cs" />
     <Compile Include="DatumConverters\NullableFloatDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\DecimalDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\NullableDecimalDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

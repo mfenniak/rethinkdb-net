@@ -17,7 +17,7 @@ namespace RethinkDb.Test
         [ExpectedException(typeof(NotSupportedException))]
         public void ConvertDatum_ValueTooSmallToRepresentAsLongProperly_ThrowException()
         {
-            PrimitiveDatumConverterFactory.Instance.Get<float?>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_NUM, r_num = (double)float.MinValue - 1.0});
+            PrimitiveDatumConverterFactory.Instance.Get<float?>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_NUM, r_num = float.MinValue - 1.0});
         }
 
         [Test]
