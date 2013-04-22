@@ -46,6 +46,10 @@ namespace RethinkDb
                 return (IDatumConverter<T>)UnsignedShortDatumConverter.Instance.Value;
             else if (typeof (T) == typeof(ushort?))
                 return (IDatumConverter<T>)NullableUnsignedShortDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(float))
+                return (IDatumConverter<T>)FloatDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(float?))
+                return (IDatumConverter<T>)NullableFloatDatumConverter.Instance.Value;
             else if (typeof(T).IsArray && IsTypeSupported(typeof(T).GetElementType()))
                 return ArrayDatumConverterFactory.Instance.Get<T>(this);
             else
@@ -679,6 +683,79 @@ namespace RethinkDb
             }
 
             public Spec.Datum ConvertObject(ushort? value)
+            {
+                if (!value.HasValue)
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+                else
+                    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value.Value };
+            }
+
+            #endregion
+        }
+
+        public class FloatDatumConverter : IDatumConverter<float>
+        {
+            public static readonly Lazy<FloatDatumConverter> Instance = new Lazy<FloatDatumConverter>(() => new FloatDatumConverter());
+
+            #region IDatumConverter<float> Members
+
+            public float ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    throw new NotSupportedException("Attempted to cast Datum to non-nullable float, but Datum was null");
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    var valueAsFloat = (float)datum.r_num;
+
+                    if (valueAsFloat >= float.MaxValue || valueAsFloat <= float.MinValue)                    
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of float");
+                    }
+                    else
+                    {
+                        return (float)datum.r_num;
+                    }
+                }                    
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Float, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(float value)
+            {
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
+            }
+
+            #endregion
+        }
+
+        public class NullableFloatDatumConverter : IDatumConverter<float?>
+        {
+            public static readonly Lazy<NullableFloatDatumConverter> Instance = new Lazy<NullableFloatDatumConverter>(() => new NullableFloatDatumConverter());
+
+            #region IDatumConverter<float?> Members
+
+            public float? ConvertDatum(Spec.Datum datum)
+            {
+                if (datum.type == Spec.Datum.DatumType.R_NULL)
+                    return null;
+                else if (datum.type == Spec.Datum.DatumType.R_NUM)
+                {
+                    var valueAsFloat = (float)datum.r_num;
+
+                    if (valueAsFloat >= float.MaxValue || valueAsFloat <= float.MinValue)  
+                    {
+                        throw new NotSupportedException("Attempted to cast Datum outside range of float");
+                    }
+                    else
+                    {
+                        return (float?)datum.r_num;
+                    }
+                }
+                else
+                    throw new NotSupportedException("Attempted to cast Datum to Float, but Datum was unsupported type " + datum.type);
+            }
+
+            public Spec.Datum ConvertObject(float? value)
             {
                 if (!value.HasValue)
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
