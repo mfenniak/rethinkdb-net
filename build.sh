@@ -10,7 +10,7 @@ build_succeeded() {
     echo ""
     echo "*** BUILD SUCCEEDED ***"
     echo ""
-    echo "$(run_tests)"
+    run_tests
 }
 
 run_tests() {
@@ -23,7 +23,7 @@ xbuild rethinkdb-net.sln
 EXIT_CODE=$?
 
 if [[ $EXIT_CODE != 0 ]] ; then
-    echo "$(build_failed)"
+    build_failed
 else
-    echo "$(build_succeeded)"
+    build_succeeded
 fi
