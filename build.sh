@@ -21,10 +21,18 @@ build_succeeded() {
 }
 
 run_tests() {
+    print_status "RUNNING TESTS"
+    
+    start_rethink
+    
     RUNNER_PATH="packages/NUnit.Runners.2.6.1/tools"
     mono ${RUNNER_PATH}/nunit-console.exe rethinkdb-net-test/bin/Debug/rethinkdb-net-test.dll
     
-    if [[ $? != 0 ]] ; then
+    local test_result=$?
+    
+    stop_rethink
+    
+    if [[ "${test_result}" != 0 ]] ; then
         tests_failed
     else
         tests_passed
@@ -38,6 +46,26 @@ tests_failed() {
 
 tests_passed() {
     print_status "TESTS PASSED"
+}
+
+start_rethink() {
+    print_status "STARTING RETHINKDB"
+    remove_rethink_data_directory
+    rethinkdb create
+    rethinkdb serve &
+}
+
+stop_rethink() {
+    print_status "STOPPING RETHINKDB"
+    kill $!
+    remove_rethink_data_directory
+}
+
+remove_rethink_data_directory() {
+    local rethink_data_dir="rethinkdb_data"
+    if [ -d "${rethink_data_dir}" ]; then
+        rm -rf "${rethink_data_dir}"
+    fi
 }
 
 print_status() {
