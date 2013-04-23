@@ -1,15 +1,21 @@
 #!/usr/bin/env bash
 
+build() {
+    xbuild rethinkdb-net.sln
+
+    if [[ $? != 0 ]] ; then
+        build_failed
+    else
+        build_succeeded
+    fi
+}
+
 build_failed() {
-    echo ""
-    echo "*** BUILD FAILED ***"
-    echo ""
+    print_status "BUILD FAILED"
 }
 
 build_succeeded() {
-    echo ""
-    echo "*** BUILD SUCCEEDED ***"
-    echo ""
+    print_status "BUILD SUCCEEDED"
     run_tests
 }
 
@@ -18,12 +24,10 @@ run_tests() {
     mono ${RUNNER_PATH}/nunit-console.exe rethinkdb-net-test/bin/Debug/rethinkdb-net-test.dll
 }
 
-xbuild rethinkdb-net.sln
+print_status() {
+    echo ""
+    echo "*** $1 ***"
+    echo ""
+}
 
-EXIT_CODE=$?
-
-if [[ $EXIT_CODE != 0 ]] ; then
-    build_failed
-else
-    build_succeeded
-fi
+build
