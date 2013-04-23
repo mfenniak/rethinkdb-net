@@ -67,14 +67,13 @@ Currently this driver is capable of the following things:
 
   * Being 100% compatible with Mono (3.0+).
 
+  * Support for serialized object types with the provided DataContract-based datum converter classes (all .NET primitives supported)
 
 Currently this driver is lacking in the following areas:
 
   * Does not support schema-free / free-format objects.  Although the object conversion routines are interfaced out so that they can be replaced with something different as required, the first goal is to provide a client that works well in a native C# environment, and that implies type safety and structure.
 
   * Supporting free-format objects will require alternative interfaces to OrderBy, EqJoin, and GroupBy, all of which use expression trees for attribute references.
-
-  * Limited support for serialized object types with the provided DataContract-based datum converter classes.  No "int"s, for example; only doubles.
 
   * RethinkDB manipulations (pluck / merge / without / append / contains) and control structures (branch / forEach / error / coerceTo / typeOf) are not currently supported.  Some manipulations (pluck / merge / without / append) are maybe not really compatible with the strong typing approach this library currently supports.
 
