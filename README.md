@@ -1,3 +1,5 @@
+<a href="http://teamcity.codebetter.com/viewType.html?buildTypeId=bt991&guest=1"><img src="http://teamcity.codebetter.com/app/rest/builds/buildType:(id:bt991)/statusIcon" alt="RethinkDB-Net Build Status"/></a>
+
 This is a prototype of a RethinkDB client driver written in C# for the .NET platform.  This driver utilizes .NET 4.5 and C# 5.0.
 
 Currently this driver is capable of the following things:
