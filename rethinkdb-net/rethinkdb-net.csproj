@@ -117,6 +117,7 @@
     <Compile Include="Exceptions\RethinkDbNetworkException.cs" />
     <Compile Include="Exceptions\RethinkDbInternalErrorException.cs" />
     <Compile Include="Exceptions\RethinkDbRuntimeException.cs" />
+    <Compile Include="DatumConverters\DateTimeDatumConverterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
