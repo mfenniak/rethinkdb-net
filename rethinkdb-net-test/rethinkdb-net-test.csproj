@@ -87,6 +87,7 @@
     <Compile Include="DatumConverters\SignedByteDatumConverterTests.cs" />
     <Compile Include="DatumConverters\NullableSignedByteDatumConverterTests.cs" />
     <Compile Include="DatumConverters\DateTimeDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\NullableDateTimeDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
