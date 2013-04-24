@@ -28,7 +28,13 @@ namespace RethinkDb
 
         public DateTime ConvertDatum(Datum datum)
         {
-            return new DateTime(long.Parse(datum.r_str.Replace("/Date(", "").Replace(")/","")));
+            var ticksString = datum.r_str.Replace("/Date(", "").Replace(")/","");
+
+            long ticks;
+            if (!Int64.TryParse(ticksString, out ticks))
+                throw new Exception(string.Format("Not valid serialized DateTime: {0}", datum.r_str));
+
+            return new DateTime(ticks);
         }
 
         public Datum ConvertObject(DateTime dateTime)
@@ -46,7 +52,15 @@ namespace RethinkDb
             if (datum.type == Datum.DatumType.R_NULL)
                 return null;
             else
-                return new DateTime(long.Parse(datum.r_str.Replace("/Date(", "").Replace(")/","")));
+            {
+                var ticksString = datum.r_str.Replace("/Date(", "").Replace(")/","");
+
+                long ticks;
+                if (!Int64.TryParse(ticksString, out ticks))
+                    throw new Exception(string.Format("Not valid serialized DateTime: {0}", datum.r_str));
+
+                return new DateTime(ticks);
+            }                
         }
 
         public Datum ConvertObject(DateTime? dateTime)
