@@ -9,10 +9,9 @@ namespace RethinkDb.Test
         [Test]
         public void ConvertDatum_ValidDatum_ReturnsDateTime()
         {
-            long ticks = 1249335477787;
-            var dateString = string.Format(@"/Date({0})/", ticks);
+            var dateString = "2013-01-01T15:00:00.000Z";
 
-            var date = new DateTime(ticks);
+            var date = DateTime.Parse(dateString);
 
             var result = DateTimeDatumConverterFactory.Instance.Get<DateTime?>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_STR, r_str = dateString});
 
@@ -27,13 +26,13 @@ namespace RethinkDb.Test
 
             DateTimeDatumConverterFactory.Instance.Get<DateTime?>().ConvertDatum(new RethinkDb.Spec.Datum() {type = RethinkDb.Spec.Datum.DatumType.R_STR, r_str = dateString});
         }
+
         [Test]
         public void ConvertObject_ValidDateTime_ReturnsDatum()
         {
-            long ticks = 1249335477787;
-            var dateString = string.Format(@"/Date({0})/", ticks);
+            var dateString = "2013-01-01T15:00:00.000Z";
 
-            var date = new DateTime(ticks);
+            var date = DateTime.Parse(dateString);
 
             var result = DateTimeDatumConverterFactory.Instance.Get<DateTime?>().ConvertObject(date);
 
