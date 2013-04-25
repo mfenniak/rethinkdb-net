@@ -26,20 +26,20 @@ namespace RethinkDb
     {
         public static readonly Lazy<DateTimeDatumConverter> Instance = new Lazy<DateTimeDatumConverter>(() => new DateTimeDatumConverter());
 
+        public static string DateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss.fffK";
+
         public DateTime ConvertDatum(Datum datum)
         {
-            var ticksString = datum.r_str.Replace("/Date(", "").Replace(")/","");
-
-            long ticks;
-            if (!Int64.TryParse(ticksString, out ticks))
+            DateTime dateTime;
+            if (!DateTime.TryParse(datum.r_str, out dateTime))
                 throw new Exception(string.Format("Not valid serialized DateTime: {0}", datum.r_str));
 
-            return new DateTime(ticks);
+            return dateTime;
         }
 
         public Datum ConvertObject(DateTime dateTime)
         {
-            return new Datum() { type = Datum.DatumType.R_STR, r_str = string.Format(@"/Date({0})/", dateTime.Ticks) };
+            return new Datum() { type = Datum.DatumType.R_STR, r_str = dateTime.ToUniversalTime().ToString(DateTimeDatumConverter.DateTimeFormat) };
         }
     }
 
@@ -47,26 +47,26 @@ namespace RethinkDb
     {
         public static readonly Lazy<NullableDateTimeDatumConverter> Instance = new Lazy<NullableDateTimeDatumConverter>(() => new NullableDateTimeDatumConverter());
 
+        public static string DateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss.fffK";
+
         public DateTime? ConvertDatum(Datum datum)
         {
             if (datum.type == Datum.DatumType.R_NULL)
                 return null;
             else
             {
-                var ticksString = datum.r_str.Replace("/Date(", "").Replace(")/","");
-
-                long ticks;
-                if (!Int64.TryParse(ticksString, out ticks))
+                DateTime dateTime;
+                if (!DateTime.TryParse(datum.r_str, out dateTime))
                     throw new Exception(string.Format("Not valid serialized DateTime: {0}", datum.r_str));
 
-                return new DateTime(ticks);
+                return dateTime;
             }                
         }
 
         public Datum ConvertObject(DateTime? dateTime)
         {
             if (dateTime.HasValue)
-                return new Datum() { type = Datum.DatumType.R_STR, r_str = string.Format(@"/Date({0})/", dateTime.Value.Ticks) };
+                return new Datum() { type = Datum.DatumType.R_STR, r_str = dateTime.Value.ToUniversalTime().ToString(DateTimeDatumConverter.DateTimeFormat) };
             else
                 return new Datum() { type = Datum.DatumType.R_NULL };
         }
