@@ -119,6 +119,7 @@
     <Compile Include="Exceptions\RethinkDbRuntimeException.cs" />
     <Compile Include="DatumConverters\DateTimeDatumConverterFactory.cs" />
     <Compile Include="DatumConverters\GuidDatumConverterFactory.cs" />
+    <Compile Include="DatumConverters\DateTimeOffsetDatumConverterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
