@@ -36,9 +36,8 @@ namespace RethinkDb.QueryTerm
 
             if (leftKeyString != null)
             {
-                betweenTerm.optargs.Add(new Term.AssocPair() {
-                    key = "left_bound",
-                    val = new Term() {
+                betweenTerm.args.Add(new Term() 
+                    {
                         type = Term.TermType.DATUM,
                         datum = new Datum()
                         {
@@ -46,29 +45,13 @@ namespace RethinkDb.QueryTerm
                             r_str = leftKeyString,
                         }
                     }
-                });
-            }
-
-            if (rightKeyString != null)
-            {
-                betweenTerm.optargs.Add(new Term.AssocPair() {
-                    key = "right_bound",
-                    val = new Term() {
-                        type = Term.TermType.DATUM,
-                        datum = new Datum()
-                        {
-                            type = Datum.DatumType.R_STR,
-                            r_str = rightKeyString,
-                        }
-                    }
-                });
+                );
             }
 
             if (leftKeyNumber.HasValue)
             {
-                betweenTerm.optargs.Add(new Term.AssocPair() {
-                    key = "left_bound",
-                    val = new Term() {
+                betweenTerm.args.Add(new Term() 
+                    {
                         type = Term.TermType.DATUM,
                         datum = new Datum()
                         {
@@ -76,14 +59,32 @@ namespace RethinkDb.QueryTerm
                             r_num = leftKeyNumber.Value,
                         }
                     }
-                });
+                );
+            }
+
+            if (leftKeyString == null && !leftKeyNumber.HasValue)
+            {
+                betweenTerm.args.Add(GenerateNullDatum());
+            }
+
+            if (rightKeyString != null)
+            {
+                betweenTerm.args.Add(new Term() 
+                    {
+                        type = Term.TermType.DATUM,
+                        datum = new Datum()
+                        {
+                            type = Datum.DatumType.R_STR,
+                            r_str = rightKeyString,
+                        }
+                    }
+                );
             }
 
             if (rightKeyNumber.HasValue)
             {
-                betweenTerm.optargs.Add(new Term.AssocPair() {
-                    key = "right_bound",
-                    val = new Term() {
+                betweenTerm.args.Add(new Term() 
+                    {
                         type = Term.TermType.DATUM,
                         datum = new Datum()
                         {
@@ -91,10 +92,27 @@ namespace RethinkDb.QueryTerm
                             r_num = rightKeyNumber.Value,
                         }
                     }
-                });
+                );
+            }
+
+            if (rightKeyString == null && !rightKeyNumber.HasValue)
+            {
+                betweenTerm.args.Add(GenerateNullDatum());
             }
 
             return betweenTerm;
+        }
+
+        private static Term GenerateNullDatum()
+        {
+            return new Term() 
+            {
+                type = Term.TermType.DATUM,
+                datum = new Datum() 
+                {
+                    type = Datum.DatumType.R_NULL
+                }
+            };
         }
     }
 }
