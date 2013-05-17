@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from: rethinkdb_spec.proto
+// Generated from: RethinkDb.Spec.proto
 namespace RethinkDb.Spec
 {
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"VersionDummy")]
@@ -61,13 +61,13 @@ namespace RethinkDb.Spec
       set { _token = value; }
     }
 
-    private bool _noreply = (bool)false;
-    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"noreply", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    private bool _OBSOLETE_noreply = (bool)false;
+    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"OBSOLETE_noreply", DataFormat = global::ProtoBuf.DataFormat.Default)]
     [global::System.ComponentModel.DefaultValue((bool)false)]
-    public bool noreply
+    public bool OBSOLETE_noreply
     {
-      get { return _noreply; }
-      set { _noreply = value; }
+      get { return _OBSOLETE_noreply; }
+      set { _OBSOLETE_noreply = value; }
     }
     private readonly global::System.Collections.Generic.List<Query.AssocPair> _global_optargs = new global::System.Collections.Generic.List<Query.AssocPair>();
     [global::ProtoBuf.ProtoMember(6, Name=@"global_optargs", DataFormat = global::ProtoBuf.DataFormat.Default)]
@@ -130,7 +130,7 @@ namespace RethinkDb.Spec
     
 
     private Frame.FrameType _type = Frame.FrameType.POS;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     [global::System.ComponentModel.DefaultValue(Frame.FrameType.POS)]
     public Frame.FrameType type
     {
@@ -195,7 +195,7 @@ namespace RethinkDb.Spec
     
 
     private Response.ResponseType _type = Response.ResponseType.SUCCESS_ATOM;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     [global::System.ComponentModel.DefaultValue(Response.ResponseType.SUCCESS_ATOM)]
     public Response.ResponseType type
     {
@@ -465,6 +465,9 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"GET", Value=16)]
       GET = 16,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"GET_ALL", Value=78)]
+      GET_ALL = 78,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"EQ", Value=17)]
       EQ = 17,
             
@@ -612,6 +615,15 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"TABLE_LIST", Value=62)]
       TABLE_LIST = 62,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"INDEX_CREATE", Value=75)]
+      INDEX_CREATE = 75,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"INDEX_DROP", Value=76)]
+      INDEX_DROP = 76,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"INDEX_LIST", Value=77)]
+      INDEX_LIST = 77,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"FUNCALL", Value=64)]
       FUNCALL = 64,
             
@@ -634,7 +646,10 @@ namespace RethinkDb.Spec
       ASC = 73,
             
       [global::ProtoBuf.ProtoEnum(Name=@"DESC", Value=74)]
-      DESC = 74
+      DESC = 74,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"INFO", Value=79)]
+      INFO = 79
     }
   
     private global::ProtoBuf.IExtension extensionObject;

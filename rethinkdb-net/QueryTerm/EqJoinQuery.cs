@@ -9,12 +9,14 @@ namespace RethinkDb.QueryTerm
         private readonly ISequenceQuery<TLeft> leftQuery;
         private readonly ISequenceQuery<TRight> rightQuery;
         private readonly Expression<Func<TLeft, object>> leftMemberReferenceExpression;
+        private readonly string indexName;
 
-        public EqJoinQuery(ISequenceQuery<TLeft> leftQuery, Expression<Func<TLeft, object>> leftMemberReferenceExpression, ISequenceQuery<TRight> rightQuery)
+        public EqJoinQuery(ISequenceQuery<TLeft> leftQuery, Expression<Func<TLeft, object>> leftMemberReferenceExpression, ISequenceQuery<TRight> rightQuery, string indexName)
         {
             this.leftQuery = leftQuery;
             this.leftMemberReferenceExpression = leftMemberReferenceExpression;
             this.rightQuery = rightQuery;
+            this.indexName = indexName;
         }
 
         public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
@@ -26,6 +28,21 @@ namespace RethinkDb.QueryTerm
             term.args.Add(leftQuery.GenerateTerm(datumConverterFactory));
             term.args.Add(GetMemberName(datumConverterFactory));
             term.args.Add(rightQuery.GenerateTerm(datumConverterFactory));
+
+            if (indexName != null)
+            {
+                term.optargs.Add(new Term.AssocPair() {
+                    key = "index",
+                    val = new Term() {
+                        type = Term.TermType.DATUM,
+                        datum = new Datum() {
+                            type = Datum.DatumType.R_STR,
+                            r_str = indexName
+                        },
+                    }
+                });
+            }
+
             return term;
         }
 

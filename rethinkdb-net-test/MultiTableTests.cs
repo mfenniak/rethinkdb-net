@@ -22,14 +22,16 @@ namespace RethinkDb.Test
             connection.RunAsync(Query.DbCreate("test")).Wait();
             connection.RunAsync(Query.Db("test").TableCreate("table1")).Wait();
             connection.RunAsync(Query.Db("test").TableCreate("table2")).Wait();
+
+            testTable = Query.Db("test").Table<TestObject>("table1");
+            anotherTestTable = Query.Db("test").Table<AnotherTestObject>("table2");
+
+            connection.Run(anotherTestTable.IndexCreate("index1", o => o.FirstName));
         }
 
         [SetUp]
         public virtual void SetUp()
         {
-            testTable = Query.Db("test").Table<TestObject>("table1");
-            anotherTestTable = Query.Db("test").Table<AnotherTestObject>("table2");
-
             connection.RunAsync(testTable.Insert(new TestObject[] {
                 new TestObject() { Id = "1", Name = "1", SomeNumber = 1, Children = new TestObject[1] },
                 new TestObject() { Id = "2", Name = "2", SomeNumber = 2, Children = new TestObject[2] },
@@ -161,6 +163,35 @@ namespace RethinkDb.Test
             Assert.That(count, Is.EqualTo(3));
             Assert.That(objects, Has.Count.EqualTo(3));
         }
+
+        [Test]
+        public void EqJoinIndex()
+        {
+            var enumerable = connection.Run(
+                testTable.EqJoin(
+                    testObject => testObject.Name,
+                    anotherTestTable,
+                    "index1"
+                )
+            );
+            Assert.That(enumerable, Is.Not.Null);
+
+            var objects = new List<Tuple<TestObject, AnotherTestObject>>();
+            var count = 0;
+            foreach (var tup in enumerable)
+            {
+                objects.Add(tup);
+                ++count;
+
+                Assert.That(tup.Item1, Is.Not.Null);
+
+                Assert.That(tup.Item2, Is.Not.Null);
+                Assert.That(tup.Item1.Name, Is.EqualTo(tup.Item2.FirstName));
+            }
+            Assert.That(count, Is.EqualTo(3));
+            Assert.That(objects, Has.Count.EqualTo(3));
+        }
+
 
         [Test]
         public void Zip()
