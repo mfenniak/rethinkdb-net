@@ -2,11 +2,18 @@
 //                            THE HIGH-LEVEL VIEW                             //
 ////////////////////////////////////////////////////////////////////////////////
 
-// Process: First send the magic number for the version of the protobuf you're
-// targetting (in the [Version] enum).  This should **NOT** be sent as a
-// protobuf; just send the little-endian 32-bit integer over the wire raw.
-// Next, send [Query] protobufs and wait for [Response] protobufs with the same
-// token.  You can see an example exchange below in **EXAMPLE**.
+// Process: When you first open a connection, send the magic number
+// for the version of the protobuf you're targetting (in the [Version]
+// enum).  This should **NOT** be sent as a protobuf; just send the
+// little-endian 32-bit integer over the wire raw.  This number should
+// only be sent once per connection.
+
+// Next, for each query you want to send, construct a [Query] protobuf
+// and serialize it to a binary blob.  Send the blob's size to the
+// server encoded as a little-endian 32-bit integer, followed by the
+// blob itself.  You will recieve a [Response] protobuf back preceded
+// by its own size, once again encoded as a little-endian 32-bit
+// integer.  You can see an example exchange below in **EXAMPLE**.
 
 // A query consists of a [Term] to evaluate and a unique-per-connection
 // [token].
@@ -24,8 +31,8 @@ message VersionDummy { // We need to wrap it like this for some
                        // non-conforming protobuf libraries
     enum Version {
         V0_1 = 0x3f61ba36;
-    };
-};
+    }
+}
 
 // You send one of:
 // * A [START] query with a [Term] to evaluate and a unique-per-connection token.
@@ -38,30 +45,33 @@ message Query {
         CONTINUE = 2; // Continue a query that returned [SUCCESS_PARTIAL]
                       // (see [Response]).
         STOP     = 3; // Stop a query partway through executing.
-    };
+    }
     optional QueryType type = 1;
     // A [Term] is how we represent the operations we want a query to perform.
     optional Term query = 2; // only present when [type] = [START]
     optional int64 token = 3;
-    optional bool noreply = 4 [default = false]; // CURRENTLY IGNORED, NO SERVER SUPPORT
+    // This flag is ignored on the server.  `noreply` should be added
+    // to `global_optargs` instead (the key "noreply" should map to
+    // either true or false).
+    optional bool OBSOLETE_noreply = 4 [default = false];
 
     message AssocPair {
         optional string key = 1;
         optional Term val = 2;
-    };
+    }
     repeated AssocPair global_optargs = 6;
-};
+}
 
 // A backtrace frame (see `backtrace` in Response below)
 message Frame {
     enum FrameType {
         POS = 1; // Error occured in a positional argument.
         OPT = 2; // Error occured in an optional argument.
-    };
+    }
     optional FrameType type = 1;
     optional int64 pos = 2; // The index of the positional argument.
     optional string opt = 3; // The name of the optional argument.
-};
+}
 message Backtrace {
     repeated Frame frames = 1;
 }
@@ -89,7 +99,7 @@ message Response {
                             // if you add together two values from a table, but
                             // they turn out at runtime to be booleans rather
                             // than numbers.
-    };
+    }
     optional ResponseType type = 1;
     optional int64 token = 2; // Indicates what [Query] this response corresponds to.
 
@@ -108,7 +118,7 @@ message Response {
     // [Term] message below.)
 
     optional Backtrace backtrace = 4; // Contains n [Frame]s when you get back an error.
-};
+}
 
 // A [Datum] is a chunk of data that can be serialized to disk or returned to
 // the user in a Response.  Currently we only support JSON types, but we may
@@ -121,7 +131,7 @@ message Datum {
         R_STR    = 4;
         R_ARRAY  = 5;
         R_OBJECT = 6;
-    };
+    }
     optional DatumType type = 1;
     optional bool r_bool = 2;
     optional double r_num = 3;
@@ -131,11 +141,11 @@ message Datum {
     message AssocPair {
         optional string key = 1;
         optional Datum val = 2;
-    };
+    }
     repeated AssocPair r_object = 6;
 
     extensions 10000 to 20000;
-};
+}
 
 // A [Term] is either a piece of data (see **Datum** above), or an operator and
 // its operands.  If you have a [Datum], it's stored in the member [datum].  If
@@ -157,6 +167,9 @@ message Datum {
 // terms).  These are marked with a `!`.
 // Optional arguments are specified within curly braces as argname `:` value
 // type (e.x `{use_outdated:BOOL}`)
+// Many RQL operations are polymorphic. For these, alterantive type signatures
+// are separated by `|`.
+//
 // The RQL type hierarchy is as follows:
 //   Top
 //     DATUM
@@ -174,6 +187,7 @@ message Datum {
 //           Table
 //     Database
 //     Function
+//     Ordering - used only by ORDER_BY
 //   Error
 message Term {
     enum TermType {
@@ -193,7 +207,8 @@ message Term {
         // libraries, and because it's more efficient on the wire.)
         VAR          = 10; // !NUMBER -> DATUM
         // Takes some javascript code and executes it.
-        JAVASCRIPT   = 11; // STRING -> DATUM | STRING -> Function(*)
+        JAVASCRIPT   = 11; // STRING {timeout: !NUMBER} -> DATUM |
+                           // STRING {timeout: !NUMBER} -> Function(*)
         // Takes a string and throws an error with that message.
         ERROR        = 12; // STRING -> Error
         // Takes nothing and returns a reference to the implicit variable.
@@ -204,9 +219,10 @@ message Term {
         DB    = 14; // STRING -> Database
         // Returns a reference to a table.
         TABLE = 15; // Database, STRING, {use_outdated:BOOL} -> Table | STRING, {use_outdated:BOOL} -> Table
-        // Gets a single element from a table by its primary key.
+        // Gets a single element from a table by its primary or a secondary key.
         GET   = 16; // Table, STRING -> SingleSelection | Table, NUMBER -> SingleSelection |
-                    // Table, STRING -> NULL            | Table, NUMBER -> NULL
+                    // Table, STRING -> NULL            | Table, NUMBER -> NULL |
+        GET_ALL = 78; // Table, JSON {index:!STRING} => ARRAY
 
         // Simple DATUM Ops
         EQ  = 17; // DATUM... -> BOOL
@@ -248,14 +264,14 @@ message Term {
 
         // Sequence Ops
         // Get all elements of a sequence between two values.
-        BETWEEN   = 36; // StreamSelection, {left_bound:DATUM, right_bound:DATUM} -> StreamSelection
+        BETWEEN   = 36; // StreamSelection, DATUM, DATUM, {:index:!STRING} -> StreamSelection
         REDUCE    = 37; // Sequence, Function(2), {base:DATUM} -> DATUM
         MAP       = 38; // Sequence, Function(1) -> Sequence
         FILTER    = 39; // Sequence, Function(1) -> Sequence | Sequence, OBJECT -> Sequence
         // Map a function over a sequence and then concatenate the results together.
         CONCATMAP = 40; // Sequence, Function(1) -> Sequence
         // Order a sequence based on one or more attributes.
-        ORDERBY   = 41; // Sequence, (STRING|ASC|DESC)... -> Sequence
+        ORDERBY   = 41; // Sequence, (!STRING | Ordering)... -> Sequence
         // Get all distinct elements of a sequence (like `uniq`).
         DISTINCT  = 42; // Sequence -> Sequence
         // Count the number of elements in a sequence.
@@ -270,11 +286,17 @@ message Term {
         // - A reduction to apply to each of the groups.
         GROUPED_MAP_REDUCE = 46; // Sequence, Function(1), Function(1), Function(2), {base:DATUM} -> Sequence
         // Groups a sequence by one or more attributes, and then applies a reduction.
-        GROUPBY            = 47; // Sequence, ARRAY, !OBJECT -> Sequence
+        // The third argument is a special object literal giving the kind of operation to be
+        // performed and any necessary arguments.
+        // At present, GROUPBY suports the following operations
+        // * {'COUNT': <ignored>} - count the size of the group
+        // * {'SUM': attr} - sum the values of the given attribute across the group
+        // * {'AVG': attr} - average the values of the given attribute across the group
+        GROUPBY            = 47; // Sequence, ARRAY, !GROUP_BY_OBJECT -> Sequence
         INNER_JOIN         = 48; // Sequence, Sequence, Function(2) -> Sequence
         OUTER_JOIN         = 49; // Sequence, Sequence, Function(2) -> Sequence
         // An inner-join that does an equality comparison on two attributes.
-        EQ_JOIN            = 50; // Sequence, !STRING, Sequence -> Sequence
+        EQ_JOIN            = 50; // Sequence, !STRING, Sequence, {index:!STRING} -> Sequence
         ZIP                = 72; // Sequence -> Sequence
 
 
@@ -310,12 +332,28 @@ message Term {
         DB_DROP      = 58; // STRING -> OBJECT
         // Lists all the databases by name.  (Takes no arguments)
         DB_LIST      = 59; // -> ARRAY
-        // Creates a table with a particular name in a particular database.
-        TABLE_CREATE = 60; // Database, STRING, {datacenter:STRING, primary_key:STRING, cache_size:NUMBER} -> OBJECT
-        // Drops a table with a particular name from a particular database.
+        // Creates a table with a particular name in a particular
+        // database.  (You may omit the first argument to use the
+        // default database.)
+        TABLE_CREATE = 60; // Database, STRING, {datacenter:STRING, primary_key:STRING, cache_size:NUMBER, hard_durability:BOOL} -> OBJECT
+                           // STRING, {datacenter:STRING, primary_key:STRING, cache_size:NUMBER, hard_durability:BOOL} -> OBJECT
+        // Drops a table with a particular name from a particular
+        // database.  (You may omit the first argument to use the
+        // default database.)
         TABLE_DROP   = 61; // Database, STRING -> OBJECT
-        // Lists all the tables in a particular database.
+                           // STRING -> OBJECT
+        // Lists all the tables in a particular database.  (You may
+        // omit the first argument to use the default database.)
         TABLE_LIST   = 62; // Database -> ARRAY
+                           //  -> ARRAY
+
+        // * Secondary indexes OPs
+        // Creates a new secondary index with a particular name and definition.
+        INDEX_CREATE = 75; // Table, STRING, Function(1) -> OBJECT
+        // Drops a secondary index with a particular name from the specified table.
+        INDEX_DROP   = 76; // Table, STRING -> OBJECT
+        // Lists all secondary indexes on a particular table.
+        INDEX_LIST   = 77; // Table -> ARRAY
 
         // * Control Operators
         // Calls a function on data
@@ -364,7 +402,8 @@ message Term {
         //                                 type = VAR;
         //                                 args = [Term {
         //                                           type = DATUM;
-        //                                           datum = Datum { type = R_NUM; r_num = 1};
+        //                                           datum = Datum { type = R_NUM;
+        //                                                           r_num = 1};
         //                                         }];
         //                               },
         //                               Term {
@@ -375,9 +414,14 @@ message Term {
         //           }];
         FUNC = 69; // ARRAY, Top -> ARRAY -> Top
 
-        ASC = 73;
-        DESC = 74;
-    };
+        // Indicates to ORDER_BY that this attribute is to be sorted in ascending order.
+        ASC = 73; // !STRING -> Ordering
+        // Indicates to ORDER_BY that this attribute is to be sorted in descending order.
+        DESC = 74; // !STRING -> Ordering
+
+        // Gets info about anything.  INFO is most commonly called on tables.
+        INFO = 79; // Top -> OBJECT
+    }
     optional TermType type = 1;
 
     // This is only used when type is DATUM.
@@ -387,13 +431,13 @@ message Term {
     message AssocPair {
         optional string key = 1;
         optional Term val = 2;
-    };
+    }
     repeated AssocPair optargs = 4; // Holds the optional arguments of the query.
     // (Note that the order of the optional arguments doesn't matter; think of a
     // Hash.)
 
     extensions 10000 to 20000;
-};
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                  EXAMPLE                                   //
@@ -407,24 +451,24 @@ message Term {
 //     args = [Term {
 //               type = TABLE;
 //               args = [Term {
-//                         type = R_DATUM;
-//                         r_datum = Datum { type = R_STR; r_str = "tbl"; };
+//                         type = DATUM;
+//                         datum = Datum { type = R_STR; r_str = "tbl"; };
 //                       }];
 //               optargs = [["use_outdated",
 //                           Term {
-//                             type = R_DATUM;
-//                             r_datum = Datum { type = R_BOOL; r_bool = true; };
+//                             type = DATUM;
+//                             datum = Datum { type = R_BOOL; r_bool = true; };
 //                           }]];
 //             },
 //             Term {
-//               type = R_ARRAY;
+//               type = MAKE_ARRAY;
 //               args = [Term {
-//                         type = R_DATUM;
-//                         r_datum = Datum { type = R_OBJECT; r_object = [["id", 0]]; };
+//                         type = DATUM;
+//                         datum = Datum { type = R_OBJECT; r_object = [["id", 0]]; };
 //                       },
 //                       Term {
-//                         type = R_DATUM;
-//                         r_datum = Datum { type = R_OBJECT; r_object = [["id", 1]]; };
+//                         type = DATUM;
+//                         datum = Datum { type = R_OBJECT; r_object = [["id", 1]]; };
 //                       }];
 //             }]
 //   }
