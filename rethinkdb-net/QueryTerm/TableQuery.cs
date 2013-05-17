@@ -28,6 +28,11 @@ namespace RethinkDb.QueryTerm
             return new InsertQuery<T>(this, @objects, upsert);
         }
 
+        public IndexCreateQuery<T, TIndexExpression> IndexCreate<TIndexExpression>(string indexName, Expression<Func<T, TIndexExpression>> indexExpression)
+        {
+            return new IndexCreateQuery<T, TIndexExpression>(this, indexName, indexExpression);
+        }
+
         public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
         {
             var tableTerm = new Term()

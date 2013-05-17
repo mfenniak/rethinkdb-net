@@ -198,5 +198,19 @@ namespace RethinkDb.Test
             Assert.That(to, Is.Not.Null);
             Assert.That(to.Id, Is.EqualTo(3));
         }
+
+        [Test]
+        public void IndexCreateSimple()
+        {
+            var resp = connection.Run(testTable.IndexCreate("index1", o => o.Name));
+            Assert.That(resp.Created, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void IndexCreateExpression()
+        {
+            var resp = connection.Run(testTable.IndexCreate("index2", o => o.SomeNumber + o.SomeNumber));
+            Assert.That(resp.Created, Is.EqualTo(1));
+        }
     }
 }
