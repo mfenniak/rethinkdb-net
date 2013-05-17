@@ -6,8 +6,19 @@ namespace RethinkDb.Test.DatumConverters
     [TestFixture]
     public class DataContractDatumConverterTests
     {
-        private readonly IDatumConverter<TestObject2> testObject2Converter = DataContractDatumConverterFactory.Instance.Get<TestObject2>();
-        private readonly IDatumConverter<TestObject4> testObject4Converter = DataContractDatumConverterFactory.Instance.Get<TestObject4>();
+        private IDatumConverter<TestObject2> testObject2Converter;
+        private IDatumConverter<TestObject4> testObject4Converter;
+
+        [TestFixtureSetUp]
+        public void TestFixtureSetUp()
+        {
+            var datumConverterFactory = new AggregateDatumConverterFactory(
+                PrimitiveDatumConverterFactory.Instance,
+                DataContractDatumConverterFactory.Instance
+            );
+            testObject2Converter = datumConverterFactory.Get<TestObject2>();
+            testObject4Converter = datumConverterFactory.Get<TestObject4>();
+        }
 
         [Test]
         public void FieldDataContractConvertDatum()

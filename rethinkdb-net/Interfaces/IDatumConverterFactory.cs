@@ -2,6 +2,6 @@
 {
     public interface IDatumConverterFactory
     {
-        IDatumConverter<T> Get<T>();
+        bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter);
     }
 }

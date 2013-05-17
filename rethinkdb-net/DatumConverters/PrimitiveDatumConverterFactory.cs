@@ -10,128 +10,66 @@ namespace RethinkDb
         {
         }
 
-        public IDatumConverter<T> Get<T>()
+        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
-            if (typeof(T) == typeof(string))
-                return (IDatumConverter<T>)StringDatumConverter.Instance.Value;
-            else if (typeof(T) == typeof(char))
-                return (IDatumConverter<T>)CharDatumConverter.Instance.Value;
-            else if (typeof(T) == typeof(char?))
-                return (IDatumConverter<T>)NullableCharDatumConverter.Instance.Value;
-            else if (typeof(T) == typeof(bool))
-                return (IDatumConverter<T>)BoolDatumConverter.Instance.Value;
-            else if (typeof(T) == typeof(bool?))
-                return (IDatumConverter<T>)NullableBoolDatumConverter.Instance.Value;
-            else if (typeof(T) == typeof(double))
-                return (IDatumConverter<T>)DoubleDatumConverter.Instance.Value;
-            else if (typeof(T) == typeof(double?))
-                return (IDatumConverter<T>)NullableDoubleDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(int))
-                return (IDatumConverter<T>)IntDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(int?))
-                return (IDatumConverter<T>)NullableIntDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(uint))
-                return (IDatumConverter<T>)UnsignedIntDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(uint?))
-                return (IDatumConverter<T>)NullableUnsignedIntDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(long))
-                return (IDatumConverter<T>)LongDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(long?))
-                return (IDatumConverter<T>)NullableLongDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(ulong))
-                return (IDatumConverter<T>)UnsignedLongDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(ulong?))
-                return (IDatumConverter<T>)NullableUnsignedLongDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(short))
-                return (IDatumConverter<T>)ShortDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(short?))
-                return (IDatumConverter<T>)NullableShortDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(ushort))
-                return (IDatumConverter<T>)UnsignedShortDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(ushort?))
-                return (IDatumConverter<T>)NullableUnsignedShortDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(float))
-                return (IDatumConverter<T>)FloatDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(float?))
-                return (IDatumConverter<T>)NullableFloatDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(decimal))
-                return (IDatumConverter<T>)DecimalDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(decimal?))
-                return (IDatumConverter<T>)NullableDecimalDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(byte))
-                return (IDatumConverter<T>)ByteDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(byte?))
-                return (IDatumConverter<T>)NullableByteDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(sbyte))
-                return (IDatumConverter<T>)SignedByteDatumConverter.Instance.Value;
-            else if (typeof (T) == typeof(sbyte?))
-                return (IDatumConverter<T>)NullableSignedByteDatumConverter.Instance.Value;
-            else if (typeof(T).IsArray && IsTypeSupported(typeof(T).GetElementType()))
-                return ArrayDatumConverterFactory.Instance.Get<T>(this);
-            else
-                throw new NotSupportedException(String.Format("Type {0} is not supported by PrimitiveDatumConverterFactory", typeof(T)));
-        }
+            datumConverter = null;
 
-        public bool IsTypeSupported(Type t)
-        {
-            if (t == typeof(string))
-                return true;
-            else if (t == typeof(char))
-                return true;
-            else if (t == typeof(char?))
-                return true;
-            else if (t == typeof(bool))
-                return true;
-            else if (t == typeof(bool?))
-                return true;
-            else if (t == typeof(double))
-                return true;
-            else if (t == typeof(double?))
-                return true;
-            else if (t == typeof(int))
-                return true;
-            else if (t == typeof(int?))
-                return true;
-            else if (t == typeof(uint))
-                return true;
-            else if (t == typeof(uint?))
-                return true;
-            else if (t == typeof(long))
-                return true;
-            else if (t == typeof(long?))
-                return true;
-            else if (t == typeof(ulong))
-                return true;
-            else if (t == typeof(ulong?))
-                return true;
-            else if (t == typeof(short))
-                return true;
-            else if (t == typeof(short?))
-                return true;
-            else if (t == typeof(ushort))
-                return true;
-            else if (t == typeof(ushort?))
-                return true;
-            else if (t == typeof(float))
-                return true;
-            else if (t == typeof(float?))
-                return true;
-            else if (t == typeof(decimal))
-                return true;
-            else if (t == typeof(decimal?))
-                return true;
-            else if (t == typeof(byte))
-                return true;
-            else if (t == typeof(byte?))
-                return true;
-            else if (t == typeof(sbyte))
-                return true;
-            else if (t == typeof(sbyte?))
-                return true;
-            else if (t.IsArray && IsTypeSupported(t.GetElementType()))
-                return true;
-            else
-                return false;
+            if (typeof(T) == typeof(string))
+                datumConverter = (IDatumConverter<T>)StringDatumConverter.Instance.Value;
+            else if (typeof(T) == typeof(char))
+                datumConverter = (IDatumConverter<T>)CharDatumConverter.Instance.Value;
+            else if (typeof(T) == typeof(char?))
+                datumConverter = (IDatumConverter<T>)NullableCharDatumConverter.Instance.Value;
+            else if (typeof(T) == typeof(bool))
+                datumConverter = (IDatumConverter<T>)BoolDatumConverter.Instance.Value;
+            else if (typeof(T) == typeof(bool?))
+                datumConverter = (IDatumConverter<T>)NullableBoolDatumConverter.Instance.Value;
+            else if (typeof(T) == typeof(double))
+                datumConverter = (IDatumConverter<T>)DoubleDatumConverter.Instance.Value;
+            else if (typeof(T) == typeof(double?))
+                datumConverter = (IDatumConverter<T>)NullableDoubleDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(int))
+                datumConverter = (IDatumConverter<T>)IntDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(int?))
+                datumConverter = (IDatumConverter<T>)NullableIntDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(uint))
+                datumConverter = (IDatumConverter<T>)UnsignedIntDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(uint?))
+                datumConverter = (IDatumConverter<T>)NullableUnsignedIntDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(long))
+                datumConverter = (IDatumConverter<T>)LongDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(long?))
+                datumConverter = (IDatumConverter<T>)NullableLongDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(ulong))
+                datumConverter = (IDatumConverter<T>)UnsignedLongDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(ulong?))
+                datumConverter = (IDatumConverter<T>)NullableUnsignedLongDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(short))
+                datumConverter = (IDatumConverter<T>)ShortDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(short?))
+                datumConverter = (IDatumConverter<T>)NullableShortDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(ushort))
+                datumConverter = (IDatumConverter<T>)UnsignedShortDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(ushort?))
+                datumConverter = (IDatumConverter<T>)NullableUnsignedShortDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(float))
+                datumConverter = (IDatumConverter<T>)FloatDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(float?))
+                datumConverter = (IDatumConverter<T>)NullableFloatDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(decimal))
+                datumConverter = (IDatumConverter<T>)DecimalDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(decimal?))
+                datumConverter = (IDatumConverter<T>)NullableDecimalDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(byte))
+                datumConverter = (IDatumConverter<T>)ByteDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(byte?))
+                datumConverter = (IDatumConverter<T>)NullableByteDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(sbyte))
+                datumConverter = (IDatumConverter<T>)SignedByteDatumConverter.Instance.Value;
+            else if (typeof (T) == typeof(sbyte?))
+                datumConverter = (IDatumConverter<T>)NullableSignedByteDatumConverter.Instance.Value;
+
+            return datumConverter != null;
         }
 
         public class StringDatumConverter : IDatumConverter<string>

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Reflection;
 
 namespace RethinkDb
 {
-    public class ArrayDatumConverterFactory
+    public class ArrayDatumConverterFactory : IDatumConverterFactory
     {
         public static readonly ArrayDatumConverterFactory Instance = new ArrayDatumConverterFactory();
 
@@ -11,22 +12,28 @@ namespace RethinkDb
         {
         }
 
-        public IDatumConverter<T> Get<T>(IDatumConverterFactory innerTypeConverterFactory)
+        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
+            datumConverter = null;
+            if (rootDatumConverterFactory == null)
+                throw new ArgumentNullException("rootDatumConverterFactory");
+
             if (!typeof(T).IsArray)
-                throw new NotSupportedException(String.Format("Type {0} is not supported by PrimitiveDatumConverterFactory", typeof(T)));
-            return new ReflectionArrayConverter<T>(innerTypeConverterFactory);
+                return false;
+
+            datumConverter = new ReflectionArrayConverter<T>(rootDatumConverterFactory);
+            return true;
         }
 
         // FIXME: This ReflectionArrayConverter is likely to be many, many times slower than doing an emitted class
         // like DataContractDatumConverterFactory does.
         private class ReflectionArrayConverter<T> : IDatumConverter<T>
         {
-            private readonly IDatumConverterFactory innerTypeConverterFactory;
+            private readonly IDatumConverterFactory rootDatumConverterFactory;
 
-            public ReflectionArrayConverter(IDatumConverterFactory innerTypeConverterFactory)
+            public ReflectionArrayConverter(IDatumConverterFactory rootDatumConverterFactory)
             {
-                this.innerTypeConverterFactory = innerTypeConverterFactory;
+                this.rootDatumConverterFactory = rootDatumConverterFactory;
             }
 
             #region IDatumConverter<T> Members
@@ -41,7 +48,9 @@ namespace RethinkDb
                 {
                     var retval = Array.CreateInstance(typeof(T).GetElementType(), datum.r_array.Count);
 
-                    var converter = innerTypeConverterFactory.GetType().GetMethod("Get").MakeGenericMethod(typeof(T).GetElementType()).Invoke(innerTypeConverterFactory, new object[0]);
+                    var converter = typeof(DatumConverterFactoryExtensions)
+                        .GetMethod("Get", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(IDatumConverterFactory) }, null)
+                        .MakeGenericMethod(typeof(T).GetElementType()).Invoke(null, new object[] { rootDatumConverterFactory });
                     var convertMethod = typeof(IDatumConverter<>).MakeGenericType(typeof(T).GetElementType()).GetMethod("ConvertDatum");
 
                     for (int i = 0; i < datum.r_array.Count; i++)
@@ -64,7 +73,10 @@ namespace RethinkDb
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
 
                 var retval = new Spec.Datum() { type = Spec.Datum.DatumType.R_ARRAY };
-                var converter = innerTypeConverterFactory.GetType().GetMethod("Get").MakeGenericMethod(typeof(T).GetElementType()).Invoke(innerTypeConverterFactory, new object[0]);
+
+                var converter = typeof(DatumConverterFactoryExtensions)
+                    .GetMethod("Get", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(IDatumConverterFactory) }, null)
+                    .MakeGenericMethod(typeof(T).GetElementType()).Invoke(null, new object[] { rootDatumConverterFactory });
                 var convertMethod = typeof(IDatumConverter<>).MakeGenericType(typeof(T).GetElementType()).GetMethod("ConvertObject");
                 var array = (IEnumerable)arrayObject;
                 foreach (var obj in array)

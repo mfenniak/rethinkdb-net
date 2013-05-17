@@ -26,7 +26,16 @@ namespace RethinkDb
 
         public Connection()
         {
-            DatumConverterFactory = DataContractDatumConverterFactory.Instance;
+            DatumConverterFactory = new AggregateDatumConverterFactory(
+                PrimitiveDatumConverterFactory.Instance,
+                DataContractDatumConverterFactory.Instance,
+                DateTimeDatumConverterFactory.Instance,
+                DateTimeOffsetDatumConverterFactory.Instance,
+                GuidDatumConverterFactory.Instance,
+                TupleDatumConverterFactory.Instance,
+                ArrayDatumConverterFactory.Instance,
+                AnonymousTypeDatumConverterFactory.Instance
+            );
             ConnectTimeout = QueryTimeout = TimeSpan.FromSeconds(30);
         }
 

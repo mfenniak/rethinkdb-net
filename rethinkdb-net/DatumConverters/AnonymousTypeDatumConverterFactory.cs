@@ -7,31 +7,25 @@ using System.Linq;
 
 namespace RethinkDb
 {
-    public class AnonymousTypeDatumConverterFactory
+    public class AnonymousTypeDatumConverterFactory : IDatumConverterFactory
     {
         public static readonly AnonymousTypeDatumConverterFactory Instance = new AnonymousTypeDatumConverterFactory();
-        private static readonly IDictionary<Type, IDictionary<IDatumConverterFactory, object>> converterCache = new Dictionary<Type, IDictionary<IDatumConverterFactory, object>>();
 
         private AnonymousTypeDatumConverterFactory()
         {
         }
 
-        public IDatumConverter<T> Get<T>(IDatumConverterFactory innerTypeConverterFactory)
+        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
-            if (IsTypeSupported(typeof(T)))
-            {
-                IDictionary<IDatumConverterFactory, object> datumConverterBasedCache;
-                if (!converterCache.TryGetValue(typeof(T), out datumConverterBasedCache))
-                    converterCache[typeof(T)] = datumConverterBasedCache = new Dictionary<IDatumConverterFactory, object>();
+            datumConverter = null;
 
-                object retval;
-                if (!datumConverterBasedCache.TryGetValue(innerTypeConverterFactory, out retval))
-                    datumConverterBasedCache[innerTypeConverterFactory] = retval = new AnonymousTypeConverter<T>(innerTypeConverterFactory);
+            if (rootDatumConverterFactory == null)
+                throw new ArgumentNullException("rootDatumConverterFactory");
+            if (!IsTypeSupported(typeof(T)))
+                return false;
 
-                return (IDatumConverter<T>)retval;
-            }
-            else
-                throw new NotSupportedException("Unsupported type in AnonymousTypeDatumConverterFactory: " + typeof(T));
+            datumConverter = new AnonymousTypeConverter<T>(rootDatumConverterFactory);
+            return true;
         }
 
         public bool IsTypeSupported(Type t)
@@ -60,14 +54,16 @@ namespace RethinkDb
             {
                 typeConstructor = typeof(T).GetConstructors()[0];
 
-                var genericGetMethod = innerTypeConverterFactory.GetType().GetMethod("Get");
+                var genericGetMethod = typeof(DatumConverterFactoryExtensions)
+                    .GetMethod("Get", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(IDatumConverterFactory) }, null);
+
                 properties = new List<PropertyInfo>();
                 foreach (var property in typeof(T).GetProperties())
                 {
                     var pi = new PropertyInfo();
                     pi.Name = property.Name;
                     pi.Index = properties.Count;
-                    pi.DatumConverter = genericGetMethod.MakeGenericMethod(property.PropertyType).Invoke(innerTypeConverterFactory, new object[0]);
+                    pi.DatumConverter = genericGetMethod.MakeGenericMethod(property.PropertyType).Invoke(null, new object[] { innerTypeConverterFactory });
                     pi.GetMethod = property.GetGetMethod();
                     properties.Add(pi);
                 }

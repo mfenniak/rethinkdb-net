@@ -10,14 +10,16 @@ namespace RethinkDb
         {
         }
 
-        public IDatumConverter<T> Get<T>()
+        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
+            datumConverter = null;
+
             if (typeof(T) == typeof(Guid))
-                return (IDatumConverter<T>)GuidDatumConverter.Instance.Value;
+                datumConverter = (IDatumConverter<T>)GuidDatumConverter.Instance.Value;
             else if(typeof(T) == typeof(Guid?))
-                return (IDatumConverter<T>)NullableGuidDatumConverter.Instance.Value;
-            else
-                throw new NotSupportedException(String.Format("Type {0} is not supported by GuidDatumConverterFactory", typeof(T)));        
+                datumConverter = (IDatumConverter<T>)NullableGuidDatumConverter.Instance.Value;
+
+            return datumConverter != null;
         }
     }
 

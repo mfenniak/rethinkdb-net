@@ -5,33 +5,25 @@ using System.Reflection;
 
 namespace RethinkDb
 {
-    public class TupleDatumConverterFactory
+    public class TupleDatumConverterFactory : IDatumConverterFactory
     {
         public static readonly TupleDatumConverterFactory Instance = new TupleDatumConverterFactory();
-        private static readonly IDictionary<Type, IDictionary<IDatumConverterFactory, object>> tupleConverterCache = new Dictionary<Type, IDictionary<IDatumConverterFactory, object>>();
 
         private TupleDatumConverterFactory()
         {
         }
 
-        public IDatumConverter<T> Get<T>(IDatumConverterFactory innerTypeConverterFactory)
+        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
-            if (IsTypeSupported(typeof(T)))
-            {
-                IDictionary<IDatumConverterFactory, object> datumConverterBasedCache;
-                if (!tupleConverterCache.TryGetValue(typeof(T), out datumConverterBasedCache))
-                    tupleConverterCache[typeof(T)] = datumConverterBasedCache = new Dictionary<IDatumConverterFactory, object>();
+            datumConverter = null;
 
-                object retval;
-                if (!datumConverterBasedCache.TryGetValue(innerTypeConverterFactory, out retval))
-                    datumConverterBasedCache[innerTypeConverterFactory] = retval = new TupleConverter<T>(innerTypeConverterFactory);
+            if (rootDatumConverterFactory == null)
+                throw new ArgumentNullException("rootDatumConverterFactory");
+            if (!IsTypeSupported(typeof(T)))
+                return false;
 
-                return (IDatumConverter<T>)retval;
-            }
-            else if (typeof(T).FullName.StartsWith("System.Tuple"))
-                throw new NotSupportedException("Unsupported Tuple type: " + typeof(T) + "; only two-item Tuples are currently supported for left/right ReQL return values");
-            else
-                throw new NotSupportedException("Unsupported type in TupleDatumConverterFactory: " + typeof(T));
+            datumConverter = new TupleConverter<T>(rootDatumConverterFactory);
+            return true;
         }
 
         public bool IsTypeSupported(Type t)
@@ -57,15 +49,16 @@ namespace RethinkDb
             private readonly ConstructorInfo tupleConstructor;
             private readonly object[] itemConverters;
 
-            public TupleConverter(IDatumConverterFactory innerTypeConverterFactory)
+            public TupleConverter(IDatumConverterFactory rootDatumConverterFactory)
             {
-                var genericGetMethod = innerTypeConverterFactory.GetType().GetMethod("Get");
+                var genericGetMethod = typeof(DatumConverterFactoryExtensions)
+                    .GetMethod("Get", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(IDatumConverterFactory) }, null);
 
                 var typeArguments = typeof(T).GetGenericArguments();
                 tupleConstructor = typeof(T).GetConstructor(typeArguments);
                 itemConverters = new object[typeArguments.Length];
                 for (int i = 0; i < typeArguments.Length; i++)
-                    itemConverters[i] = genericGetMethod.MakeGenericMethod(typeArguments[i]).Invoke(innerTypeConverterFactory, new object[0]);
+                    itemConverters[i] = genericGetMethod.MakeGenericMethod(typeArguments[i]).Invoke(null, new object[] { rootDatumConverterFactory });
             }
 
             private object ReflectedConversion(Spec.Datum datum, dynamic typeDatumConverter)

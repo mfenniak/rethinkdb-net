@@ -11,14 +11,16 @@ namespace RethinkDb
         {
         }
 
-        public IDatumConverter<T> Get<T>()
+        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
+            datumConverter = null;
+
             if (typeof(T) == typeof(DateTimeOffset))
-                return (IDatumConverter<T>)DateTimeOffsetDatumConverter.Instance.Value;
+                datumConverter = (IDatumConverter<T>)DateTimeOffsetDatumConverter.Instance.Value;
             else if(typeof(T) == typeof(DateTimeOffset?))
-                return (IDatumConverter<T>)NullableDateTimeOffsetDatumConverter.Instance.Value;
-            else
-                throw new NotSupportedException(String.Format("Type {0} is not supported by DateTimeOffsetDatumConverterFactory", typeof(T)));        
+                datumConverter = (IDatumConverter<T>)NullableDateTimeOffsetDatumConverter.Instance.Value;
+
+            return datumConverter != null;
         }
     }
 

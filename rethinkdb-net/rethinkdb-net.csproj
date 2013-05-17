@@ -124,6 +124,8 @@
     <Compile Include="QueryTerm\IndexListQuery.cs" />
     <Compile Include="QueryTerm\IndexDropQuery.cs" />
     <Compile Include="QueryTerm\GetAllQuery.cs" />
+    <Compile Include="DatumConverters\AggregateDatumConverterFactory.cs" />
+    <Compile Include="DatumConverters\DatumConverterFactoryExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
