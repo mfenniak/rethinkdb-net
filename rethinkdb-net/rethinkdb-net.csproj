@@ -121,6 +121,7 @@
     <Compile Include="DatumConverters\GuidDatumConverterFactory.cs" />
     <Compile Include="DatumConverters\DateTimeOffsetDatumConverterFactory.cs" />
     <Compile Include="QueryTerm\IndexCreateQuery.cs" />
+    <Compile Include="QueryTerm\IndexListQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

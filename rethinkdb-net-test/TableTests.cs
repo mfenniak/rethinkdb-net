@@ -209,8 +209,17 @@ namespace RethinkDb.Test
         [Test]
         public void IndexCreateExpression()
         {
-            var resp = connection.Run(testTable.IndexCreate("index2", o => o.SomeNumber + o.SomeNumber));
+            var resp = connection.Run(testTable.IndexCreate("index1", o => o.SomeNumber + o.SomeNumber));
             Assert.That(resp.Created, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void IndexList()
+        {
+            IndexCreateSimple();
+            string[] indexes = connection.Run(testTable.IndexList()).ToArray();
+            Assert.That(indexes.Length, Is.EqualTo(1));
+            Assert.That(indexes[0], Is.EqualTo("index1"));
         }
     }
 }

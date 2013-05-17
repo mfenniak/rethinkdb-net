@@ -33,6 +33,11 @@ namespace RethinkDb.QueryTerm
             return new IndexCreateQuery<T, TIndexExpression>(this, indexName, indexExpression);
         }
 
+        public IndexListQuery<T> IndexList()
+        {
+            return new IndexListQuery<T>(this);
+        }
+
         public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
         {
             var tableTerm = new Term()
