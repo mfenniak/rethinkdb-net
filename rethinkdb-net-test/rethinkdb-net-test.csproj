@@ -65,35 +65,22 @@
     <Compile Include="TestObject2.cs" />
     <Compile Include="TestObject3.cs" />
     <Compile Include="DatumConverters\IntDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableIntDatumConverterTests.cs" />
     <Compile Include="DatumConverters\LongDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableLongDatumConverterTests.cs" />
     <Compile Include="DatumConverters\ShortDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableShortDatumConverterTests.cs" />
     <Compile Include="DatumConverters\UnsignedShortDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableUnsignedShortDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableUnsignedIntDatumConverterTests.cs" />
     <Compile Include="DatumConverters\UnsignedIntDatumConverterTests.cs" />
     <Compile Include="DatumConverters\UnsignedLongDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableUnsignedLongDatumConverterTests.cs" />
     <Compile Include="DatumConverters\FloatDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableFloatDatumConverterTests.cs" />
     <Compile Include="DatumConverters\DecimalDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableDecimalDatumConverterTests.cs" />
     <Compile Include="DatumConverters\CharDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableCharDatumConverterTests.cs" />
     <Compile Include="DatumConverters\ByteDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableByteDatumConverterTests.cs" />
     <Compile Include="DatumConverters\SignedByteDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableSignedByteDatumConverterTests.cs" />
     <Compile Include="DatumConverters\DateTimeDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableDateTimeDatumConverterTests.cs" />
     <Compile Include="DatumConverters\GuidDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableGuidDatumConverterTests .cs" />
     <Compile Include="DatumConverters\DateTimeOffsetDatumConverterTests.cs" />
-    <Compile Include="DatumConverters\NullableDateTimeOffsetDatumConverterTests.cs" />
     <Compile Include="TestObject4.cs" />
     <Compile Include="DatumConverters\DataContractDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\NullableDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
