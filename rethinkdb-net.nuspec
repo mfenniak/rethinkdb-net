@@ -19,5 +19,6 @@
         <file src="rethinkdb-net/bin/Release/RethinkDb.dll.mdb" target="lib/net45" />
         <file src="LICENSE.txt" target="lib" />
         <file src="README.md" target="lib" />
+        <file src="RELEASE-NOTES.md" target="lib" />
     </files>
 </package>
