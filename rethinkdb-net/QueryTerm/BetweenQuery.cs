@@ -1,118 +1,52 @@
 using RethinkDb.Spec;
-using System;
-using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class BetweenQuery<T> : ISequenceQuery<T>
+    public class BetweenQuery<TSequence, TKey> : ISequenceQuery<TSequence>
     {
-        private readonly ISequenceQuery<T> tableTerm;
-        private readonly string leftKeyString;
-        private readonly string rightKeyString;
-        private readonly double? leftKeyNumber;
-        private readonly double? rightKeyNumber;
+        private readonly ISequenceQuery<TSequence> tableTerm;
+        private readonly TKey leftKey;
+        private readonly TKey rightKey;
+        private readonly string indexName;
 
-        public BetweenQuery(ISequenceQuery<T> tableTerm, string leftKey, string rightKey)
+        public BetweenQuery(ISequenceQuery<TSequence> tableTerm, TKey leftKey, TKey rightKey, string indexName)
         {
             this.tableTerm = tableTerm;
-            this.leftKeyString = leftKey;
-            this.rightKeyString = rightKey;
-        }
-
-        public BetweenQuery(ISequenceQuery<T> tableTerm, double? leftKey, double? rightKey)
-        {
-            this.tableTerm = tableTerm;
-            this.leftKeyNumber = leftKey;
-            this.rightKeyNumber = rightKey;
+            this.leftKey = leftKey;
+            this.rightKey = rightKey;
+            this.indexName = indexName;
         }
 
         public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
         {
+            var datumConverter = datumConverterFactory.Get<TKey>();
             var betweenTerm = new Term()
             {
                 type = Term.TermType.BETWEEN,
             };
             betweenTerm.args.Add(tableTerm.GenerateTerm(datumConverterFactory));
-
-            if (leftKeyString != null)
-            {
-                betweenTerm.args.Add(new Term() 
-                    {
-                        type = Term.TermType.DATUM,
-                        datum = new Datum()
-                        {
-                            type = Datum.DatumType.R_STR,
-                            r_str = leftKeyString,
-                        }
-                    }
-                );
-            }
-
-            if (leftKeyNumber.HasValue)
-            {
-                betweenTerm.args.Add(new Term() 
-                    {
-                        type = Term.TermType.DATUM,
-                        datum = new Datum()
-                        {
-                            type = Datum.DatumType.R_NUM,
-                            r_num = leftKeyNumber.Value,
-                        }
-                    }
-                );
-            }
-
-            if (leftKeyString == null && !leftKeyNumber.HasValue)
-            {
-                betweenTerm.args.Add(GenerateNullDatum());
-            }
-
-            if (rightKeyString != null)
-            {
-                betweenTerm.args.Add(new Term() 
-                    {
-                        type = Term.TermType.DATUM,
-                        datum = new Datum()
-                        {
-                            type = Datum.DatumType.R_STR,
-                            r_str = rightKeyString,
-                        }
-                    }
-                );
-            }
-
-            if (rightKeyNumber.HasValue)
-            {
-                betweenTerm.args.Add(new Term() 
-                    {
-                        type = Term.TermType.DATUM,
-                        datum = new Datum()
-                        {
-                            type = Datum.DatumType.R_NUM,
-                            r_num = rightKeyNumber.Value,
-                        }
-                    }
-                );
-            }
-
-            if (rightKeyString == null && !rightKeyNumber.HasValue)
-            {
-                betweenTerm.args.Add(GenerateNullDatum());
-            }
-
-            return betweenTerm;
-        }
-
-        private static Term GenerateNullDatum()
-        {
-            return new Term() 
-            {
+            betweenTerm.args.Add(new Term() {
                 type = Term.TermType.DATUM,
-                datum = new Datum() 
-                {
-                    type = Datum.DatumType.R_NULL
-                }
-            };
+                datum = datumConverter.ConvertObject(leftKey)
+            });
+            betweenTerm.args.Add(new Term() {
+                type = Term.TermType.DATUM,
+                datum = datumConverter.ConvertObject(rightKey)
+            });
+            if (indexName != null)
+            {
+                betweenTerm.optargs.Add(new Term.AssocPair() {
+                    key = "index",
+                    val = new Term() {
+                        type = Term.TermType.DATUM,
+                        datum = new Datum() {
+                            type = Datum.DatumType.R_STR,
+                            r_str = indexName
+                        },
+                    }
+                });
+            }
+            return betweenTerm;
         }
     }
 }

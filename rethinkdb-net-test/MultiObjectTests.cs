@@ -541,5 +541,15 @@ namespace RethinkDb.Test
             Assert.That(getAll.Length, Is.EqualTo(1));
             Assert.That(getAll[0].Name, Is.EqualTo("3"));
         }
+
+        [Test]
+        public void BetweenIndex()
+        {
+            TestObject[] between = connection.Run(testTable.Between("3", "5", "index1")).ToArray();
+            Assert.That(between.Length, Is.EqualTo(3));
+            Assert.That(between.Single(o => o.Name == "3"), Is.Not.Null);
+            Assert.That(between.Single(o => o.Name == "4"), Is.Not.Null);
+            Assert.That(between.Single(o => o.Name == "5"), Is.Not.Null);
+        }
     }
 }

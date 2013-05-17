@@ -111,14 +111,19 @@ namespace RethinkDb
             return new ReplaceQuery<T>(target, newObject);
         }
 
-        public static BetweenQuery<T> Between<T>(this ISequenceQuery<T> target, string leftKey, string rightKey)
+        public static BetweenQuery<T, string> Between<T>(this ISequenceQuery<T> target, string leftKey, string rightKey)
         {
-            return new BetweenQuery<T>(target, leftKey, rightKey);
+            return new BetweenQuery<T, string>(target, leftKey, rightKey, null);
         }
 
-        public static BetweenQuery<T> Between<T>(this ISequenceQuery<T> target, double? leftKey, double? rightKey)
+        public static BetweenQuery<T, double?> Between<T>(this ISequenceQuery<T> target, double? leftKey, double? rightKey)
         {
-            return new BetweenQuery<T>(target, leftKey, rightKey);
+            return new BetweenQuery<T, double?>(target, leftKey, rightKey, null);
+        }
+
+        public static BetweenQuery<TSequence, TKey> Between<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey leftKey, TKey rightKey, string indexName)
+        {
+            return new BetweenQuery<TSequence, TKey>(target, leftKey, rightKey, indexName);
         }
 
         public static CountQuery<T> Count<T>(this ISequenceQuery<T> target)
