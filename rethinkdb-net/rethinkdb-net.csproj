@@ -123,6 +123,7 @@
     <Compile Include="QueryTerm\IndexCreateQuery.cs" />
     <Compile Include="QueryTerm\IndexListQuery.cs" />
     <Compile Include="QueryTerm\IndexDropQuery.cs" />
+    <Compile Include="QueryTerm\GetAllQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

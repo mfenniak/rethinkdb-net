@@ -20,12 +20,13 @@ namespace RethinkDb.Test
             base.TestFixtureSetUp();
             connection.RunAsync(Query.DbCreate("test")).Wait();
             connection.RunAsync(Query.Db("test").TableCreate("table")).Wait();
+            testTable = Query.Db("test").Table<TestObject>("table");
+            connection.Run(testTable.IndexCreate("index1", o => o.Name));
         }
 
         [SetUp]
         public virtual void SetUp()
         {
-            testTable = Query.Db("test").Table<TestObject>("table");
             connection.RunAsync(testTable.Insert(new TestObject[] {
                 new TestObject() { Id = "1", Name = "1", SomeNumber = 1, Children = new TestObject[] { new TestObject() { Name = "C1" } } },
                 new TestObject() { Id = "2", Name = "2", SomeNumber = 2, Children = new TestObject[] { } },
@@ -531,6 +532,14 @@ namespace RethinkDb.Test
             foreach (var testObject in enumerable)
                 count++;
             Assert.That(count, Is.EqualTo(14));
+        }
+
+        [Test]
+        public void GetAll()
+        {
+            TestObject[] getAll = connection.Run(testTable.GetAll("3", "index1")).ToArray();
+            Assert.That(getAll.Length, Is.EqualTo(1));
+            Assert.That(getAll[0].Name, Is.EqualTo("3"));
         }
     }
 }
