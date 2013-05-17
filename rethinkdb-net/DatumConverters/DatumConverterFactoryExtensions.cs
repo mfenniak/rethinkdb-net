@@ -13,7 +13,6 @@ namespace RethinkDb
         {
             if (datumConverterFactory == null)
                 throw new ArgumentNullException("datumConverterFactory");
-            Console.WriteLine("DatumConverterFactoryExtensions.Get({0})", datumConverterFactory);
             return datumConverterFactory.Get<T>(datumConverterFactory);
         }
 
@@ -23,7 +22,6 @@ namespace RethinkDb
                 throw new ArgumentNullException("datumConverterFactory");
             if (rootDatumConverterFactory == null)
                 throw new ArgumentNullException("rootDatumConverterFactory");
-            Console.WriteLine("DatumConverterFactoryExtensions.Get({0}, {0})", datumConverterFactory, rootDatumConverterFactory);
             IDatumConverter<T> retval;
             if (datumConverterFactory.TryGet<T>(rootDatumConverterFactory, out retval))
                 return retval;
