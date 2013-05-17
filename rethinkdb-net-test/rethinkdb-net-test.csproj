@@ -92,6 +92,8 @@
     <Compile Include="DatumConverters\NullableGuidDatumConverterTests .cs" />
     <Compile Include="DatumConverters\DateTimeOffsetDatumConverterTests.cs" />
     <Compile Include="DatumConverters\NullableDateTimeOffsetDatumConverterTests.cs" />
+    <Compile Include="TestObject4.cs" />
+    <Compile Include="DatumConverters\DataContractDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

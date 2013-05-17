@@ -185,6 +185,73 @@ namespace RethinkDb
                 gen.MarkLabel(exitLoop);
             }
 
+            foreach (var property in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                var dataMemberAttribute = property.GetCustomAttribute<DataMemberAttribute>();
+                if (dataMemberAttribute == null)
+                    continue;
+
+                string propertyName;
+                if (!String.IsNullOrEmpty(dataMemberAttribute.Name))
+                    propertyName = dataMemberAttribute.Name;
+                else
+                    propertyName = property.Name;
+
+                var loopStart = gen.DefineLabel();
+                var exitLoop = gen.DefineLabel();
+
+                // index = 0
+                gen.Emit(OpCodes.Ldc_I4_0);
+                gen.Emit(OpCodes.Stloc, index);
+
+                // index < arg0.r_object.Count
+                gen.MarkLabel(loopStart);
+                gen.Emit(OpCodes.Ldloc, index);
+                gen.Emit(OpCodes.Ldarg_1);
+                gen.Emit(OpCodes.Callvirt, typeof(Spec.Datum).GetProperty("r_object").GetGetMethod());
+                gen.Emit(OpCodes.Callvirt, typeof(System.Collections.Generic.List<Spec.Datum.AssocPair>).GetProperty("Count").GetGetMethod());
+                gen.Emit(OpCodes.Clt);
+                // if false, exit loop
+                gen.Emit(OpCodes.Brfalse, exitLoop);
+
+                // keyValue = arg0.r_object[index]
+                gen.Emit(OpCodes.Ldarg_1);
+                gen.Emit(OpCodes.Callvirt, typeof(Spec.Datum).GetProperty("r_object").GetGetMethod());
+                gen.Emit(OpCodes.Ldloc, index);
+                gen.Emit(OpCodes.Callvirt, typeof(System.Collections.Generic.List<Spec.Datum.AssocPair>).GetProperty("Item").GetGetMethod());
+                gen.Emit(OpCodes.Stloc, keyValue);
+
+                // keyValue.key == "field"
+                var keyCheckFail = gen.DefineLabel();
+                gen.Emit(OpCodes.Ldloc, keyValue);
+                gen.Emit(OpCodes.Callvirt, typeof(Spec.Datum.AssocPair).GetProperty("key").GetGetMethod());
+                gen.Emit(OpCodes.Ldstr, propertyName);
+                gen.Emit(OpCodes.Call, typeof(string).GetMethod("Equals", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(string), typeof(string) }, null));
+                // if false, skip
+                gen.Emit(OpCodes.Brfalse, keyCheckFail);
+
+                // ConvertDatum and store in retval's field
+                gen.Emit(OpCodes.Ldloc, retval);
+                gen.Emit(OpCodes.Ldloc, factory);
+                gen.Emit(OpCodes.Callvirt, typeof(IDatumConverterFactory).GetMethod("Get").MakeGenericMethod(property.PropertyType));
+                gen.Emit(OpCodes.Ldloc, keyValue);
+                gen.Emit(OpCodes.Callvirt, typeof(Spec.Datum.AssocPair).GetProperty("val").GetGetMethod());
+                gen.Emit(OpCodes.Callvirt, typeof(IDatumConverter<>).MakeGenericType(property.PropertyType).GetMethod("ConvertDatum"));
+                gen.Emit(OpCodes.Callvirt, property.GetSetMethod());
+
+                gen.MarkLabel(keyCheckFail);
+
+                // index += 1
+                gen.Emit(OpCodes.Ldloc, index);
+                gen.Emit(OpCodes.Ldc_I4_1);
+                gen.Emit(OpCodes.Add);
+                gen.Emit(OpCodes.Stloc, index);
+
+                gen.Emit(OpCodes.Br, loopStart);
+
+                gen.MarkLabel(exitLoop);
+            }
+
             gen.Emit(OpCodes.Ldloc, retval);
             gen.Emit(OpCodes.Ret);
 
@@ -269,6 +336,60 @@ namespace RethinkDb
                 gen.Emit(OpCodes.Ldarg_1);
                 gen.Emit(OpCodes.Ldfld, field);
                 gen.Emit(OpCodes.Callvirt, typeof(IDatumConverter<>).MakeGenericType(field.FieldType).GetMethod("ConvertObject"));
+                gen.Emit(OpCodes.Stloc, fieldDatum);
+
+                gen.Emit(OpCodes.Newobj, typeof(Spec.Datum.AssocPair).GetConstructor(new Type[0]));
+                gen.Emit(OpCodes.Stloc, keyValue);
+
+                gen.Emit(OpCodes.Ldloc, keyValue);
+                gen.Emit(OpCodes.Ldstr, fieldName);
+                gen.Emit(OpCodes.Callvirt, typeof(Spec.Datum.AssocPair).GetProperty("key").GetSetMethod());
+
+                gen.Emit(OpCodes.Ldloc, keyValue);
+                gen.Emit(OpCodes.Ldloc, fieldDatum);
+                gen.Emit(OpCodes.Callvirt, typeof(Spec.Datum.AssocPair).GetProperty("val").GetSetMethod());
+
+                gen.Emit(OpCodes.Ldloc, retval);
+                gen.Emit(OpCodes.Callvirt, typeof(Spec.Datum).GetProperty("r_object").GetGetMethod());
+                gen.Emit(OpCodes.Ldloc, keyValue);
+                gen.Emit(OpCodes.Callvirt, typeof(System.Collections.Generic.List<Spec.Datum.AssocPair>).GetMethod("Add"));
+
+                if (skipInclude.HasValue)
+                    gen.MarkLabel(skipInclude.Value);
+            }
+
+            foreach (var property in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                var dataMemberAttribute = property.GetCustomAttribute<DataMemberAttribute>();
+                if (dataMemberAttribute == null)
+                    continue;
+
+                string fieldName;
+                if (!String.IsNullOrEmpty(dataMemberAttribute.Name))
+                    fieldName = dataMemberAttribute.Name;
+                else
+                    fieldName = property.Name;
+
+                Label? skipInclude = null;
+                if (!dataMemberAttribute.EmitDefaultValue)
+                {
+                    var local = gen.DeclareLocal(property.PropertyType);
+                    gen.Emit(OpCodes.Ldloca, local);
+                    gen.Emit(OpCodes.Initobj, property.PropertyType);
+
+                    skipInclude = gen.DefineLabel();
+                    gen.Emit(OpCodes.Ldarg_1);
+                    gen.Emit(OpCodes.Callvirt, property.GetGetMethod());
+                    gen.Emit(OpCodes.Ldloc, local);
+                    gen.Emit(OpCodes.Ceq);
+                    gen.Emit(OpCodes.Brtrue, skipInclude.Value);
+                }
+
+                gen.Emit(OpCodes.Ldloc, factory);
+                gen.Emit(OpCodes.Callvirt, typeof(IDatumConverterFactory).GetMethod("Get").MakeGenericMethod(property.PropertyType));
+                gen.Emit(OpCodes.Ldarg_1);
+                gen.Emit(OpCodes.Callvirt, property.GetGetMethod());
+                gen.Emit(OpCodes.Callvirt, typeof(IDatumConverter<>).MakeGenericType(property.PropertyType).GetMethod("ConvertObject"));
                 gen.Emit(OpCodes.Stloc, fieldDatum);
 
                 gen.Emit(OpCodes.Newobj, typeof(Spec.Datum.AssocPair).GetConstructor(new Type[0]));
