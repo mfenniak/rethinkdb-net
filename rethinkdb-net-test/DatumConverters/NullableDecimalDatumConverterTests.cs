@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 
-namespace RethinkDb.Test
+namespace RethinkDb.Test.DatumConverters
 {
     [TestFixture]
     public class NullableDecimalDatumConverterTests

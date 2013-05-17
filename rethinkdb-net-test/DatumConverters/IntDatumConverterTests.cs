@@ -1,8 +1,7 @@
 using System;
 using NUnit.Framework;
-using ProtoBuf;
 
-namespace RethinkDb.Test
+namespace RethinkDb.Test.DatumConverters
 {
     [TestFixture]
     public class IntDatumConverterTests
