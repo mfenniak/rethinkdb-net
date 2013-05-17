@@ -76,6 +76,11 @@ namespace RethinkDb
             return new GetQuery<T>(target, primaryKey, primaryAttribute);
         }
 
+        public static GetAllQuery<TSequence, TKey> GetAll<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey key, string indexName = null)
+        {
+            return new GetAllQuery<TSequence, TKey>(target, key, indexName);
+        }
+
         public static FilterQuery<T> Filter<T>(this ISequenceQuery<T> target, Expression<Func<T, bool>> filterExpression)
         {
             return new FilterQuery<T>(target, filterExpression);
@@ -106,14 +111,19 @@ namespace RethinkDb
             return new ReplaceQuery<T>(target, newObject);
         }
 
-        public static BetweenQuery<T> Between<T>(this ISequenceQuery<T> target, string leftKey, string rightKey)
+        public static BetweenQuery<T, string> Between<T>(this ISequenceQuery<T> target, string leftKey, string rightKey)
         {
-            return new BetweenQuery<T>(target, leftKey, rightKey);
+            return new BetweenQuery<T, string>(target, leftKey, rightKey, null);
         }
 
-        public static BetweenQuery<T> Between<T>(this ISequenceQuery<T> target, double? leftKey, double? rightKey)
+        public static BetweenQuery<T, double?> Between<T>(this ISequenceQuery<T> target, double? leftKey, double? rightKey)
         {
-            return new BetweenQuery<T>(target, leftKey, rightKey);
+            return new BetweenQuery<T, double?>(target, leftKey, rightKey, null);
+        }
+
+        public static BetweenQuery<TSequence, TKey> Between<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey leftKey, TKey rightKey, string indexName)
+        {
+            return new BetweenQuery<TSequence, TKey>(target, leftKey, rightKey, indexName);
         }
 
         public static CountQuery<T> Count<T>(this ISequenceQuery<T> target)
@@ -188,7 +198,12 @@ namespace RethinkDb
 
         public static EqJoinQuery<TLeft, TRight> EqJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, Expression<Func<TLeft, object>> leftMemberReferenceExpression, ISequenceQuery<TRight> rightQuery)
         {
-            return new EqJoinQuery<TLeft, TRight>(leftQuery, leftMemberReferenceExpression, rightQuery);
+            return new EqJoinQuery<TLeft, TRight>(leftQuery, leftMemberReferenceExpression, rightQuery, null);
+        }
+
+        public static EqJoinQuery<TLeft, TRight> EqJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, Expression<Func<TLeft, object>> leftMemberReferenceExpression, ISequenceQuery<TRight> rightQuery, string indexName)
+        {
+            return new EqJoinQuery<TLeft, TRight>(leftQuery, leftMemberReferenceExpression, rightQuery, indexName);
         }
 
         public static ReduceQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction)
