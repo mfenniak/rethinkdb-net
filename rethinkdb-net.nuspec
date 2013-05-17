@@ -2,11 +2,11 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>rethinkdb-net</id>
-        <version>0.1.1.0</version>
+        <version>0.1.2.0</version>
         <authors>Mathieu Fenniak, Karl Grzeszczak, Dale Ragan</authors>
         <owners>Mathieu Fenniak</owners>
         <projectUrl>https://github.com/mfenniak/rethinkdb-net</projectUrl>
-        <licenseUrl>https://raw.github.com/mfenniak/rethinkdb-net/master/LICENSE</licenseUrl>
+        <licenseUrl>https://raw.github.com/mfenniak/rethinkdb-net/master/LICENSE.txt</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>RethinkDB Client Driver for .NET</description>
         <dependencies>
@@ -17,7 +17,7 @@
     <files>
         <file src="rethinkdb-net/bin/Release/RethinkDb.dll" target="lib/net45" />
         <file src="rethinkdb-net/bin/Release/RethinkDb.dll.mdb" target="lib/net45" />
-        <file src="LICENSE" target="lib/LICENSE" />
-        <file src="README.md" target="lib/README.md" />
+        <file src="LICENSE.txt" target="lib" />
+        <file src="README.md" target="lib" />
     </files>
 </package>
