@@ -221,5 +221,13 @@ namespace RethinkDb.Test
             Assert.That(indexes.Length, Is.EqualTo(1));
             Assert.That(indexes[0], Is.EqualTo("index1"));
         }
+
+        [Test]
+        public void IndexDrop()
+        {
+            IndexCreateSimple();
+            var resp = connection.Run(testTable.IndexDrop("index1"));
+            Assert.That(resp.Dropped, Is.EqualTo(1));
+        }
     }
 }

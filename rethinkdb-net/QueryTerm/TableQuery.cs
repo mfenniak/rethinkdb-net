@@ -38,6 +38,11 @@ namespace RethinkDb.QueryTerm
             return new IndexListQuery<T>(this);
         }
 
+        public IndexDropQuery<T> IndexDrop(string indexName)
+        {
+            return new IndexDropQuery<T>(this, indexName);
+        }
+
         public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
         {
             var tableTerm = new Term()
