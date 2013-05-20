@@ -137,6 +137,19 @@ namespace RethinkDb.Test
             Assert.That(anonValue.Prop2, Is.EqualTo(2.0));
             Assert.That(anonValue.Prop3, Is.EqualTo("3"));
         }
+
+        [Test]
+        public void DatumDefaultValues()
+        {
+            Assert.That(connection.Run(Query.Expr(false)), Is.False);
+            Assert.That(connection.Run(Query.Expr(true)), Is.True);
+
+            Assert.That(connection.Run(Query.Expr(0)), Is.EqualTo(0));
+            Assert.That(connection.Run(Query.Expr(1)), Is.EqualTo(1));
+
+            Assert.That(connection.Run(Query.Expr("")), Is.EqualTo(""));
+            Assert.That(connection.Run(Query.Expr("a")), Is.EqualTo("a"));
+        }
     }
 }
 
