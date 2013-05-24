@@ -551,5 +551,53 @@ namespace RethinkDb.Test
             Assert.That(between.Single(o => o.Name == "4"), Is.Not.Null);
             Assert.That(between.Single(o => o.Name == "5"), Is.Not.Null);
         }
+
+        [Test]
+        public void LinqSyntaxWhere()
+        {
+            var q = from n in testTable where n.SomeNumber == 3 && n.SomeNumber != 4 select n;
+            foreach (var obj in connection.Run(q))
+            {
+                Assert.That(obj.Id, Is.EqualTo("3"));
+            }
+        }
+
+        [Test]
+        public void LinqSyntaxSelect()
+        {
+            var q = from o in testTable select o.SomeNumber;
+            double n = 0;
+            foreach (double obj in connection.Run(q))
+            {
+                n += obj;
+            }
+            Assert.That(n, Is.EqualTo(28));
+        }
+
+        [Test]
+        public void LinqSyntaxOrderBy()
+        {
+            var q = from o in testTable orderby o.SomeNumber select o;
+            q = from o in testTable orderby o.SomeNumber ascending select o;
+            q = from o in testTable orderby o.SomeNumber descending select o;
+            double n = 0;
+            foreach (var obj in connection.Run(q))
+            {
+            }
+            Assert.That(n, Is.EqualTo(28));
+        }
+
+        [Test]
+        public void LinqSyntaxOrderByThenBy()
+        {
+            var q = from o in testTable orderby o.SomeNumber, o.Id select o;
+            q = from o in testTable orderby o.SomeNumber, o.Id ascending select o;
+            q = from o in testTable orderby o.SomeNumber, o.Id descending select o;
+            double n = 0;
+            foreach (var obj in connection.Run(q))
+            {
+            }
+            Assert.That(n, Is.EqualTo(28));
+        }
     }
 }

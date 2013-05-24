@@ -86,6 +86,12 @@ namespace RethinkDb
             return new FilterQuery<T>(target, filterExpression);
         }
 
+        // LINQ-compatible alias for Filter
+        public static FilterQuery<T> Where<T>(this ISequenceQuery<T> target, Expression<Func<T, bool>> filterExpression)
+        {
+            return target.Filter(filterExpression);
+        }
+
         public static UpdateQuery<T> Update<T>(this ISequenceQuery<T> target, Expression<Func<T, T>> updateExpression)
         {
             return new UpdateQuery<T>(target, updateExpression);
@@ -151,9 +157,34 @@ namespace RethinkDb
             return new MapQuery<TOriginal, TTarget>(sequenceQuery, mapExpression);
         }
 
+        // LINQ-compatible alias for Map
+        public static MapQuery<TOriginal, TTarget> Select<TOriginal, TTarget>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TTarget>> mapExpression)
+        {
+            return sequenceQuery.Map(mapExpression);
+        }
+
         public static OrderByQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, params Expression<Func<T, object>>[] memberReferenceExpressions)
         {
             return new OrderByQuery<T>(sequenceQuery, memberReferenceExpressions);
+        }
+
+        // LINQ-compatible alias for OrderBy
+        public static OrderByQuery<T> OrderByDescending<T>(this ISequenceQuery<T> sequenceQuery, params Expression<Func<T, object>>[] memberReferenceExpressions)
+        {
+            // FIXME: Need to find a way to work Query.Desc() into the member reference expressions...
+            throw new NotSupportedException();
+        }
+
+        // LINQ-compatible alias for OrderBy
+        public static OrderByQuery<T> ThenBy<T>(this ISequenceQuery<T> sequenceQuery, params Expression<Func<T, object>>[] memberReferenceExpressions)
+        {
+            return sequenceQuery.OrderBy(memberReferenceExpressions);
+        }
+
+        // LINQ-compatible alias for OrderBy
+        public static OrderByQuery<T> ThenByDescending<T>(this ISequenceQuery<T> sequenceQuery, params Expression<Func<T, object>>[] memberReferenceExpressions)
+        {
+            return sequenceQuery.OrderByDescending(memberReferenceExpressions);
         }
 
         public static SkipQuery<T> Skip<T>(this ISequenceQuery<T> sequenceQuery, int count)
@@ -164,6 +195,12 @@ namespace RethinkDb
         public static LimitQuery<T> Limit<T>(this ISequenceQuery<T> sequenceQuery, int count)
         {
             return new LimitQuery<T>(sequenceQuery, count);
+        }
+
+        // LINQ compatible alias for Limit
+        public static LimitQuery<T> Take<T>(this ISequenceQuery<T> sequenceQuery, int count)
+        {
+            return sequenceQuery.Limit(count);
         }
 
         public static SliceQuery<T> Slice<T>(this ISequenceQuery<T> sequenceQuery, int startIndex, int? endIndex = null)
