@@ -1,5 +1,14 @@
 # rethinkdb-net Release Notes
 
+## Unreleased
+
+### Featurs
+
+* Updated order-by API using .OrderBy, .OrderByDescending, .ThenBy, and .ThenByDescending is compatible with LINQ .NET syntax.
+
+* Added Query.Where(), Query.Select(), and Query.Take() alias methods for compatibility with LINQ and IEnumerable<T> extension methods.
+
+
 ## 0.1.2
 
 ### Features

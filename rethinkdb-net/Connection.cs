@@ -449,7 +449,9 @@ namespace RethinkDb
 
                 if (query == null)
                     return;
-                if (lastResponse != null && lastResponse.type != Response.ResponseType.SUCCESS_PARTIAL)
+                if (lastResponse == null)
+                    return;
+                if (lastResponse.type != Response.ResponseType.SUCCESS_PARTIAL)
                     return;
 
                 // Looks like we have a query in-progress that we should stop on the server-side to free up resources.

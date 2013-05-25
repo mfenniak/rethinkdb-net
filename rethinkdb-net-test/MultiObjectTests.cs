@@ -319,11 +319,11 @@ namespace RethinkDb.Test
 
         private async Task DoOrderByMultiField()
         {
-            var enumerable = connection.RunAsync(testTable.OrderBy(
-                o => o.Name,
-                o => Query.Asc(o.Name),
-                o => Query.Desc(o.Name)
-            ));
+            var enumerable = connection.RunAsync(testTable
+                .OrderBy(o => o.Name)
+                .ThenBy(o => o.Name)
+                .ThenByDescending(o => o.Name)
+            );
             Assert.That(enumerable, Is.Not.Null);
             var count = 0;
             while (true)
@@ -344,7 +344,7 @@ namespace RethinkDb.Test
 
         private async Task DoOrderByAsc()
         {
-            var enumerable = connection.RunAsync(testTable.OrderBy(o => Query.Asc(o.Name)));
+            var enumerable = connection.RunAsync(testTable.OrderBy(o => o.Name));
             Assert.That(enumerable, Is.Not.Null);
             var count = 0;
             while (true)
@@ -365,7 +365,7 @@ namespace RethinkDb.Test
 
         private async Task DoOrderByDesc()
         {
-            var enumerable = connection.RunAsync(testTable.OrderBy(o => Query.Desc(o.Name)));
+            var enumerable = connection.RunAsync(testTable.OrderByDescending(o => o.Name));
             Assert.That(enumerable, Is.Not.Null);
             var count = 0;
             while (true)
@@ -381,7 +381,7 @@ namespace RethinkDb.Test
         [Test]
         public void OrderByDescPrimitive()
         {
-            var enumerable = connection.Run(testTable.OrderBy(o => Query.Desc(o.SomeNumber)));
+            var enumerable = connection.Run(testTable.OrderByDescending(o => o.SomeNumber));
             var count = 0;
             foreach (var obj in enumerable)
             {
@@ -575,31 +575,25 @@ namespace RethinkDb.Test
         }
 
         [Test]
-        [Ignore("Descending order-by w/ LINQ syntax not yet implemented")]
         public void LinqSyntaxOrderBy()
         {
             var q = from o in testTable orderby o.SomeNumber select o;
             q = from o in testTable orderby o.SomeNumber ascending select o;
             q = from o in testTable orderby o.SomeNumber descending select o;
-            double n = 0;
             foreach (var obj in connection.Run(q))
             {
             }
-            Assert.That(n, Is.EqualTo(28));
         }
 
         [Test]
-        [Ignore("Descending order-by w/ LINQ syntax not yet implemented")]
         public void LinqSyntaxOrderByThenBy()
         {
             var q = from o in testTable orderby o.SomeNumber, o.Id select o;
             q = from o in testTable orderby o.SomeNumber, o.Id ascending select o;
             q = from o in testTable orderby o.SomeNumber, o.Id descending select o;
-            double n = 0;
             foreach (var obj in connection.Run(q))
             {
             }
-            Assert.That(n, Is.EqualTo(28));
         }
     }
 }

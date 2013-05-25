@@ -9,12 +9,22 @@ namespace RethinkDb.QueryTerm
     public class OrderByQuery<T> : ISequenceQuery<T>
     {
         private readonly ISequenceQuery<T> sequenceQuery;
-        private readonly Expression<Func<T, object>>[] memberReferenceExpressions;
+        private readonly Tuple<Expression<Func<T, object>>, Query.OrderByDirection>[] orderByMembers;
 
-        public OrderByQuery(ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>>[] memberReferenceExpressions)
+        public OrderByQuery(ISequenceQuery<T> sequenceQuery, params Tuple<Expression<Func<T, object>>, Query.OrderByDirection>[] orderByMembers)
         {
             this.sequenceQuery = sequenceQuery;
-            this.memberReferenceExpressions = memberReferenceExpressions;
+            this.orderByMembers = orderByMembers;
+        }
+
+        public ISequenceQuery<T> SequenceQuery
+        {
+            get { return sequenceQuery; }
+        }
+
+        public IEnumerable<Tuple<Expression<Func<T, object>>, Query.OrderByDirection>> OrderByMembers
+        {
+            get { return orderByMembers; }
         }
 
         public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
@@ -24,7 +34,9 @@ namespace RethinkDb.QueryTerm
                 type = Term.TermType.ORDERBY,
             };
             orderByTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
+                Console.WriteLine("GenerateTerm 1");
             orderByTerm.args.AddRange(GetMembers(datumConverterFactory));
+                Console.WriteLine("GenerateTerm 2");
             return orderByTerm;
         }
 
@@ -35,45 +47,26 @@ namespace RethinkDb.QueryTerm
             if (fieldConverter == null)
                 throw new NotSupportedException("Cannot map member access into ReQL without implementing IObjectDatumConverter");
 
-            foreach (var memberReferenceExpression in memberReferenceExpressions)
+            foreach (var orderByMember in orderByMembers)
             {
+                var memberReferenceExpression = orderByMember.Item1;
+                var direction = orderByMember.Item2;
+
                 if (memberReferenceExpression.NodeType != ExpressionType.Lambda)
                     throw new NotSupportedException("Unsupported expression type " + memberReferenceExpression.Type + "; expected Lambda");
 
                 var body = memberReferenceExpression.Body;
                 MemberExpression memberExpr;
-                string direction = null;
 
-                if (body.NodeType == ExpressionType.Call)
+                if (body.NodeType == ExpressionType.Convert)
                 {
-                    MethodCallExpression methodCall = (MethodCallExpression)body;
-                    if (methodCall.Method.Equals(typeof(Query).GetMethod("Asc", BindingFlags.Static | BindingFlags.Public)))
-                        direction = "asc";
-                    else if (methodCall.Method.Equals(typeof(Query).GetMethod("Desc", BindingFlags.Static | BindingFlags.Public)))
-                         direction = "desc";
-                    else
-                        throw new NotSupportedException("Unsupported OrderBy method call; only Query.Asc and Query.Desc are suported");
-
-                    if (methodCall.Arguments.Count != 1)
-                        throw new NotSupportedException("Only a single argument is supported to Query.Asc/Query.Desc");
-
-                    var arg = methodCall.Arguments[0];
-                    if (arg.NodeType == ExpressionType.Convert)
-                    {
-                        // If we're order-bying a primitive, the expr will be a cast to object for the Asc/Desc method call
-                        if (arg.Type == typeof(object))
-                            arg = ((UnaryExpression)arg).Operand;
-                    }
-
-                    if (arg.NodeType != ExpressionType.MemberAccess)
-                        throw new NotSupportedException("Unsupported expression type " + arg.NodeType + " inside Query.Asc/Desc; expected MemberAccess");
-
-                    memberExpr = (MemberExpression)arg;
+                    // If we're order-bying a primitive, the expr will be a cast to object for the Asc/Desc method call
+                    if (body.Type == typeof(object))
+                        body = ((UnaryExpression)body).Operand;
                 }
-                else if (body.NodeType == ExpressionType.MemberAccess)
-                {
+
+                if (body.NodeType == ExpressionType.MemberAccess)
                     memberExpr = (MemberExpression)body;
-                }
                 else
                     throw new NotSupportedException("Unsupported expression type " + body.NodeType + "; expected MemberAccess or Call");
 
@@ -88,7 +81,7 @@ namespace RethinkDb.QueryTerm
                     }
                 };
 
-                if (direction == "asc")
+                if (direction == Query.OrderByDirection.Ascending)
                 {
                     var newFieldRef = new Term() {
                         type = Term.TermType.ASC,
@@ -96,7 +89,7 @@ namespace RethinkDb.QueryTerm
                     newFieldRef.args.Add(fieldReference);
                     fieldReference = newFieldRef;
                 }
-                else if (direction == "desc")
+                else if (direction == Query.OrderByDirection.Descending)
                 {
                     var newFieldRef = new Term() {
                         type = Term.TermType.DESC,

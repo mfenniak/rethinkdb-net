@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Linq.Expressions;
 using RethinkDb.QueryTerm;
 using RethinkDb.Spec;
@@ -163,28 +164,49 @@ namespace RethinkDb
             return sequenceQuery.Map(mapExpression);
         }
 
-        public static OrderByQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, params Expression<Func<T, object>>[] memberReferenceExpressions)
+        public enum OrderByDirection
         {
-            return new OrderByQuery<T>(sequenceQuery, memberReferenceExpressions);
+            Ascending,
+            Descending,
+        }
+
+        public static OrderByQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression, OrderByDirection direction)
+        {
+            return new OrderByQuery<T>(sequenceQuery, new Tuple<Expression<Func<T, object>>, OrderByDirection>(memberReferenceExpression, direction));
+        }
+
+        // LINQ-compatible OrderBy
+        public static OrderByQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression)
+        {
+            return sequenceQuery.OrderBy(memberReferenceExpression, OrderByDirection.Ascending);
         }
 
         // LINQ-compatible alias for OrderBy
-        public static OrderByQuery<T> OrderByDescending<T>(this ISequenceQuery<T> sequenceQuery, params Expression<Func<T, object>>[] memberReferenceExpressions)
+        public static OrderByQuery<T> OrderByDescending<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression)
         {
-            // FIXME: Need to find a way to work Query.Desc() into the member reference expressions...
-            throw new NotSupportedException();
+            return sequenceQuery.OrderBy(memberReferenceExpression, OrderByDirection.Descending);
+        }
+
+        public static OrderByQuery<T> ThenBy<T>(this OrderByQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression, OrderByDirection direction)
+        {
+            return new OrderByQuery<T>(
+                orderByQuery.SequenceQuery,
+                orderByQuery.OrderByMembers.Concat(
+                    Enumerable.Repeat(
+                        new Tuple<Expression<Func<T, object>>, OrderByDirection>(memberReferenceExpression, direction),
+                        1)).ToArray());
         }
 
         // LINQ-compatible alias for OrderBy
-        public static OrderByQuery<T> ThenBy<T>(this ISequenceQuery<T> sequenceQuery, params Expression<Func<T, object>>[] memberReferenceExpressions)
+        public static OrderByQuery<T> ThenBy<T>(this OrderByQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression)
         {
-            return sequenceQuery.OrderBy(memberReferenceExpressions);
+            return orderByQuery.ThenBy(memberReferenceExpression, OrderByDirection.Ascending);
         }
 
         // LINQ-compatible alias for OrderBy
-        public static OrderByQuery<T> ThenByDescending<T>(this ISequenceQuery<T> sequenceQuery, params Expression<Func<T, object>>[] memberReferenceExpressions)
+        public static OrderByQuery<T> ThenByDescending<T>(this OrderByQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression)
         {
-            return sequenceQuery.OrderByDescending(memberReferenceExpressions);
+            return orderByQuery.ThenBy(memberReferenceExpression, OrderByDirection.Descending);
         }
 
         public static SkipQuery<T> Skip<T>(this ISequenceQuery<T> sequenceQuery, int count)
@@ -206,16 +228,6 @@ namespace RethinkDb
         public static SliceQuery<T> Slice<T>(this ISequenceQuery<T> sequenceQuery, int startIndex, int? endIndex = null)
         {
             return new SliceQuery<T>(sequenceQuery, startIndex, endIndex);
-        }
-
-        public static object Asc(object value)
-        {
-            throw new InvalidOperationException("This method should never actually be invoked; it should only be used as part of expressions to Query.OrderBy");
-        }
-
-        public static object Desc(object value)
-        {
-            throw new InvalidOperationException("This method should never actually be invoked; it should only be used as part of expressions to Query.OrderBy");
         }
 
         public static InnerJoinQuery<TLeft, TRight> InnerJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
