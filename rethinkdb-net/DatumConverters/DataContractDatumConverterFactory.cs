@@ -491,6 +491,31 @@ namespace RethinkDb
                 gen.MarkLabel(nopeWrongField);
             }
 
+            foreach (var property in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                var dataMemberAttribute = property.GetCustomAttribute<DataMemberAttribute>();
+                if (dataMemberAttribute == null)
+                    continue;
+
+                string fieldName;
+                if (!String.IsNullOrEmpty(dataMemberAttribute.Name))
+                    fieldName = dataMemberAttribute.Name;
+                else
+                    fieldName = property.Name;
+
+                var nopeWrongField = gen.DefineLabel();
+
+                gen.Emit(OpCodes.Ldloc, memberName);
+                gen.Emit(OpCodes.Ldstr, property.Name); // the actual field name...
+                gen.Emit(OpCodes.Call, typeof(string).GetMethod("Equals", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(string), typeof(string) }, null));
+                gen.Emit(OpCodes.Brfalse, nopeWrongField);
+
+                gen.Emit(OpCodes.Ldstr, fieldName); // the dataMemberAttribute's field name
+                gen.Emit(OpCodes.Ret);
+
+                gen.MarkLabel(nopeWrongField);
+            }
+
             gen.Emit(OpCodes.Ldnull);
             gen.Emit(OpCodes.Ret);
         }

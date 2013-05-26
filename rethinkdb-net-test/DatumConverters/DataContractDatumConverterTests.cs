@@ -113,6 +113,28 @@ namespace RethinkDb.Test.DatumConverters
             Assert.That(pair.val.type, Is.EqualTo(Datum.DatumType.R_STR));
             Assert.That(pair.val.r_str, Is.EqualTo("Jackpot!"));
         }
+
+        [Test]
+        public void FieldGetFieldName()
+        {
+            Assert.That(testObject2Converter, Is.InstanceOf(typeof(IObjectDatumConverter)));
+
+            var objectDatumConverter = ((IObjectDatumConverter)testObject2Converter);
+            var field = typeof(TestObject2).GetField("Name");
+
+            Assert.That(objectDatumConverter.GetDatumFieldName(field), Is.EqualTo("name"));
+        }
+
+        [Test]
+        public void PropertyGetFieldName()
+        {
+            Assert.That(testObject4Converter, Is.InstanceOf(typeof(IObjectDatumConverter)));
+
+            var objectDatumConverter = ((IObjectDatumConverter)testObject4Converter);
+            var property = typeof(TestObject4).GetProperty("Name");
+
+            Assert.That(objectDatumConverter.GetDatumFieldName(property), Is.EqualTo("name"));
+        }
     }
 }
 
