@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RethinkDb.QueryTerm;
 
-namespace RethinkDb.Test
+namespace RethinkDb.Test.Integration
 {
     [TestFixture]
     public class TableTests : TestBase

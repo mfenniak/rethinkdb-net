@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using RethinkDb.Spec;
+using RethinkDb.Test.Integration;
 
 namespace RethinkDb.Test.DatumConverters
 {

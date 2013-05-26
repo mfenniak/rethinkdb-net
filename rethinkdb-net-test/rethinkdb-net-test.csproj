@@ -50,20 +50,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestBase.cs" />
-    <Compile Include="TestObject.cs" />
-    <Compile Include="BlankTests.cs" />
-    <Compile Include="DatabaseTests.cs" />
-    <Compile Include="TableTests.cs" />
-    <Compile Include="SingleObjectTests.cs" />
-    <Compile Include="MultiObjectTests.cs" />
-    <Compile Include="ManyObjectTests.cs" />
-    <Compile Include="AnotherTestObject.cs" />
-    <Compile Include="MultiTableTests.cs" />
-    <Compile Include="ZipTestObject.cs" />
-    <Compile Include="GroupingTests.cs" />
-    <Compile Include="TestObject2.cs" />
-    <Compile Include="TestObject3.cs" />
     <Compile Include="DatumConverters\IntDatumConverterTests.cs" />
     <Compile Include="DatumConverters\LongDatumConverterTests.cs" />
     <Compile Include="DatumConverters\ShortDatumConverterTests.cs" />
@@ -78,9 +64,23 @@
     <Compile Include="DatumConverters\DateTimeDatumConverterTests.cs" />
     <Compile Include="DatumConverters\GuidDatumConverterTests.cs" />
     <Compile Include="DatumConverters\DateTimeOffsetDatumConverterTests.cs" />
-    <Compile Include="TestObject4.cs" />
     <Compile Include="DatumConverters\DataContractDatumConverterTests.cs" />
     <Compile Include="DatumConverters\NullableDatumConverterTests.cs" />
+    <Compile Include="Integration\BlankTests.cs" />
+    <Compile Include="Integration\DatabaseTests.cs" />
+    <Compile Include="Integration\GroupingTests.cs" />
+    <Compile Include="Integration\ManyObjectTests.cs" />
+    <Compile Include="Integration\MultiObjectTests.cs" />
+    <Compile Include="Integration\MultiTableTests.cs" />
+    <Compile Include="Integration\SingleObjectTests.cs" />
+    <Compile Include="Integration\TableTests.cs" />
+    <Compile Include="Integration\TestBase.cs" />
+    <Compile Include="Integration\TestObject.cs" />
+    <Compile Include="Integration\TestObject2.cs" />
+    <Compile Include="Integration\TestObject3.cs" />
+    <Compile Include="Integration\TestObject4.cs" />
+    <Compile Include="Integration\ZipTestObject.cs" />
+    <Compile Include="Integration\AnotherTestObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -102,5 +102,6 @@
   -->
   <ItemGroup>
     <Folder Include="DatumConverters\" />
+    <Folder Include="Integration\" />
   </ItemGroup>
 </Project>

@@ -5,7 +5,7 @@ using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RethinkDb.Test
+namespace RethinkDb.Test.Integration
 {
     [TestFixture]
     public class DatabaseTests : TestBase

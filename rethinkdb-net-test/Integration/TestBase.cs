@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RethinkDb.Configuration;
 
-namespace RethinkDb.Test
+namespace RethinkDb.Test.Integration
 {
     public class TestBase
     {

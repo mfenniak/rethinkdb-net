@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using RethinkDb.QueryTerm;
 using System.Linq.Expressions;
 
-namespace RethinkDb.Test
+namespace RethinkDb.Test.Integration
 {
     [TestFixture]
     public class SingleObjectTests : TestBase

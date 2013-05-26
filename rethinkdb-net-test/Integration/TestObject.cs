@@ -1,23 +1,26 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace RethinkDb.Test
+namespace RethinkDb.Test.Integration
 {
     [DataContract]
-    public class AnotherTestObject
+    public class TestObject
     {
         [DataMember(Name = "id", EmitDefaultValue = false)]
         public string Id;
 
-        [DataMember(Name = "first_name")]
-        public string FirstName;
+        [DataMember(Name = "name")]
+        public string Name;
 
-        [DataMember(Name = "last_name")]
-        public string LastName;
+        [DataMember(Name = "children")]
+        public TestObject[] Children;
+
+        [DataMember(Name = "number")]
+        public double SomeNumber;
 
         public override bool Equals(object obj)
         {
-            var objTo = obj as AnotherTestObject;
+            var objTo = obj as TestObject;
             if (objTo != null)
                 return Id != null && objTo.Id != null && String.Equals(Id, objTo.Id);
             else

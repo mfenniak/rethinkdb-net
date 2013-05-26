@@ -8,7 +8,7 @@ using RethinkDb.QueryTerm;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace RethinkDb.Test
+namespace RethinkDb.Test.Integration
 {
     [TestFixture]
     public class GroupingTests : TestBase

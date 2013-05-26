@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using RethinkDb.QueryTerm;
 using System.Collections.Generic;
 
-namespace RethinkDb.Test
+namespace RethinkDb.Test.Integration
 {
     [TestFixture]
     public class ManyObjectTests : TestBase

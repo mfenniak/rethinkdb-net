@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace RethinkDb.Test
+namespace RethinkDb.Test.Integration
 {
     [DataContract]
     public class TestObject3
