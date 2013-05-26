@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using RethinkDb.Spec;
 using RethinkDb.Test.Integration;
+using NSubstitute;
 
 namespace RethinkDb.Test.DatumConverters
 {
@@ -13,12 +14,30 @@ namespace RethinkDb.Test.DatumConverters
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            var datumConverterFactory = new AggregateDatumConverterFactory(
-                PrimitiveDatumConverterFactory.Instance,
-                DataContractDatumConverterFactory.Instance
-            );
-            testObject2Converter = datumConverterFactory.Get<TestObject2>();
-            testObject4Converter = datumConverterFactory.Get<TestObject4>();
+            var datumConverterFactory = Substitute.For<IDatumConverterFactory>();
+
+            var stringDatum = new Datum() {
+                type = Datum.DatumType.R_STR,
+                r_str = "Jackpot!",
+            };
+            var stringDatumConverter = Substitute.For<IDatumConverter<string>>();
+            stringDatumConverter
+                .ConvertObject("Jackpot!")
+                .Returns(stringDatum);
+            stringDatumConverter
+                .ConvertDatum(Arg.Is<Datum>(d => d.type == stringDatum.type && d.r_str == stringDatum.r_str))
+                .Returns("Jackpot!");
+
+            testObject2Converter = DataContractDatumConverterFactory.Instance.Get<TestObject2>(datumConverterFactory);
+            testObject4Converter = DataContractDatumConverterFactory.Instance.Get<TestObject4>(datumConverterFactory);
+
+            IDatumConverter<string> value;
+            datumConverterFactory
+                .TryGet<string>(datumConverterFactory, out value)
+                .Returns(args => {
+                        args[1] = stringDatumConverter;
+                        return true;
+                    });
         }
 
         [Test]
