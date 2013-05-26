@@ -34,9 +34,7 @@ namespace RethinkDb.QueryTerm
                 type = Term.TermType.ORDERBY,
             };
             orderByTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
-                Console.WriteLine("GenerateTerm 1");
             orderByTerm.args.AddRange(GetMembers(datumConverterFactory));
-                Console.WriteLine("GenerateTerm 2");
             return orderByTerm;
         }
 
