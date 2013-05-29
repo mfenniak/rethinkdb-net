@@ -9,17 +9,20 @@ namespace RethinkDb.QueryTerm
         private readonly ISequenceQuery<T> sequenceTerm;
         private readonly IMutableSingleObjectQuery<T> singleObjectTerm;
         private readonly Expression<Func<T, T>> updateExpression;
+        private readonly bool nonAtomic;
 
-        public UpdateQuery(ISequenceQuery<T> tableTerm, Expression<Func<T, T>> updateExpression)
+        public UpdateQuery(ISequenceQuery<T> tableTerm, Expression<Func<T, T>> updateExpression, bool nonAtomic)
         {
             this.sequenceTerm = tableTerm;
             this.updateExpression = updateExpression;
+            this.nonAtomic = nonAtomic;
         }
 
-        public UpdateQuery(IMutableSingleObjectQuery<T> singleObjectTerm, Expression<Func<T, T>> updateExpression)
+        public UpdateQuery(IMutableSingleObjectQuery<T> singleObjectTerm, Expression<Func<T, T>> updateExpression, bool nonAtomic)
         {
             this.singleObjectTerm = singleObjectTerm;
             this.updateExpression = updateExpression;
+            this.nonAtomic = nonAtomic;
         }
 
         public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
@@ -33,11 +36,21 @@ namespace RethinkDb.QueryTerm
             else
                 updateTerm.args.Add(sequenceTerm.GenerateTerm(datumConverterFactory));
 
-            var body = updateExpression.Body;
-            if (body.NodeType != ExpressionType.MemberInit)
-                throw new NotSupportedException("Only MemberInit expression type is currently supported in Update");
-
             updateTerm.args.Add(ExpressionUtils.CreateFunctionTerm<T, T>(datumConverterFactory, updateExpression));
+
+            if (nonAtomic)
+            {
+                updateTerm.optargs.Add(new Term.AssocPair() {
+                    key = "non_atomic",
+                    val = new Term() {
+                        type = Term.TermType.DATUM,
+                        datum = new Datum() {
+                            type = Datum.DatumType.R_BOOL,
+                            r_bool = nonAtomic
+                        }
+                    }
+                });
+            }
 
             return updateTerm;
         }

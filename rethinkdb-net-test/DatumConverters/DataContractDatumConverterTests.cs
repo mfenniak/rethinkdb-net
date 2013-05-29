@@ -6,7 +6,7 @@ using NSubstitute;
 namespace RethinkDb.Test.DatumConverters
 {
     [TestFixture]
-    [Ignore("Crashes mono when run from command-line nunit-console.exe")]
+    [Ignore("Crashes mono when run from command-line nunit-console.exe; see mfenniak/rethinkdb-net#104")]
     public class DataContractDatumConverterTests
     {
         private IDatumConverter<TestObject2> testObject2Converter;

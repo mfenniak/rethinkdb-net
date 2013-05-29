@@ -84,6 +84,8 @@
     <Compile Include="Integration\TestObject4.cs" />
     <Compile Include="Integration\ZipTestObject.cs" />
     <Compile Include="Integration\AnotherTestObject.cs" />
+    <Compile Include="QueryTests\UpdateQueryTests.cs" />
+    <Compile Include="QueryTests\ReplaceQueryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -106,5 +108,6 @@
   <ItemGroup>
     <Folder Include="DatumConverters\" />
     <Folder Include="Integration\" />
+    <Folder Include="QueryTests\" />
   </ItemGroup>
 </Project>

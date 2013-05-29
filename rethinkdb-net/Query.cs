@@ -93,14 +93,14 @@ namespace RethinkDb
             return target.Filter(filterExpression);
         }
 
-        public static UpdateQuery<T> Update<T>(this ISequenceQuery<T> target, Expression<Func<T, T>> updateExpression)
+        public static UpdateQuery<T> Update<T>(this ISequenceQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
         {
-            return new UpdateQuery<T>(target, updateExpression);
+            return new UpdateQuery<T>(target, updateExpression, nonAtomic);
         }
 
-        public static UpdateQuery<T> Update<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression)
+        public static UpdateQuery<T> Update<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
         {
-            return new UpdateQuery<T>(target, updateExpression);
+            return new UpdateQuery<T>(target, updateExpression, nonAtomic);
         }
 
         public static DeleteQuery<T> Delete<T>(this ISequenceQuery<T> target)
@@ -113,9 +113,9 @@ namespace RethinkDb
             return new DeleteQuery<T>(target);
         }
 
-        public static ReplaceQuery<T> Replace<T>(this IMutableSingleObjectQuery<T> target, T newObject)
+        public static ReplaceQuery<T> Replace<T>(this IMutableSingleObjectQuery<T> target, T newObject, bool nonAtomic = false)
         {
-            return new ReplaceQuery<T>(target, newObject);
+            return new ReplaceQuery<T>(target, newObject, nonAtomic);
         }
 
         public static BetweenQuery<T, string> Between<T>(this ISequenceQuery<T> target, string leftKey, string rightKey)
