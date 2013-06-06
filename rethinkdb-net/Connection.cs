@@ -91,7 +91,7 @@ namespace RethinkDb
                         var ips = await Dns.GetHostAddressesAsync(dnsEndpoint.Host);
                         resolvedIpEndpoints = ips.Select(ip => new IPEndPoint(ip, dnsEndpoint.Port));
                         if (Logger.DebugEnabled())
-                            Logger.Debug("DNS lookup {0} into: [{1}]", resolvedIpEndpoints.EnumerableToString());
+                            Logger.Debug("DNS lookup {0} into: [{1}]", dnsEndpoint.Host, resolvedIpEndpoints.EnumerableToString());
                     }
                     catch (Exception e)
                     {
