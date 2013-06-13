@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using ProtoBuf;
 using RethinkDb.Spec;
 using System.Diagnostics;
+using System.Text;
 
 namespace RethinkDb
 {
@@ -71,6 +72,12 @@ namespace RethinkDb
         }       
 
         public TimeSpan QueryTimeout
+        {
+            get;
+            set;
+        }
+
+        public string AuthorizationKey
         {
             get;
             set;
@@ -155,19 +162,38 @@ namespace RethinkDb
 
                 if (connectHeader == null)
                 {
-                    var header = BitConverter.GetBytes((int)Spec.VersionDummy.Version.V0_1);
+                    var header = BitConverter.GetBytes((int)Spec.VersionDummy.Version.V0_2);
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(header, 0, header.Length);
                     connectHeader = header;
                 }
 
                 stream = new NetworkStream(socket, true);
-                await stream.WriteAsync(connectHeader, 0, connectHeader.Length, cancellationToken);
-
-                Logger.Debug("Sent ReQL header");
-
                 this.socket = socket;
                 this.stream = stream;
+
+                await stream.WriteAsync(connectHeader, 0, connectHeader.Length, cancellationToken);
+                Logger.Debug("Sent ReQL header");
+
+                if (String.IsNullOrEmpty(AuthorizationKey))
+                {
+                    await stream.WriteAsync(new byte[] { 0, 0, 0, 0 }, 0, 4, cancellationToken);
+                }
+                else
+                {
+                    var keyInBytes = Encoding.UTF8.GetBytes(AuthorizationKey);
+                    var authKeyLength = BitConverter.GetBytes(keyInBytes.Length);
+                    if (!BitConverter.IsLittleEndian)
+                        Array.Reverse(authKeyLength, 0, authKeyLength.Length);
+                    await stream.WriteAsync(authKeyLength, 0, authKeyLength.Length);
+                    await stream.WriteAsync(keyInBytes, 0, keyInBytes.Length);
+                }
+
+                byte[] authReponseBuffer = new byte[1024];
+                var authResponseLength = await ReadUntilNullTerminator(authReponseBuffer, cancellationToken);
+                var authResponse = Encoding.UTF8.GetString(authReponseBuffer, 0, authResponseLength);
+                if (authResponse != "SUCCESS")
+                    throw new RethinkDbRuntimeException("Unexpected authentication response; expected SUCCESS but got: " + authResponse);
 
 #pragma warning disable 4014
                 ReadLoop();
@@ -251,6 +277,24 @@ namespace RethinkDb
             catch (Exception e)
             {
                 Logger.Fatal("Exception occurred in Connection.ReadLoop: {0}; this connection will no longer function correctly, no error recovery will take place", e);
+            }
+        }
+
+        private async Task<int> ReadUntilNullTerminator(byte[] buffer, CancellationToken cancellationToken)
+        {
+            int totalBytesRead = 0;
+            while (true)
+            {
+                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length - totalBytesRead, cancellationToken);
+                totalBytesRead += bytesRead;
+                Logger.Debug("Received {0} / {1} bytes in NullTerminator buffer", bytesRead, buffer.Length);
+
+                if (bytesRead == 0)
+                    throw new RethinkDbNetworkException("Network stream closed while attempting to read");
+                else if (buffer[totalBytesRead - 1] == 0)
+                    return totalBytesRead - 1;
+                else if (totalBytesRead == buffer.Length)
+                    throw new RethinkDbNetworkException("Ran out of space in buffer while looking for a null-terminated string");
             }
         }
 

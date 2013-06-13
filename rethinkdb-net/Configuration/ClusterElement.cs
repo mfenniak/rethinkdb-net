@@ -17,6 +17,19 @@ namespace RethinkDb.Configuration
             }
         }
 
+        [ConfigurationProperty("authorizationKey")]
+        public string AuthorizationKey
+        {
+            get
+            {
+                return this["authorizationKey"] as string;
+            }
+            set
+            {
+                this["authorizationKey"] = value;
+            }
+        }
+
         [ConfigurationProperty("endpoints")]
         public EndPointElementCollection EndPoints
         {
