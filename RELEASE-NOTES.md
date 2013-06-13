@@ -1,6 +1,6 @@
 # rethinkdb-net Release Notes
 
-## Unreleased
+## 0.2.0.0
 
 ### Features
 
