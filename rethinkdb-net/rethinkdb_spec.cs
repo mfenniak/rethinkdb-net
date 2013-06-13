@@ -20,7 +20,10 @@ namespace RethinkDb.Spec
     {
             
       [global::ProtoBuf.ProtoEnum(Name=@"V0_1", Value=1063369270)]
-      V0_1 = 1063369270
+      V0_1 = 1063369270,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"V0_2", Value=1915781601)]
+      V0_2 = 1915781601
     }
   
     private global::ProtoBuf.IExtension extensionObject;
@@ -507,6 +510,24 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"APPEND", Value=29)]
       APPEND = 29,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"PREPEND", Value=80)]
+      PREPEND = 80,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DIFFERENCE", Value=95)]
+      DIFFERENCE = 95,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SET_INSERT", Value=88)]
+      SET_INSERT = 88,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SET_INTERSECTION", Value=89)]
+      SET_INTERSECTION = 89,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SET_UNION", Value=90)]
+      SET_UNION = 90,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SET_DIFFERENCE", Value=91)]
+      SET_DIFFERENCE = 91,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"SLICE", Value=30)]
       SLICE = 30,
             
@@ -516,11 +537,23 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"LIMIT", Value=71)]
       LIMIT = 71,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"INDEXES_OF", Value=87)]
+      INDEXES_OF = 87,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"CONTAINS", Value=93)]
+      CONTAINS = 93,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"GETATTR", Value=31)]
       GETATTR = 31,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"CONTAINS", Value=32)]
-      CONTAINS = 32,
+      [global::ProtoBuf.ProtoEnum(Name=@"KEYS", Value=94)]
+      KEYS = 94,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"HAS_FIELDS", Value=32)]
+      HAS_FIELDS = 32,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"WITH_FIELDS", Value=96)]
+      WITH_FIELDS = 96,
             
       [global::ProtoBuf.ProtoEnum(Name=@"PLUCK", Value=33)]
       PLUCK = 33,
@@ -555,6 +588,9 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"COUNT", Value=43)]
       COUNT = 43,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"IS_EMPTY", Value=86)]
+      IS_EMPTY = 86,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"UNION", Value=44)]
       UNION = 44,
             
@@ -578,6 +614,18 @@ namespace RethinkDb.Spec
             
       [global::ProtoBuf.ProtoEnum(Name=@"ZIP", Value=72)]
       ZIP = 72,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"INSERT_AT", Value=82)]
+      INSERT_AT = 82,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DELETE_AT", Value=83)]
+      DELETE_AT = 83,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"CHANGE_AT", Value=84)]
+      CHANGE_AT = 84,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SPLICE_AT", Value=85)]
+      SPLICE_AT = 85,
             
       [global::ProtoBuf.ProtoEnum(Name=@"COERCE_TO", Value=51)]
       COERCE_TO = 51,
@@ -649,7 +697,16 @@ namespace RethinkDb.Spec
       DESC = 74,
             
       [global::ProtoBuf.ProtoEnum(Name=@"INFO", Value=79)]
-      INFO = 79
+      INFO = 79,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"MATCH", Value=97)]
+      MATCH = 97,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SAMPLE", Value=81)]
+      SAMPLE = 81,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DEFAULT", Value=92)]
+      DEFAULT = 92
     }
   
     private global::ProtoBuf.IExtension extensionObject;

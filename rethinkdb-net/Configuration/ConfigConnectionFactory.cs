@@ -20,12 +20,12 @@ namespace RethinkDb.Configuration
             if (DefaultSettings.Value == null)
                 throw new ConfigurationErrorsException("No rethinkdb client configuration section located");
 
-            foreach (ClusterElement connection in DefaultSettings.Value.Clusters)
+            foreach (ClusterElement cluster in DefaultSettings.Value.Clusters)
             {
-                if (connection.Name == clusterName)
+                if (cluster.Name == clusterName)
                 {
                     List<EndPoint> endpoints = new List<EndPoint>();
-                    foreach (EndPointElement ep in connection.EndPoints)
+                    foreach (EndPointElement ep in cluster.EndPoints)
                     {
                         IPAddress ip;
                         if (IPAddress.TryParse(ep.Address, out ip))
@@ -34,7 +34,10 @@ namespace RethinkDb.Configuration
                             endpoints.Add(new DnsEndPoint(ep.Address, ep.Port));
                     }
 
-                    return new Connection(endpoints.ToArray());
+                    var connection = new Connection(endpoints.ToArray());
+                    if (!String.IsNullOrEmpty(cluster.AuthorizationKey))
+                        connection.AuthorizationKey = cluster.AuthorizationKey;
+                    return connection;
                 }
             }
 
