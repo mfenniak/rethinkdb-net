@@ -4,17 +4,34 @@
 
 ### Features
 
-* Added support for [DataMember] attributes on properties, whereas previously on fields were supported.  #87.
+* Added support for [DataMember] attributes on properties, whereas previously on fields were supported.  [PR #87](https://github.com/mfenniak/rethinkdb-net/pull/87)
 
-* Updated order-by API using .OrderBy, .OrderByDescending, .ThenBy, and .ThenByDescending is compatible with LINQ .NET syntax.
+* Updated order-by API using .OrderBy, .OrderByDescending, .ThenBy, and .ThenByDescending is compatible with LINQ .NET syntax.  Permits queries to be constructed w/ LINQ syntax:
 
-* Added Query.Where(), Query.Select(), and Query.Take() alias methods for compatibility with LINQ and IEnumerable<T> extension methods.  
+        var query = from o in testTable
+            orderby o.SomeNumber, o.Id ascending
+            select o;
+        foreach (var obj in connection.Run(query))
+        {
+            ...
+        }
 
-* Added support for nonAtomic flag to Query.Update & Query.Replace. #5.
+
+* Added Query.Where(), Query.Select(), and Query.Take() alias methods for compatibility with LINQ and IEnumerable<T> extension methods.  Permits queries to be constructed w/ LINQ syntax:
+
+        var query = from n in testTable
+            where n.SomeNumber == 3 && n.SomeNumber != 4
+            select n.SomeNumber;
+        foreach (var obj in connection.Run(query))
+        {
+            ...
+        }
+
+* Added support for nonAtomic flag to Query.Update & Query.Replace. [Issue #5](https://github.com/mfenniak/rethinkdb-net/issues/5)
 
 ### Bugfixes
 
-* Fixed incorrect parameterization in Logger.Debug call in Connection.cs; thanks @rvlieshout for the patch.  #105.
+* Fixed incorrect parameterization in Logger.Debug call in Connection.cs; thanks @rvlieshout for the patch.  [PR #105](https://github.com/mfenniak/rethinkdb-net/pull/105)
 
 
 ## 0.1.2
