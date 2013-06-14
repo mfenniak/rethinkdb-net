@@ -1,5 +1,12 @@
 # rethinkdb-net Release Notes
 
+## Next Release
+
+### Bugfixes
+
+* Fixed performance issue w/ multithreaded shared connections, which would also cause deadlock in mixed async&sync code.  Thanks to @AshD for reporting the issue.  [PR #112](https://github.com/mfenniak/rethinkdb-net/pull/112)
+
+
 ## 0.2.0.0
 
 ### Features
