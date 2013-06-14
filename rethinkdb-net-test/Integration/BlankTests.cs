@@ -150,6 +150,20 @@ namespace RethinkDb.Test.Integration
             Assert.That(connection.Run(Query.Expr("")), Is.EqualTo(""));
             Assert.That(connection.Run(Query.Expr("a")), Is.EqualTo("a"));
         }
+
+        // Unit test for async/sync deadlock, mfenniak/rethinkdb-net#112.
+        [Test]
+        [Timeout(1000)]
+        public void MixAsyncSyncPatternDeadlock()
+        {
+            DoMixAsyncSyncPatternDeadlock().Wait();
+        }
+
+        private async Task DoMixAsyncSyncPatternDeadlock()
+        {
+            await connection.RunAsync(Query.Expr(false));
+            connection.Run(Query.Expr(false));
+        }
     }
 }
 
