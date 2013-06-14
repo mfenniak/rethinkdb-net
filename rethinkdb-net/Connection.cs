@@ -265,7 +265,11 @@ namespace RethinkDb
                         if (tokenResponse.TryGetValue(response.token, out tcs))
                         {
                             tokenResponse.Remove(response.token);
-                            tcs.SetResult(response);
+                            // Send the result to the waiting thread via the thread-pool.  If we invoke
+                            // tcs.SetResult(response) synchronously, we actually block until the response handling
+                            // is completed, which could be an unknown quantity of user code.  It could also cause
+                            // a deadlock (see mfenniak/rethinkdb-net#112).
+                            ThreadPool.QueueUserWorkItem(_ => tcs.SetResult(response));
                         }
                         else
                         {
