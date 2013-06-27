@@ -8,7 +8,6 @@ using RethinkDb.QueryTerm;
 namespace RethinkDb.Test.QueryTests
 {
     [TestFixture]
-    [Ignore("Crashes mono when run from command-line nunit-console.exe; see mfenniak/rethinkdb-net#104")]
     public class ReplaceQueryTests
     {
         private IDatumConverterFactory datumConverterFactory;
