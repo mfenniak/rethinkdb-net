@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 build() {
-    xbuild rethinkdb-net.sln
+    xbuild /t:Rebuild rethinkdb-net.sln
 
     if [[ $? != 0 ]] ; then
         build_failed
