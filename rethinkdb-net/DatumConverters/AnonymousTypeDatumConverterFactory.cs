@@ -37,7 +37,7 @@ namespace RethinkDb
 
         // FIXME: This AnonymousTypeConverter, using reflection, is likely to be many, many times slower than doing an
         // emitted class like DataContractDatumConverterFactory does.
-        private class AnonymousTypeConverter<T> : IDatumConverter<T>, IObjectDatumConverter
+        public class AnonymousTypeConverter<T> : IDatumConverter<T>, IObjectDatumConverter
         {
             private readonly ConstructorInfo typeConstructor;
             private readonly List<PropertyInfo> properties;

@@ -90,12 +90,12 @@ namespace RethinkDb.Test.Integration
         public void GroupByCount()
         {
             // Same query and results as GroupedMapReduce test
-            var query = testTable.GroupBy(Query.Count(), to => to.Name);
+            var query = testTable.GroupBy(Query.Count(), to => new { name = to.Name });
 
             int count = 0;
             foreach (var record in connection.Run(query))
             {
-                var groupName = record.Item1.Item1;
+                var groupName = record.Item1.name;
                 var reduceCount = record.Item2;
 
                 switch (groupName)
@@ -124,13 +124,13 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupByTwoParams()
         {
-            var query = testTable.GroupBy(Query.Count(), to => to.Name, to => to.SomeNumber);
+            var query = testTable.GroupBy(Query.Count(), to => new { name = to.Name, number = to.SomeNumber });
 
             int count = 0;
             foreach (var record in connection.Run(query))
             {
-                var groupName = record.Item1.Item1;
-                var someNumber = record.Item1.Item2;
+                var groupName = record.Item1.name;
+                var someNumber = record.Item1.number;
                 var reduceCount = record.Item2;
 
                 switch (groupName)
@@ -162,12 +162,12 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupBySum()
         {
-            var query = testTable.GroupBy(Query.Sum<TestObject>(to => to.SomeNumber), to => to.Name);
+            var query = testTable.GroupBy(Query.Sum<TestObject>(to => to.SomeNumber), to => new { name = to.Name });
 
             int count = 0;
             foreach (var record in connection.Run(query))
             {
-                var groupName = record.Item1.Item1;
+                var groupName = record.Item1.name;
                 var reduceSum = record.Item2;
 
                 switch (groupName)
@@ -204,12 +204,12 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupByAvg()
         {
-            var query = testTable.GroupBy(Query.Avg<TestObject>(to => to.SomeNumber), to => to.Name);
+            var query = testTable.GroupBy(Query.Avg<TestObject>(to => to.SomeNumber), to => new { name = to.Name });
 
             int count = 0;
             foreach (var record in connection.Run(query))
             {
-                var groupName = record.Item1.Item1;
+                var groupName = record.Item1.name;
                 var reduceSum = record.Item2;
 
                 switch (groupName)

@@ -295,19 +295,9 @@ namespace RethinkDb
             return new UnionQuery<T>(query1, query2);
         }
 
-        public static GroupByQuery<TObject, TReductionType, TGroupByType1> GroupBy<TObject, TReductionType, TGroupByType1>(this ISequenceQuery<TObject> sequenceQuery, IGroupByReduction<TReductionType> reductionObject, Expression<Func<TObject, TGroupByType1>> groupMemberReference1)
+        public static GroupByQuery<TObject, TReductionType, TGroupKeyType> GroupBy<TObject, TReductionType, TGroupKeyType>(this ISequenceQuery<TObject> sequenceQuery, IGroupByReduction<TReductionType> reductionObject, Expression<Func<TObject, TGroupKeyType>> groupKeyConstructor)
         {
-            return new GroupByQuery<TObject, TReductionType, TGroupByType1>(sequenceQuery, reductionObject, groupMemberReference1);
-        }
-
-        public static GroupByQuery<TObject, TReductionType, TGroupByType1, TGroupByType2> GroupBy<TObject, TReductionType, TGroupByType1, TGroupByType2>(this ISequenceQuery<TObject> sequenceQuery, IGroupByReduction<TReductionType> reductionObject, Expression<Func<TObject, TGroupByType1>> groupMemberReference1, Expression<Func<TObject, TGroupByType2>> groupMemberReference2)
-        {
-            return new GroupByQuery<TObject, TReductionType, TGroupByType1, TGroupByType2>(sequenceQuery, reductionObject, groupMemberReference1, groupMemberReference2);
-        }
-
-        public static GroupByQuery<TObject, TReductionType, TGroupByType1, TGroupByType2, TGroupByType3> GroupBy<TObject, TReductionType, TGroupByType1, TGroupByType2, TGroupByType3>(this ISequenceQuery<TObject> sequenceQuery, IGroupByReduction<TReductionType> reductionObject, Expression<Func<TObject, TGroupByType1>> groupMemberReference1, Expression<Func<TObject, TGroupByType2>> groupMemberReference2, Expression<Func<TObject, TGroupByType3>> groupMemberReference3)
-        {
-            return new GroupByQuery<TObject, TReductionType, TGroupByType1, TGroupByType2, TGroupByType3>(sequenceQuery, reductionObject, groupMemberReference1, groupMemberReference2, groupMemberReference3);
+            return new GroupByQuery<TObject, TReductionType, TGroupKeyType>(sequenceQuery, reductionObject, groupKeyConstructor);
         }
 
         public static CountReduction Count()
