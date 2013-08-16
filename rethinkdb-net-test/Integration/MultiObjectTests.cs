@@ -84,6 +84,56 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void BetweenRightClosed()
+        {
+            DoBetweenRightClosed().Wait();
+        }
+
+        private async Task DoBetweenRightClosed()
+        {
+            var enumerable = connection.RunAsync(testTable.Between("2", "4", rightBound: Bound.Closed));
+            List<TestObject> objects = new List<TestObject>();
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                objects.Add(enumerable.Current);
+                ++count;
+            }
+            Assert.That(count, Is.EqualTo(3));
+            Assert.That(objects, Has.Count.EqualTo(3));
+
+            Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "2" }));
+            Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "3" }));
+            Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "4" }));
+        }
+
+        [Test]
+        public void BetweenLeftOpen()
+        {
+            DoBetweenLeftOpen().Wait();
+        }
+
+        private async Task DoBetweenLeftOpen()
+        {
+            var enumerable = connection.RunAsync(testTable.Between("2", "4", leftBound: Bound.Open));
+            List<TestObject> objects = new List<TestObject>();
+            var count = 0;
+            while (true)
+            {
+                if (!await enumerable.MoveNext())
+                    break;
+                objects.Add(enumerable.Current);
+                ++count;
+            }
+            Assert.That(count, Is.EqualTo(1));
+            Assert.That(objects, Has.Count.EqualTo(1));
+
+            Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "3" }));
+        }
+
+        [Test]
         public void BetweenNull()
         {
             DoBetweenNull().Wait();

@@ -8,13 +8,17 @@ namespace RethinkDb.QueryTerm
         private readonly TKey leftKey;
         private readonly TKey rightKey;
         private readonly string indexName;
+        private readonly Bound leftBound;
+        private readonly Bound rightBound;
 
-        public BetweenQuery(ISequenceQuery<TSequence> tableTerm, TKey leftKey, TKey rightKey, string indexName)
+        public BetweenQuery(ISequenceQuery<TSequence> tableTerm, TKey leftKey, TKey rightKey, string indexName, Bound leftBound, Bound rightBound)
         {
             this.tableTerm = tableTerm;
             this.leftKey = leftKey;
             this.rightKey = rightKey;
             this.indexName = indexName;
+            this.leftBound = leftBound;
+            this.rightBound = rightBound;
         }
 
         public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
@@ -46,7 +50,33 @@ namespace RethinkDb.QueryTerm
                     }
                 });
             }
-            return betweenTerm;
+            if (leftBound != Bound.Closed)
+            {
+                betweenTerm.optargs.Add(new Term.AssocPair() {
+                    key = "left_bound",
+                    val = new Term() {
+                        type = Term.TermType.DATUM,
+                        datum = new Datum() {
+                            type = Datum.DatumType.R_STR,
+                            r_str = "open"
+                        },
+                    }
+                });
+            }
+            if (rightBound != Bound.Open)
+            {
+                 betweenTerm.optargs.Add(new Term.AssocPair() {
+                    key = "right_bound",
+                    val = new Term() {
+                        type = Term.TermType.DATUM,
+                        datum = new Datum() {
+                            type = Datum.DatumType.R_STR,
+                            r_str = "closed"
+                        },
+                    }
+                });
+           }
+           return betweenTerm;
         }
     }
 }

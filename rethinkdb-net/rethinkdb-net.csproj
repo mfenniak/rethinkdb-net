@@ -127,6 +127,7 @@
     <Compile Include="DatumConverters\AggregateDatumConverterFactory.cs" />
     <Compile Include="DatumConverters\DatumConverterFactoryExtensions.cs" />
     <Compile Include="DatumConverters\NullableDatumConverterFactory.cs" />
+    <Compile Include="Bound.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
