@@ -149,7 +149,7 @@ namespace RethinkDb.QueryTerm
                         throw new NotSupportedException("Unrecognized member access pattern");
 
                     var getAttrTerm = new Term() {
-                        type = Term.TermType.GETATTR
+                        type = Term.TermType.GET_FIELD
                     };
 
                     getAttrTerm.args.Add(new Term() {
@@ -278,7 +278,7 @@ namespace RethinkDb.QueryTerm
                         throw new InvalidOperationException("Unmatched parameter name:" + parameterExpr.Name);
 
                     var getAttrTerm = new Term() {
-                        type = Term.TermType.GETATTR
+                        type = Term.TermType.GET_FIELD
                     };
 
                     getAttrTerm.args.Add(new Term() {

@@ -543,8 +543,8 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"CONTAINS", Value=93)]
       CONTAINS = 93,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"GETATTR", Value=31)]
-      GETATTR = 31,
+      [global::ProtoBuf.ProtoEnum(Name=@"GET_FIELD", Value=31)]
+      GET_FIELD = 31,
             
       [global::ProtoBuf.ProtoEnum(Name=@"KEYS", Value=94)]
       KEYS = 94,
@@ -706,7 +706,127 @@ namespace RethinkDb.Spec
       SAMPLE = 81,
             
       [global::ProtoBuf.ProtoEnum(Name=@"DEFAULT", Value=92)]
-      DEFAULT = 92
+      DEFAULT = 92,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"JSON", Value=98)]
+      JSON = 98,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"ISO8601", Value=99)]
+      ISO8601 = 99,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"TO_ISO8601", Value=100)]
+      TO_ISO8601 = 100,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"EPOCH_TIME", Value=101)]
+      EPOCH_TIME = 101,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"TO_EPOCH_TIME", Value=102)]
+      TO_EPOCH_TIME = 102,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NOW", Value=103)]
+      NOW = 103,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"IN_TIMEZONE", Value=104)]
+      IN_TIMEZONE = 104,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DURING", Value=105)]
+      DURING = 105,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DATE", Value=106)]
+      DATE = 106,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"TIME_OF_DAY", Value=126)]
+      TIME_OF_DAY = 126,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"TIMEZONE", Value=127)]
+      TIMEZONE = 127,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"YEAR", Value=128)]
+      YEAR = 128,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"MONTH", Value=129)]
+      MONTH = 129,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DAY", Value=130)]
+      DAY = 130,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DAY_OF_WEEK", Value=131)]
+      DAY_OF_WEEK = 131,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DAY_OF_YEAR", Value=132)]
+      DAY_OF_YEAR = 132,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"HOURS", Value=133)]
+      HOURS = 133,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"MINUTES", Value=134)]
+      MINUTES = 134,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SECONDS", Value=135)]
+      SECONDS = 135,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"TIME", Value=136)]
+      TIME = 136,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"MONDAY", Value=107)]
+      MONDAY = 107,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"TUESDAY", Value=108)]
+      TUESDAY = 108,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"WEDNESDAY", Value=109)]
+      WEDNESDAY = 109,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"THURSDAY", Value=110)]
+      THURSDAY = 110,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"FRIDAY", Value=111)]
+      FRIDAY = 111,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SATURDAY", Value=112)]
+      SATURDAY = 112,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SUNDAY", Value=113)]
+      SUNDAY = 113,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"JANUARY", Value=114)]
+      JANUARY = 114,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"FEBRUARY", Value=115)]
+      FEBRUARY = 115,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"MARCH", Value=116)]
+      MARCH = 116,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"APRIL", Value=117)]
+      APRIL = 117,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"MAY", Value=118)]
+      MAY = 118,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"JUNE", Value=119)]
+      JUNE = 119,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"JULY", Value=120)]
+      JULY = 120,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"AUGUST", Value=121)]
+      AUGUST = 121,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SEPTEMBER", Value=122)]
+      SEPTEMBER = 122,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"OCTOBER", Value=123)]
+      OCTOBER = 123,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NOVEMBER", Value=124)]
+      NOVEMBER = 124,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DECEMBER", Value=125)]
+      DECEMBER = 125,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"LITERAL", Value=137)]
+      LITERAL = 137
     }
   
     private global::ProtoBuf.IExtension extensionObject;
