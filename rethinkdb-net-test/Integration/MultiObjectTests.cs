@@ -76,12 +76,11 @@ namespace RethinkDb.Test.Integration
                 objects.Add(enumerable.Current);
                 ++count;
             }
-            Assert.That(count, Is.EqualTo(3));
-            Assert.That(objects, Has.Count.EqualTo(3));
+            Assert.That(count, Is.EqualTo(2));
+            Assert.That(objects, Has.Count.EqualTo(2));
 
             Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "2" }));
             Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "3" }));
-            Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "4" }));
         }
 
         [Test]
@@ -102,13 +101,12 @@ namespace RethinkDb.Test.Integration
                 objects.Add(enumerable.Current);
                 ++count;
             }
-            Assert.That(count, Is.EqualTo(4));
-            Assert.That(objects, Has.Count.EqualTo(4));
+            Assert.That(count, Is.EqualTo(3));
+            Assert.That(objects, Has.Count.EqualTo(3));
 
             Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "1" }));
             Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "2" }));
             Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "3" }));
-            Assert.That(objects, Has.Exactly(1).EqualTo(new TestObject() { Id = "4" }));
         }
         
         [Test]
@@ -122,7 +120,7 @@ namespace RethinkDb.Test.Integration
             var resp = await connection.RunAsync(testTable.Between(null, "4").Delete());
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
-            Assert.That(resp.Deleted, Is.EqualTo(4));
+            Assert.That(resp.Deleted, Is.EqualTo(3));
         }
 
         [Test]
@@ -166,7 +164,7 @@ namespace RethinkDb.Test.Integration
             var resp = await connection.RunAsync(testTable.Between(null, "4").Update(o => new TestObject() { Name = "Hello " + o.Id + "!" }));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
-            Assert.That(resp.Replaced, Is.EqualTo(4));
+            Assert.That(resp.Replaced, Is.EqualTo(3));
         }
 
         [Test]
@@ -190,7 +188,7 @@ namespace RethinkDb.Test.Integration
         private async Task DoBetweenCount()
         {
             var resp = await connection.RunAsync(testTable.Between(null, "4").Count());
-            Assert.That(resp, Is.EqualTo(4));
+            Assert.That(resp, Is.EqualTo(3));
         }
 
         private async Task DoFilterExpectedObjects(Expression<Func<TestObject, bool>> expr, params string[] expectedIds)
@@ -475,7 +473,7 @@ namespace RethinkDb.Test.Integration
                 ++count;
                 Assert.That(enumerable.Current.SomeNumber, Is.EqualTo(count + 1));
             }
-            Assert.That(count, Is.EqualTo(2));
+            Assert.That(count, Is.EqualTo(1));
         }
 
         [Test]
@@ -546,10 +544,9 @@ namespace RethinkDb.Test.Integration
         public void BetweenIndex()
         {
             TestObject[] between = connection.Run(testTable.Between("3", "5", "index1")).ToArray();
-            Assert.That(between.Length, Is.EqualTo(3));
+            Assert.That(between.Length, Is.EqualTo(2));
             Assert.That(between.Single(o => o.Name == "3"), Is.Not.Null);
             Assert.That(between.Single(o => o.Name == "4"), Is.Not.Null);
-            Assert.That(between.Single(o => o.Name == "5"), Is.Not.Null);
         }
 
         [Test]
