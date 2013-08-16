@@ -46,7 +46,7 @@ namespace RethinkDb.QueryTerm
             {
                 var key = property.Property.Name;
                 var value = GetMemberName(newExpression.Arguments[property.Index], datumConverterFactory);
-                if (key != value.r_str)
+                if (!String.Equals(key, value.r_str, StringComparison.InvariantCultureIgnoreCase))
                     throw new Exception(String.Format("Anonymous type property name ({0}) must equal the member name ({1})", key, value.r_str));
                 propertyTerm.args.Add(new Term() {
                     type = Term.TermType.DATUM,

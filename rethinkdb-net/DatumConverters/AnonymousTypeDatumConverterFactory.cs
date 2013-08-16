@@ -93,7 +93,7 @@ namespace RethinkDb
 
                     foreach (var assocPair in datum.r_object)
                     {
-                        var property = properties.Where(pi => pi.Name == assocPair.key).SingleOrDefault();
+                        var property = properties.Where(pi => String.Equals(pi.Name, assocPair.key, StringComparison.InvariantCultureIgnoreCase)).SingleOrDefault();
                         if (property == null)
                             throw new InvalidOperationException("Unexpected key/value pair in anonymous-type object: " + assocPair.key);
                         constructorParameters[property.Index] = ReflectedConversionFromDatum(assocPair.val, property.DatumConverter);

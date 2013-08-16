@@ -204,12 +204,12 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupByAvg()
         {
-            var query = testTable.GroupBy(Query.Avg<TestObject>(to => to.SomeNumber), to => new { name = to.Name });
+            var query = testTable.GroupBy(Query.Avg<TestObject>(to => to.SomeNumber), to => new { Name = to.Name });
 
             int count = 0;
             foreach (var record in connection.Run(query))
             {
-                var groupName = record.Item1.name;
+                var groupName = record.Item1.Name;
                 var reduceSum = record.Item2;
 
                 switch (groupName)

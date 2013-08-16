@@ -8,9 +8,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DAD64B79-3A83-4443-B343-007BF749AD8C}"
 	ProjectSection(SolutionItems) = preProject
 		build.sh = build.sh
-		LICENSE = LICENSE
 		README.md = README.md
 		rethinkdb-net.nuspec = rethinkdb-net.nuspec
+		LICENSE.txt = LICENSE.txt
 	EndProjectSection
 EndProject
 Global
