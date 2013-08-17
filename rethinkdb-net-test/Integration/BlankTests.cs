@@ -164,6 +164,14 @@ namespace RethinkDb.Test.Integration
             await connection.RunAsync(Query.Expr(false));
             connection.Run(Query.Expr(false));
         }
+
+        [Test]
+        public void Now()
+        {
+            var now = connection.Run(Query.Now());
+            Assert.That(now, Is.GreaterThan(DateTimeOffset.UtcNow.AddSeconds(-10)));
+            Assert.That(now, Is.LessThan(DateTimeOffset.UtcNow.AddSeconds(10)));
+        }
     }
 }
 

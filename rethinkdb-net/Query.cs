@@ -304,5 +304,10 @@ namespace RethinkDb
         {
             return new AvgReduction<TObject>(numericMemberReference);
         }
+
+        public static NowQuery Now()
+        {
+            return new NowQuery();
+        }
     }
 }
