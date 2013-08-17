@@ -23,6 +23,9 @@
 
 * Added support for 'leftBound' and 'rightBound' parameters to Query.Between.
 
+* Converted DateTime and DateTimeOffset datum converters to use RethinkDB 1.8's new pseudotype format for TIME.
+
+* Added support for Query.Now() to retrieve server-side time.
 
 
 ### Bugfixes
