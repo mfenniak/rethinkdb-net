@@ -2,9 +2,33 @@
 
 ## Next Release
 
+### Features
+
+* Upgrade RethinkDB support to version 1.8.
+
+* GroupBy() changed to take an anonymous type as the grouping key, rather than multiple expressions referencing data contract members.  For example:
+
+        Query.GroupBy(
+            Query.Avg<Person>(p => p.IQ),
+            p => p.Country,
+            p => p.Province
+        )
+    
+    becomes
+    
+        Query.GroupBy(
+            Query.Avg<Person>(p => p.IQ),
+            p => new { Country = p.Country, Province = p.Province }
+        )
+
+* Added support for 'leftBound' and 'rightBound' parameters to Query.Between.
+
+
+
 ### Bugfixes
 
 * Fixed performance issue w/ multithreaded shared connections, which would also cause deadlock in mixed async&sync code.  Thanks to @AshD for reporting the issue.  [PR #112](https://github.com/mfenniak/rethinkdb-net/pull/112)
+
 
 
 ## 0.2.0.0
