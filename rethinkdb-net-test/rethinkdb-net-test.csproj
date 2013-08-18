@@ -87,6 +87,9 @@
     <Compile Include="QueryTests\UpdateQueryTests.cs" />
     <Compile Include="QueryTests\ReplaceQueryTests.cs" />
     <Compile Include="DatumConverters\UriDatumConverterTests.cs" />
+    <Compile Include="Integration\Documentation\TenMinuteGuide.cs" />
+    <Compile Include="Integration\Documentation\Author.cs" />
+    <Compile Include="Integration\Documentation\Post.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -110,5 +113,6 @@
     <Folder Include="DatumConverters\" />
     <Folder Include="Integration\" />
     <Folder Include="QueryTests\" />
+    <Folder Include="Integration\Documentation\" />
   </ItemGroup>
 </Project>
