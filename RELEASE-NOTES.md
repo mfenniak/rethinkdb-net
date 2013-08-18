@@ -1,10 +1,10 @@
 # rethinkdb-net Release Notes
 
-## Next Release
+## 0.3.1.0
 
 ### Features
 
-* Upgrade RethinkDB support to version 1.8. [Issue #119](https://github.com/mfenniak/rethinkdb-net/issues/119)
+* Upgrade to support RethinkDB version 1.8. [Issue #119](https://github.com/mfenniak/rethinkdb-net/issues/119)
 
 * GroupBy() changed to take an anonymous type as the grouping key, rather than multiple expressions referencing data contract members.  For example:
 
@@ -33,7 +33,6 @@
 ### Bugfixes
 
 * Fixed performance issue w/ multithreaded shared connections, which would also cause deadlock in mixed async&sync code.  Thanks to @AshD for reporting the issue.  [PR #112](https://github.com/mfenniak/rethinkdb-net/pull/112)
-
 
 
 ## 0.2.0.0
