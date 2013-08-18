@@ -13,7 +13,7 @@ Currently this driver is capable of the following things:
     await connection.ConnectAsync();      
     ```
 
-  * All of the RethinkDB queries, joins, transformations, aggregations, and reductions:
+  * A decent number of RethinkDB's queries, joins, transformations, aggregations, and reductions:
 
     * DbList
     * DbCreate
