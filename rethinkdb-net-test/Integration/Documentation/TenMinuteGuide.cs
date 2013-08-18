@@ -78,8 +78,6 @@ namespace RethinkDb.Test.Integration.Documentation
                 }
                 Assert.That(count, Is.EqualTo(1));
 
-                // Issue #82
-                /*
                 count = 0;
                 foreach (var rec in connection.Run(table.Filter(r => r.Posts.Length > 2)))
                 {
@@ -87,7 +85,6 @@ namespace RethinkDb.Test.Integration.Documentation
                     ++count;
                 }
                 Assert.That(count, Is.EqualTo(1));
-                */
             }
 
             // Retrieve documents by primary key
@@ -122,11 +119,8 @@ namespace RethinkDb.Test.Integration.Documentation
 
             // Delete documents
             {
-                // Issue #82
-                /*
                 var res = connection.Run(table.Filter(r => r.Posts.Length < 3).Delete());
                 Assert.That(res.Deleted, Is.EqualTo(2));
-                */
             }
         }
     }

@@ -315,6 +315,12 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void FilterArrayLength()
+        {
+            DoFilterExpectedObjects(o => o.Children.Length > 0, new string[] { "1", "3", "5", "7" }).Wait();
+        }
+
+        [Test]
         public void Map()
         {
             DoMap().Wait();

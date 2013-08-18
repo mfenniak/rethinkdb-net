@@ -410,6 +410,8 @@ namespace RethinkDb.QueryTerm
                     return ConvertBinaryExpressionToTerm(recursiveMap, (BinaryExpression)expr, Term.TermType.NE);
                 case ExpressionType.Not:
                     return ConvertUnaryExpressionToTerm(recursiveMap, (UnaryExpression)expr, Term.TermType.NOT);
+                case ExpressionType.ArrayLength:
+                    return ConvertUnaryExpressionToTerm(recursiveMap, (UnaryExpression)expr, Term.TermType.COUNT);
 
                 case ExpressionType.New:
                 {
