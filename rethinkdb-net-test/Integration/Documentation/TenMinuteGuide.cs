@@ -4,6 +4,7 @@ using NUnit.Framework;
 
 namespace RethinkDb.Test.Integration.Documentation
 {
+    // C# implementation of queries documented in http://www.rethinkdb.com/docs/guide/python/
     [TestFixture]
     public class TenMinuteGuide : TestBase
     {

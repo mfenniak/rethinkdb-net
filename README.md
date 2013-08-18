@@ -71,6 +71,8 @@ Currently this driver is capable of the following things:
 
   * Support for serialized object types with the provided DataContract-based datum converter classes (all .NET primitives supported)
 
+For examples of usage, you can look at the unit tests in https://github.com/mfenniak/rethinkdb-net/tree/master/rethinkdb-net-test/Integration/Documentation.  These tests are C# versions of the code snippets from RethinkDB's official documentation.
+
 Currently this driver is lacking in the following areas:
 
   * Does not support schema-free / free-format objects.  Although the object conversion routines are interfaced out so that they can be replaced with something different as required, the first goal is to provide a client that works well in a native C# environment, and that implies type safety and structure.
