@@ -129,6 +129,7 @@
     <Compile Include="DatumConverters\NullableDatumConverterFactory.cs" />
     <Compile Include="Bound.cs" />
     <Compile Include="QueryTerm\NowQuery.cs" />
+    <Compile Include="DatumConverters\UriDatumConverterFactory.cs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

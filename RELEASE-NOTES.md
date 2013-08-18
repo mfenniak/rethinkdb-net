@@ -4,7 +4,7 @@
 
 ### Features
 
-* Upgrade RethinkDB support to version 1.8.
+* Upgrade RethinkDB support to version 1.8. [Issue #119](https://github.com/mfenniak/rethinkdb-net/issues/119)
 
 * GroupBy() changed to take an anonymous type as the grouping key, rather than multiple expressions referencing data contract members.  For example:
 
@@ -21,11 +21,13 @@
             p => new { Country = p.Country, Province = p.Province }
         )
 
-* Added support for 'leftBound' and 'rightBound' parameters to Query.Between.
+* Added support for 'leftBound' and 'rightBound' parameters to Query.Between. [Issue #118](https://github.com/mfenniak/rethinkdb-net/issues/118)
 
 * Converted DateTime and DateTimeOffset datum converters to use RethinkDB 1.8's new pseudotype format for TIME.
 
 * Added support for Query.Now() to retrieve server-side time.
+
+* Added support for serializing System.Uri objects. [Issue #86](https://github.com/mfenniak/rethinkdb-net/issues/86)
 
 
 ### Bugfixes

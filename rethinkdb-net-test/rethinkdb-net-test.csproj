@@ -86,6 +86,7 @@
     <Compile Include="Integration\AnotherTestObject.cs" />
     <Compile Include="QueryTests\UpdateQueryTests.cs" />
     <Compile Include="QueryTests\ReplaceQueryTests.cs" />
+    <Compile Include="DatumConverters\UriDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

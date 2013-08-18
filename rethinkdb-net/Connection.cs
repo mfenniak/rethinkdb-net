@@ -33,6 +33,7 @@ namespace RethinkDb
                 DateTimeDatumConverterFactory.Instance,
                 DateTimeOffsetDatumConverterFactory.Instance,
                 GuidDatumConverterFactory.Instance,
+                UriDatumConverterFactory.Instance,
                 TupleDatumConverterFactory.Instance,
                 ArrayDatumConverterFactory.Instance,
                 AnonymousTypeDatumConverterFactory.Instance,
