@@ -103,18 +103,14 @@ namespace RethinkDb.Test.Integration.Documentation
                 Assert.That(res.Replaced, Is.EqualTo(1));
 
                 // Issue #108
-                /*
                 res = connection.Run(
                     table
                     .Filter(r => r.Name == "Jean-Luc Picard")
                     .Update(r => new Author() {
-                        // Different API options for the append operation...
                         Posts = r.Posts.Append(new Post { Title = "Shakespear", Content = "What a piece of work is man..." })
-                        //Posts = Query.Append(r.Posts, new Post { Title = "Shakespear", Content = "What a piece of work is man..." })
                     })
                 );
                 Assert.That(res.Replaced, Is.EqualTo(1));
-                */
             }
 
             // Delete documents

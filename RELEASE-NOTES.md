@@ -6,6 +6,8 @@
 
 * Support using array Length properties in expressions.  Similar to [Issue #82](https://github.com/mfenniak/rethinkdb-net/issues/82), but not for any IEnumerable yet.
 
+* Support for appending to arrays with Query.Update, part of [Issue #108](https://github.com/mfenniak/rethinkdb-net/issues/108), and finishes support for the TenMinuteGuide test case.
+
 
 ## 0.3.1.0
 
