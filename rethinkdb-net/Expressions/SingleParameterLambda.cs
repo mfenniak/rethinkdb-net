@@ -110,8 +110,8 @@ namespace RethinkDb.Expressions
                 {
                     var memberExpr = (MemberExpression)expr;
 
-                    if (memberExpr.Expression.NodeType != ExpressionType.Parameter)
-                        throw new NotSupportedException("Unrecognized member access pattern");
+                    if (memberExpr.Expression == null || memberExpr.Expression.NodeType != ExpressionType.Parameter)
+                        return SimpleMap(datumConverterFactory, expr);
 
                     var getAttrTerm = new Term() {
                         type = Term.TermType.GET_FIELD
