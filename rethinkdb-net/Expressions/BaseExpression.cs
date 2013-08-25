@@ -107,7 +107,7 @@ namespace RethinkDb.Expressions
                     var callExpression = (MethodCallExpression)expr;
                     var method = callExpression.Method;
 
-                    if (method.GetGenericMethodDefinition() == typeof(ReQLExpression).GetMethod("Append", BindingFlags.Static | BindingFlags.Public))
+                    if (method.IsGenericMethod && method.GetGenericMethodDefinition() == typeof(ReQLExpression).GetMethod("Append", BindingFlags.Static | BindingFlags.Public))
                     {
                         var target = callExpression.Arguments[0];
 
@@ -143,21 +143,26 @@ namespace RethinkDb.Expressions
                         return term;
                     }
                     else
-                        throw new NotSupportedException(String.Format("Expected ReQLExpression method call, but was {0}", method));
+                    {
+                        return AttemptClientSideConversion(datumConverterFactory, expr);
+                    }
                 }
 
                 default:
-                {
-                    var conversionMethod = typeof(BaseExpression).GetMethod("ReflectedExpressionClientSideConversion", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-                    conversionMethod = conversionMethod.MakeGenericMethod(new Type[] { expr.Type });
-
-                    var datum = (Datum)conversionMethod.Invoke(null, new object[] { datumConverterFactory, expr });
-                    return new Term() {
-                        type = Term.TermType.DATUM,
-                        datum = datum
-                    };
-                }
+                    return AttemptClientSideConversion(datumConverterFactory, expr);
             }
+        }
+
+        private Term AttemptClientSideConversion(IDatumConverterFactory datumConverterFactory, Expression expr)
+        {
+            var conversionMethod = typeof(BaseExpression).GetMethod("ReflectedExpressionClientSideConversion", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            conversionMethod = conversionMethod.MakeGenericMethod(new Type[] { expr.Type });
+
+            var datum = (Datum)conversionMethod.Invoke(null, new object[] { datumConverterFactory, expr });
+            return new Term() {
+                type = Term.TermType.DATUM,
+                datum = datum
+            };
         }
 
         private static Datum ReflectedConstantConversion<TInnerType>(IDatumConverterFactory datumFactory, TInnerType obj)
@@ -168,9 +173,16 @@ namespace RethinkDb.Expressions
 
         private static Datum ReflectedExpressionClientSideConversion<TInnerType>(IDatumConverterFactory datumFactory, Expression expr)
         {
-            var converter = datumFactory.Get<TInnerType>();
-            var clientSideFunc = Expression.Lambda<Func<TInnerType>>(expr).Compile();
-            return converter.ConvertObject(clientSideFunc());
+            try
+            {
+                var converter = datumFactory.Get<TInnerType>();
+                var clientSideFunc = Expression.Lambda<Func<TInnerType>>(expr).Compile();
+                return converter.ConvertObject(clientSideFunc());
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new InvalidOperationException("Failed to perform client-side evaluation of expression tree node; often this is caused by refering to a server-side variable in a node that is only supported w/ client-side evaluation", ex);
+            }
         }
 
         #endregion

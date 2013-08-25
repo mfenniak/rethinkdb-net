@@ -189,6 +189,32 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void UpdateClientSideEval()
+        {
+            var rand = new Random();
+            var resp = connection.Run(testTable.Update(o => new TestObject() { SomeNumber = rand.NextDouble() }));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.FirstError, Is.Null);
+            // "Replaced" seems weird here, rather than Updated, but that's what RethinkDB returns in the Data Explorer too...
+            Assert.That(resp.Replaced, Is.EqualTo(7));
+
+            // Verify that every record has the SAME value for SomeNumber, because rand.NextDouble() was evaluated client-side.
+            double value = 0;
+            bool first = true;
+            foreach (var record in connection.Run(testTable))
+            {
+                if (first)
+                {
+                    value = record.SomeNumber;
+                    first = false;
+                }
+                else
+                    Assert.That(record.SomeNumber, Is.EqualTo(value));
+            }
+            Assert.That(first, Is.False);
+        }
+
+        [Test]
         public void RecordReferencingUpdate()
         {
             DoRecordReferencingUpdate().Wait();
