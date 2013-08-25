@@ -320,6 +320,49 @@ namespace RethinkDb.Test.Integration
             DoFilterExpectedObjects(o => o.Children.Length > 0, new string[] { "1", "3", "5", "7" }).Wait();
         }
 
+        private const string strValConst = "2";
+        private static string strValStaticField = "2";
+        private static string strValStaticProperty { get { return "2"; } }
+        private string strValInstanceField = "2";
+        private string strValInstanceProperty { get { return "2"; } }
+
+        [Test]
+        public void ParamExprVariableReferences()
+        {
+            string strVal = "2";
+            DoFilterExpectedObjects(o => o.Name == strVal, "2").Wait();
+        }
+
+        [Test]
+        public void ParamExprConstReferences()
+        {
+            DoFilterExpectedObjects(o => o.Name == strValConst, "2").Wait();
+        }
+
+        [Test]
+        public void ParamExprStaticFieldReferences()
+        {
+            DoFilterExpectedObjects(o => o.Name == strValStaticField, "2").Wait();
+        }
+
+        [Test]
+        public void ParamExprStaticPropertyReferences()
+        {
+            DoFilterExpectedObjects(o => o.Name == strValStaticProperty, "2").Wait();
+        }
+
+        [Test]
+        public void ParamExprInstanceFieldReferences()
+        {
+            DoFilterExpectedObjects(o => o.Name == strValInstanceField, "2").Wait();
+        }
+
+        [Test]
+        public void ParamExprInstancePropertyReferences()
+        {
+            DoFilterExpectedObjects(o => o.Name == strValInstanceProperty, "2").Wait();
+        }
+
         [Test]
         public void Map()
         {

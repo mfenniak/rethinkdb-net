@@ -151,6 +151,75 @@ namespace RethinkDb.Test.Integration
             Assert.That(connection.Run(Query.Expr("a")), Is.EqualTo("a"));
         }
 
+        private const bool boolValConst = true;
+        private const int intValConst = 0;
+        private const string strValConst = "Hello";
+        private static bool boolValStaticField = true;
+        private static int intValStaticField = 0;
+        private static string strValStaticField = "Hello";
+        private static bool boolValStaticProperty { get { return true; } }
+        private static int intValStaticProperty { get { return 0; } }
+        private static string strValStaticProperty { get { return "Hello"; } }
+        private bool boolValInstanceField = true;
+        private int intValInstanceField = 0;
+        private string strValInstanceField = "Hello";
+        private bool boolValInstanceProperty { get { return true; } }
+        private int intValInstanceProperty { get { return 0; } }
+        private string strValInstanceProperty { get { return "Hello"; } }
+
+        [Test]
+        public void ExprVariableReferences()
+        {
+            bool boolVal = true;
+            Assert.That(connection.Run(Query.Expr(() => boolVal)), Is.True);
+
+            int intVal = 0;
+            Assert.That(connection.Run(Query.Expr(() => intVal)), Is.EqualTo(0));
+
+            string strVal = "Hello";
+            Assert.That(connection.Run(Query.Expr(() => strVal)), Is.EqualTo("Hello"));
+        }
+
+        [Test]
+        public void ExprConstReferences()
+        {
+            Assert.That(connection.Run(Query.Expr(() => boolValConst)), Is.True);
+            Assert.That(connection.Run(Query.Expr(() => intValConst)), Is.EqualTo(0));
+            Assert.That(connection.Run(Query.Expr(() => strValConst)), Is.EqualTo("Hello"));
+        }
+
+        [Test]
+        public void ExprStaticFieldReferences()
+        {
+            Assert.That(connection.Run(Query.Expr(() => boolValStaticField)), Is.True);
+            Assert.That(connection.Run(Query.Expr(() => intValStaticField)), Is.EqualTo(0));
+            Assert.That(connection.Run(Query.Expr(() => strValStaticField)), Is.EqualTo("Hello"));
+        }
+
+        [Test]
+        public void ExprStaticPropertyReferences()
+        {
+            Assert.That(connection.Run(Query.Expr(() => boolValStaticProperty)), Is.True);
+            Assert.That(connection.Run(Query.Expr(() => intValStaticProperty)), Is.EqualTo(0));
+            Assert.That(connection.Run(Query.Expr(() => strValStaticProperty)), Is.EqualTo("Hello"));
+        }
+
+        [Test]
+        public void ExprInstanceFieldReferences()
+        {
+            Assert.That(connection.Run(Query.Expr(() => boolValInstanceField)), Is.True);
+            Assert.That(connection.Run(Query.Expr(() => intValInstanceField)), Is.EqualTo(0));
+            Assert.That(connection.Run(Query.Expr(() => strValInstanceField)), Is.EqualTo("Hello"));
+        }
+
+        [Test]
+        public void ExprInstancePropertyReferences()
+        {
+            Assert.That(connection.Run(Query.Expr(() => boolValInstanceProperty)), Is.True);
+            Assert.That(connection.Run(Query.Expr(() => intValInstanceProperty)), Is.EqualTo(0));
+            Assert.That(connection.Run(Query.Expr(() => strValInstanceProperty)), Is.EqualTo("Hello"));
+        }
+
         // Unit test for async/sync deadlock, mfenniak/rethinkdb-net#112.
         [Test]
         [Timeout(1000)]
