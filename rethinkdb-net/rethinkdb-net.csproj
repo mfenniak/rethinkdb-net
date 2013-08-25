@@ -133,6 +133,8 @@
     <Compile Include="ReQLExpression.cs" />
     <Compile Include="Expressions\SingleParameterLambda.cs" />
     <Compile Include="Expressions\BaseExpression.cs" />
+    <Compile Include="Expressions\ZeroParameterLambda.cs" />
+    <Compile Include="Expressions\TwoParameterLambda.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
