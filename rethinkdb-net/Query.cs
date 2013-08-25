@@ -35,7 +35,7 @@ namespace RethinkDb
     }
 
     [ImmutableObject(true)]
-    public interface IWriteQuery<T> : IQuery
+    public interface IWriteQuery<TWriteType, TResponseType> : IQuery
     {
     }
 
@@ -101,6 +101,16 @@ namespace RethinkDb
         public static UpdateQuery<T> Update<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
         {
             return new UpdateQuery<T>(target, updateExpression, nonAtomic);
+        }
+
+        public static UpdateAndReturnValuesQuery<T> UpdateAndReturnValues<T>(this ISequenceQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
+        {
+            return new UpdateAndReturnValuesQuery<T>(target, updateExpression, nonAtomic);
+        }
+
+        public static UpdateAndReturnValuesQuery<T> UpdateAndReturnValues<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
+        {
+            return new UpdateAndReturnValuesQuery<T>(target, updateExpression, nonAtomic);
         }
 
         public static DeleteQuery<T> Delete<T>(this ISequenceQuery<T> target)

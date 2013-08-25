@@ -78,6 +78,21 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void UpdateAndReturnValues()
+        {
+            var resp = connection.Run(testTable.Get(insertedObject.Id).UpdateAndReturnValues(o => new TestObject() { Name = "Hello " + o.Id + "!" }));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.FirstError, Is.Null);
+            Assert.That(resp.Replaced, Is.EqualTo(1));
+
+            Assert.That(resp.NewValue, Is.Not.Null);
+            Assert.That(resp.OldValue, Is.Not.Null);
+
+            Assert.That(resp.OldValue.Name, Is.EqualTo("Jim Brown"));
+            Assert.That(resp.NewValue.Name, Is.EqualTo("Hello " + resp.OldValue.Id + "!"));
+        }
+
+        [Test]
         public void Delete()
         {
             DoDelete().Wait();

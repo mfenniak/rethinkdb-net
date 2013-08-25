@@ -3,7 +3,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
-    public class InsertQuery<T> : IWriteQuery<T>
+    public class InsertQuery<T> : IWriteQuery<T, DmlResponse>
     {
         private readonly TableQuery<T> tableTerm;
         private readonly IEnumerable<T> objects;

@@ -45,9 +45,9 @@ namespace RethinkDb
 
         Task<DmlResponse> RunAsync(IDmlQuery queryObject);
 
-        Task<DmlResponse> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IWriteQuery<T> queryObject);
+        Task<TResponseType> RunAsync<TWriteType, TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TWriteType, TResponseType> queryObject);
 
-        Task<DmlResponse> RunAsync<T>(IWriteQuery<T> queryObject);
+        Task<TResponseType> RunAsync<TWriteType, TResponseType>(IWriteQuery<TWriteType, TResponseType> queryObject);
 
         #endregion
         #region Synchronous API
@@ -66,9 +66,9 @@ namespace RethinkDb
 
         DmlResponse Run(IDmlQuery queryObject);
 
-        DmlResponse Run<T>(IDatumConverterFactory datumConverterFactory, IWriteQuery<T> queryObject);
+        TResponseType Run<TWriteType, TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TWriteType, TResponseType> queryObject);
 
-        DmlResponse Run<T>(IWriteQuery<T> queryObject);
+        TResponseType Run<TWriteType, TResponseType>(IWriteQuery<TWriteType, TResponseType> queryObject);
 
         #endregion
     }

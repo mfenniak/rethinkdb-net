@@ -419,7 +419,7 @@ namespace RethinkDb
             return RunAsync(DatumConverterFactory, queryObject);
         }
 
-        public async Task<DmlResponse> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IWriteQuery<T> queryObject)
+        public async Task<TResponseType> RunAsync<TWriteType, TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TWriteType, TResponseType> queryObject)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
@@ -434,7 +434,7 @@ namespace RethinkDb
                 case Response.ResponseType.SUCCESS_ATOM:
                     if (response.response.Count != 1)
                         throw new RethinkDbRuntimeException(String.Format("Expected 1 object, received {0}", response.response.Count));
-                    return datumConverterFactory.Get<DmlResponse>().ConvertDatum(response.response[0]);
+                    return datumConverterFactory.Get<TResponseType>().ConvertDatum(response.response[0]);
                 case Response.ResponseType.CLIENT_ERROR:
                 case Response.ResponseType.COMPILE_ERROR:
                     throw new RethinkDbInternalErrorException("Client error: " + response.response[0].r_str);
@@ -445,7 +445,7 @@ namespace RethinkDb
             }
         }
 
-        public Task<DmlResponse> RunAsync<T>(IWriteQuery<T> queryObject)
+        public Task<TResponseType> RunAsync<TWriteType, TResponseType>(IWriteQuery<TWriteType, TResponseType> queryObject)
         {
             return RunAsync(DatumConverterFactory, queryObject);
         }
@@ -679,12 +679,12 @@ namespace RethinkDb
             return RunAsync(queryObject).Result;
         }
 
-        public DmlResponse Run<T>(IDatumConverterFactory datumConverterFactory, IWriteQuery<T> queryObject)
+        public TResponseType Run<TWriteType, TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TWriteType, TResponseType> queryObject)
         {
             return RunAsync(datumConverterFactory, queryObject).Result;
         }
 
-        public DmlResponse Run<T>(IWriteQuery<T> queryObject)
+        public TResponseType Run<TWriteType, TResponseType>(IWriteQuery<TWriteType, TResponseType> queryObject)
         {
             return RunAsync(queryObject).Result;
         }

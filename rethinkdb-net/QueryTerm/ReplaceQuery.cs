@@ -2,7 +2,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
-    public class ReplaceQuery<T> : IWriteQuery<T>
+    public class ReplaceQuery<T> : IWriteQuery<T, DmlResponse>
     {
         private readonly IMutableSingleObjectQuery<T> getTerm;
         private readonly T newObject;

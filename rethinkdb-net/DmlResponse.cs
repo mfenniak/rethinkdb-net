@@ -35,5 +35,15 @@ namespace RethinkDb
         [DataMember(Name = "generated_keys")]
         public string[] GeneratedKeys;
     }
+
+    [DataContract]
+    public class DmlResponse<T> : DmlResponse
+    {
+        [DataMember(Name = "old_val")]
+        public T OldValue;
+
+        [DataMember(Name = "new_val")]
+        public T NewValue;
+    }
 }
 
