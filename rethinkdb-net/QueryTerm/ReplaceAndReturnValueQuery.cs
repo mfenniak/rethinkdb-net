@@ -2,10 +2,10 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
-    public class DeleteAndReturnValuesQuery<T> : DeleteQueryBase<T>, ISingleObjectQuery<DmlResponse<T>>
+    public class ReplaceAndReturnValueQuery<T> : ReplaceQueryBase<T>, IWriteQuery<DmlResponse<T>>
     {
-        public DeleteAndReturnValuesQuery(IMutableSingleObjectQuery<T> getTerm)
-            : base(getTerm)
+        public ReplaceAndReturnValueQuery(IMutableSingleObjectQuery<T> getTerm, T newObject, bool nonAtomic)
+            : base(getTerm, newObject, nonAtomic)
         {
         }
 

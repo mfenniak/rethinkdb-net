@@ -41,13 +41,9 @@ namespace RethinkDb
 
         IAsyncEnumerator<T> RunAsync<T>(ISequenceQuery<T> queryObject);
 
-        Task<DmlResponse> RunAsync(IDatumConverterFactory datumConverterFactory, IDmlQuery queryObject);
+        Task<TResponseType> RunAsync<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject);
 
-        Task<DmlResponse> RunAsync(IDmlQuery queryObject);
-
-        Task<TResponseType> RunAsync<TWriteType, TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TWriteType, TResponseType> queryObject);
-
-        Task<TResponseType> RunAsync<TWriteType, TResponseType>(IWriteQuery<TWriteType, TResponseType> queryObject);
+        Task<TResponseType> RunAsync<TResponseType>(IWriteQuery<TResponseType> queryObject);
 
         #endregion
         #region Synchronous API
@@ -62,13 +58,9 @@ namespace RethinkDb
 
         IEnumerable<T> Run<T>(ISequenceQuery<T> queryObject);
 
-        DmlResponse Run(IDatumConverterFactory datumConverterFactory, IDmlQuery queryObject);
+        TResponseType Run<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject);
 
-        DmlResponse Run(IDmlQuery queryObject);
-
-        TResponseType Run<TWriteType, TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TWriteType, TResponseType> queryObject);
-
-        TResponseType Run<TWriteType, TResponseType>(IWriteQuery<TWriteType, TResponseType> queryObject);
+        TResponseType Run<TResponseType>(IWriteQuery<TResponseType> queryObject);
 
         #endregion
     }

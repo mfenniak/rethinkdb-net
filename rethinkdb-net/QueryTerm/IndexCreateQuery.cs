@@ -4,7 +4,7 @@ using System;
 
 namespace RethinkDb.QueryTerm
 {
-    public class IndexCreateQuery<TTable, TIndexExpression> : IDmlQuery
+    public class IndexCreateQuery<TTable, TIndexExpression> : IWriteQuery<DmlResponse>
     {
         private readonly TableQuery<TTable> tableTerm;
         private readonly string indexName;

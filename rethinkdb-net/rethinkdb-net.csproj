@@ -136,9 +136,11 @@
     <Compile Include="Expressions\ZeroParameterLambda.cs" />
     <Compile Include="Expressions\TwoParameterLambda.cs" />
     <Compile Include="QueryTerm\UpdateQueryBase.cs" />
-    <Compile Include="QueryTerm\UpdateAndReturnValuesQuery.cs" />
     <Compile Include="QueryTerm\DeleteQueryBase.cs" />
-    <Compile Include="QueryTerm\DeleteAndReturnValuesQuery.cs" />
+    <Compile Include="QueryTerm\UpdateAndReturnValueQuery.cs" />
+    <Compile Include="QueryTerm\DeleteAndReturnValueQuery.cs" />
+    <Compile Include="QueryTerm\ReplaceAndReturnValueQuery.cs" />
+    <Compile Include="QueryTerm\ReplaceQueryBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

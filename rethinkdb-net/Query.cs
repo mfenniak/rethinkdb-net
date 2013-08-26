@@ -25,17 +25,12 @@ namespace RethinkDb
     }
 
     [ImmutableObject(true)]
-    public interface IDmlQuery : ISingleObjectQuery<DmlResponse>
-    {
-    }
-
-    [ImmutableObject(true)]
     public interface ISequenceQuery<T> : IQuery
     {
     }
 
     [ImmutableObject(true)]
-    public interface IWriteQuery<TWriteType, TResponseType> : IQuery
+    public interface IWriteQuery<TResponseType> : IQuery
     {
     }
 
@@ -103,9 +98,9 @@ namespace RethinkDb
             return new UpdateQuery<T>(target, updateExpression, nonAtomic);
         }
 
-        public static UpdateAndReturnValuesQuery<T> UpdateAndReturnValues<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
+        public static UpdateAndReturnValueQuery<T> UpdateAndReturnValue<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
         {
-            return new UpdateAndReturnValuesQuery<T>(target, updateExpression, nonAtomic);
+            return new UpdateAndReturnValueQuery<T>(target, updateExpression, nonAtomic);
         }
 
         public static DeleteQuery<T> Delete<T>(this ISequenceQuery<T> target)
@@ -118,14 +113,19 @@ namespace RethinkDb
             return new DeleteQuery<T>(target);
         }
 
-        public static DeleteAndReturnValuesQuery<T> DeleteAndReturnValues<T>(this IMutableSingleObjectQuery<T> target)
+        public static DeleteAndReturnValueQuery<T> DeleteAndReturnValue<T>(this IMutableSingleObjectQuery<T> target)
         {
-            return new DeleteAndReturnValuesQuery<T>(target);
+            return new DeleteAndReturnValueQuery<T>(target);
         }
 
         public static ReplaceQuery<T> Replace<T>(this IMutableSingleObjectQuery<T> target, T newObject, bool nonAtomic = false)
         {
             return new ReplaceQuery<T>(target, newObject, nonAtomic);
+        }
+
+        public static ReplaceAndReturnValueQuery<T> ReplaceAndReturnValue<T>(this IMutableSingleObjectQuery<T> target, T newObject, bool nonAtomic = false)
+        {
+            return new ReplaceAndReturnValueQuery<T>(target, newObject, nonAtomic);
         }
 
         public static BetweenQuery<TSequence, TKey> Between<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey leftKey, TKey rightKey, string indexName = null, Bound leftBound = Bound.Closed, Bound rightBound = Bound.Open)

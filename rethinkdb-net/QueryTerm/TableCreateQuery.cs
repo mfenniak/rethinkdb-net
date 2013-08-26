@@ -2,7 +2,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
-    public class TableCreateQuery : IDmlQuery
+    public class TableCreateQuery : IWriteQuery<DmlResponse>
     {
         private readonly DbQuery dbTerm;
         private readonly string table;

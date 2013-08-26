@@ -4,14 +4,9 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class UpdateAndReturnValuesQuery<T> : UpdateQueryBase<T>, IWriteQuery<T, DmlResponse<T>>
+    public class UpdateAndReturnValueQuery<T> : UpdateQueryBase<T>, IWriteQuery<DmlResponse<T>>
     {
-        public UpdateAndReturnValuesQuery(ISequenceQuery<T> tableTerm, Expression<Func<T, T>> updateExpression, bool nonAtomic)
-            : base(tableTerm, updateExpression, nonAtomic)
-        {
-        }
-
-        public UpdateAndReturnValuesQuery(IMutableSingleObjectQuery<T> singleObjectTerm, Expression<Func<T, T>> updateExpression, bool nonAtomic)
+        public UpdateAndReturnValueQuery(IMutableSingleObjectQuery<T> singleObjectTerm, Expression<Func<T, T>> updateExpression, bool nonAtomic)
             : base(singleObjectTerm, updateExpression, nonAtomic)
         {
         }

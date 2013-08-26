@@ -399,16 +399,6 @@ namespace RethinkDb
             return RunAsync<T>(DatumConverterFactory, queryObject);
         }
 
-        public Task<DmlResponse> RunAsync(IDatumConverterFactory datumConverterFactory, IDmlQuery queryObject)
-        {
-            return RunAsync<DmlResponse>(datumConverterFactory, queryObject);
-        }
-
-        public Task<DmlResponse> RunAsync(IDmlQuery queryObject)
-        {
-            return RunAsync(DatumConverterFactory, queryObject);
-        }
-
         public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
         {
             return new QueryEnumerator<T>(this, datumConverterFactory, queryObject);
@@ -419,7 +409,7 @@ namespace RethinkDb
             return RunAsync(DatumConverterFactory, queryObject);
         }
 
-        public async Task<TResponseType> RunAsync<TWriteType, TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TWriteType, TResponseType> queryObject)
+        public async Task<TResponseType> RunAsync<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
@@ -445,7 +435,7 @@ namespace RethinkDb
             }
         }
 
-        public Task<TResponseType> RunAsync<TWriteType, TResponseType>(IWriteQuery<TWriteType, TResponseType> queryObject)
+        public Task<TResponseType> RunAsync<TResponseType>(IWriteQuery<TResponseType> queryObject)
         {
             return RunAsync(DatumConverterFactory, queryObject);
         }
@@ -669,22 +659,12 @@ namespace RethinkDb
             return new AsyncEnumerableSynchronizer<T>(() => RunAsync(queryObject));
         }
 
-        public DmlResponse Run(IDatumConverterFactory datumConverterFactory, IDmlQuery queryObject)
+        public TResponseType Run<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
         {
             return RunAsync(datumConverterFactory, queryObject).Result;
         }
 
-        public DmlResponse Run(IDmlQuery queryObject)
-        {
-            return RunAsync(queryObject).Result;
-        }
-
-        public TResponseType Run<TWriteType, TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TWriteType, TResponseType> queryObject)
-        {
-            return RunAsync(datumConverterFactory, queryObject).Result;
-        }
-
-        public TResponseType Run<TWriteType, TResponseType>(IWriteQuery<TWriteType, TResponseType> queryObject)
+        public TResponseType Run<TResponseType>(IWriteQuery<TResponseType> queryObject)
         {
             return RunAsync(queryObject).Result;
         }

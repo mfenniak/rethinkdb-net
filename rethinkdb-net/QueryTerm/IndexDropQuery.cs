@@ -4,7 +4,7 @@ using System;
 
 namespace RethinkDb.QueryTerm
 {
-    public class IndexDropQuery<TTable> : IDmlQuery
+    public class IndexDropQuery<TTable> : IWriteQuery<DmlResponse>
     {
         private readonly TableQuery<TTable> tableTerm;
         private readonly string indexName;
