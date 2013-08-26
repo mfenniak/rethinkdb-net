@@ -118,6 +118,11 @@ namespace RethinkDb
             return new DeleteQuery<T>(target);
         }
 
+        public static DeleteAndReturnValuesQuery<T> DeleteAndReturnValues<T>(this IMutableSingleObjectQuery<T> target)
+        {
+            return new DeleteAndReturnValuesQuery<T>(target);
+        }
+
         public static ReplaceQuery<T> Replace<T>(this IMutableSingleObjectQuery<T> target, T newObject, bool nonAtomic = false)
         {
             return new ReplaceQuery<T>(target, newObject, nonAtomic);

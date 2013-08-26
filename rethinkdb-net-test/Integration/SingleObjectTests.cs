@@ -108,6 +108,19 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void DeleteAndReturnValues()
+        {
+            var resp = connection.Run(testTable.Get(insertedObject.Id).DeleteAndReturnValues());
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.FirstError, Is.Null);
+            Assert.That(resp.Deleted, Is.EqualTo(1));
+            Assert.That(resp.GeneratedKeys, Is.Null);
+            Assert.That(resp.OldValue, Is.Not.Null);
+            Assert.That(resp.OldValue.Id, Is.EqualTo(insertedObject.Id));
+            Assert.That(resp.NewValue, Is.Null);
+        }
+
+        [Test]
         public void GetUpdateNumericAdd()
         {
             DoGetUpdateNumeric(o => new TestObject() { SomeNumber = o.SomeNumber + 1 }, 1235).Wait();
