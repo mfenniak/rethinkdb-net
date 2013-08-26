@@ -78,7 +78,7 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
-        public void UpdateAndReturnValues()
+        public void UpdateAndReturnValuesSingleObjectQuery()
         {
             var resp = connection.Run(testTable.Get(insertedObject.Id).UpdateAndReturnValues(o => new TestObject() { Name = "Hello " + o.Id + "!" }));
             Assert.That(resp, Is.Not.Null);
