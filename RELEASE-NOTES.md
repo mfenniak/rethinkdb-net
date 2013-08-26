@@ -8,7 +8,7 @@
 
 * Support for appending to arrays with Query.Update, part of [Issue #108](https://github.com/mfenniak/rethinkdb-net/issues/108), and finishes support for the TenMinuteGuide test case.
 
-* New query operation, Query.UpdateAndReturnValues, will return the original and updated value during a single-row update operation using the ReQL return_vals flag.  [Issue #114](https://github.com/mfenniak/rethinkdb-net/issues/114)
+* New query operations to support the return_vals ReQL option (.UpdateAndReturnValue, .DeleteAndReturnValue, and .ReplaceAndReturnValue), will return the original and updated value during a record update/delete/replace operation.  [Issue #114](https://github.com/mfenniak/rethinkdb-net/issues/114)
 
 ### Bugfixes
 
