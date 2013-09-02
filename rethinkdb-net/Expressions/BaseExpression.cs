@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using RethinkDb.QueryTerm;
 using RethinkDb.Spec;
 using System;
 using System.Linq;
@@ -141,6 +143,49 @@ namespace RethinkDb.Expressions
                         }
 
                         return term;
+                    }
+                    else if (method.IsGenericMethod && method.GetGenericMethodDefinition() == typeof(ReQLExpression).GetMethod("Filter", BindingFlags.Public | BindingFlags.Static))
+                    {
+                        var target = callExpression.Arguments[0];
+                        var predicate = callExpression.Arguments[1];
+
+                        var term = RecursiveMap(target);
+
+                        var filterTerm = new Term()
+                        {
+                            type = Term.TermType.FILTER
+                        };
+                        
+                        filterTerm.args.Add(term);
+
+                        var arrayElementType = method.ReturnType.GetElementType();
+
+                        var createFunctionTermMethod = typeof (ExpressionUtils)
+                            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                            .Single(m => m.Name == "CreateFunctionTerm" && 
+                                         m.GetGenericArguments().Length == 2);
+                        
+                        createFunctionTermMethod = createFunctionTermMethod.MakeGenericMethod(arrayElementType, typeof (bool));
+
+                        var functionTerm = (Term) createFunctionTermMethod.Invoke(null, new object[] { datumConverterFactory, ((UnaryExpression) predicate).Operand });
+                        filterTerm.args.Add(functionTerm);
+
+                        return filterTerm;
+                    }
+                    else if (method.IsGenericMethod && 
+                             method.GetGenericMethodDefinition() == typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static).Single(m => m.Name == "Count" && m.GetParameters().Length == 1))
+                    {
+                        var target = callExpression.Arguments[0];
+
+                        var countTerm = new Term()
+                        {
+                            type = Term.TermType.COUNT,
+                        };
+
+                        var term = RecursiveMap(target);
+
+                        countTerm.args.Add(term);
+                        return countTerm;
                     }
                     else
                     {
