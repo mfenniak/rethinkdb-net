@@ -717,5 +717,17 @@ namespace RethinkDb.Test.Integration
             {
             }
         }
+
+        [Test]
+        public void FilterOnChildCollection()
+        {
+            DoFilterExpectedObjects(o => o.Children.Filter(c => c.Name == "C1").Length > 0, "1").Wait();
+        }
+
+        [Test]
+        public void CountOnChildCollection()
+        {
+            DoFilterExpectedObjects(o => o.Children.Count() == 1, "1", "3", "5", "7").Wait();
+        }
     }
 }
