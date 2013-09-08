@@ -25,9 +25,23 @@ namespace RethinkDb
             set;
         }
 
-        TimeSpan ConnectTimeout { get; set; }
+        TimeSpan ConnectTimeout
+        {
+            get;
+            set;
+        }
         
-        TimeSpan QueryTimeout { get; set; }
+        TimeSpan QueryTimeout
+        {
+            get;
+            set;
+        }
+
+        string AuthorizationKey
+        {
+            get;
+            set;
+        }
 
         #region Asynchronous API
 
