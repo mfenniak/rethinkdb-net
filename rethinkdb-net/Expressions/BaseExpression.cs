@@ -131,9 +131,7 @@ namespace RethinkDb.Expressions
                                 var memberInit = (MemberInitExpression)datumExpression;
 
                                 var recursiveMapMethod = typeof(BaseExpression).GetMethod("RecursiveMapMemberInit", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                                Console.WriteLine("recursiveMapMethod 1 = {0}", recursiveMapMethod);
                                 recursiveMapMethod = recursiveMapMethod.MakeGenericMethod(new Type[] { memberInit.Type });
-                                Console.WriteLine("recursiveMapMethod 2 = {0}", recursiveMapMethod);
                                 newTerm.args.Add((Term)recursiveMapMethod.Invoke(this, new object[] { memberInit }));
                             }
                             else

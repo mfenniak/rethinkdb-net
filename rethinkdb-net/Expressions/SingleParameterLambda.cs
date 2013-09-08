@@ -97,7 +97,6 @@ namespace RethinkDb.Expressions
 
         protected override Term RecursiveMapMemberInit<TInnerReturn>(Expression expression)
         {
-            Console.WriteLine("RecursiveMapMemberInit");
             var newConverter = new SingleParameterLambda<TParameter1, TInnerReturn>(datumConverterFactory);
             return newConverter.MapMemberInitToTerm((MemberInitExpression)expression);
         }
