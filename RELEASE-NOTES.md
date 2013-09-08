@@ -8,6 +8,8 @@
 
 * Support for appending to arrays with Query.Update, part of [Issue #108](https://github.com/mfenniak/rethinkdb-net/issues/108), and finishes support for the TenMinuteGuide test case.
 
+* Support for filter & count operations on enumerables w/ Query.Filter & Query.Count, part of [Issue #82](https://github.com/mfenniak/rethinkdb-net/issues/82); thanks John Weber (@jweber) for the patch.
+
 * New query operations to support the return_vals ReQL option (.UpdateAndReturnValue, .DeleteAndReturnValue, and .ReplaceAndReturnValue), will return the original and updated value during a record update/delete/replace operation.  [Issue #114](https://github.com/mfenniak/rethinkdb-net/issues/114)
 
 ### Bugfixes
