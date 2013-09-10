@@ -105,6 +105,23 @@ namespace RethinkDb.Expressions
         {
             switch (expr.NodeType)
             {
+                case ExpressionType.Parameter:
+                {
+                    return new Term()
+                    {
+                        type = Term.TermType.VAR,
+                        args = {
+                            new Term() {
+                                type = Term.TermType.DATUM,
+                                datum = new Datum() {
+                                    type = Datum.DatumType.R_NUM,
+                                    r_num = 2
+                                },
+                            }
+                        }
+                    };
+                }
+
                 case ExpressionType.MemberAccess:
                 {
                     var memberExpr = (MemberExpression)expr;
