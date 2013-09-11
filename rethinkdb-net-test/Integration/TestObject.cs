@@ -18,6 +18,9 @@ namespace RethinkDb.Test.Integration
         [DataMember(Name = "number")]
         public double SomeNumber;
 
+        [DataMember(Name = "tags")]
+        public string[] Tags;
+
         public override bool Equals(object obj)
         {
             var objTo = obj as TestObject;

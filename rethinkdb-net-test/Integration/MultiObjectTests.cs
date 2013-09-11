@@ -28,13 +28,13 @@ namespace RethinkDb.Test.Integration
         public virtual void SetUp()
         {
             connection.RunAsync(testTable.Insert(new TestObject[] {
-                new TestObject() { Id = "1", Name = "1", SomeNumber = 1, Children = new TestObject[] { new TestObject() { Name = "C1" } } },
-                new TestObject() { Id = "2", Name = "2", SomeNumber = 2, Children = new TestObject[] { } },
-                new TestObject() { Id = "3", Name = "3", SomeNumber = 3, Children = new TestObject[] { new TestObject() { Name = "C3" } }  },
-                new TestObject() { Id = "4", Name = "4", SomeNumber = 4, Children = new TestObject[] { } },
-                new TestObject() { Id = "5", Name = "5", SomeNumber = 5, Children = new TestObject[] { new TestObject() { Name = "C5" } }  },
-                new TestObject() { Id = "6", Name = "6", SomeNumber = 6, Children = new TestObject[] { } },
-                new TestObject() { Id = "7", Name = "7", SomeNumber = 7, Children = new TestObject[] { new TestObject() { Name = "C7" } }  },
+                new TestObject() { Id = "1", Name = "1", SomeNumber = 1, Tags = new[] { "odd" }, Children = new TestObject[] { new TestObject() { Name = "C1" } } },
+                new TestObject() { Id = "2", Name = "2", SomeNumber = 2, Tags = new[] { "even" }, Children = new TestObject[] { } },
+                new TestObject() { Id = "3", Name = "3", SomeNumber = 3, Tags = new[] { "odd" }, Children = new TestObject[] { new TestObject() { Name = "C3" } }  },
+                new TestObject() { Id = "4", Name = "4", SomeNumber = 4, Tags = new[] { "even" }, Children = new TestObject[] { } },
+                new TestObject() { Id = "5", Name = "5", SomeNumber = 5, Tags = new[] { "odd" }, Children = new TestObject[] { new TestObject() { Name = "C5" } }  },
+                new TestObject() { Id = "6", Name = "6", SomeNumber = 6, Tags = new[] { "even" }, Children = new TestObject[] { } },
+                new TestObject() { Id = "7", Name = "7", SomeNumber = 7, Tags = new[] { "odd" }, Children = new TestObject[] { new TestObject() { Name = "C7" } }  },
             })).Wait();
         }
 
@@ -645,6 +645,23 @@ namespace RethinkDb.Test.Integration
                 Assert.That(testObject.Name, Is.StringStarting("C"));
             }
             Assert.That(count, Is.EqualTo(4));
+        }
+
+        [Test, Description("Tests that the SingleParameterLambda class can map a Parameter Expression (tag => tag) to a Term")]
+        public void ConcatMap_OnSimpleDataType_CanUseParameterExpressionForQuery()
+        {
+            var query = testTable
+                .ConcatMap(to => to.Tags)
+                .GroupedMapReduce(
+                    tag => tag,
+                    tag => 1,
+                    (l, r) => l+r);
+
+            var enumerable = connection.Run(query);
+
+            Assert.That(enumerable.Count(), Is.EqualTo(2));
+            Assert.That(enumerable, Has.Member(Tuple.Create("even", 3)));
+            Assert.That(enumerable, Has.Member(Tuple.Create("odd", 4)));
         }
 
         [Test]
