@@ -12,6 +12,8 @@
 
 * New query operations to support the return_vals ReQL option (.UpdateAndReturnValue, .DeleteAndReturnValue, and .ReplaceAndReturnValue), will return the original and updated value during a record update/delete/replace operation.  [Issue #114](https://github.com/mfenniak/rethinkdb-net/issues/114)
 
+* Support directly referencing the parameter in a single-parameter lambda expression, rather than just supporting a member access on the parameter. [Issue #127](https://github.com/mfenniak/rethinkdb-net/issues/127); thanks John Weber (@jweber) for the patch.
+
 ### Minor Changes
 
 * Add AuthorizationKey to the IConnection interface. [Issue #125](https://github.com/mfenniak/rethinkdb-net/issues/125)
