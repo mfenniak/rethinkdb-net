@@ -96,7 +96,7 @@ namespace RethinkDb
                     var dnsEndpoint = (DnsEndPoint)ep;
                     try
                     {
-                        var ips = await Dns.GetHostAddressesAsync(dnsEndpoint.Host);
+                        var ips = await Dns.GetHostAddressesAsync(dnsEndpoint.Host).ConfigureAwait(false);
                         resolvedIpEndpoints = ips.Select(ip => new IPEndPoint(ip, dnsEndpoint.Port));
                         if (Logger.DebugEnabled())
                             Logger.Debug("DNS lookup {0} into: [{1}]", dnsEndpoint.Host, resolvedIpEndpoints.EnumerableToString());
@@ -122,7 +122,7 @@ namespace RethinkDb
                     try
                     {
                         Logger.Debug("Connecting to {0}", ipEndpoint);
-                        await DoTryConnect(ipEndpoint, cancellationToken);
+                        await DoTryConnect(ipEndpoint, cancellationToken).ConfigureAwait(false);
                         return;
                     }
                     catch (TaskCanceledException e)
@@ -157,7 +157,7 @@ namespace RethinkDb
                     (asyncCallback, asyncState) => socket.BeginConnect(endpoint.Address, endpoint.Port, asyncCallback, asyncState),
                     ar => socket.EndConnect(ar),
                     null
-                );
+                ).ConfigureAwait(false);
 
                 Logger.Debug("Connected to {0}", endpoint);
 
@@ -173,12 +173,12 @@ namespace RethinkDb
                 this.socket = socket;
                 this.stream = stream;
 
-                await stream.WriteAsync(connectHeader, 0, connectHeader.Length, cancellationToken);
+                await stream.WriteAsync(connectHeader, 0, connectHeader.Length, cancellationToken).ConfigureAwait(false);
                 Logger.Debug("Sent ReQL header");
 
                 if (String.IsNullOrEmpty(AuthorizationKey))
                 {
-                    await stream.WriteAsync(new byte[] { 0, 0, 0, 0 }, 0, 4, cancellationToken);
+                    await stream.WriteAsync(new byte[] { 0, 0, 0, 0 }, 0, 4, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
@@ -186,8 +186,8 @@ namespace RethinkDb
                     var authKeyLength = BitConverter.GetBytes(keyInBytes.Length);
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(authKeyLength, 0, authKeyLength.Length);
-                    await stream.WriteAsync(authKeyLength, 0, authKeyLength.Length);
-                    await stream.WriteAsync(keyInBytes, 0, keyInBytes.Length);
+                    await stream.WriteAsync(authKeyLength, 0, authKeyLength.Length).ConfigureAwait(false);
+                    await stream.WriteAsync(keyInBytes, 0, keyInBytes.Length).ConfigureAwait(false);
                 }
 
                 byte[] authReponseBuffer = new byte[1024];
@@ -248,14 +248,14 @@ namespace RethinkDb
                 while (true)
                 {
                     byte[] headerSize = new byte[4];
-                    await ReadMyBytes(headerSize);
+                    await ReadMyBytes(headerSize).ConfigureAwait(false);
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(headerSize, 0, headerSize.Length);
                     var respSize = BitConverter.ToInt32(headerSize, 0);
                     Logger.Debug("Received packet header, packet is {0} bytes", respSize);
 
                     byte[] retVal = new byte[respSize];
-                    await ReadMyBytes(retVal);
+                    await ReadMyBytes(retVal).ConfigureAwait(false);
                     Logger.Debug("Received packet completely");
                     using (var memoryBuffer = new MemoryStream(retVal))
                     {
@@ -290,7 +290,7 @@ namespace RethinkDb
             int totalBytesRead = 0;
             while (true)
             {
-                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length - totalBytesRead, cancellationToken);
+                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length - totalBytesRead, cancellationToken).ConfigureAwait(false);
                 totalBytesRead += bytesRead;
                 Logger.Debug("Received {0} / {1} bytes in NullTerminator buffer", bytesRead, buffer.Length);
 
@@ -308,7 +308,7 @@ namespace RethinkDb
             int totalBytesRead = 0;
             while (true)
             {
-                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length - totalBytesRead);
+                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length - totalBytesRead).ConfigureAwait(false);
                 totalBytesRead += bytesRead;
                 Logger.Debug("Received {0} / {1} bytes of packet", bytesRead, buffer.Length);
 
@@ -354,8 +354,8 @@ namespace RethinkDb
                     try
                     {
                         Logger.Debug("Writing packet, {0} bytes", data.Length);
-                        await stream.WriteAsync(header, 0, header.Length, cancellationToken);
-                        await stream.WriteAsync(data, 0, data.Length, cancellationToken);
+                        await stream.WriteAsync(header, 0, header.Length, cancellationToken).ConfigureAwait(false);
+                        await stream.WriteAsync(data, 0, data.Length, cancellationToken).ConfigureAwait(false);
                     }
                     finally
                     {
@@ -375,7 +375,7 @@ namespace RethinkDb
             query.type = Spec.Query.QueryType.START;
             query.query = queryObject.GenerateTerm(datumConverterFactory);
 
-            var response = await InternalRunQuery(query);
+            var response = await InternalRunQuery(query).ConfigureAwait(false);
 
             switch (response.type)
             {
@@ -416,7 +416,7 @@ namespace RethinkDb
             query.type = Spec.Query.QueryType.START;
             query.query = queryObject.GenerateTerm(datumConverterFactory);
 
-            var response = await InternalRunQuery(query);
+            var response = await InternalRunQuery(query).ConfigureAwait(false);
 
             switch (response.type)
             {
@@ -496,7 +496,7 @@ namespace RethinkDb
                 // Looks like we have a query in-progress that we should stop on the server-side to free up resources.
                 query.type = Spec.Query.QueryType.STOP;
                 query.query = null;
-                var response = await connection.InternalRunQuery(query);
+                var response = await connection.InternalRunQuery(query).ConfigureAwait(false);
 
                 switch (response.type)
                 {
@@ -539,7 +539,7 @@ namespace RethinkDb
 
             private async Task ReissueQuery()
             {
-                lastResponse = await connection.InternalRunQuery(query);
+                lastResponse = await connection.InternalRunQuery(query).ConfigureAwait(false);
                 lastResponseIndex = -1;
 
                 switch (lastResponse.type)
@@ -572,7 +572,7 @@ namespace RethinkDb
                     query.token = connection.GetNextToken();
                     query.type = Spec.Query.QueryType.START;
                     query.query = this.queryObject.GenerateTerm(datumConverterFactory);
-                    await ReissueQuery();
+                    await ReissueQuery().ConfigureAwait(false);
                 }
 
                 if (lastResponseIndex < (LoadedRecordCount() - 1))
@@ -590,8 +590,8 @@ namespace RethinkDb
                 {
                     query.type = RethinkDb.Spec.Query.QueryType.CONTINUE;
                     query.query = null;
-                    await ReissueQuery();
-                    return await MoveNext();
+                    await ReissueQuery().ConfigureAwait(false);
+                    return await MoveNext().ConfigureAwait(false);
                 }
                 else
                 {
