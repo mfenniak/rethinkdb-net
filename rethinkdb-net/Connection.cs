@@ -636,17 +636,17 @@ namespace RethinkDb
 
         public void Connect()
         {
-            ConnectAsync().Wait();
+            TaskUtilities.ExecuteSynchronously(() => ConnectAsync());
         }
 
         public T Run<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
         {
-            return RunAsync(datumConverterFactory, queryObject).Result;
+            return TaskUtilities.ExecuteSynchronously(() => RunAsync(datumConverterFactory, queryObject));
         }
 
         public T Run<T>(ISingleObjectQuery<T> queryObject)
         {
-            return RunAsync(queryObject).Result;
+            return TaskUtilities.ExecuteSynchronously(() => RunAsync(queryObject));
         }
 
         public IEnumerable<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
@@ -661,12 +661,12 @@ namespace RethinkDb
 
         public TResponseType Run<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
         {
-            return RunAsync(datumConverterFactory, queryObject).Result;
+            return TaskUtilities.ExecuteSynchronously(() => RunAsync(datumConverterFactory, queryObject));
         }
 
         public TResponseType Run<TResponseType>(IWriteQuery<TResponseType> queryObject)
         {
-            return RunAsync(queryObject).Result;
+            return TaskUtilities.ExecuteSynchronously(() => RunAsync(queryObject));
         }
 
         private class AsyncEnumerableSynchronizer<T> : IEnumerable<T>
@@ -704,7 +704,7 @@ namespace RethinkDb
             {
                 if (this.asyncEnumerator != null)
                 {
-                    this.asyncEnumerator.Dispose().Wait();
+                    TaskUtilities.ExecuteSynchronously(() => this.asyncEnumerator.Dispose());
                     this.asyncEnumerator = null;
                 }
             }
@@ -716,7 +716,7 @@ namespace RethinkDb
             {
                 if (asyncEnumerator == null)
                     throw new ObjectDisposedException(GetType().FullName);
-                return asyncEnumerator.MoveNext().Result;
+                return TaskUtilities.ExecuteSynchronously(() => asyncEnumerator.MoveNext());
             }
 
             public void Reset()
