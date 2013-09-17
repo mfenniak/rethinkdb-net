@@ -141,6 +141,7 @@
     <Compile Include="QueryTerm\DeleteAndReturnValueQuery.cs" />
     <Compile Include="QueryTerm\ReplaceAndReturnValueQuery.cs" />
     <Compile Include="QueryTerm\ReplaceQueryBase.cs" />
+    <Compile Include="TaskUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
