@@ -1,5 +1,12 @@
 # rethinkdb-net Release Notes
 
+## 0.4.1.0
+
+### Minor Changes
+
+* Update protobuf-net dependency to version 2.0.0.666, and specify version dependency in nuspec file.
+
+
 ## 0.4.0.0
 
 ### Features
