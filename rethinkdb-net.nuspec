@@ -10,7 +10,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>RethinkDB Client Driver for .NET</description>
         <dependencies>
-            <dependency id="protobuf-net" />
+            <dependency id="protobuf-net" version="2.0.0.666" />
         </dependencies>
         <releaseNotes>rethinkdb-net compatible with RethinkDB v1.9, see https://github.com/mfenniak/rethinkdb-net/blob/master/RELEASE-NOTES.md for detailed release notes.</releaseNotes>
     </metadata>
