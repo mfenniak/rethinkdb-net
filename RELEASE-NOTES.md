@@ -1,6 +1,6 @@
 # rethinkdb-net Release Notes
 
-## Next Release
+## 0.4.2.0
 
 ### Bugfixes
 
