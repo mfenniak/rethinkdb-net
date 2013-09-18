@@ -1,5 +1,12 @@
 # rethinkdb-net Release Notes
 
+## Next Release
+
+### Bugfixes
+
+* Fix deadlocks when using synchronous API under ASP.NET.  [Issue #130](https://github.com/mfenniak/rethinkdb-net/issues/130)  Thanks to Jonathan Channon (@jchannon) for reporting the issue and providing testing feedback.
+
+
 ## 0.4.1.0
 
 ### Minor Changes
