@@ -46,7 +46,7 @@ namespace RethinkDb
             {
                 public string Name;
                 public int Index;
-                public object DatumConverter;
+                public IDatumConverter DatumConverter;
                 public MethodInfo GetMethod;
             }
 
@@ -54,29 +54,16 @@ namespace RethinkDb
             {
                 typeConstructor = typeof(T).GetConstructors()[0];
 
-                var genericGetMethod = typeof(DatumConverterFactoryExtensions)
-                    .GetMethod("Get", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(IDatumConverterFactory) }, null);
-
                 properties = new List<PropertyInfo>();
                 foreach (var property in typeof(T).GetProperties())
                 {
                     var pi = new PropertyInfo();
                     pi.Name = property.Name;
                     pi.Index = properties.Count;
-                    pi.DatumConverter = genericGetMethod.MakeGenericMethod(property.PropertyType).Invoke(null, new object[] { innerTypeConverterFactory });
+                    pi.DatumConverter = innerTypeConverterFactory.Get(property.PropertyType);
                     pi.GetMethod = property.GetGetMethod();
                     properties.Add(pi);
                 }
-            }
-
-            private object ReflectedConversionFromDatum(Spec.Datum datum, dynamic typeDatumConverter)
-            {
-                return typeDatumConverter.ConvertDatum(datum);
-            }
-
-            private Spec.Datum ReflectedConversionToDatum(dynamic value, dynamic typeDatumConverter)
-            {
-                return typeDatumConverter.ConvertObject(value);
             }
 
             #region IDatumConverter<T> Members
@@ -96,7 +83,7 @@ namespace RethinkDb
                         var property = properties.Where(pi => String.Equals(pi.Name, assocPair.key, StringComparison.InvariantCultureIgnoreCase)).SingleOrDefault();
                         if (property == null)
                             throw new InvalidOperationException("Unexpected key/value pair in anonymous-type object: " + assocPair.key);
-                        constructorParameters[property.Index] = ReflectedConversionFromDatum(assocPair.val, property.DatumConverter);
+                        constructorParameters[property.Index] = property.DatumConverter.ConvertDatum(assocPair.val);
                     }
 
                     return (T)(typeConstructor.Invoke(constructorParameters));
@@ -116,7 +103,7 @@ namespace RethinkDb
                     var value = property.GetMethod.Invoke(anonymousObject, new object[0]);
                     datum.r_object.Add(new Spec.Datum.AssocPair() {
                         key = property.Name,
-                        val = ReflectedConversionToDatum(value, property.DatumConverter)
+                        val = property.DatumConverter.ConvertObject(value),
                     });
                 }
                 return datum;

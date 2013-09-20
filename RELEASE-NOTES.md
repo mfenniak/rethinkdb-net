@@ -22,6 +22,9 @@
 
 * Removed usage of reflection in array datum converter.  [Issue #56](https://github.com/mfenniak/rethinkdb-net/issues/56)
 
+* Removed usage of reflection from anonymous type datum converter.
+
+
 ## 0.4.2.0
 
 ### Bugfixes
