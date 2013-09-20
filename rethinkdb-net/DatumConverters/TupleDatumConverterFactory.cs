@@ -47,23 +47,15 @@ namespace RethinkDb
         private class TupleConverter<T> : AbstractReferenceTypeDatumConverter<T>
         {
             private readonly ConstructorInfo tupleConstructor;
-            private readonly object[] itemConverters;
+            private readonly IDatumConverter[] itemConverters;
 
             public TupleConverter(IDatumConverterFactory rootDatumConverterFactory)
             {
-                var genericGetMethod = typeof(DatumConverterFactoryExtensions)
-                    .GetMethod("Get", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(IDatumConverterFactory) }, null);
-
                 var typeArguments = typeof(T).GetGenericArguments();
                 tupleConstructor = typeof(T).GetConstructor(typeArguments);
-                itemConverters = new object[typeArguments.Length];
+                itemConverters = new IDatumConverter[typeArguments.Length];
                 for (int i = 0; i < typeArguments.Length; i++)
-                    itemConverters[i] = genericGetMethod.MakeGenericMethod(typeArguments[i]).Invoke(null, new object[] { rootDatumConverterFactory });
-            }
-
-            private object ReflectedConversion(Spec.Datum datum, dynamic typeDatumConverter)
-            {
-                return typeDatumConverter.ConvertDatum(datum);
+                    itemConverters[i] = rootDatumConverterFactory.Get(typeArguments[i]);
             }
 
             #region IDatumConverter<T> Members
@@ -86,15 +78,15 @@ namespace RethinkDb
                     {
                         // left/right for a join
                         if (assocPair.key == "left")
-                            item1 = ReflectedConversion(assocPair.val, itemConverters[0]);
+                            item1 = itemConverters[0].ConvertDatum(assocPair.val);
                         else if (assocPair.key == "right")
-                            item2 = ReflectedConversion(assocPair.val, itemConverters[1]);
+                            item2 = itemConverters[1].ConvertDatum(assocPair.val);
 
                         // group/reduction for a grouped map reduce
                         else if (assocPair.key == "group")
-                            item1 = ReflectedConversion(assocPair.val, itemConverters[0]);
+                            item1 = itemConverters[0].ConvertDatum(assocPair.val);
                         else if (assocPair.key == "reduction")
-                            item2 = ReflectedConversion(assocPair.val, itemConverters[1]);
+                            item2 = itemConverters[1].ConvertDatum(assocPair.val);
                         else
                             throw new InvalidOperationException("Unexpected key/value pair in tuple object: " + assocPair.key + "; expected left/right or group/reduction");
                     }
@@ -108,7 +100,7 @@ namespace RethinkDb
 
                     object[] values = new object[itemConverters.Length];
                     for (int i = 0; i < itemConverters.Length; i++)
-                        values[i] = ReflectedConversion(datum.r_array[i], itemConverters[i]);
+                        values[i] = itemConverters[i].ConvertDatum(datum.r_array[i]);
                     return (T)(tupleConstructor.Invoke(values));
                 }
                 else
