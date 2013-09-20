@@ -4,9 +4,9 @@ namespace RethinkDb.QueryTerm
 {
     public class IndexListQuery<TTable> : ISequenceQuery<string>
     {
-        private readonly TableQuery<TTable> tableTerm;
+        private readonly ITableQuery<TTable> tableTerm;
 
-        public IndexListQuery(TableQuery<TTable> tableTerm)
+        public IndexListQuery(ITableQuery<TTable> tableTerm)
         {
             this.tableTerm = tableTerm;
         }

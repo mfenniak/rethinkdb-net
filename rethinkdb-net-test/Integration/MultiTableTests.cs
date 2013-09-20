@@ -4,7 +4,6 @@ using RethinkDb;
 using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
-using RethinkDb.QueryTerm;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -13,8 +12,8 @@ namespace RethinkDb.Test.Integration
     [TestFixture]
     public class MultiTableTests : TestBase
     {
-        private TableQuery<TestObject> testTable;
-        private TableQuery<AnotherTestObject> anotherTestTable;
+        private ITableQuery<TestObject> testTable;
+        private ITableQuery<AnotherTestObject> anotherTestTable;
 
         public override void TestFixtureSetUp()
         {

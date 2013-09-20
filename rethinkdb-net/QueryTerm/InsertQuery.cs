@@ -5,11 +5,11 @@ namespace RethinkDb.QueryTerm
 {
     public class InsertQuery<T> : IWriteQuery<DmlResponse>
     {
-        private readonly TableQuery<T> tableTerm;
+        private readonly ITableQuery<T> tableTerm;
         private readonly IEnumerable<T> objects;
         private readonly bool upsert;
 
-        public InsertQuery(TableQuery<T> tableTerm, IEnumerable<T> objects, bool upsert)
+        public InsertQuery(ITableQuery<T> tableTerm, IEnumerable<T> objects, bool upsert)
         {
             this.tableTerm = tableTerm;
             this.objects = objects;

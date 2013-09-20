@@ -4,7 +4,6 @@ using RethinkDb;
 using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
-using RethinkDb.QueryTerm;
 using System.Linq.Expressions;
 
 namespace RethinkDb.Test.Integration
@@ -12,7 +11,7 @@ namespace RethinkDb.Test.Integration
     [TestFixture]
     public class SingleObjectTests : TestBase
     {
-        private TableQuery<TestObject> testTable;
+        private ITableQuery<TestObject> testTable;
         private TestObject insertedObject;
 
         public override void TestFixtureSetUp()

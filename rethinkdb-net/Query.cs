@@ -8,186 +8,201 @@ using RethinkDb.Spec;
 
 namespace RethinkDb
 {
-    [ImmutableObject(true)]
-    public interface IQuery
-    {
-        Term GenerateTerm(IDatumConverterFactory datumConverterFactory);
-    }
-
-    [ImmutableObject(true)]
-    public interface ISingleObjectQuery<T> : IQuery
-    {
-    }
-
-    [ImmutableObject(true)]
-    public interface IMutableSingleObjectQuery<T> : ISingleObjectQuery<T>
-    {
-    }
-
-    [ImmutableObject(true)]
-    public interface ISequenceQuery<T> : IQuery
-    {
-    }
-
-    [ImmutableObject(true)]
-    public interface IWriteQuery<TResponseType> : IQuery
-    {
-    }
-
-    [ImmutableObject(true)]
-    public interface IGroupByReduction<TReductionType>
-    {
-        Term GenerateReductionObject(IDatumConverterFactory datumConverterFactory);
-    }
-
     public static class Query
     {
-        public static DbQuery Db(string db)
+        #region Database Operations
+
+        public static IDatabaseQuery Db(string db)
         {
             return new DbQuery(db);
         }
 
-        public static DbCreateQuery DbCreate(string db)
+        public static IWriteQuery<DmlResponse> DbCreate(string db)
         {
             return new DbCreateQuery(db);
         }
 
-        public static DbDropQuery DbDrop(string db)
+        public static IWriteQuery<DmlResponse> DbDrop(string db)
         {
             return new DbDropQuery(db);
         }
 
-        public static DbListQuery DbList()
+        public static ISingleObjectQuery<string[]> DbList()
         {
             return new DbListQuery();
         }
 
-        public static GetQuery<T> Get<T>(this ISequenceQuery<T> target, string primaryKey, string primaryAttribute = null)
+        #endregion
+        #region Table Operations
+
+        public static ITableQuery<T> Table<T>(this IDatabaseQuery target, string table, bool useOutdated = false)
+        {
+            return new TableQuery<T>(target, table, useOutdated);
+        }
+
+        public static IWriteQuery<DmlResponse> TableCreate(this IDatabaseQuery target, string table, string datacenter = null, string primaryKey = null, double? cacheSize = null)
+        {
+            return new TableCreateQuery(target, table, datacenter, primaryKey, cacheSize);
+        }
+
+        public static IWriteQuery<DmlResponse> TableDrop(this IDatabaseQuery target, string table)
+        {
+            return new TableDropQuery(target, table);
+        }
+
+        public static ISingleObjectQuery<string[]> TableList(this IDatabaseQuery target)
+        {
+            return new TableListQuery(target);
+        }
+
+        public static IWriteQuery<DmlResponse> IndexCreate<T, TIndexExpression>(this ITableQuery<T> target, string indexName, Expression<Func<T, TIndexExpression>> indexExpression)
+        {
+            return new IndexCreateQuery<T, TIndexExpression>(target, indexName, indexExpression);
+        }
+
+        public static ISequenceQuery<string> IndexList<T>(this ITableQuery<T> target)
+        {
+            return new IndexListQuery<T>(target);
+        }
+
+        public static IWriteQuery<DmlResponse> IndexDrop<T>(this ITableQuery<T> target, string indexName)
+        {
+            return new IndexDropQuery<T>(target, indexName);
+        }
+
+        public static IWriteQuery<DmlResponse> Insert<T>(this ITableQuery<T> target, T @object, bool upsert = false)
+        {
+            return new InsertQuery<T>(target, new T[] { @object }, upsert);
+        }
+
+        public static IWriteQuery<DmlResponse> Insert<T>(this ITableQuery<T> target, IEnumerable<T> @objects, bool upsert = false)
+        {
+            return new InsertQuery<T>(target, @objects, upsert);
+        }
+
+        #endregion
+        #region Query Operations
+
+        public static IMutableSingleObjectQuery<T> Get<T>(this ISequenceQuery<T> target, string primaryKey, string primaryAttribute = null)
         {
             return new GetQuery<T>(target, primaryKey, primaryAttribute);
         }
 
-        public static GetQuery<T> Get<T>(this ISequenceQuery<T> target, double primaryKey, string primaryAttribute = null)
+        public static IMutableSingleObjectQuery<T> Get<T>(this ISequenceQuery<T> target, double primaryKey, string primaryAttribute = null)
         {
             return new GetQuery<T>(target, primaryKey, primaryAttribute);
         }
 
-        public static GetAllQuery<TSequence, TKey> GetAll<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey key, string indexName = null)
+        public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey key, string indexName = null)
         {
             return new GetAllQuery<TSequence, TKey>(target, key, indexName);
         }
 
-        public static FilterQuery<T> Filter<T>(this ISequenceQuery<T> target, Expression<Func<T, bool>> filterExpression)
+        public static ISequenceQuery<T> Filter<T>(this ISequenceQuery<T> target, Expression<Func<T, bool>> filterExpression)
         {
             return new FilterQuery<T>(target, filterExpression);
         }
 
         // LINQ-compatible alias for Filter
-        public static FilterQuery<T> Where<T>(this ISequenceQuery<T> target, Expression<Func<T, bool>> filterExpression)
+        public static ISequenceQuery<T> Where<T>(this ISequenceQuery<T> target, Expression<Func<T, bool>> filterExpression)
         {
             return target.Filter(filterExpression);
         }
 
-        public static UpdateQuery<T> Update<T>(this ISequenceQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
+        public static IWriteQuery<DmlResponse> Update<T>(this ISequenceQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
         {
             return new UpdateQuery<T>(target, updateExpression, nonAtomic);
         }
 
-        public static UpdateQuery<T> Update<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
+        public static IWriteQuery<DmlResponse> Update<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
         {
             return new UpdateQuery<T>(target, updateExpression, nonAtomic);
         }
 
-        public static UpdateAndReturnValueQuery<T> UpdateAndReturnValue<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
+        public static IWriteQuery<DmlResponse<T>> UpdateAndReturnValue<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
         {
             return new UpdateAndReturnValueQuery<T>(target, updateExpression, nonAtomic);
         }
 
-        public static DeleteQuery<T> Delete<T>(this ISequenceQuery<T> target)
+        public static IWriteQuery<DmlResponse> Delete<T>(this ISequenceQuery<T> target)
         {
             return new DeleteQuery<T>(target);
         }
 
-        public static DeleteQuery<T> Delete<T>(this IMutableSingleObjectQuery<T> target)
+        public static IWriteQuery<DmlResponse> Delete<T>(this IMutableSingleObjectQuery<T> target)
         {
             return new DeleteQuery<T>(target);
         }
 
-        public static DeleteAndReturnValueQuery<T> DeleteAndReturnValue<T>(this IMutableSingleObjectQuery<T> target)
+        public static IWriteQuery<DmlResponse<T>> DeleteAndReturnValue<T>(this IMutableSingleObjectQuery<T> target)
         {
             return new DeleteAndReturnValueQuery<T>(target);
         }
 
-        public static ReplaceQuery<T> Replace<T>(this IMutableSingleObjectQuery<T> target, T newObject, bool nonAtomic = false)
+        public static IWriteQuery<DmlResponse> Replace<T>(this IMutableSingleObjectQuery<T> target, T newObject, bool nonAtomic = false)
         {
             return new ReplaceQuery<T>(target, newObject, nonAtomic);
         }
 
-        public static ReplaceAndReturnValueQuery<T> ReplaceAndReturnValue<T>(this IMutableSingleObjectQuery<T> target, T newObject, bool nonAtomic = false)
+        public static IWriteQuery<DmlResponse<T>> ReplaceAndReturnValue<T>(this IMutableSingleObjectQuery<T> target, T newObject, bool nonAtomic = false)
         {
             return new ReplaceAndReturnValueQuery<T>(target, newObject, nonAtomic);
         }
 
-        public static BetweenQuery<TSequence, TKey> Between<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey leftKey, TKey rightKey, string indexName = null, Bound leftBound = Bound.Closed, Bound rightBound = Bound.Open)
+        public static ISequenceQuery<TSequence> Between<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey leftKey, TKey rightKey, string indexName = null, Bound leftBound = Bound.Closed, Bound rightBound = Bound.Open)
         {
             return new BetweenQuery<TSequence, TKey>(target, leftKey, rightKey, indexName, leftBound, rightBound);
         }
 
-        public static CountQuery<T> Count<T>(this ISequenceQuery<T> target)
+        public static ISingleObjectQuery<double> Count<T>(this ISequenceQuery<T> target)
         {
             return new CountQuery<T>(target);
         }
 
-        public static ExprQuery<T> Expr<T>(T @object)
+        public static ISingleObjectQuery<T> Expr<T>(T @object)
         {
             return new ExprQuery<T>(@object);
         }
 
-        public static ExprQuery<T> Expr<T>(Expression<Func<T>> objectExpr)
+        public static ISingleObjectQuery<T> Expr<T>(Expression<Func<T>> objectExpr)
         {
             return new ExprQuery<T>(objectExpr);
         }
 
-        public static ExprSequenceQuery<T> Expr<T>(IEnumerable<T> enumerable)
+        public static ISequenceQuery<T> Expr<T>(IEnumerable<T> enumerable)
         {
             return new ExprSequenceQuery<T>(enumerable);
         }
 
-        public static MapQuery<TOriginal, TTarget> Map<TOriginal, TTarget>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TTarget>> mapExpression)
+        public static ISequenceQuery<TTarget> Map<TOriginal, TTarget>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TTarget>> mapExpression)
         {
             return new MapQuery<TOriginal, TTarget>(sequenceQuery, mapExpression);
         }
 
         // LINQ-compatible alias for Map
-        public static MapQuery<TOriginal, TTarget> Select<TOriginal, TTarget>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TTarget>> mapExpression)
+        public static ISequenceQuery<TTarget> Select<TOriginal, TTarget>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TTarget>> mapExpression)
         {
             return sequenceQuery.Map(mapExpression);
         }
 
-        public enum OrderByDirection
-        {
-            Ascending,
-            Descending,
-        }
-
-        public static OrderByQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression, OrderByDirection direction)
+        public static IOrderedSequenceQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression, OrderByDirection direction)
         {
             return new OrderByQuery<T>(sequenceQuery, new Tuple<Expression<Func<T, object>>, OrderByDirection>(memberReferenceExpression, direction));
         }
 
         // LINQ-compatible OrderBy
-        public static OrderByQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression)
+        public static IOrderedSequenceQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression)
         {
             return sequenceQuery.OrderBy(memberReferenceExpression, OrderByDirection.Ascending);
         }
 
         // LINQ-compatible alias for OrderBy
-        public static OrderByQuery<T> OrderByDescending<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression)
+        public static IOrderedSequenceQuery<T> OrderByDescending<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression)
         {
             return sequenceQuery.OrderBy(memberReferenceExpression, OrderByDirection.Descending);
         }
 
-        public static OrderByQuery<T> ThenBy<T>(this OrderByQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression, OrderByDirection direction)
+        public static IOrderedSequenceQuery<T> ThenBy<T>(this IOrderedSequenceQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression, OrderByDirection direction)
         {
             return new OrderByQuery<T>(
                 orderByQuery.SequenceQuery,
@@ -198,126 +213,131 @@ namespace RethinkDb
         }
 
         // LINQ-compatible alias for OrderBy
-        public static OrderByQuery<T> ThenBy<T>(this OrderByQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression)
+        public static IOrderedSequenceQuery<T> ThenBy<T>(this IOrderedSequenceQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression)
         {
             return orderByQuery.ThenBy(memberReferenceExpression, OrderByDirection.Ascending);
         }
 
         // LINQ-compatible alias for OrderBy
-        public static OrderByQuery<T> ThenByDescending<T>(this OrderByQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression)
+        public static IOrderedSequenceQuery<T> ThenByDescending<T>(this IOrderedSequenceQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression)
         {
             return orderByQuery.ThenBy(memberReferenceExpression, OrderByDirection.Descending);
         }
 
-        public static SkipQuery<T> Skip<T>(this ISequenceQuery<T> sequenceQuery, int count)
+        public static ISequenceQuery<T> Skip<T>(this ISequenceQuery<T> sequenceQuery, int count)
         {
             return new SkipQuery<T>(sequenceQuery, count);
         }
 
-        public static LimitQuery<T> Limit<T>(this ISequenceQuery<T> sequenceQuery, int count)
+        public static ISequenceQuery<T> Limit<T>(this ISequenceQuery<T> sequenceQuery, int count)
         {
             return new LimitQuery<T>(sequenceQuery, count);
         }
 
         // LINQ compatible alias for Limit
-        public static LimitQuery<T> Take<T>(this ISequenceQuery<T> sequenceQuery, int count)
+        public static ISequenceQuery<T> Take<T>(this ISequenceQuery<T> sequenceQuery, int count)
         {
             return sequenceQuery.Limit(count);
         }
 
-        public static SliceQuery<T> Slice<T>(this ISequenceQuery<T> sequenceQuery, int startIndex, int? endIndex = null)
+        public static ISequenceQuery<T> Slice<T>(this ISequenceQuery<T> sequenceQuery, int startIndex, int? endIndex = null)
         {
             return new SliceQuery<T>(sequenceQuery, startIndex, endIndex);
         }
 
-        public static InnerJoinQuery<TLeft, TRight> InnerJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
+        public static ISequenceQuery<Tuple<TLeft, TRight>> InnerJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
         {
             return new InnerJoinQuery<TLeft, TRight>(leftQuery, rightQuery, joinPredicate);
         }
 
-        public static OuterJoinQuery<TLeft, TRight> OuterJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
+        public static ISequenceQuery<Tuple<TLeft, TRight>> OuterJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
         {
             return new OuterJoinQuery<TLeft, TRight>(leftQuery, rightQuery, joinPredicate);
         }
 
-        public static ZipQuery<TLeft, TRight, TTarget> Zip<TLeft, TRight, TTarget>(this ISequenceQuery<Tuple<TLeft, TRight>> sequenceQuery)
+        public static ISequenceQuery<TTarget> Zip<TLeft, TRight, TTarget>(this ISequenceQuery<Tuple<TLeft, TRight>> sequenceQuery)
         {
             return new ZipQuery<TLeft, TRight, TTarget>(sequenceQuery);
         }
 
-        public static EqJoinQuery<TLeft, TRight> EqJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, Expression<Func<TLeft, object>> leftMemberReferenceExpression, ISequenceQuery<TRight> rightQuery)
+        public static ISequenceQuery<Tuple<TLeft, TRight>> EqJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, Expression<Func<TLeft, object>> leftMemberReferenceExpression, ISequenceQuery<TRight> rightQuery)
         {
             return new EqJoinQuery<TLeft, TRight>(leftQuery, leftMemberReferenceExpression, rightQuery, null);
         }
 
-        public static EqJoinQuery<TLeft, TRight> EqJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, Expression<Func<TLeft, object>> leftMemberReferenceExpression, ISequenceQuery<TRight> rightQuery, string indexName)
+        public static ISequenceQuery<Tuple<TLeft, TRight>> EqJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, Expression<Func<TLeft, object>> leftMemberReferenceExpression, ISequenceQuery<TRight> rightQuery, string indexName)
         {
             return new EqJoinQuery<TLeft, TRight>(leftQuery, leftMemberReferenceExpression, rightQuery, indexName);
         }
 
-        public static ReduceQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction)
+        public static ISingleObjectQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction)
         {
             return new ReduceQuery<T>(sequenceQuery, reduceFunction);
         }
 
-        public static ReduceQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction, T @base)
+        public static ISingleObjectQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction, T @base)
         {
             return new ReduceQuery<T>(sequenceQuery, reduceFunction, @base);
         }
 
-        public static NthQuery<T> Nth<T>(this ISequenceQuery<T> sequenceQuery, int index)
+        public static ISingleObjectQuery<T> Nth<T>(this ISequenceQuery<T> sequenceQuery, int index)
         {
             return new NthQuery<T>(sequenceQuery, index);
         }
 
-        public static DistinctQuery<T> Distinct<T>(this ISequenceQuery<T> sequenceQuery)
+        public static ISequenceQuery<T> Distinct<T>(this ISequenceQuery<T> sequenceQuery)
         {
             return new DistinctQuery<T>(sequenceQuery);
         }
 
-        public static GroupedMapReduceQuery<TOriginal, TGroup, TMap> GroupedMapReduce<TOriginal, TGroup, TMap>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TGroup>> grouping, Expression<Func<TOriginal, TMap>> mapping, Expression<Func<TMap, TMap, TMap>> reduction)
+        public static ISequenceQuery<Tuple<TGroup, TMap>> GroupedMapReduce<TOriginal, TGroup, TMap>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TGroup>> grouping, Expression<Func<TOriginal, TMap>> mapping, Expression<Func<TMap, TMap, TMap>> reduction)
         {
             return new GroupedMapReduceQuery<TOriginal, TGroup, TMap>(sequenceQuery, grouping, mapping, reduction);
         }
 
-        public static GroupedMapReduceQuery<TOriginal, TGroup, TMap> GroupedMapReduce<TOriginal, TGroup, TMap>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TGroup>> grouping, Expression<Func<TOriginal, TMap>> mapping, Expression<Func<TMap, TMap, TMap>> reduction, TMap @base)
+        public static ISequenceQuery<Tuple<TGroup, TMap>> GroupedMapReduce<TOriginal, TGroup, TMap>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TGroup>> grouping, Expression<Func<TOriginal, TMap>> mapping, Expression<Func<TMap, TMap, TMap>> reduction, TMap @base)
         {
             return new GroupedMapReduceQuery<TOriginal, TGroup, TMap>(sequenceQuery, grouping, mapping, reduction, @base);
         }
 
-        public static ConcatMapQuery<TOriginal, TTarget> ConcatMap<TOriginal, TTarget>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, IEnumerable<TTarget>>> mapping)
+        public static ISequenceQuery<TTarget> ConcatMap<TOriginal, TTarget>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, IEnumerable<TTarget>>> mapping)
         {
             return new ConcatMapQuery<TOriginal, TTarget>(sequenceQuery, mapping);
         }
 
-        public static UnionQuery<T> Union<T>(this ISequenceQuery<T> query1, ISequenceQuery<T> query2)
+        public static ISequenceQuery<T> Union<T>(this ISequenceQuery<T> query1, ISequenceQuery<T> query2)
         {
             return new UnionQuery<T>(query1, query2);
         }
 
-        public static GroupByQuery<TObject, TReductionType, TGroupKeyType> GroupBy<TObject, TReductionType, TGroupKeyType>(this ISequenceQuery<TObject> sequenceQuery, IGroupByReduction<TReductionType> reductionObject, Expression<Func<TObject, TGroupKeyType>> groupKeyConstructor)
+        public static ISingleObjectQuery<DateTimeOffset> Now()
+        {
+            return new NowQuery();
+        }
+
+        public static ISequenceQuery<Tuple<TGroupKeyType, TReductionType>> GroupBy<TObject, TReductionType, TGroupKeyType>(this ISequenceQuery<TObject> sequenceQuery, IGroupByReduction<TReductionType> reductionObject, Expression<Func<TObject, TGroupKeyType>> groupKeyConstructor)
         {
             return new GroupByQuery<TObject, TReductionType, TGroupKeyType>(sequenceQuery, reductionObject, groupKeyConstructor);
         }
 
-        public static CountReduction Count()
+        #endregion
+        #region Prebuilt GroupBy reductions
+
+        public static IGroupByReduction<double> Count()
         {
             return CountReduction.Instance;
         }
 
-        public static SumReduction<TObject> Sum<TObject>(Expression<Func<TObject, double>> numericMemberReference)
+        public static IGroupByReduction<double> Sum<TObject>(Expression<Func<TObject, double>> numericMemberReference)
         {
             return new SumReduction<TObject>(numericMemberReference);
         }
 
-        public static AvgReduction<TObject> Avg<TObject>(Expression<Func<TObject, double>> numericMemberReference)
+        public static IGroupByReduction<double> Avg<TObject>(Expression<Func<TObject, double>> numericMemberReference)
         {
             return new AvgReduction<TObject>(numericMemberReference);
         }
 
-        public static NowQuery Now()
-        {
-            return new NowQuery();
-        }
+        #endregion
     }
 }

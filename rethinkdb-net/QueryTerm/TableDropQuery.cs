@@ -4,10 +4,10 @@ namespace RethinkDb.QueryTerm
 {
     public class TableDropQuery : IWriteQuery<DmlResponse>
     {
-        private readonly DbQuery dbTerm;
+        private readonly IDatabaseQuery dbTerm;
         private readonly string table;
 
-        public TableDropQuery(DbQuery dbTerm, string table)
+        public TableDropQuery(IDatabaseQuery dbTerm, string table)
         {
             this.dbTerm = dbTerm;
             this.table = table;

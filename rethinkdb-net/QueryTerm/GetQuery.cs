@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class GetQuery<T> : ISingleObjectQuery<T>, IMutableSingleObjectQuery<T>
+    public class GetQuery<T> : IMutableSingleObjectQuery<T>
     {
         private readonly ISequenceQuery<T> tableTerm;
         private readonly string primaryKeyString;

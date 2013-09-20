@@ -142,6 +142,16 @@
     <Compile Include="QueryTerm\ReplaceAndReturnValueQuery.cs" />
     <Compile Include="QueryTerm\ReplaceQueryBase.cs" />
     <Compile Include="TaskUtilities.cs" />
+    <Compile Include="Interfaces\IQuery.cs" />
+    <Compile Include="Interfaces\ISingleObjectQuery.cs" />
+    <Compile Include="Interfaces\IMutableSingleObjectQuery.cs" />
+    <Compile Include="Interfaces\ISequenceQuery.cs" />
+    <Compile Include="Interfaces\IWriteQuery.cs" />
+    <Compile Include="Interfaces\IGroupByReduction.cs" />
+    <Compile Include="Interfaces\IDatabaseQuery.cs" />
+    <Compile Include="Interfaces\ITableQuery.cs" />
+    <Compile Include="Interfaces\IOrderedSequenceQuery.cs" />
+    <Compile Include="OrderByDirection.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

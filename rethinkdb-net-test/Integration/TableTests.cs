@@ -4,16 +4,15 @@ using RethinkDb;
 using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
-using RethinkDb.QueryTerm;
 
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
     public class TableTests : TestBase
     {
-        private TableQuery<TestObject> testTable;
-        private TableQuery<TestObject2> testTable2;
-        private TableQuery<TestObject3> testTable3;
+        private ITableQuery<TestObject> testTable;
+        private ITableQuery<TestObject2> testTable2;
+        private ITableQuery<TestObject3> testTable3;
 
         [SetUp]
         public virtual void SetUp()

@@ -4,9 +4,9 @@ namespace RethinkDb.QueryTerm
 {
     public class TableListQuery : ISingleObjectQuery<string[]>
     {
-        private readonly DbQuery dbTerm;
+        private readonly IDatabaseQuery dbTerm;
 
-        public TableListQuery(DbQuery dbTerm)
+        public TableListQuery(IDatabaseQuery dbTerm)
         {
             this.dbTerm = dbTerm;
         }

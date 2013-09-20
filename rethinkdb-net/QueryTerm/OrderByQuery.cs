@@ -6,12 +6,12 @@ using System.Reflection;
 
 namespace RethinkDb.QueryTerm
 {
-    public class OrderByQuery<T> : ISequenceQuery<T>
+    public class OrderByQuery<T> : IOrderedSequenceQuery<T>
     {
         private readonly ISequenceQuery<T> sequenceQuery;
-        private readonly Tuple<Expression<Func<T, object>>, Query.OrderByDirection>[] orderByMembers;
+        private readonly Tuple<Expression<Func<T, object>>, OrderByDirection>[] orderByMembers;
 
-        public OrderByQuery(ISequenceQuery<T> sequenceQuery, params Tuple<Expression<Func<T, object>>, Query.OrderByDirection>[] orderByMembers)
+        public OrderByQuery(ISequenceQuery<T> sequenceQuery, params Tuple<Expression<Func<T, object>>, OrderByDirection>[] orderByMembers)
         {
             this.sequenceQuery = sequenceQuery;
             this.orderByMembers = orderByMembers;
@@ -22,7 +22,7 @@ namespace RethinkDb.QueryTerm
             get { return sequenceQuery; }
         }
 
-        public IEnumerable<Tuple<Expression<Func<T, object>>, Query.OrderByDirection>> OrderByMembers
+        public IEnumerable<Tuple<Expression<Func<T, object>>, OrderByDirection>> OrderByMembers
         {
             get { return orderByMembers; }
         }
@@ -79,7 +79,7 @@ namespace RethinkDb.QueryTerm
                     }
                 };
 
-                if (direction == Query.OrderByDirection.Ascending)
+                if (direction == OrderByDirection.Ascending)
                 {
                     var newFieldRef = new Term() {
                         type = Term.TermType.ASC,
@@ -87,7 +87,7 @@ namespace RethinkDb.QueryTerm
                     newFieldRef.args.Add(fieldReference);
                     fieldReference = newFieldRef;
                 }
-                else if (direction == Query.OrderByDirection.Descending)
+                else if (direction == OrderByDirection.Descending)
                 {
                     var newFieldRef = new Term() {
                         type = Term.TermType.DESC,
@@ -95,6 +95,8 @@ namespace RethinkDb.QueryTerm
                     newFieldRef.args.Add(fieldReference);
                     fieldReference = newFieldRef;
                 }
+                else
+                    throw new NotSupportedException();
 
                 yield return fieldReference;
             }

@@ -5,13 +5,13 @@ namespace RethinkDb.QueryTerm
 {
     public class TableCreateQuery : IWriteQuery<DmlResponse>
     {
-        private readonly DbQuery dbTerm;
+        private readonly IDatabaseQuery dbTerm;
         private readonly string table;
         private readonly string datacenter;
         private readonly string primaryKey;
         private readonly double? cacheSize;
 
-        public TableCreateQuery(DbQuery dbTerm, string table, string datacenter, string primaryKey, double? cacheSize)
+        public TableCreateQuery(IDatabaseQuery dbTerm, string table, string datacenter, string primaryKey, double? cacheSize)
         {
             this.dbTerm = dbTerm;
             this.table = table;

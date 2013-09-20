@@ -4,7 +4,6 @@ using RethinkDb;
 using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
-using RethinkDb.QueryTerm;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -13,7 +12,7 @@ namespace RethinkDb.Test.Integration
     [TestFixture]
     public class MultiObjectTests : TestBase
     {
-        private TableQuery<TestObject> testTable;
+        private ITableQuery<TestObject> testTable;
 
         public override void TestFixtureSetUp()
         {

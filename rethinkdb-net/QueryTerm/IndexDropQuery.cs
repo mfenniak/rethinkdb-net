@@ -6,10 +6,10 @@ namespace RethinkDb.QueryTerm
 {
     public class IndexDropQuery<TTable> : IWriteQuery<DmlResponse>
     {
-        private readonly TableQuery<TTable> tableTerm;
+        private readonly ITableQuery<TTable> tableTerm;
         private readonly string indexName;
 
-        public IndexDropQuery(TableQuery<TTable> tableTerm, string indexName)
+        public IndexDropQuery(ITableQuery<TTable> tableTerm, string indexName)
         {
             this.tableTerm = tableTerm;
             this.indexName = indexName;

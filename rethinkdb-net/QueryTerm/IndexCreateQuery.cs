@@ -6,11 +6,11 @@ namespace RethinkDb.QueryTerm
 {
     public class IndexCreateQuery<TTable, TIndexExpression> : IWriteQuery<DmlResponse>
     {
-        private readonly TableQuery<TTable> tableTerm;
+        private readonly ITableQuery<TTable> tableTerm;
         private readonly string indexName;
         private readonly Expression<Func<TTable, TIndexExpression>> indexExpression;
 
-        public IndexCreateQuery(TableQuery<TTable> tableTerm, string indexName, Expression<Func<TTable, TIndexExpression>> indexExpression)
+        public IndexCreateQuery(ITableQuery<TTable> tableTerm, string indexName, Expression<Func<TTable, TIndexExpression>> indexExpression)
         {
             this.tableTerm = tableTerm;
             this.indexName = indexName;

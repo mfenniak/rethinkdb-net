@@ -2,7 +2,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
-    public class DbQuery
+    public class DbQuery : IDatabaseQuery
     {
         private readonly string db;
 
