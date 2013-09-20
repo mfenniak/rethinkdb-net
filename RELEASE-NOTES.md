@@ -16,6 +16,10 @@
 
 * Fix connection timeout so that it can timeout during socket connect; previously it could only timeout between endpoint connect attempts.  [Issue #62](https://github.com/mfenniak/rethinkdb-net/issues/62)
 
+### Performance
+
+* Removed usage of reflection in constant & client-side conversions.  [Issue #57](https://github.com/mfenniak/rethinkdb-net/issues/57)
+
 
 ## 0.4.2.0
 
