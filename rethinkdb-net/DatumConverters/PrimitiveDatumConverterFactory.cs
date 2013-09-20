@@ -46,13 +46,13 @@ namespace RethinkDb
             return datumConverter != null;
         }
 
-        public class StringDatumConverter : IDatumConverter<string>
+        public class StringDatumConverter : AbstractDatumConverter<string>
         {
             public static readonly Lazy<StringDatumConverter> Instance = new Lazy<StringDatumConverter>(() => new StringDatumConverter());
 
             #region IDatumConverter<string> Members
 
-            public string ConvertDatum(Spec.Datum datum)
+            public override string ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     return null;
@@ -62,7 +62,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to string, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(string str)
+            public override Spec.Datum ConvertObject(string str)
             {
                 if (str == null)
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
@@ -73,13 +73,13 @@ namespace RethinkDb
             #endregion
         }
 
-        public class CharDatumConverter : IDatumConverter<char>
+        public class CharDatumConverter : AbstractDatumConverter<char>
         {
             public static readonly Lazy<CharDatumConverter> Instance = new Lazy<CharDatumConverter>(() => new CharDatumConverter());
 
             #region IDatumConverter<char> Members
 
-            public char ConvertDatum(Spec.Datum datum)
+            public override char ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable char, but Datum was null");
@@ -96,7 +96,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable char, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(char str)
+            public override Spec.Datum ConvertObject(char str)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_STR, r_str = str.ToString() };
             }
@@ -104,13 +104,13 @@ namespace RethinkDb
             #endregion
         }
 
-        public class BoolDatumConverter : IDatumConverter<bool>
+        public class BoolDatumConverter : AbstractDatumConverter<bool>
         {
             public static readonly Lazy<BoolDatumConverter> Instance = new Lazy<BoolDatumConverter>(() => new BoolDatumConverter());
 
             #region IDatumConverter<bool> Members
 
-            public bool ConvertDatum(Spec.Datum datum)
+            public override bool ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable bool, but Datum was null");
@@ -120,7 +120,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to bool, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(bool value)
+            public override Spec.Datum ConvertObject(bool value)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_BOOL, r_bool = value };
             }
@@ -128,13 +128,13 @@ namespace RethinkDb
             #endregion
         }
 
-        public class DoubleDatumConverter : IDatumConverter<double>
+        public class DoubleDatumConverter : AbstractDatumConverter<double>
         {
             public static readonly Lazy<DoubleDatumConverter> Instance = new Lazy<DoubleDatumConverter>(() => new DoubleDatumConverter());
 
             #region IDatumConverter<double> Members
 
-            public double ConvertDatum(Spec.Datum datum)
+            public override double ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable double, but Datum was null");
@@ -144,7 +144,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to Double, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(double value)
+            public override Spec.Datum ConvertObject(double value)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
@@ -152,13 +152,13 @@ namespace RethinkDb
             #endregion
         }
 
-        public class IntDatumConverter : IDatumConverter<int>
+        public class IntDatumConverter : AbstractDatumConverter<int>
         {
             public static readonly Lazy<IntDatumConverter> Instance = new Lazy<IntDatumConverter>(() => new IntDatumConverter());
 
             #region IDatumConverter<int> Members
 
-            public int ConvertDatum(Spec.Datum datum)
+            public override int ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable int, but Datum was null");
@@ -182,7 +182,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to Int, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(int value)
+            public override Spec.Datum ConvertObject(int value)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
@@ -190,13 +190,13 @@ namespace RethinkDb
             #endregion
         }
 
-        public class UnsignedIntDatumConverter : IDatumConverter<uint>
+        public class UnsignedIntDatumConverter : AbstractDatumConverter<uint>
         {
             public static readonly Lazy<UnsignedIntDatumConverter> Instance = new Lazy<UnsignedIntDatumConverter>(() => new UnsignedIntDatumConverter());
 
             #region IDatumConverter<uint> Members
 
-            public uint ConvertDatum(Spec.Datum datum)
+            public override uint ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable unsigned int, but Datum was null");
@@ -220,7 +220,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to unsigned Int, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(uint value)
+            public override Spec.Datum ConvertObject(uint value)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
@@ -228,13 +228,13 @@ namespace RethinkDb
             #endregion
         }
 
-        public class LongDatumConverter : IDatumConverter<long>
+        public class LongDatumConverter : AbstractDatumConverter<long>
         {
             public static readonly Lazy<LongDatumConverter> Instance = new Lazy<LongDatumConverter>(() => new LongDatumConverter());
 
             #region IDatumConverter<long> Members
 
-            public long ConvertDatum(Spec.Datum datum)
+            public override long ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable long, but Datum was null");
@@ -259,7 +259,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to Long, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(long value)
+            public override Spec.Datum ConvertObject(long value)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
@@ -267,13 +267,13 @@ namespace RethinkDb
             #endregion
         }
 
-        public class UnsignedLongDatumConverter : IDatumConverter<ulong>
+        public class UnsignedLongDatumConverter : AbstractDatumConverter<ulong>
         {
             public static readonly Lazy<UnsignedLongDatumConverter> Instance = new Lazy<UnsignedLongDatumConverter>(() => new UnsignedLongDatumConverter());
 
             #region IDatumConverter<ulong> Members
 
-            public ulong ConvertDatum(Spec.Datum datum)
+            public override ulong ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable unsigned long, but Datum was null");
@@ -298,7 +298,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to unsigned Long, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(ulong value)
+            public override Spec.Datum ConvertObject(ulong value)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
@@ -306,13 +306,13 @@ namespace RethinkDb
             #endregion
         }
 
-        public class ShortDatumConverter : IDatumConverter<short>
+        public class ShortDatumConverter : AbstractDatumConverter<short>
         {
             public static readonly Lazy<ShortDatumConverter> Instance = new Lazy<ShortDatumConverter>(() => new ShortDatumConverter());
 
             #region IDatumConverter<short> Members
 
-            public short ConvertDatum(Spec.Datum datum)
+            public override short ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable short, but Datum was null");
@@ -336,7 +336,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to Short, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(short value)
+            public override Spec.Datum ConvertObject(short value)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
@@ -344,13 +344,13 @@ namespace RethinkDb
             #endregion
         }
 
-        public class UnsignedShortDatumConverter : IDatumConverter<ushort>
+        public class UnsignedShortDatumConverter : AbstractDatumConverter<ushort>
         {
             public static readonly Lazy<UnsignedShortDatumConverter> Instance = new Lazy<UnsignedShortDatumConverter>(() => new UnsignedShortDatumConverter());
 
             #region IDatumConverter<ushort> Members
 
-            public ushort ConvertDatum(Spec.Datum datum)
+            public override ushort ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable unsigned short, but Datum was null");
@@ -374,7 +374,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to unsigned Short, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(ushort value)
+            public override Spec.Datum ConvertObject(ushort value)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
@@ -382,13 +382,13 @@ namespace RethinkDb
             #endregion
         }
 
-        public class FloatDatumConverter : IDatumConverter<float>
+        public class FloatDatumConverter : AbstractDatumConverter<float>
         {
             public static readonly Lazy<FloatDatumConverter> Instance = new Lazy<FloatDatumConverter>(() => new FloatDatumConverter());
 
             #region IDatumConverter<float> Members
 
-            public float ConvertDatum(Spec.Datum datum)
+            public override float ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable float, but Datum was null");
@@ -409,7 +409,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to Float, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(float value)
+            public override Spec.Datum ConvertObject(float value)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
@@ -417,16 +417,18 @@ namespace RethinkDb
             #endregion
         }
 
-        public class DecimalDatumConverter : IDatumConverter<decimal>
+        public class DecimalDatumConverter : AbstractDatumConverter<decimal>
         {
             public static readonly Lazy<DecimalDatumConverter> Instance = new Lazy<DecimalDatumConverter>(() => new DecimalDatumConverter());
 
             #region IDatumConverter<decimal> Members
 
-            public decimal ConvertDatum(Spec.Datum datum)
+            public override decimal ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
+                {
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable decimal, but Datum was null");
+                }
                 else if (datum.type == Spec.Datum.DatumType.R_NUM)
                 {
                     if (datum.r_num >= Convert.ToDouble(decimal.MaxValue) || datum.r_num <= Convert.ToDouble(decimal.MinValue))
@@ -442,7 +444,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to Decimal, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(decimal value)
+            public override Spec.Datum ConvertObject(decimal value)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = Convert.ToDouble(value) };
             }
@@ -450,16 +452,18 @@ namespace RethinkDb
             #endregion
         }
 
-        public class ByteDatumConverter : IDatumConverter<byte>
+        public class ByteDatumConverter : AbstractDatumConverter<byte>
         {
             public static readonly Lazy<ByteDatumConverter> Instance = new Lazy<ByteDatumConverter>(() => new ByteDatumConverter());
 
             #region IDatumConverter<byte> Members
 
-            public byte ConvertDatum(Spec.Datum datum)
+            public override byte ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
+                {
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable byte, but Datum was null");
+                }
                 else if (datum.type == Spec.Datum.DatumType.R_NUM)
                 {
                     if (datum.r_num > byte.MaxValue || datum.r_num < byte.MinValue)
@@ -480,7 +484,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to Byte, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(byte value)
+            public override Spec.Datum ConvertObject(byte value)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }
@@ -488,16 +492,18 @@ namespace RethinkDb
             #endregion
         }
 
-        public class SignedByteDatumConverter : IDatumConverter<sbyte>
+        public class SignedByteDatumConverter : AbstractDatumConverter<sbyte>
         {
             public static readonly Lazy<SignedByteDatumConverter> Instance = new Lazy<SignedByteDatumConverter>(() => new SignedByteDatumConverter());
 
             #region IDatumConverter<sbyte> Members
 
-            public sbyte ConvertDatum(Spec.Datum datum)
+            public override sbyte ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
+                {
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable signed byte, but Datum was null");
+                }
                 else if (datum.type == Spec.Datum.DatumType.R_NUM)
                 {
                     if (datum.r_num > sbyte.MaxValue || datum.r_num < sbyte.MinValue)
@@ -518,7 +524,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to signed Byte, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(sbyte value)
+            public override Spec.Datum ConvertObject(sbyte value)
             {
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NUM, r_num = value };
             }

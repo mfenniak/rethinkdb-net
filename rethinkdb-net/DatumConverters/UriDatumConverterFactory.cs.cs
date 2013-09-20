@@ -21,13 +21,13 @@ namespace RethinkDb
         }
     }
 
-    public class UriDatumConverter : IDatumConverter<Uri>
+    public class UriDatumConverter : AbstractDatumConverter<Uri>
     {
         public static readonly Lazy<UriDatumConverter> Instance = new Lazy<UriDatumConverter>(() => new UriDatumConverter());
 
         #region IDatumConverter<Uri> Members
 
-        public Uri ConvertDatum(Spec.Datum datum)
+        public override Uri ConvertDatum(Spec.Datum datum)
         {
             Uri uri;
             if (Uri.TryCreate(datum.r_str, UriKind.Absolute, out uri))
@@ -36,7 +36,7 @@ namespace RethinkDb
                 throw new Exception(string.Format("Not valid serialized Uri: {0}", datum.r_str));
         }
 
-        public Spec.Datum ConvertObject(Uri uri)
+        public override Spec.Datum ConvertObject(Uri uri)
         {                
             return new Spec.Datum() {
                 type = Spec.Datum.DatumType.R_STR,

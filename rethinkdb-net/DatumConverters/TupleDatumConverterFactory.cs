@@ -44,7 +44,7 @@ namespace RethinkDb
 
         // FIXME: This TupleConverter, using reflection, is likely to be many, many times slower than doing an emitted
         // class like DataContractDatumConverterFactory does.
-        private class TupleConverter<T> : IDatumConverter<T>
+        private class TupleConverter<T> : AbstractDatumConverter<T>
         {
             private readonly ConstructorInfo tupleConstructor;
             private readonly object[] itemConverters;
@@ -68,7 +68,7 @@ namespace RethinkDb
 
             #region IDatumConverter<T> Members
 
-            public T ConvertDatum(Spec.Datum datum)
+            public override T ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                 {
@@ -115,7 +115,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to tuple, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(T arrayObject)
+            public override Spec.Datum ConvertObject(T arrayObject)
             {
                 throw new NotSupportedException("TupleDatumConverterFactory only supports Datum->Tuple currently");
             }

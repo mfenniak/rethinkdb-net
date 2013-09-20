@@ -23,11 +23,11 @@ namespace RethinkDb
         }
     }
 
-    public class DateTimeDatumConverter : IDatumConverter<DateTime>
+    public class DateTimeDatumConverter : AbstractDatumConverter<DateTime>
     {
         public static readonly Lazy<DateTimeDatumConverter> Instance = new Lazy<DateTimeDatumConverter>(() => new DateTimeDatumConverter());
 
-        public DateTime ConvertDatum(Datum datum)
+        public override DateTime ConvertDatum(Datum datum)
         {
             if (datum.type != Datum.DatumType.R_OBJECT)
                 throw new NotSupportedException("Attempted to cast Datum to DateTime, but Datum was unsupported type " + datum.type);
@@ -51,7 +51,7 @@ namespace RethinkDb
             return new DateTime((long)(epoch_time.r_num * 10000000) + 621355968000000000, DateTimeKind.Utc);
         }
 
-        public Datum ConvertObject(DateTime dateTime)
+        public override Datum ConvertObject(DateTime dateTime)
         {
             var datum = new Datum() {
                 type = Datum.DatumType.R_OBJECT

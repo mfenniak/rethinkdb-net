@@ -27,7 +27,7 @@ namespace RethinkDb
 
         }
 
-        private class NullableDatumConverter<T> : IDatumConverter<Nullable<T>>
+        private class NullableDatumConverter<T> : AbstractDatumConverter<Nullable<T>>
             where T : struct
         {
             private readonly IDatumConverter<T> innerConverter;
@@ -39,7 +39,7 @@ namespace RethinkDb
 
             #region IDatumConverter<T> Members
 
-            public Nullable<T> ConvertDatum(Spec.Datum datum)
+            public override Nullable<T> ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     return new Nullable<T>();
@@ -47,7 +47,7 @@ namespace RethinkDb
                     return new Nullable<T>(innerConverter.ConvertDatum(datum));
             }
 
-            public Spec.Datum ConvertObject(Nullable<T> nullableObject)
+            public override Spec.Datum ConvertObject(Nullable<T> nullableObject)
             {
                 if (nullableObject.HasValue)
                     return innerConverter.ConvertObject(nullableObject.Value);

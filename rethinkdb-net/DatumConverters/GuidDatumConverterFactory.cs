@@ -21,13 +21,13 @@ namespace RethinkDb
         }
     }
 
-    public class GuidDatumConverter : IDatumConverter<Guid>
+    public class GuidDatumConverter : AbstractDatumConverter<Guid>
     {
         public static readonly Lazy<GuidDatumConverter> Instance = new Lazy<GuidDatumConverter>(() => new GuidDatumConverter());
 
         #region IDatumConverter<Guid> Members
 
-        public Guid ConvertDatum(Spec.Datum datum)
+        public override Guid ConvertDatum(Spec.Datum datum)
         {
             Guid guid;
             if (Guid.TryParse(datum.r_str, out guid))
@@ -36,7 +36,7 @@ namespace RethinkDb
                 throw new Exception(string.Format("Not valid serialized Guid: {0}", datum.r_str));
         }
 
-        public Spec.Datum ConvertObject(Guid guid)
+        public override Spec.Datum ConvertObject(Guid guid)
         {                
             return new Spec.Datum() { type = Spec.Datum.DatumType.R_STR, r_str = guid.ToString() };
         }
