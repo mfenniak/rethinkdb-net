@@ -21,19 +21,17 @@ namespace RethinkDb
             if (!typeof(T).IsArray)
                 return false;
 
-            datumConverter = new ReflectionArrayConverter<T>(rootDatumConverterFactory);
+            datumConverter = new ArrayConverter<T>(rootDatumConverterFactory);
             return true;
         }
 
-        // FIXME: This ReflectionArrayConverter is likely to be many, many times slower than doing an emitted class
-        // like DataContractDatumConverterFactory does.
-        private class ReflectionArrayConverter<T> : AbstractReferenceTypeDatumConverter<T>
+        private class ArrayConverter<T> : AbstractReferenceTypeDatumConverter<T>
         {
-            private readonly IDatumConverterFactory rootDatumConverterFactory;
+            private readonly IDatumConverter arrayTypeConverter;
 
-            public ReflectionArrayConverter(IDatumConverterFactory rootDatumConverterFactory)
+            public ArrayConverter(IDatumConverterFactory rootDatumConverterFactory)
             {
-                this.rootDatumConverterFactory = rootDatumConverterFactory;
+                this.arrayTypeConverter = rootDatumConverterFactory.Get(typeof(T).GetElementType());
             }
 
             #region IDatumConverter<T> Members
@@ -47,24 +45,14 @@ namespace RethinkDb
                 else if (datum.type == Spec.Datum.DatumType.R_ARRAY)
                 {
                     var retval = Array.CreateInstance(typeof(T).GetElementType(), datum.r_array.Count);
-
-                    var converter = typeof(DatumConverterFactoryExtensions)
-                        .GetMethod("Get", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(IDatumConverterFactory) }, null)
-                        .MakeGenericMethod(typeof(T).GetElementType()).Invoke(null, new object[] { rootDatumConverterFactory });
-                    var convertMethod = typeof(IDatumConverter<>).MakeGenericType(typeof(T).GetElementType()).GetMethod("ConvertDatum");
-
                     for (int i = 0; i < datum.r_array.Count; i++)
-                    {
-                        retval.SetValue(
-                            convertMethod.Invoke(converter, new object[] { datum.r_array[i] }),
-                            i
-                        );
-                    }
-
+                        retval.SetValue(arrayTypeConverter.ConvertDatum(datum.r_array [i]), i);
                     return (T)Convert.ChangeType(retval, typeof(T));
                 }
                 else
+                {
                     throw new NotSupportedException("Attempted to cast Datum to array, but Datum was unsupported type " + datum.type);
+                }
             }
 
             public override Spec.Datum ConvertObject(T arrayObject)
@@ -73,15 +61,9 @@ namespace RethinkDb
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
 
                 var retval = new Spec.Datum() { type = Spec.Datum.DatumType.R_ARRAY };
-
-                var converter = typeof(DatumConverterFactoryExtensions)
-                    .GetMethod("Get", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(IDatumConverterFactory) }, null)
-                    .MakeGenericMethod(typeof(T).GetElementType()).Invoke(null, new object[] { rootDatumConverterFactory });
-                var convertMethod = typeof(IDatumConverter<>).MakeGenericType(typeof(T).GetElementType()).GetMethod("ConvertObject");
                 var array = (IEnumerable)arrayObject;
                 foreach (var obj in array)
-                    retval.r_array.Add((Spec.Datum)convertMethod.Invoke(converter, new object[] { obj }));
-
+                    retval.r_array.Add(arrayTypeConverter.ConvertObject(obj));
                 return retval;
             }
 

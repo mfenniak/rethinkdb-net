@@ -20,6 +20,7 @@
 
 * Removed usage of reflection in constant & client-side conversions.  [Issue #57](https://github.com/mfenniak/rethinkdb-net/issues/57)
 
+* Removed usage of reflection in array datum converter.  [Issue #56](https://github.com/mfenniak/rethinkdb-net/issues/56)
 
 ## 0.4.2.0
 
