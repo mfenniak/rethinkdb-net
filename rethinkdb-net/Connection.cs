@@ -16,10 +16,9 @@ namespace RethinkDb
 {
     public sealed class Connection : IConnection, IDisposable
     {
-        private static TaskFactory taskFactory = new TaskFactory();
         private static byte[] connectHeader = null;
        
-        private Socket socket;
+        private TcpClient tcpClient;
         private NetworkStream stream;
         private long nextToken = 1;
         private long writeTokenLock = 0;
@@ -147,17 +146,45 @@ namespace RethinkDb
             if (cancellationToken.IsCancellationRequested)
                 throw new TaskCanceledException();
 
-            Socket socket = null;
+            TcpClient tcpClient = null;
             NetworkStream stream = null;
 
             try
             {
-                socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                await taskFactory.FromAsync(
-                    (asyncCallback, asyncState) => socket.BeginConnect(endpoint.Address, endpoint.Port, asyncCallback, asyncState),
-                    ar => socket.EndConnect(ar),
-                    null
-                );
+                Action abortToken = () => {
+                    Logger.Warning("Timeout when connecting to endpoint {0}", endpoint);
+                    if (stream != null)
+                    {
+                        try
+                        {
+                            stream.Close();
+                            stream.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Debug("Exception occurred while disposing network stream during exception handling: {0}; probably not important", ex);
+                        }
+                        stream = null;
+                    }
+                    if (tcpClient != null)
+                    {
+                        try
+                        {
+                            tcpClient.Close();
+                            ((IDisposable)tcpClient).Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Debug("Exception occurred while disposing network socket during exception handling: {0}; probably not important", ex);
+                        }
+                        tcpClient = null;
+                    }
+                };
+                using (cancellationToken.Register(abortToken))
+                {
+                    tcpClient = new TcpClient();
+                    await tcpClient.ConnectAsync(endpoint.Address, endpoint.Port);
+                }
 
                 Logger.Debug("Connected to {0}", endpoint);
 
@@ -169,8 +196,8 @@ namespace RethinkDb
                     connectHeader = header;
                 }
 
-                stream = new NetworkStream(socket, true);
-                this.socket = socket;
+                stream = tcpClient.GetStream();
+                this.tcpClient = tcpClient;
                 this.stream = stream;
 
                 await stream.WriteAsync(connectHeader, 0, connectHeader.Length, cancellationToken);
@@ -218,18 +245,20 @@ namespace RethinkDb
                     {
                         Logger.Debug("Exception occurred while disposing network stream during exception handling: {0}; probably not important", ex);
                     }
+                    stream = null;
                 }
-                if (socket != null)
+                if (tcpClient != null)
                 {
                     try
                     {
-                        socket.Close();
-                        socket.Dispose();
+                        tcpClient.Close();
+                        ((IDisposable)tcpClient).Dispose();
                     }
                     catch (Exception ex)
                     {
                         Logger.Debug("Exception occurred while disposing network socket during exception handling: {0}; probably not important", ex);
                     }
+                    tcpClient = null;
                 }
                 if (networkException)
                     throw new RethinkDbNetworkException(e.Message, e);
@@ -617,17 +646,17 @@ namespace RethinkDb
                 }
                 stream = null;
             }
-            if (socket != null)
+            if (tcpClient != null)
             {
                 try
                 {
-                    socket.Close();
-                    socket.Dispose();
+                    tcpClient.Close();
+                    ((IDisposable)tcpClient).Dispose();
                 }
                 catch (Exception)
                 {
                 }
-                socket = null;
+                tcpClient = null;
             }
         }
 
