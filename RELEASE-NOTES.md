@@ -14,6 +14,8 @@
 
 * Fix exception when using anonymous types in tuples that affected Microsoft .NET; primarily this manifested in GroupBy queries not working.  [Issue #133](https://github.com/mfenniak/rethinkdb-net/issues/133)
 
+* Fix connection timeout so that it can timeout during socket connect; previously it could only timeout between endpoint connect attempts.  [Issue #62](https://github.com/mfenniak/rethinkdb-net/issues/62)
+
 
 ## 0.4.2.0
 
