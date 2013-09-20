@@ -60,7 +60,7 @@ namespace RethinkDb.QueryTerm
                     }
                 );
             }
-            if (primaryAttribute != null)
+            if (!String.IsNullOrEmpty(primaryAttribute))
             {
                 getTerm.optargs.Add(new Term.AssocPair()
                 {

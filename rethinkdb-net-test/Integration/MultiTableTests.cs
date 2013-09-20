@@ -132,17 +132,41 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void EqJoin()
         {
-            DoEqJoin().Wait();
-        }
-
-        private async Task DoEqJoin()
-        {
-            var enumerable = connection.RunAsync(
+            DoEqJoin(
                 testTable.EqJoin(
                     testObject => testObject.Name,
                     anotherTestTable
                 )
-            );
+            ).Wait();
+        }
+
+        [Test]
+        public void EqJoinNullIndex()
+        {
+            DoEqJoin(
+                testTable.EqJoin(
+                    testObject => testObject.Name,
+                    anotherTestTable,
+                    indexName: null
+                )
+            ).Wait();
+        }
+
+        [Test]
+        public void EqJoinEmptyIndex()
+        {
+            DoEqJoin(
+                testTable.EqJoin(
+                    testObject => testObject.Name,
+                    anotherTestTable,
+                    indexName: ""
+                )
+            ).Wait();
+        }
+
+        private async Task DoEqJoin(ISequenceQuery<Tuple<TestObject, AnotherTestObject>> query)
+        {
+            var enumerable = connection.RunAsync(query);
             Assert.That(enumerable, Is.Not.Null);
 
             var objects = new List<Tuple<TestObject, AnotherTestObject>>();
@@ -191,7 +215,6 @@ namespace RethinkDb.Test.Integration
             Assert.That(count, Is.EqualTo(3));
             Assert.That(objects, Has.Count.EqualTo(3));
         }
-
 
         [Test]
         public void Zip()

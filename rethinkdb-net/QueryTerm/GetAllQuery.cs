@@ -27,7 +27,7 @@ namespace RethinkDb.QueryTerm
                 type = Term.TermType.DATUM,
                 datum = datumConverterFactory.Get<TKey>().ConvertObject(key)
             });
-            if (indexName != null)
+            if (!String.IsNullOrEmpty(indexName))
             {
                 getAllTerm.optargs.Add(new Term.AssocPair() {
                     key = "index",

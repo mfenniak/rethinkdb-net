@@ -29,7 +29,7 @@ namespace RethinkDb.QueryTerm
             term.args.Add(GetMemberName(datumConverterFactory));
             term.args.Add(rightQuery.GenerateTerm(datumConverterFactory));
 
-            if (indexName != null)
+            if (!String.IsNullOrEmpty(indexName))
             {
                 term.optargs.Add(new Term.AssocPair() {
                     key = "index",

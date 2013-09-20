@@ -683,9 +683,43 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void GetAllNullIndex()
+        {
+            TestObject[] getAll = connection.Run(testTable.GetAll("3", null)).ToArray();
+            Assert.That(getAll.Length, Is.EqualTo(1));
+            Assert.That(getAll[0].Id, Is.EqualTo("3"));
+        }
+
+        [Test]
+        public void GetAllEmptyIndex()
+        {
+            TestObject[] getAll = connection.Run(testTable.GetAll("3", "")).ToArray();
+            Assert.That(getAll.Length, Is.EqualTo(1));
+            Assert.That(getAll[0].Id, Is.EqualTo("3"));
+        }
+
+        [Test]
         public void BetweenIndex()
         {
             TestObject[] between = connection.Run(testTable.Between("3", "5", "index1")).ToArray();
+            Assert.That(between.Length, Is.EqualTo(2));
+            Assert.That(between.Single(o => o.Name == "3"), Is.Not.Null);
+            Assert.That(between.Single(o => o.Name == "4"), Is.Not.Null);
+        }
+
+        [Test]
+        public void BetweenIndexNull()
+        {
+            TestObject[] between = connection.Run(testTable.Between("3", "5", indexName: null)).ToArray();
+            Assert.That(between.Length, Is.EqualTo(2));
+            Assert.That(between.Single(o => o.Name == "3"), Is.Not.Null);
+            Assert.That(between.Single(o => o.Name == "4"), Is.Not.Null);
+        }
+
+        [Test]
+        public void BetweenIndexEmpty()
+        {
+            TestObject[] between = connection.Run(testTable.Between("3", "5", indexName: "")).ToArray();
             Assert.That(between.Length, Is.EqualTo(2));
             Assert.That(between.Single(o => o.Name == "3"), Is.Not.Null);
             Assert.That(between.Single(o => o.Name == "4"), Is.Not.Null);

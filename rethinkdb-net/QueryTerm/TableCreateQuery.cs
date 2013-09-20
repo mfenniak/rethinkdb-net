@@ -1,3 +1,4 @@
+using System;
 using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
@@ -38,7 +39,7 @@ namespace RethinkDb.QueryTerm
                 }
             );
 
-            if (datacenter != null)
+            if (!String.IsNullOrEmpty(datacenter))
             {
                 tableTerm.optargs.Add(new Term.AssocPair()
                 {
@@ -55,7 +56,7 @@ namespace RethinkDb.QueryTerm
                 });
             }
 
-            if (primaryKey != null)
+            if (!String.IsNullOrEmpty(primaryKey))
             {
                 tableTerm.optargs.Add(new Term.AssocPair()
                 {

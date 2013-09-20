@@ -1,3 +1,4 @@
+using System;
 using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
@@ -37,7 +38,7 @@ namespace RethinkDb.QueryTerm
                 type = Term.TermType.DATUM,
                 datum = datumConverter.ConvertObject(rightKey)
             });
-            if (indexName != null)
+            if (!String.IsNullOrEmpty(indexName))
             {
                 betweenTerm.optargs.Add(new Term.AssocPair() {
                     key = "index",
