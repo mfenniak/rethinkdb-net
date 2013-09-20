@@ -90,6 +90,9 @@
     <Compile Include="Integration\Documentation\TenMinuteGuide.cs" />
     <Compile Include="Integration\Documentation\Author.cs" />
     <Compile Include="Integration\Documentation\Post.cs" />
+    <Compile Include="DatumConverters\AbstractDatumConverterFactoryTests.cs" />
+    <Compile Include="DatumConverters\AbstractValueTypeDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\AbstractReferenceTypeDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

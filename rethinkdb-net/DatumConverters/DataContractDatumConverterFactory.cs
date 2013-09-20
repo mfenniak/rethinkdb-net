@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 namespace RethinkDb
 {
-    public class DataContractDatumConverterFactory : IDatumConverterFactory
+    public class DataContractDatumConverterFactory : AbstractDatumConverterFactory
     {
         public static readonly DataContractDatumConverterFactory Instance = new DataContractDatumConverterFactory();
         private static readonly object dynamicModuleLock = new object();
@@ -16,7 +16,7 @@ namespace RethinkDb
         {
         }
 
-        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+        public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
             if (rootDatumConverterFactory == null)
                 throw new ArgumentNullException("rootDatumConverterFactory");
@@ -53,8 +53,17 @@ namespace RethinkDb
                     //dynamicModule = assemblyBuilder.DefineDynamicModule("DataContractDynamicAssembly", "DataContractDynamicAssembly.dll");
                 }
 
-                TypeBuilder type = dynamicModule.DefineType("DataContractDatumConverterFactory." + typeof(T).FullName, TypeAttributes.Class | TypeAttributes.Public);
-                type.AddInterfaceImplementation(typeof(IDatumConverter<T>));
+                Type baseClass;
+                if (typeof(T).IsValueType)
+                    baseClass = typeof(AbstractValueTypeDatumConverter<T>);
+                else
+                    baseClass = typeof(AbstractReferenceTypeDatumConverter<T>);
+
+                TypeBuilder type = dynamicModule.DefineType(
+                    "DataContractDatumConverterFactory." + typeof(T).FullName,
+                    TypeAttributes.Class | TypeAttributes.Public,
+                    baseClass
+                );
                 type.AddInterfaceImplementation(typeof(IObjectDatumConverter));
 
                 var datumConverterFactoryField = DefineDatumConverterField(type);

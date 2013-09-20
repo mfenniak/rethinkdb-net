@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace RethinkDb
 {
-    public class AggregateDatumConverterFactory : IDatumConverterFactory
+    public class AggregateDatumConverterFactory : AbstractDatumConverterFactory
     {
         private readonly IList<IDatumConverterFactory> datumConverterFactories;
 
@@ -11,7 +11,7 @@ namespace RethinkDb
             this.datumConverterFactories = new List<IDatumConverterFactory>(datumConverterFactories);
         }
 
-        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+        public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
             datumConverter = null;
             foreach (var factory in datumConverterFactories)

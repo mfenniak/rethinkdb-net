@@ -3,14 +3,15 @@ using System.Reflection;
 
 namespace RethinkDb
 {
-    public interface IDatumConverter<T>
+    public interface IDatumConverter
     {
-        T ConvertDatum(Datum datum);
-        Datum ConvertObject(T @object);
+        object ConvertDatum(Datum datum);
+        Datum ConvertObject(object @object);
     }
 
-    public interface IObjectDatumConverter
+    public interface IDatumConverter<T> : IDatumConverter
     {
-        string GetDatumFieldName(MemberInfo memberInfo);
+        new T ConvertDatum(Datum datum);
+        Datum ConvertObject(T @object);
     }
 }

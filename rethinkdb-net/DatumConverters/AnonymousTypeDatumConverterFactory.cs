@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace RethinkDb
 {
-    public class AnonymousTypeDatumConverterFactory : IDatumConverterFactory
+    public class AnonymousTypeDatumConverterFactory : AbstractDatumConverterFactory
     {
         public static readonly AnonymousTypeDatumConverterFactory Instance = new AnonymousTypeDatumConverterFactory();
 
@@ -15,7 +15,7 @@ namespace RethinkDb
         {
         }
 
-        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+        public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
             datumConverter = null;
 
@@ -37,7 +37,7 @@ namespace RethinkDb
 
         // FIXME: This AnonymousTypeConverter, using reflection, is likely to be many, many times slower than doing an
         // emitted class like DataContractDatumConverterFactory does.
-        public class AnonymousTypeConverter<T> : IDatumConverter<T>, IObjectDatumConverter
+        public class AnonymousTypeConverter<T> : AbstractReferenceTypeDatumConverter<T>, IObjectDatumConverter
         {
             private readonly ConstructorInfo typeConstructor;
             private readonly List<PropertyInfo> properties;
@@ -81,7 +81,7 @@ namespace RethinkDb
 
             #region IDatumConverter<T> Members
 
-            public T ConvertDatum(Spec.Datum datum)
+            public override T ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                 {
@@ -105,7 +105,7 @@ namespace RethinkDb
                     throw new NotSupportedException("Attempted to cast Datum to anonymous type, but Datum was unsupported type " + datum.type);
             }
 
-            public Spec.Datum ConvertObject(T anonymousObject)
+            public override Spec.Datum ConvertObject(T anonymousObject)
             {
                 if (anonymousObject == null)
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };

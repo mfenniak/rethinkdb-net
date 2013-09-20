@@ -152,6 +152,10 @@
     <Compile Include="Interfaces\ITableQuery.cs" />
     <Compile Include="Interfaces\IOrderedSequenceQuery.cs" />
     <Compile Include="OrderByDirection.cs" />
+    <Compile Include="Interfaces\IObjectDatumConverter.cs" />
+    <Compile Include="DatumConverters\AbstractDatumConverterFactory.cs" />
+    <Compile Include="DatumConverters\AbstractValueTypeDatumConverter.cs" />
+    <Compile Include="DatumConverters\AbstractReferenceTypeDatumConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
