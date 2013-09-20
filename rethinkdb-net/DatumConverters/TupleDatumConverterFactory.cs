@@ -44,7 +44,7 @@ namespace RethinkDb
 
         // FIXME: This TupleConverter, using reflection, is likely to be many, many times slower than doing an emitted
         // class like DataContractDatumConverterFactory does.
-        private class TupleConverter<T> : AbstractDatumConverter<T>
+        private class TupleConverter<T> : AbstractReferenceTypeDatumConverter<T>
         {
             private readonly ConstructorInfo tupleConstructor;
             private readonly object[] itemConverters;

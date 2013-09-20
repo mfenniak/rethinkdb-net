@@ -24,7 +24,7 @@ namespace RethinkDb
         }
     }
 
-    public class DateTimeOffsetDatumConverter : AbstractDatumConverter<DateTimeOffset>
+    public class DateTimeOffsetDatumConverter : AbstractValueTypeDatumConverter<DateTimeOffset>
     {
         public static readonly Lazy<DateTimeOffsetDatumConverter> Instance = new Lazy<DateTimeOffsetDatumConverter>(() => new DateTimeOffsetDatumConverter());
 

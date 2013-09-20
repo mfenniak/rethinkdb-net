@@ -1,4 +1,5 @@
 ﻿using System;
+using RethinkDb.Spec;
 
 namespace RethinkDb
 {
@@ -27,7 +28,7 @@ namespace RethinkDb
 
         }
 
-        private class NullableDatumConverter<T> : AbstractDatumConverter<Nullable<T>>
+        private class NullableDatumConverter<T> : IDatumConverter<Nullable<T>>
             where T : struct
         {
             private readonly IDatumConverter<T> innerConverter;
@@ -39,7 +40,7 @@ namespace RethinkDb
 
             #region IDatumConverter<T> Members
 
-            public override Nullable<T> ConvertDatum(Spec.Datum datum)
+            public Nullable<T> ConvertDatum(Spec.Datum datum)
             {
                 if (datum.type == Spec.Datum.DatumType.R_NULL)
                     return new Nullable<T>();
@@ -47,12 +48,25 @@ namespace RethinkDb
                     return new Nullable<T>(innerConverter.ConvertDatum(datum));
             }
 
-            public override Spec.Datum ConvertObject(Nullable<T> nullableObject)
+            public Spec.Datum ConvertObject(Nullable<T> nullableObject)
             {
                 if (nullableObject.HasValue)
                     return innerConverter.ConvertObject(nullableObject.Value);
                 else
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+            }
+
+            #endregion
+            #region IDatumConverter members
+
+            object IDatumConverter.ConvertDatum(Datum datum)
+            {
+                return ConvertDatum(datum);
+            }
+
+            Datum IDatumConverter.ConvertObject(object @object)
+            {
+                return ConvertObject((Nullable<T>)@object);
             }
 
             #endregion

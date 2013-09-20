@@ -21,7 +21,7 @@ namespace RethinkDb
         }
     }
 
-    public class GuidDatumConverter : AbstractDatumConverter<Guid>
+    public class GuidDatumConverter : AbstractValueTypeDatumConverter<Guid>
     {
         public static readonly Lazy<GuidDatumConverter> Instance = new Lazy<GuidDatumConverter>(() => new GuidDatumConverter());
 

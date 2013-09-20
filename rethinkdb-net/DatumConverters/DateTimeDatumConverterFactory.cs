@@ -23,7 +23,7 @@ namespace RethinkDb
         }
     }
 
-    public class DateTimeDatumConverter : AbstractDatumConverter<DateTime>
+    public class DateTimeDatumConverter : AbstractValueTypeDatumConverter<DateTime>
     {
         public static readonly Lazy<DateTimeDatumConverter> Instance = new Lazy<DateTimeDatumConverter>(() => new DateTimeDatumConverter());
 

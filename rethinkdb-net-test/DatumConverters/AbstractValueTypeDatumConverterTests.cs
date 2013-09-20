@@ -5,9 +5,9 @@ using RethinkDb.Spec;
 namespace RethinkDb.Test
 {
     [TestFixture]
-    public class AbstractDatumConverterTests
+    public class AbstractValueTypeDatumConverterTests
     {
-        public class TestDatumConverter : AbstractDatumConverter<int>
+        public class TestDatumConverter : AbstractValueTypeDatumConverter<int>
         {
             public override int ConvertDatum(Datum datum)
             {
@@ -33,11 +33,11 @@ namespace RethinkDb.Test
         }
 
         [Test]
+        [ExpectedException(typeof(NotSupportedException))]
         public void NonGenericConvertDatumNull()
         {
             var dc = (IDatumConverter)new TestDatumConverter();
-            var retval = dc.ConvertDatum(new Datum() { type = Datum.DatumType.R_NULL });
-            Assert.That(retval, Is.Null);
+            dc.ConvertDatum(new Datum() { type = Datum.DatumType.R_NULL });
         }
 
         [Test]
@@ -51,12 +51,11 @@ namespace RethinkDb.Test
         }
 
         [Test]
+        [ExpectedException(typeof(NotSupportedException))]
         public void NonGenericConvertObjectNull()
         {
             var dc = (IDatumConverter)new TestDatumConverter();
-            var retval = dc.ConvertObject(null);
-            Assert.That(retval, Is.Not.Null);
-            Assert.That(retval.type, Is.EqualTo(Datum.DatumType.R_NULL));
+            dc.ConvertObject(null);
         }
     }
 }

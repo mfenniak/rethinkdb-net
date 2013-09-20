@@ -27,7 +27,7 @@ namespace RethinkDb
 
         // FIXME: This ReflectionArrayConverter is likely to be many, many times slower than doing an emitted class
         // like DataContractDatumConverterFactory does.
-        private class ReflectionArrayConverter<T> : AbstractDatumConverter<T>
+        private class ReflectionArrayConverter<T> : AbstractReferenceTypeDatumConverter<T>
         {
             private readonly IDatumConverterFactory rootDatumConverterFactory;
 

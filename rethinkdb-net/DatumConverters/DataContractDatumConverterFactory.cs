@@ -53,10 +53,16 @@ namespace RethinkDb
                     //dynamicModule = assemblyBuilder.DefineDynamicModule("DataContractDynamicAssembly", "DataContractDynamicAssembly.dll");
                 }
 
+                Type baseClass;
+                if (typeof(T).IsValueType)
+                    baseClass = typeof(AbstractValueTypeDatumConverter<T>);
+                else
+                    baseClass = typeof(AbstractReferenceTypeDatumConverter<T>);
+
                 TypeBuilder type = dynamicModule.DefineType(
                     "DataContractDatumConverterFactory." + typeof(T).FullName,
                     TypeAttributes.Class | TypeAttributes.Public,
-                    typeof(AbstractDatumConverter<T>)
+                    baseClass
                 );
                 type.AddInterfaceImplementation(typeof(IObjectDatumConverter));
 

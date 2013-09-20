@@ -46,7 +46,7 @@ namespace RethinkDb
             return datumConverter != null;
         }
 
-        public class StringDatumConverter : AbstractDatumConverter<string>
+        public class StringDatumConverter : AbstractReferenceTypeDatumConverter<string>
         {
             public static readonly Lazy<StringDatumConverter> Instance = new Lazy<StringDatumConverter>(() => new StringDatumConverter());
 
@@ -73,7 +73,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class CharDatumConverter : AbstractDatumConverter<char>
+        public class CharDatumConverter : AbstractValueTypeDatumConverter<char>
         {
             public static readonly Lazy<CharDatumConverter> Instance = new Lazy<CharDatumConverter>(() => new CharDatumConverter());
 
@@ -104,7 +104,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class BoolDatumConverter : AbstractDatumConverter<bool>
+        public class BoolDatumConverter : AbstractValueTypeDatumConverter<bool>
         {
             public static readonly Lazy<BoolDatumConverter> Instance = new Lazy<BoolDatumConverter>(() => new BoolDatumConverter());
 
@@ -128,7 +128,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class DoubleDatumConverter : AbstractDatumConverter<double>
+        public class DoubleDatumConverter : AbstractValueTypeDatumConverter<double>
         {
             public static readonly Lazy<DoubleDatumConverter> Instance = new Lazy<DoubleDatumConverter>(() => new DoubleDatumConverter());
 
@@ -152,7 +152,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class IntDatumConverter : AbstractDatumConverter<int>
+        public class IntDatumConverter : AbstractValueTypeDatumConverter<int>
         {
             public static readonly Lazy<IntDatumConverter> Instance = new Lazy<IntDatumConverter>(() => new IntDatumConverter());
 
@@ -190,7 +190,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class UnsignedIntDatumConverter : AbstractDatumConverter<uint>
+        public class UnsignedIntDatumConverter : AbstractValueTypeDatumConverter<uint>
         {
             public static readonly Lazy<UnsignedIntDatumConverter> Instance = new Lazy<UnsignedIntDatumConverter>(() => new UnsignedIntDatumConverter());
 
@@ -228,7 +228,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class LongDatumConverter : AbstractDatumConverter<long>
+        public class LongDatumConverter : AbstractValueTypeDatumConverter<long>
         {
             public static readonly Lazy<LongDatumConverter> Instance = new Lazy<LongDatumConverter>(() => new LongDatumConverter());
 
@@ -267,7 +267,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class UnsignedLongDatumConverter : AbstractDatumConverter<ulong>
+        public class UnsignedLongDatumConverter : AbstractValueTypeDatumConverter<ulong>
         {
             public static readonly Lazy<UnsignedLongDatumConverter> Instance = new Lazy<UnsignedLongDatumConverter>(() => new UnsignedLongDatumConverter());
 
@@ -306,7 +306,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class ShortDatumConverter : AbstractDatumConverter<short>
+        public class ShortDatumConverter : AbstractValueTypeDatumConverter<short>
         {
             public static readonly Lazy<ShortDatumConverter> Instance = new Lazy<ShortDatumConverter>(() => new ShortDatumConverter());
 
@@ -344,7 +344,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class UnsignedShortDatumConverter : AbstractDatumConverter<ushort>
+        public class UnsignedShortDatumConverter : AbstractValueTypeDatumConverter<ushort>
         {
             public static readonly Lazy<UnsignedShortDatumConverter> Instance = new Lazy<UnsignedShortDatumConverter>(() => new UnsignedShortDatumConverter());
 
@@ -382,7 +382,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class FloatDatumConverter : AbstractDatumConverter<float>
+        public class FloatDatumConverter : AbstractValueTypeDatumConverter<float>
         {
             public static readonly Lazy<FloatDatumConverter> Instance = new Lazy<FloatDatumConverter>(() => new FloatDatumConverter());
 
@@ -417,7 +417,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class DecimalDatumConverter : AbstractDatumConverter<decimal>
+        public class DecimalDatumConverter : AbstractValueTypeDatumConverter<decimal>
         {
             public static readonly Lazy<DecimalDatumConverter> Instance = new Lazy<DecimalDatumConverter>(() => new DecimalDatumConverter());
 
@@ -452,7 +452,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class ByteDatumConverter : AbstractDatumConverter<byte>
+        public class ByteDatumConverter : AbstractValueTypeDatumConverter<byte>
         {
             public static readonly Lazy<ByteDatumConverter> Instance = new Lazy<ByteDatumConverter>(() => new ByteDatumConverter());
 
@@ -492,7 +492,7 @@ namespace RethinkDb
             #endregion
         }
 
-        public class SignedByteDatumConverter : AbstractDatumConverter<sbyte>
+        public class SignedByteDatumConverter : AbstractValueTypeDatumConverter<sbyte>
         {
             public static readonly Lazy<SignedByteDatumConverter> Instance = new Lazy<SignedByteDatumConverter>(() => new SignedByteDatumConverter());
 
