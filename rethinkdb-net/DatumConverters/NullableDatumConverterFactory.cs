@@ -1,8 +1,9 @@
 ﻿using System;
+using RethinkDb.Spec;
 
 namespace RethinkDb
 {
-    public class NullableDatumConverterFactory : IDatumConverterFactory
+    public class NullableDatumConverterFactory : AbstractDatumConverterFactory
     {
         public static readonly NullableDatumConverterFactory Instance = new NullableDatumConverterFactory();
 
@@ -10,7 +11,7 @@ namespace RethinkDb
         {
         }
 
-        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+        public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
             datumConverter = null;
             if (rootDatumConverterFactory == null)
@@ -53,6 +54,19 @@ namespace RethinkDb
                     return innerConverter.ConvertObject(nullableObject.Value);
                 else
                     return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+            }
+
+            #endregion
+            #region IDatumConverter members
+
+            object IDatumConverter.ConvertDatum(Datum datum)
+            {
+                return ConvertDatum(datum);
+            }
+
+            Datum IDatumConverter.ConvertObject(object @object)
+            {
+                return ConvertObject((Nullable<T>)@object);
             }
 
             #endregion

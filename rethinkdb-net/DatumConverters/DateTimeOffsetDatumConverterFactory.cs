@@ -5,7 +5,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb
 {
-    public class DateTimeOffsetDatumConverterFactory : IDatumConverterFactory
+    public class DateTimeOffsetDatumConverterFactory : AbstractDatumConverterFactory
     {
         public static readonly DateTimeOffsetDatumConverterFactory Instance = new DateTimeOffsetDatumConverterFactory();
 
@@ -13,7 +13,7 @@ namespace RethinkDb
         {
         }
 
-        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+        public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
             datumConverter = null;
 
@@ -24,11 +24,11 @@ namespace RethinkDb
         }
     }
 
-    public class DateTimeOffsetDatumConverter : IDatumConverter<DateTimeOffset>
+    public class DateTimeOffsetDatumConverter : AbstractValueTypeDatumConverter<DateTimeOffset>
     {
         public static readonly Lazy<DateTimeOffsetDatumConverter> Instance = new Lazy<DateTimeOffsetDatumConverter>(() => new DateTimeOffsetDatumConverter());
 
-        public DateTimeOffset ConvertDatum(Datum datum)
+        public override DateTimeOffset ConvertDatum(Datum datum)
         {
             if (datum.type != Datum.DatumType.R_OBJECT)
                 throw new NotSupportedException("Attempted to cast Datum to DateTime, but Datum was unsupported type " + datum.type);
@@ -94,7 +94,7 @@ namespace RethinkDb
             return new DateTimeOffset((long)(epoch_time.r_num * 10000000) + 621355968000000000, offset);
         }
 
-        public Datum ConvertObject(DateTimeOffset dateTimeOffset)
+        public override Datum ConvertObject(DateTimeOffset dateTimeOffset)
         {
             var datum = new Datum() {
                 type = Datum.DatumType.R_OBJECT
