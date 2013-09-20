@@ -37,6 +37,13 @@ namespace RethinkDb.Test.QueryTests
                         args[1] = stringDatumConverter;
                         return true;
                     });
+            IDatumConverter value2;
+            datumConverterFactory
+                .TryGet(typeof(string), datumConverterFactory, out value2)
+                .Returns(args => {
+                        args[2] = stringDatumConverter;
+                        return true;
+                    });
         }
 
         [Test]

@@ -41,12 +41,8 @@ namespace RethinkDb.Expressions
                 case ExpressionType.Constant:
                 {
                     var constantExpression = (ConstantExpression)expr;
-
-                    // FIXME: could avoid reflection here easily if there were non-generic methods on IDatumConverterFactory and IDatumConverter
-                    var conversionMethod = typeof(BaseExpression).GetMethod("ReflectedConstantConversion", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-                    conversionMethod = conversionMethod.MakeGenericMethod(new Type[] { constantExpression.Type });
-
-                    var datum = (Datum)conversionMethod.Invoke(null, new object[] { datumConverterFactory, constantExpression.Value });
+                    var datumConverter = datumConverterFactory.Get(constantExpression.Type);
+                    var datum = datumConverter.ConvertObject(constantExpression.Value);
                     return new Term() {
                         type = Term.TermType.DATUM,
                         datum = datum
@@ -198,29 +194,14 @@ namespace RethinkDb.Expressions
 
         private Term AttemptClientSideConversion(IDatumConverterFactory datumConverterFactory, Expression expr)
         {
-            var conversionMethod = typeof(BaseExpression).GetMethod("ReflectedExpressionClientSideConversion", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            conversionMethod = conversionMethod.MakeGenericMethod(new Type[] { expr.Type });
-
-            var datum = (Datum)conversionMethod.Invoke(null, new object[] { datumConverterFactory, expr });
-            return new Term() {
-                type = Term.TermType.DATUM,
-                datum = datum
-            };
-        }
-
-        private static Datum ReflectedConstantConversion<TInnerType>(IDatumConverterFactory datumFactory, TInnerType obj)
-        {
-            var converter = datumFactory.Get<TInnerType>();
-            return converter.ConvertObject(obj);
-        }
-
-        private static Datum ReflectedExpressionClientSideConversion<TInnerType>(IDatumConverterFactory datumFactory, Expression expr)
-        {
             try
             {
-                var converter = datumFactory.Get<TInnerType>();
-                var clientSideFunc = Expression.Lambda<Func<TInnerType>>(expr).Compile();
-                return converter.ConvertObject(clientSideFunc());
+                var converter = datumConverterFactory.Get(expr.Type);
+                var clientSideFunc = Expression.Lambda(expr).Compile();
+                return new Term() {
+                    type = Term.TermType.DATUM,
+                    datum = converter.ConvertObject(clientSideFunc.DynamicInvoke())
+                };
             }
             catch (InvalidOperationException ex)
             {

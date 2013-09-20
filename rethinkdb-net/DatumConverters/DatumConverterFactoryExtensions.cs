@@ -28,7 +28,7 @@ namespace RethinkDb
             if (datumConverterFactory.TryGet<T>(rootDatumConverterFactory, out retval))
                 return retval;
             else
-                throw new NotSupportedException(String.Format("Datum converter is not availble for type {0}", typeof(T)));
+                throw new NotSupportedException(String.Format("Datum converter is not available for type {0}", typeof(T)));
         }
 
         #endregion
@@ -56,7 +56,7 @@ namespace RethinkDb
             if (datumConverterFactory.TryGet(datumType, rootDatumConverterFactory, out retval))
                 return retval;
             else
-                throw new NotSupportedException(String.Format("Datum converter is not availble for type {0}", datumType));
+                throw new NotSupportedException(String.Format("Datum converter is not available for type {0}", datumType));
         }
 
         #endregion
