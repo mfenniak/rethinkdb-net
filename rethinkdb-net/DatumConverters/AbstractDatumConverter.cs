@@ -12,12 +12,20 @@ namespace RethinkDb
 
         object IDatumConverter.ConvertDatum(Datum datum)
         {
-            return ConvertDatum(datum);
+            // Because <T> may be a value-type, we need to handle null-conversion here
+            if (datum.type == Datum.DatumType.R_NULL)
+                return null;
+            else
+                return ConvertDatum(datum);
         }
 
         Datum IDatumConverter.ConvertObject(object @object)
         {
-            return ConvertObject((T)@object);
+            // Because <T> may be a value-type, we need to handle null-conversion here
+            if (@object == null)
+                return new Datum() { type = Datum.DatumType.R_NULL };
+            else
+                return ConvertObject((T)@object);
         }
 
         #endregion
