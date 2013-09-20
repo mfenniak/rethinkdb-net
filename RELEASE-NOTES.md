@@ -12,6 +12,8 @@
 
 * Treat null and empty the same for datacenter name in table create, secondary index names, and primary key attributes.  Null and empty are both treated as not provided options.  [Issue #131](https://github.com/mfenniak/rethinkdb-net/issues/131)  Thanks to Jonathan Channon (@jchannon) for reporting the issue.
 
+* Fix exception when using anonymous types in tuples that affected Microsoft .NET; primarily this manifested in GroupBy queries not working.  [Issue #133](https://github.com/mfenniak/rethinkdb-net/issues/133)
+
 
 ## 0.4.2.0
 
