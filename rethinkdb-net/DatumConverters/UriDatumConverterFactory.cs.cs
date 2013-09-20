@@ -2,7 +2,7 @@ using System;
 
 namespace RethinkDb
 {
-    public class UriDatumConverterFactory : IDatumConverterFactory
+    public class UriDatumConverterFactory : AbstractDatumConverterFactory
     {
         public static readonly UriDatumConverterFactory Instance = new UriDatumConverterFactory();
 
@@ -10,7 +10,7 @@ namespace RethinkDb
         {
         }
 
-        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+        public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
             datumConverter = null;
 

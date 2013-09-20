@@ -2,7 +2,7 @@
 
 namespace RethinkDb
 {
-    public class NullableDatumConverterFactory : IDatumConverterFactory
+    public class NullableDatumConverterFactory : AbstractDatumConverterFactory
     {
         public static readonly NullableDatumConverterFactory Instance = new NullableDatumConverterFactory();
 
@@ -10,7 +10,7 @@ namespace RethinkDb
         {
         }
 
-        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+        public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
             datumConverter = null;
             if (rootDatumConverterFactory == null)

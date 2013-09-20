@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace RethinkDb
 {
-    public class ArrayDatumConverterFactory : IDatumConverterFactory
+    public class ArrayDatumConverterFactory : AbstractDatumConverterFactory
     {
         public static readonly ArrayDatumConverterFactory Instance = new ArrayDatumConverterFactory();
 
@@ -12,7 +12,7 @@ namespace RethinkDb
         {
         }
 
-        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+        public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
             datumConverter = null;
             if (rootDatumConverterFactory == null)

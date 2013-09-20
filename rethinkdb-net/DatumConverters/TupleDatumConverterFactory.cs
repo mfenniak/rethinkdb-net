@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace RethinkDb
 {
-    public class TupleDatumConverterFactory : IDatumConverterFactory
+    public class TupleDatumConverterFactory : AbstractDatumConverterFactory
     {
         public static readonly TupleDatumConverterFactory Instance = new TupleDatumConverterFactory();
 
@@ -13,7 +13,7 @@ namespace RethinkDb
         {
         }
 
-        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+        public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
             datumConverter = null;
 

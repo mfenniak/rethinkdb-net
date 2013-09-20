@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 namespace RethinkDb
 {
-    public class DataContractDatumConverterFactory : IDatumConverterFactory
+    public class DataContractDatumConverterFactory : AbstractDatumConverterFactory
     {
         public static readonly DataContractDatumConverterFactory Instance = new DataContractDatumConverterFactory();
         private static readonly object dynamicModuleLock = new object();
@@ -16,7 +16,7 @@ namespace RethinkDb
         {
         }
 
-        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+        public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
             if (rootDatumConverterFactory == null)
                 throw new ArgumentNullException("rootDatumConverterFactory");

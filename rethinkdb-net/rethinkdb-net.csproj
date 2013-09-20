@@ -154,6 +154,7 @@
     <Compile Include="OrderByDirection.cs" />
     <Compile Include="Interfaces\IObjectDatumConverter.cs" />
     <Compile Include="DatumConverters\AbstractDatumConverter.cs" />
+    <Compile Include="DatumConverters\AbstractDatumConverterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

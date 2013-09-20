@@ -5,7 +5,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb
 {
-    public class DateTimeOffsetDatumConverterFactory : IDatumConverterFactory
+    public class DateTimeOffsetDatumConverterFactory : AbstractDatumConverterFactory
     {
         public static readonly DateTimeOffsetDatumConverterFactory Instance = new DateTimeOffsetDatumConverterFactory();
 
@@ -13,7 +13,7 @@ namespace RethinkDb
         {
         }
 
-        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+        public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
             datumConverter = null;
 

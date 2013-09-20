@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace RethinkDb
 {
-    public class AnonymousTypeDatumConverterFactory : IDatumConverterFactory
+    public class AnonymousTypeDatumConverterFactory : AbstractDatumConverterFactory
     {
         public static readonly AnonymousTypeDatumConverterFactory Instance = new AnonymousTypeDatumConverterFactory();
 
@@ -15,7 +15,7 @@ namespace RethinkDb
         {
         }
 
-        public bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+        public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
             datumConverter = null;
 
