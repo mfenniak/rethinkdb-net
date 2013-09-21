@@ -27,7 +27,8 @@ namespace RethinkDb.Test
         [TearDown]
         public void Teardown()
         {
-            rethinkProcess.Kill();
+            if (rethinkProcess != null)
+                rethinkProcess.Kill();
         }
 
         private string GetRethinkPath()
