@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace RethinkDb.Test.Integration
 {
@@ -50,6 +51,20 @@ namespace RethinkDb.Test.Integration
             }
         }
 
+        private string GetRethinkPath()
+        {
+            // Process.Start does not seem to take path into account, so make a couple guesses at rethink's location
+            var locations = new List<string> {
+                "/usr/bin/rethinkdb", "/usr/local/bin/rethinkdb"
+            };
+
+            foreach (var guess in locations)
+                if (File.Exists(guess))
+                    return guess;
+
+            return null;
+        }
+
         private void StartRethinkDb()
         {
             var solutionPath = Path.GetDirectoryName((new System.Uri(Assembly.GetExecutingAssembly().CodeBase)).AbsolutePath);
@@ -61,7 +76,7 @@ namespace RethinkDb.Test.Integration
 
             var processInfo = new ProcessStartInfo()
             {
-                FileName = "/usr/local/bin/rethinkdb",
+                FileName = GetRethinkPath(),
                 Arguments = "-d " + dbPath + " --driver-port 55558",
                 UseShellExecute = false
             };
