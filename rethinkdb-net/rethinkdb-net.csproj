@@ -156,6 +156,7 @@
     <Compile Include="DatumConverters\AbstractDatumConverterFactory.cs" />
     <Compile Include="DatumConverters\AbstractValueTypeDatumConverter.cs" />
     <Compile Include="DatumConverters\AbstractReferenceTypeDatumConverter.cs" />
+    <Compile Include="QueryTerm\SampleQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

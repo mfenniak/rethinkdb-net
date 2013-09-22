@@ -105,6 +105,34 @@ namespace RethinkDb.Test.Integration
                 Assert.That(count, Is.EqualTo(1005));
             }
         }
+
+        [Test]
+        public void Sample()
+        {
+            var query = testTable.Sample(10);
+
+            int count = 0;
+            HashSet<string> firstRunIds = new HashSet<string>();
+            foreach (var o in connection.Run(query))
+            {
+                firstRunIds.Add(o.Id);
+                count += 1;
+            }
+            Assert.That(count, Is.EqualTo(10));
+
+            HashSet<string> secondRunIds = new HashSet<string>();
+            foreach (var o in connection.Run(query))
+            {
+                secondRunIds.Add(o.Id);
+                count += 1;
+            }
+            Assert.That(count, Is.EqualTo(20));
+
+            // Two random sets of ten objects shouldn't have a lot of the same objects, if any; otherwise our Sample
+            // query might not be doing quite what we expect...
+            firstRunIds.IntersectWith(secondRunIds);
+            Assert.That(firstRunIds.Count, Is.LessThan(5));
+        }
     }
 }
 

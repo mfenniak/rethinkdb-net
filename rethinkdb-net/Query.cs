@@ -320,6 +320,11 @@ namespace RethinkDb
             return new GroupByQuery<TObject, TReductionType, TGroupKeyType>(sequenceQuery, reductionObject, groupKeyConstructor);
         }
 
+        public static ISequenceQuery<T> Sample<T>(this ISequenceQuery<T> target, int count)
+        {
+            return new SampleQuery<T>(target, count);
+        }
+
         #endregion
         #region Prebuilt GroupBy reductions
 
