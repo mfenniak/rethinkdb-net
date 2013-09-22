@@ -13,6 +13,15 @@ namespace RethinkDb
                 r_str = str
             };
         }
+
+        public static Datum ToDatum(this bool bl)
+        {
+            return new Datum
+            {
+                type = Datum.DatumType.R_BOOL,
+                r_bool = bl
+            };
+        }
     }
 }
 

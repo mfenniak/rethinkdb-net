@@ -98,6 +98,7 @@
     <Compile Include="Integration\ConnectTests.cs" />
     <Compile Include="Integration\IntegrationTestSetup.cs" />
     <Compile Include="DatumConverters\StringDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\BoolDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
