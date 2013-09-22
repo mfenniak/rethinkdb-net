@@ -457,7 +457,8 @@ namespace RethinkDb
 
         private static void DefineGetDatumFieldName<T>(TypeBuilder type)
         {
-            // FIXME: current implementation is just a series of If checks; could be more efficient with a dictionary lookup.
+            // FIXME: current implementation is just a series of If checks; could be more efficient with a dictionary
+            // lookup. (issue #59)
 
             MethodBuilder meth = type.DefineMethod(
                 "GetDatumFieldName",

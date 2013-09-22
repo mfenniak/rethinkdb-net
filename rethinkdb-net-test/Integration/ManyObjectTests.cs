@@ -72,7 +72,7 @@ namespace RethinkDb.Test.Integration
                 if (count > 10)
                     break;
             }
-            // FIXME: not really sure if there's anything that can be asserted here, so we're just testing
+            // not really sure if there's anything that can be asserted here, so we're just testing
             // if Dispose succeeds without exceptions.  Technically doesn't really test that the query was
             // stopped on the server-side like we'd like to test.
             await enumerable.Dispose();
@@ -88,7 +88,7 @@ namespace RethinkDb.Test.Integration
                 if (count > 10)
                     break;
             }
-            // FIXME: not really sure if there's anything that can be asserted here, so we're just testing
+            // not really sure if there's anything that can be asserted here, so we're just testing
             // if Dispose succeeds without exceptions.  Technically doesn't really test that the query was
             // stopped on the server-side like we'd like to test.
         }
