@@ -2,6 +2,10 @@
 
 ## Next Release
 
+### Features
+
+* Add support for Query.Sample to retrieve a uniform random distribution of values from a query.  [Issue #109](https://github.com/mfenniak/rethinkdb-net/issues/109)
+
 ### API Changes
 
 * RethinkDb.Query now returns and accepts interfaces only for all operations.  This allows a consuming application to never reference `RethinkDb.QueryTerm` namespace unless they want to extend or implement their own query term; it also allows such an extension to work seemlessly with natively implemented operations.  [Issue #134](https://github.com/mfenniak/rethinkdb-net/issues/134)
