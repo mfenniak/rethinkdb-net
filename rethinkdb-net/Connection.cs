@@ -269,9 +269,7 @@ namespace RethinkDb
 
         private async Task ReadLoop()
         {
-            // FIXME: need a graceful way to abort this loop when the Connection is disposed... right now it will
-            // probably become unhandled and the task library will shut down the process.
-
+            RethinkDbException responseException = null;
             try
             {
                 while (true)
@@ -308,10 +306,28 @@ namespace RethinkDb
                     }
                 }
             }
+            catch (RethinkDbNetworkException e)
+            {
+                // Network exception?  That's basically our "graceful" termination of ReadLoop.
+                Logger.Debug("ReadLoop terminated by network exception; this is expected if the connection was closed intentionally");
+                responseException = new RethinkDbNetworkException("ReadLoop terminated unexpectedly while waiting for response from query", e);
+            }
             catch (Exception e)
             {
                 Logger.Fatal("Exception occurred in Connection.ReadLoop: {0}; this connection will no longer function correctly, no error recovery will take place", e);
+                responseException = new RethinkDbInternalErrorException("Unexpected exception in ReadLoop prevented this query from returning data", e);
             }
+
+            var responseSnapshot = tokenResponse.ToList();
+            if (responseSnapshot.Count > 0)
+                Logger.Warning("{0} queries were still waiting for responses from a connection that is closing; they'll receive exceptions instead", responseSnapshot.Count);
+            foreach (var kvp in responseSnapshot)
+            {
+                kvp.Value.SetException(responseException);
+                tokenResponse.Remove(kvp.Key);
+            }
+            if (tokenResponse.Count != 0)
+                Logger.Warning("Cleanup in ReadLoop termination didn't succeed, there are still tasks waiting for data from this connection that will never receive it");
         }
 
         private async Task<int> ReadUntilNullTerminator(byte[] buffer, CancellationToken cancellationToken)

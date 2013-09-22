@@ -28,6 +28,8 @@
 
 * Converted automated tests to startup RethinkDB on-demand for integration tests.  Thanks to Greg Lincoln (@tetious) for the patch.  [Issue #124](https://github.com/mfenniak/rethinkdb-net/issues/124), [PR #137](https://github.com/mfenniak/rethinkdb-net/pull/137)
 
+* Changed and hopefully improved behavior in cleanup of read dispatcher thread when closing a Connection.  It now dispatches exceptions to any pending queries from that connection, and issues various logging messages depending upon how the dispatcher thread terminated. [Issue #64](https://github.com/mfenniak/rethinkdb-net/issues/64)
+
 
 ## 0.4.2.0
 
