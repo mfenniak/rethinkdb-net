@@ -6,8 +6,6 @@
 
 * RethinkDb.Query now returns and accepts interfaces only for all operations.  This allows a consuming application to never reference `RethinkDb.QueryTerm` namespace unless they want to extend or implement their own query term; it also allows such an extension to work seemlessly with natively implemented operations.  [Issue #134](https://github.com/mfenniak/rethinkdb-net/issues/134)
 
-* `IDatumConverter` and `IDatumConverterFactory` now support non-generic operations.  This is primarily an internal change, but anyone implementing their own datum converters can use the abstract base-classes to be compatible with this change.  [Issue #135](https://github.com/mfenniak/rethinkdb-net/issues/135)
-
 ### Bugfixes
 
 * Treat null and empty the same for datacenter name in table create, secondary index names, and primary key attributes.  Null and empty are both treated as not provided options.  [Issue #131](https://github.com/mfenniak/rethinkdb-net/issues/131)  Thanks to Jonathan Channon (@jchannon) for reporting the issue.
@@ -23,6 +21,12 @@
 * Removed usage of reflection in array datum converter.  [Issue #56](https://github.com/mfenniak/rethinkdb-net/issues/56)
 
 * Removed usage of reflection from anonymous type datum converter.
+
+### Internals
+
+* `IDatumConverter` and `IDatumConverterFactory` now support non-generic operations.  This is primarily an internal change, but anyone implementing their own datum converters can use the abstract base-classes to be compatible with this change.  [Issue #135](https://github.com/mfenniak/rethinkdb-net/issues/135)
+
+* Converted automated tests to startup RethinkDB on-demand for integration tests.  Thanks to Greg Lincoln (@tetious) for the patch.  [Issue #124](https://github.com/mfenniak/rethinkdb-net/issues/124), [PR #137](https://github.com/mfenniak/rethinkdb-net/pull/137)
 
 
 ## 0.4.2.0
