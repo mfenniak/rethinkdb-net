@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 using RethinkDb.Spec;
 
-namespace RethinkDb.Test
+namespace RethinkDb.Test.DatumConverters
 {
     [TestFixture]
     public class AbstractValueTypeDatumConverterTests

@@ -11,7 +11,7 @@ using RethinkDb.Configuration;
 using System.Net.Sockets;
 using System.Net;
 
-namespace RethinkDb.Test
+namespace RethinkDb.Test.Integration
 {
     [SetUpFixture]
     public class IntegrationTestSetup
