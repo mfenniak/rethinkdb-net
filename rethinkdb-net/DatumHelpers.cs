@@ -22,6 +22,25 @@ namespace RethinkDb
                 r_bool = bl
             };
         }
+
+        public static Datum ToDatum(this double num)
+        {
+            return new Datum
+            {
+                type = Datum.DatumType.R_NUM,
+                r_num = num
+            };
+        }
+
+        public static Datum ToDatum(this long num)
+        {
+            return ((double)num).ToDatum();
+        }
+
+        public static Datum ToDatum(this int num)
+        {
+            return ((double)num).ToDatum();
+        }
     }
 }
 
