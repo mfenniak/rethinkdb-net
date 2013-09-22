@@ -97,6 +97,7 @@
     <Compile Include="DatumConverters\AbstractReferenceTypeDatumConverterTests.cs" />
     <Compile Include="Integration\ConnectTests.cs" />
     <Compile Include="Integration\IntegrationTestSetup.cs" />
+    <Compile Include="DatumConverters\StringDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
