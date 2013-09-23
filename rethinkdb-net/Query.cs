@@ -325,6 +325,16 @@ namespace RethinkDb
             return new SampleQuery<T>(target, count);
         }
 
+        public static ISequenceQuery<T> HasFields<T>(this ISequenceQuery<T> target, params Expression<Func<T, object>>[] fields)
+        {
+            return new HasFieldsSequenceQuery<T>(target, fields);
+        }
+
+        public static ISingleObjectQuery<bool> HasFields<T>(this ISingleObjectQuery<T> target, params Expression<Func<T, object>>[] fields)
+        {
+            return new HasFieldsSingleObjectQuery<T>(target, fields);
+        }
+
         #endregion
         #region Prebuilt GroupBy reductions
 
