@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Connection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryTerm\HasFieldsQuery.cs" />
     <Compile Include="QueryTerm\TableListQuery.cs" />
     <Compile Include="QueryTerm\DbCreateQuery.cs" />
     <Compile Include="QueryTerm\DbDropQuery.cs" />
