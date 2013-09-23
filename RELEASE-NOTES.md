@@ -1,5 +1,12 @@
 # rethinkdb-net Release Notes
 
+## Next Release
+
+### Features
+
+* Add support for Query.HasFields to check if a single record has non-null field values, or to filter a query based upon records having non-null fields. [PR #139](https://github.com/mfenniak/rethinkdb-net/pull/139)
+
+
 ## 0.5.0.0
 
 ### Features
