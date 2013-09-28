@@ -31,8 +31,7 @@ namespace RethinkDb
 
             public ArrayConverter(IDatumConverterFactory rootDatumConverterFactory)
             {
-                var type = typeof(T).GetElementType();
-                this.arrayTypeConverter = rootDatumConverterFactory.Get(type);
+                this.arrayTypeConverter = rootDatumConverterFactory.Get(typeof(T).GetElementType());
             }
 
             #region IDatumConverter<T> Members
