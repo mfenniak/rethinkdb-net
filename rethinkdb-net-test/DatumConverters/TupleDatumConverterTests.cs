@@ -41,7 +41,6 @@ namespace RethinkDb.Test.DatumConverters
                     });
         }
 
-
         [Test]
         public void ConvertDatum_Array_ReturnsValue()
         {

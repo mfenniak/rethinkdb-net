@@ -60,8 +60,6 @@ namespace RethinkDb.Test.DatumConverters
                     args[2] = stringDatumConverter;
                     return true;
                 });
-
-
         }
 
         [Test]
