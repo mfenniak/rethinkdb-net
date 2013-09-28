@@ -56,5 +56,12 @@ namespace RethinkDb.Test.DatumConverters
             Assert.That(obj.type, Is.EqualTo(Datum.DatumType.R_NUM));
             Assert.That(obj.r_num, Is.EqualTo(expectedValue));
         }
+
+        [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void ConvertObject_Null_ThrowsException()
+        {
+            PrimitiveDatumConverterFactory.Instance.Get<double>().ConvertObject(null);
+        }
     }
 }

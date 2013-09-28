@@ -38,5 +38,12 @@ namespace RethinkDb.Test.DatumConverters
             Assert.That(obj.type, Is.EqualTo(Datum.DatumType.R_BOOL));
             Assert.That(obj.r_bool, Is.EqualTo(true));
         }
+
+        [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void ConvertObject_Null_ThrowsException()
+        {
+            PrimitiveDatumConverterFactory.Instance.Get<bool>().ConvertObject(null);
+        }
     }
 }
