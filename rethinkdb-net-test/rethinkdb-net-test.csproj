@@ -102,6 +102,7 @@
     <Compile Include="DatumConverters\BoolDatumConverterTests.cs" />
     <Compile Include="DatumConverters\DoubleDatumConverterTests.cs" />
     <Compile Include="DatumConverters\TupleDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\AggregateDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
