@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using RethinkDb.Spec;
+using System;
 
 namespace RethinkDb.Test.DatumConverters
 {
@@ -13,6 +14,20 @@ namespace RethinkDb.Test.DatumConverters
             Assert.That(value, Is.True);
             value = PrimitiveDatumConverterFactory.Instance.Get<bool>().ConvertDatum(false.ToDatum());
             Assert.That(value, Is.False);
+        }
+
+        [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void ConvertDatum_NullReturnsException()
+        {
+            PrimitiveDatumConverterFactory.Instance.Get<bool>().ConvertDatum(new Datum { type = Datum.DatumType.R_NULL });
+        }
+
+        [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void ConvertDatum_UnsupportedTypeReturnsException()
+        {
+            PrimitiveDatumConverterFactory.Instance.Get<bool>().ConvertDatum(new Datum { type = Datum.DatumType.R_NUM });
         }
 
         [Test]

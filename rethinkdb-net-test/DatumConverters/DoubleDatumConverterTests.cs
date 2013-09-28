@@ -24,6 +24,20 @@ namespace RethinkDb.Test.DatumConverters
         }
 
         [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void ConvertDatum_NullReturnsException()
+        {
+            PrimitiveDatumConverterFactory.Instance.Get<double>().ConvertDatum(new Datum { type = Datum.DatumType.R_NULL });
+        }
+
+        [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void ConvertDatum_UnsupportedTypeReturnsException()
+        {
+            PrimitiveDatumConverterFactory.Instance.Get<double>().ConvertDatum(new Datum { type = Datum.DatumType.R_STR });
+        }
+
+        [Test]
         public void ConvertObject()
         {
             const double expectedValue = 3000;

@@ -16,6 +16,13 @@ namespace RethinkDb.Test.DatumConverters
         }
 
         [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void ConvertDatum_UnsupportedTypeReturnsException()
+        {
+            PrimitiveDatumConverterFactory.Instance.Get<string>().ConvertDatum(new Datum { type = Datum.DatumType.R_ARRAY });
+        }
+
+        [Test]
         public void ConvertDatum_EmptyString()
         {
             const string expectedValue = "";
