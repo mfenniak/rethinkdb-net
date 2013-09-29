@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using RethinkDb.DatumConverters;
 using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm

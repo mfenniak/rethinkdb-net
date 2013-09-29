@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using RethinkDb.Spec;
 
-namespace RethinkDb
+namespace RethinkDb.DatumConverters
 {
     public class DateTimeDatumConverterFactory : AbstractDatumConverterFactory
     {

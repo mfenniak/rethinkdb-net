@@ -1,7 +1,7 @@
 ﻿using System;
 using RethinkDb.Spec;
 
-namespace RethinkDb
+namespace RethinkDb.DatumConverters
 {
     public class NullableDatumConverterFactory : AbstractDatumConverterFactory
     {
