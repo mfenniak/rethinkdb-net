@@ -3,9 +3,9 @@ using RethinkDb.Spec;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RethinkDb
+namespace RethinkDb.Test
 {
-    public static class DatumHelpers
+    internal static class DatumHelpers
     {
         public static Datum ToDatum(this string str)
         {

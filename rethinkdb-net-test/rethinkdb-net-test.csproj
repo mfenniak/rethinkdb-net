@@ -104,6 +104,7 @@
     <Compile Include="DatumConverters\TupleDatumConverterTests.cs" />
     <Compile Include="DatumConverters\AggregateDatumConverterTests.cs" />
     <Compile Include="DatumConverters\AnonymousTypeDatumConverterTests.cs" />
+    <Compile Include="DatumHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
