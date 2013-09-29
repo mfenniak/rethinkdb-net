@@ -6,6 +6,15 @@
 
 * Add support for Query.HasFields to check if a single record has non-null field values, or to filter a query based upon records having non-null fields. [PR #139](https://github.com/mfenniak/rethinkdb-net/pull/139)
 
+### API Changes
+
+* Create new namespaces RethinkDb.DatumConverters (for all datum converter) and RethinkDb.Logging (for logging requirements).  This cleans up the RethinkDb namespace and simplifies the API for library users.  [Issue #141](https://github.com/mfenniak/rethinkdb-net/issues/141)
+
+### Internals
+
+* Better unit test coverage of builtin datum converters.  [Issue #60](https://github.com/mfenniak/rethinkdb-net/issues/60), [PR #140](https://github.com/mfenniak/rethinkdb-net/pull/140)
+
+
 
 ## 0.5.0.0
 
