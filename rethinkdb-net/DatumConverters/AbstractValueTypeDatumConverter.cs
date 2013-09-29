@@ -1,7 +1,7 @@
 using System;
 using RethinkDb.Spec;
 
-namespace RethinkDb
+namespace RethinkDb.DatumConverters
 {
     public abstract class AbstractValueTypeDatumConverter<T> : IDatumConverter<T>
     {

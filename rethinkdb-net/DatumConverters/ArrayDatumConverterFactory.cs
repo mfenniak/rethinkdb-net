@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Reflection;
 
-namespace RethinkDb
+namespace RethinkDb.DatumConverters
 {
     public class ArrayDatumConverterFactory : AbstractDatumConverterFactory
     {

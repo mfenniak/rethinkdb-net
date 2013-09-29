@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RethinkDb
+namespace RethinkDb.Logging
 {
     static class LoggingUtils
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RethinkDb
+namespace RethinkDb.DatumConverters
 {
     public class PrimitiveDatumConverterFactory : AbstractDatumConverterFactory
     {

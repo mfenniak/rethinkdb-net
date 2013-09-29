@@ -4,6 +4,7 @@ using System;
 using RethinkDb;
 using NSubstitute;
 using System.Collections.Generic;
+using RethinkDb.DatumConverters;
 using RethinkDb.Test.Integration;
 
 namespace RethinkDb.Test.DatumConverters

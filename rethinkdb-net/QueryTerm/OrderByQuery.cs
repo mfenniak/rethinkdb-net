@@ -1,8 +1,9 @@
-using RethinkDb.Spec;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using RethinkDb.DatumConverters;
+using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {

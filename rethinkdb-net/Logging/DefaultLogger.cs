@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace RethinkDb
+namespace RethinkDb.Logging
 {
     public class DefaultLogger : ILogger
     {

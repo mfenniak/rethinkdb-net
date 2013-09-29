@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace RethinkDb
+namespace RethinkDb.DatumConverters
 {
     public class AggregateDatumConverterFactory : AbstractDatumConverterFactory
     {

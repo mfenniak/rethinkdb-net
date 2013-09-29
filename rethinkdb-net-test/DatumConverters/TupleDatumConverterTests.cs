@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using System.Collections.Generic;
 using RethinkDb.Spec;
 using NSubstitute;
+using RethinkDb.DatumConverters;
 
 namespace RethinkDb.Test.DatumConverters
 {

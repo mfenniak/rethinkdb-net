@@ -1,6 +1,6 @@
 using System;
 
-namespace RethinkDb
+namespace RethinkDb.Logging
 {
     public enum LoggingCategory
     {
