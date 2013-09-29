@@ -130,7 +130,6 @@
     <Compile Include="DatumConverters\NullableDatumConverterFactory.cs" />
     <Compile Include="Bound.cs" />
     <Compile Include="QueryTerm\NowQuery.cs" />
-    <Compile Include="DatumConverters\UriDatumConverterFactory.cs.cs" />
     <Compile Include="ReQLExpression.cs" />
     <Compile Include="Expressions\SingleParameterLambda.cs" />
     <Compile Include="Expressions\BaseExpression.cs" />
@@ -158,6 +157,7 @@
     <Compile Include="DatumConverters\AbstractValueTypeDatumConverter.cs" />
     <Compile Include="DatumConverters\AbstractReferenceTypeDatumConverter.cs" />
     <Compile Include="QueryTerm\SampleQuery.cs" />
+    <Compile Include="DatumConverters\UriDatumConverterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

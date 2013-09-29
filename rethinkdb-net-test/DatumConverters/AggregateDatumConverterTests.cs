@@ -1,7 +1,7 @@
 using NUnit.Framework;
-using RethinkDb.Spec;
 using System;
 using RethinkDb;
+using RethinkDb.DatumConverters;
 
 namespace RethinkDb.Test.DatumConverters
 {
@@ -14,11 +14,11 @@ namespace RethinkDb.Test.DatumConverters
             var fact = new AggregateDatumConverterFactory(PrimitiveDatumConverterFactory.Instance);
             var stringConverter = fact.Get<string>();
             Assert.That(stringConverter, Is.Not.Null);
-            Assert.That(stringConverter, Is.TypeOf(typeof(RethinkDb.PrimitiveDatumConverterFactory.StringDatumConverter)));
+            Assert.That(stringConverter, Is.TypeOf(typeof(PrimitiveDatumConverterFactory.StringDatumConverter)));
 
             var intConverter = fact.Get<int>();
             Assert.That(intConverter, Is.Not.Null);
-            Assert.That(intConverter, Is.TypeOf(typeof(RethinkDb.PrimitiveDatumConverterFactory.IntDatumConverter)));
+            Assert.That(intConverter, Is.TypeOf(typeof(PrimitiveDatumConverterFactory.IntDatumConverter)));
         }
 
         [Test]

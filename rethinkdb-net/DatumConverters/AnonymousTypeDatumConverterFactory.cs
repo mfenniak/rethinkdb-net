@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Linq;
 
-namespace RethinkDb
+namespace RethinkDb.DatumConverters
 {
     public class AnonymousTypeDatumConverterFactory : AbstractDatumConverterFactory
     {

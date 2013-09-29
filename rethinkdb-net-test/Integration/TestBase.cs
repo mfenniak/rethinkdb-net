@@ -5,6 +5,7 @@ using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
 using RethinkDb.Configuration;
+using RethinkDb.Logging;
 
 namespace RethinkDb.Test.Integration
 {

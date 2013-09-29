@@ -1,4 +1,5 @@
 using RethinkDb.Spec;
+using RethinkDb.DatumConverters;
 
 namespace RethinkDb.QueryTerm
 {

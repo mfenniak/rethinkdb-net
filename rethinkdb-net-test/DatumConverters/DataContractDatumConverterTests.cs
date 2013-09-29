@@ -2,6 +2,7 @@ using NUnit.Framework;
 using RethinkDb.Spec;
 using RethinkDb.Test.Integration;
 using NSubstitute;
+using RethinkDb.DatumConverters;
 
 namespace RethinkDb.Test.DatumConverters
 {

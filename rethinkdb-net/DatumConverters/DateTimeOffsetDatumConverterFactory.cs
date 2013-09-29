@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using RethinkDb.Spec;
 
-namespace RethinkDb
+namespace RethinkDb.DatumConverters
 {
     public class DateTimeOffsetDatumConverterFactory : AbstractDatumConverterFactory
     {

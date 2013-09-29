@@ -4,6 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using RethinkDb.Spec;
 using NSubstitute;
+using RethinkDb.DatumConverters;
 
 namespace RethinkDb.Test.DatumConverters
 {
