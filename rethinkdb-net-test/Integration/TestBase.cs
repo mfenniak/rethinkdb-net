@@ -32,7 +32,6 @@ namespace RethinkDb.Test.Integration
         private async Task DoTestFixtureSetUp()
         {
             connection = await connectionFactory.GetAsync();
-            connection.Logger = new DefaultLogger(LoggingCategory.Warning, Console.Out);
 
             try
             {

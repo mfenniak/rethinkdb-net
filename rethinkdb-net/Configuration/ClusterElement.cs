@@ -38,5 +38,23 @@ namespace RethinkDb.Configuration
                 return this["endpoints"] as EndPointElementCollection;
             }
         }
+
+        [ConfigurationProperty("connectionPool")]
+        public ConnectionPoolElement ConnectionPool
+        {
+            get
+            {
+                return this["connectionPool"] as ConnectionPoolElement;
+            }
+        }
+
+        [ConfigurationProperty("defaultLogger")]
+        public DefaultLoggerElement DefaultLogger
+        {
+            get
+            {
+                return this["defaultLogger"] as DefaultLoggerElement;
+            }
+        }
     }
 }

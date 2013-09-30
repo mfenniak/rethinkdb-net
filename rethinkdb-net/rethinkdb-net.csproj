@@ -161,6 +161,8 @@
     <Compile Include="Interfaces\IConnectableConnection.cs" />
     <Compile Include="ConnectionFactories\DefaultConnectionFactory.cs" />
     <Compile Include="Configuration\ConfigurationAssembler.cs" />
+    <Compile Include="Configuration\ConnectionPoolElement.cs" />
+    <Compile Include="Configuration\DefaultLoggerElement.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

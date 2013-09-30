@@ -34,10 +34,18 @@ namespace RethinkDb
             set;
         }
 
+        public ILogger Logger
+        {
+            get;
+            set;
+        }
+
         public async Task<IConnection> GetAsync()
         {
             var connection = new Connection();
             connection.EndPoints = EndPoints;
+            if (Logger != null)
+                connection.Logger = Logger;
             if (ConnectTimeout.HasValue)
                 connection.ConnectTimeout = ConnectTimeout.Value;
             if (!string.IsNullOrEmpty(AuthorizationKey))

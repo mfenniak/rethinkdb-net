@@ -2,6 +2,7 @@ using System;
 using System.Configuration;
 using System.Net;
 using System.Collections.Generic;
+using RethinkDb.Logging;
 
 namespace RethinkDb.Configuration
 {
@@ -18,24 +19,39 @@ namespace RethinkDb.Configuration
             {
                 if (cluster.Name == clusterName)
                 {
-                    List<EndPoint> endpoints = new List<EndPoint>();
-                    foreach (EndPointElement ep in cluster.EndPoints)
-                    {
-                        IPAddress ip;
-                        if (IPAddress.TryParse(ep.Address, out ip))
-                            endpoints.Add(new IPEndPoint(ip, ep.Port));
-                        else
-                            endpoints.Add(new DnsEndPoint(ep.Address, ep.Port));
-                    }
+                    IConnectionFactory connectionFactory = CreateDefaultConnectionFactory(cluster);
 
-                    var connectionFactory = new DefaultConnectionFactory(endpoints);
-                    if (!String.IsNullOrEmpty(cluster.AuthorizationKey))
-                        connectionFactory.AuthorizationKey = cluster.AuthorizationKey;
+                    if (cluster.ConnectionPool != null && cluster.ConnectionPool.Enabled)
+                        connectionFactory = new ConnectionPoolingConnectionFactory(connectionFactory);
+
                     return connectionFactory;
                 }
             }
 
             throw new ArgumentException("Cluster name could not be found in configuration", "clusterName");
+        }
+
+        private static IConnectionFactory CreateDefaultConnectionFactory(ClusterElement cluster)
+        {
+            List<EndPoint> endpoints = new List<EndPoint>();
+            foreach (EndPointElement ep in cluster.EndPoints)
+            {
+                IPAddress ip;
+                if (IPAddress.TryParse(ep.Address, out ip))
+                    endpoints.Add(new IPEndPoint(ip, ep.Port));
+                else
+                    endpoints.Add(new DnsEndPoint(ep.Address, ep.Port));
+            }
+
+            var connectionFactory = new DefaultConnectionFactory(endpoints);
+
+            if (!String.IsNullOrEmpty(cluster.AuthorizationKey))
+                connectionFactory.AuthorizationKey = cluster.AuthorizationKey;
+
+            if (cluster.DefaultLogger != null && cluster.DefaultLogger.Enabled)
+                connectionFactory.Logger = new DefaultLogger(cluster.DefaultLogger.Category, Console.Out);
+
+            return connectionFactory;
         }
     }
 }

@@ -168,13 +168,13 @@ namespace RethinkDb
             public ILogger Logger
             {
                 get { return this.innerConnection.Logger; }
-                set { throw new NotSupportedException("set_DatumConverterFactory not supported on pooled connection"); }
+                set { throw new NotSupportedException("set_Logger not supported on pooled connection"); }
             }
 
             public TimeSpan QueryTimeout
             {
                 get { return this.innerConnection.QueryTimeout; }
-                set { throw new NotSupportedException("set_DatumConverterFactory not supported on pooled connection"); }
+                set { throw new NotSupportedException("set_QueryTimeout not supported on pooled connection"); }
             }
 
             #endregion
