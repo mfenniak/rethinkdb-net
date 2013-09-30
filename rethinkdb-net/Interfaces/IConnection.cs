@@ -1,18 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace RethinkDb
 {
-    public interface IConnection
+    public interface IConnection : IDisposable
     {
-        IEnumerable<EndPoint> EndPoints
-        {
-            get;
-            set;
-        }
-
         IDatumConverterFactory DatumConverterFactory
         {
             get;
@@ -25,27 +18,13 @@ namespace RethinkDb
             set;
         }
 
-        TimeSpan ConnectTimeout
-        {
-            get;
-            set;
-        }
-        
         TimeSpan QueryTimeout
         {
             get;
             set;
         }
 
-        string AuthorizationKey
-        {
-            get;
-            set;
-        }
-
         #region Asynchronous API
-
-        Task ConnectAsync();
 
         Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject);
 
@@ -61,8 +40,6 @@ namespace RethinkDb
 
         #endregion
         #region Synchronous API
-
-        void Connect();
 
         T Run<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject);
 

@@ -5,17 +5,11 @@ using System.Collections.Generic;
 
 namespace RethinkDb.Configuration
 {
-    public class ConfigConnectionFactory : IConnectionFactory
+    public class ConfigurationAssembler
     {
-        public static readonly ConfigConnectionFactory Instance = new ConfigConnectionFactory();
-
         internal static readonly Lazy<RethinkDbClientSection> DefaultSettings = new Lazy<RethinkDbClientSection>(() => ConfigurationManager.GetSection("rethinkdb") as RethinkDbClientSection);
 
-        private ConfigConnectionFactory()
-        {
-        }
-
-        public IConnection Get(string clusterName)
+        public static IConnectionFactory CreateConnectionFactory(string clusterName)
         {
             if (DefaultSettings.Value == null)
                 throw new ConfigurationErrorsException("No rethinkdb client configuration section located");
@@ -34,10 +28,10 @@ namespace RethinkDb.Configuration
                             endpoints.Add(new DnsEndPoint(ep.Address, ep.Port));
                     }
 
-                    var connection = new Connection(endpoints.ToArray());
+                    var connectionFactory = new DefaultConnectionFactory(endpoints);
                     if (!String.IsNullOrEmpty(cluster.AuthorizationKey))
-                        connection.AuthorizationKey = cluster.AuthorizationKey;
-                    return connection;
+                        connectionFactory.AuthorizationKey = cluster.AuthorizationKey;
+                    return connectionFactory;
                 }
             }
 

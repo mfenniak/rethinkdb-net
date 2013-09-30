@@ -314,6 +314,12 @@ namespace RethinkDb
                 Logger.Debug("ReadLoop terminated by network exception; this is expected if the connection was closed intentionally");
                 responseException = new RethinkDbNetworkException("ReadLoop terminated unexpectedly while waiting for response from query", e);
             }
+            catch (ObjectDisposedException e)
+            {
+                // Probably a result of this connection being disposed; that's pretty graceful too...
+                Logger.Debug("ReadLoop terminated by network exception; this is expected if the connection was closed intentionally");
+                responseException = new RethinkDbRuntimeException("ReadLoop terminated unexpectedly due to connection Dispose while waiting for response from query", e);
+            }
             catch (Exception e)
             {
                 Logger.Fatal("Exception occurred in Connection.ReadLoop: {0}; this connection will no longer function correctly, no error recovery will take place", e);

@@ -1,7 +1,18 @@
-﻿namespace RethinkDb
+﻿using System.Threading.Tasks;
+
+namespace RethinkDb
 {
     public interface IConnectionFactory
     {
-        IConnection Get(string name);
+        #region Asynchronous API
+
+        Task<IConnection> GetAsync();
+
+        #endregion
+        #region Synchronous API
+
+        IConnection Get();
+
+        #endregion
     }
 }

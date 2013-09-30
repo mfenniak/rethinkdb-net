@@ -11,6 +11,8 @@ namespace RethinkDb.Test.Integration
 {
     public class TestBase
     {
+        private static IConnectionFactory connectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
+
         protected IConnection connection;
 
         [TestFixtureSetUp]
@@ -29,10 +31,8 @@ namespace RethinkDb.Test.Integration
 
         private async Task DoTestFixtureSetUp()
         {
-            connection = ConfigConnectionFactory.Instance.Get("testCluster");
+            connection = await connectionFactory.GetAsync();
             connection.Logger = new DefaultLogger(LoggingCategory.Warning, Console.Out);
-
-            await connection.ConnectAsync();
 
             try
             {
@@ -48,7 +48,8 @@ namespace RethinkDb.Test.Integration
         [TestFixtureTearDown]
         public virtual void TestFixtureTearDown()
         {
+            connection.Dispose();
+            connection = null;
         }
     }
 }
-
