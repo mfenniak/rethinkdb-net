@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Net;
 using System.Collections.Generic;
 using RethinkDb.Logging;
+using RethinkDb.ConnectionFactories;
 
 namespace RethinkDb.Configuration
 {

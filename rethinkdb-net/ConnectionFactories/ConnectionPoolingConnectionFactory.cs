@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
 
-namespace RethinkDb
+namespace RethinkDb.ConnectionFactories
 {
     /// <summary>
     /// Very simple connection pool implementation of IConnectionFactory; when connections are Unget into the pool

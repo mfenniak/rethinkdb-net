@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace RethinkDb
+namespace RethinkDb.ConnectionFactories
 {
     /// <summary>
     /// Most basic implementation of an IConnectionFactory, allowing configuration of all connectable properties of
