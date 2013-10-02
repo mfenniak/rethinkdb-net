@@ -22,6 +22,9 @@ namespace RethinkDb.Configuration
                 {
                     IConnectionFactory connectionFactory = CreateDefaultConnectionFactory(cluster);
 
+                    if (cluster.NetworkErrorHandling != null && cluster.NetworkErrorHandling.Enabled)
+                        connectionFactory = new ReliableConnectionFactory(connectionFactory);
+
                     if (cluster.ConnectionPool != null && cluster.ConnectionPool.Enabled)
                         connectionFactory = new ConnectionPoolingConnectionFactory(connectionFactory);
 

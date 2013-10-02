@@ -1,0 +1,85 @@
+using System;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using NSubstitute;
+using RethinkDb.ConnectionFactories;
+
+namespace RethinkDb.Test.ConnectionFactories
+{
+    [TestFixture]
+    public class ReliableConnectionFactoryTests
+    {
+        [SetUp]
+        public void SetUp()
+        {
+        }
+
+        private IConnectionFactory CreateRootConnectionFactory(IConnection connection)
+        {
+            var rootConnectionFactory = Substitute.For<IConnectionFactory>();
+            rootConnectionFactory.GetAsync().Returns<Task<IConnection>>(
+                y => { var x = new TaskCompletionSource<IConnection>(); x.SetResult(connection); return x.Task; }
+            );
+            return rootConnectionFactory;
+        }
+
+        private IConnectionFactory CreateRootConnectionFactory(IConnection conn1, IConnection conn2)
+        {
+            var rootConnectionFactory = Substitute.For<IConnectionFactory>();
+            rootConnectionFactory.GetAsync().Returns<Task<IConnection>>(
+                y => { var x = new TaskCompletionSource<IConnection>(); x.SetResult(conn1); return x.Task; },
+                y => { var x = new TaskCompletionSource<IConnection>(); x.SetResult(conn2); return x.Task; }
+            );
+            return rootConnectionFactory;
+        }
+
+        [Test]
+        public void GetCallsUnderlyingFactory()
+        {
+            var rootConnectionFactory = Substitute.For<IConnectionFactory>();
+            var cf = new ReliableConnectionFactory(rootConnectionFactory);
+
+            cf.Get();
+
+            rootConnectionFactory.Received().GetAsync();
+        }
+
+        [Test]
+        public void DelegateRunISingleObjectQuery()
+        {
+            var mockConnection = Substitute.For<IConnection>();
+            mockConnection.Run((ISingleObjectQuery<int>)null).Returns(1);
+            var rootConnectionFactory = CreateRootConnectionFactory(mockConnection);
+            var cf = new ReliableConnectionFactory(rootConnectionFactory);
+
+            var conn = cf.Get();
+            Assert.That(conn, Is.Not.Null);
+            Assert.That(conn.Run((ISingleObjectQuery<int>)null), Is.EqualTo(1));
+            conn.Dispose();
+        }
+
+        [Test]
+        public void RetryRunISingleObjectQuery()
+        {
+            var errorConnection = Substitute.For<IConnection>();
+            errorConnection.Run((ISingleObjectQuery<int>)null).Returns(x => { throw new RethinkDbNetworkException("!"); });
+
+            var successConnection = Substitute.For<IConnection>();
+            successConnection.Run((ISingleObjectQuery<int>)null).Returns(1);
+
+            var rootConnectionFactory = CreateRootConnectionFactory(errorConnection, successConnection);
+            var cf = new ReliableConnectionFactory(rootConnectionFactory);
+
+            var conn = cf.Get();
+            Assert.That(conn, Is.Not.Null);
+            Assert.That(conn.Run((ISingleObjectQuery<int>)null), Is.EqualTo(1));
+            conn.Dispose();
+
+            // Error connection was attempted...
+            errorConnection.Received().Run((ISingleObjectQuery<int>)null);
+            // Then another connection was attempted after the error failed.
+            successConnection.Received().Run((ISingleObjectQuery<int>)null);
+        }
+    }
+}
+

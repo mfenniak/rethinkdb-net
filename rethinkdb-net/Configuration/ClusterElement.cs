@@ -48,6 +48,15 @@ namespace RethinkDb.Configuration
             }
         }
 
+        [ConfigurationProperty("networkErrorHandling")]
+        public NetworkErrorHandlingElement NetworkErrorHandling
+        {
+            get
+            {
+                return this["networkErrorHandling"] as NetworkErrorHandlingElement;
+            }
+        }
+
         [ConfigurationProperty("defaultLogger")]
         public DefaultLoggerElement DefaultLogger
         {
