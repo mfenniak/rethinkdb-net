@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
+using RethinkDb.Logging;
 
 namespace RethinkDb.ConnectionFactories
 {
@@ -32,16 +33,27 @@ namespace RethinkDb.ConnectionFactories
             {
                 this.reliableConnectionFactory = reliableConnectionFactory;
                 this.innerConnection = innerConnection;
+
+                this.DatumConverterFactory = innerConnection.DatumConverterFactory;
+                this.Logger = innerConnection.Logger;
+                this.QueryTimeout = innerConnection.QueryTimeout;
             }
 
-            public void Reconnect()
+            public void Reconnect(RethinkDbNetworkException e)
             {
+                Logger.Warning("Attempting to reconnect to RethinkDB after network exception: {0}", e);
+
                 // FIXME: This seems like it's not thread-safe; I know we just got a network error, but could
                 // this connection still be in-use?  Also, Reconnect() could be called simultaneously from
                 // multiple users... probably won't be a serious problem when used in combination with the connection
                 // pool, as connections are less likely to be shared across threads.
                 this.innerConnection.Dispose();
                 this.innerConnection = this.reliableConnectionFactory.innerConnectionFactory.Get();
+
+                // Re-set the new connection's properties to match this one's.
+                innerConnection.DatumConverterFactory = this.DatumConverterFactory;
+                innerConnection.Logger = this.Logger;
+                innerConnection.QueryTimeout = this.QueryTimeout;
             }
 
             private async Task<TReturnValue> RetryRunAsync<TReturnValue>(Func<Task<TReturnValue>> action)
@@ -52,9 +64,9 @@ namespace RethinkDb.ConnectionFactories
                 {
                     return await action();
                 }
-                catch (RethinkDbNetworkException)
+                catch (RethinkDbNetworkException e)
                 {
-                    Reconnect();
+                    Reconnect(e);
                 }
                 return await action();
             }
@@ -80,19 +92,9 @@ namespace RethinkDb.ConnectionFactories
                 return RetryRunAsync(() => this.innerConnection.RunAsync<T>(datumConverterFactory, queryObject));
             }
 
-            public Task<T> RunAsync<T>(ISingleObjectQuery<T> queryObject)
-            {
-                return RetryRunAsync(() => this.innerConnection.RunAsync<T>(queryObject));
-            }
-
             public Task<TResponseType> RunAsync<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
             {
                 return RetryRunAsync(() => this.innerConnection.RunAsync<TResponseType>(datumConverterFactory, queryObject));
-            }
-
-            public Task<TResponseType> RunAsync<TResponseType>(IWriteQuery<TResponseType> queryObject)
-            {
-                return RetryRunAsync(() => this.innerConnection.RunAsync<TResponseType>(queryObject));
             }
 
             public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
@@ -102,47 +104,22 @@ namespace RethinkDb.ConnectionFactories
                 return new RetryAsyncEnumeratorWrapper<T>(this, () => this.innerConnection.RunAsync(datumConverterFactory, queryObject));
             }
 
-            public IAsyncEnumerator<T> RunAsync<T>(ISequenceQuery<T> queryObject)
-            {
-                if (this.disposed)
-                    throw new ObjectDisposedException("ReliableConnectionWrapper");
-                return new RetryAsyncEnumeratorWrapper<T>(this, () => this.innerConnection.RunAsync(queryObject));
-            }
-
             public IDatumConverterFactory DatumConverterFactory
             {
-                get
-                {
-                    throw new System.NotImplementedException();
-                }
-                set
-                {
-                    throw new System.NotImplementedException();
-                }
+                get;
+                set;
             }
 
             public ILogger Logger
             {
-                get
-                {
-                    throw new System.NotImplementedException();
-                }
-                set
-                {
-                    throw new System.NotImplementedException();
-                }
+                get;
+                set;
             }
 
             public TimeSpan QueryTimeout
             {
-                get
-                {
-                    throw new System.NotImplementedException();
-                }
-                set
-                {
-                    throw new System.NotImplementedException();
-                }
+                get;
+                set;
             }
 
             #endregion
@@ -175,10 +152,10 @@ namespace RethinkDb.ConnectionFactories
                         this.innerEnumerator = this.enumeratorConstructor();
                         return await this.innerEnumerator.MoveNext();
                     }
-                    catch (RethinkDbNetworkException)
+                    catch (RethinkDbNetworkException e)
                     {
                         this.innerEnumerator = null;
-                        this.reliableConnection.Reconnect();
+                        this.reliableConnection.Reconnect(e);
                     }
 
                     this.innerEnumerator = this.enumeratorConstructor();

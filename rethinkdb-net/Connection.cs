@@ -447,19 +447,9 @@ namespace RethinkDb
             }
         }
 
-        public Task<T> RunAsync<T>(ISingleObjectQuery<T> queryObject)
-        {
-            return RunAsync<T>(DatumConverterFactory, queryObject);
-        }
-
         public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
         {
             return new QueryEnumerator<T>(this, datumConverterFactory, queryObject);
-        }
-
-        public IAsyncEnumerator<T> RunAsync<T>(ISequenceQuery<T> queryObject)
-        {
-            return RunAsync(DatumConverterFactory, queryObject);
         }
 
         public async Task<TResponseType> RunAsync<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
@@ -486,11 +476,6 @@ namespace RethinkDb
                 default:
                     throw new RethinkDbInternalErrorException("Unhandled response type: " + response.type);
             }
-        }
-
-        public Task<TResponseType> RunAsync<TResponseType>(IWriteQuery<TResponseType> queryObject)
-        {
-            return RunAsync(DatumConverterFactory, queryObject);
         }
 
         private class QueryEnumerator<T> : IAsyncEnumerator<T>

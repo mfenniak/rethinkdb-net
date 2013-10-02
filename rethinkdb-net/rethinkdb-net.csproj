@@ -164,8 +164,9 @@
     <Compile Include="Configuration\ConnectionPoolElement.cs" />
     <Compile Include="Configuration\DefaultLoggerElement.cs" />
     <Compile Include="ConnectionFactories\ReliableConnectionFactory.cs" />
-    <Compile Include="SynchronousApi.cs" />
     <Compile Include="Configuration\NetworkErrorHandlingElement.cs" />
+    <Compile Include="ConnectionExtensions.cs" />
+    <Compile Include="SynchronousApiExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

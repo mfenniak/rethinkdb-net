@@ -15,12 +15,12 @@ namespace RethinkDb.Test.ConnectionFactories
         public void SetUp()
         {
             var realConnection1 = Substitute.For<IConnection>();
-            realConnection1.RunAsync((ISingleObjectQuery<int>)null).Returns(
+            realConnection1.RunAsync(Arg.Any<IDatumConverterFactory>(), (ISingleObjectQuery<int>)null).Returns(
                 y => { var x = new TaskCompletionSource<int>(); x.SetResult(1); return x.Task; }
             );
 
             var realConnection2 = Substitute.For<IConnection>();
-            realConnection2.RunAsync((ISingleObjectQuery<int>)null).Returns(
+            realConnection2.RunAsync(Arg.Any<IDatumConverterFactory>(), (ISingleObjectQuery<int>)null).Returns(
                 y => { var x = new TaskCompletionSource<int>(); x.SetResult(2); return x.Task; }
             );
 

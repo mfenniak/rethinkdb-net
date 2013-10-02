@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RethinkDb
 {
-    public static class SynchronousApi
+    public static class SynchronousApiExtensions
     {
         #region IConnectionFactory
 

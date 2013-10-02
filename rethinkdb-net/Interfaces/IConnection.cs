@@ -28,15 +28,9 @@ namespace RethinkDb
 
         Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject);
 
-        Task<T> RunAsync<T>(ISingleObjectQuery<T> queryObject);
-
         IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject);
 
-        IAsyncEnumerator<T> RunAsync<T>(ISequenceQuery<T> queryObject);
-
         Task<TResponseType> RunAsync<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject);
-
-        Task<TResponseType> RunAsync<TResponseType>(IWriteQuery<TResponseType> queryObject);
 
         #endregion
     }
