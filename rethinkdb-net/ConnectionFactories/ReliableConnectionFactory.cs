@@ -87,14 +87,9 @@ namespace RethinkDb.ConnectionFactories
             #endregion
             #region IConnection implementation
 
-            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
+            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject)
             {
                 return RetryRunAsync(() => this.innerConnection.RunAsync<T>(datumConverterFactory, queryObject));
-            }
-
-            public Task<TResponseType> RunAsync<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
-            {
-                return RetryRunAsync(() => this.innerConnection.RunAsync<TResponseType>(datumConverterFactory, queryObject));
             }
 
             public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)

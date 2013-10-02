@@ -421,7 +421,7 @@ namespace RethinkDb
             }
         }
 
-        public async Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
+        public async Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
@@ -450,32 +450,6 @@ namespace RethinkDb
         public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
         {
             return new QueryEnumerator<T>(this, datumConverterFactory, queryObject);
-        }
-
-        public async Task<TResponseType> RunAsync<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
-        {
-            var query = new Spec.Query();
-            query.token = GetNextToken();
-            query.type = Spec.Query.QueryType.START;
-            query.query = queryObject.GenerateTerm(datumConverterFactory);
-
-            var response = await InternalRunQuery(query);
-
-            switch (response.type)
-            {
-                case Response.ResponseType.SUCCESS_SEQUENCE:
-                case Response.ResponseType.SUCCESS_ATOM:
-                    if (response.response.Count != 1)
-                        throw new RethinkDbRuntimeException(String.Format("Expected 1 object, received {0}", response.response.Count));
-                    return datumConverterFactory.Get<TResponseType>().ConvertDatum(response.response[0]);
-                case Response.ResponseType.CLIENT_ERROR:
-                case Response.ResponseType.COMPILE_ERROR:
-                    throw new RethinkDbInternalErrorException("Client error: " + response.response[0].r_str);
-                case Response.ResponseType.RUNTIME_ERROR:
-                    throw new RethinkDbRuntimeException("Runtime error: " + response.response[0].r_str);
-                default:
-                    throw new RethinkDbInternalErrorException("Unhandled response type: " + response.type);
-            }
         }
 
         private class QueryEnumerator<T> : IAsyncEnumerator<T>

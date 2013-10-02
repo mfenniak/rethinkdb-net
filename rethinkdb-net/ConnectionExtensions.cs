@@ -8,7 +8,7 @@ namespace RethinkDb
     {
         #region IConnection minimalism
 
-        public static Task<T> RunAsync<T>(this IConnection connection, ISingleObjectQuery<T> queryObject)
+        public static Task<T> RunAsync<T>(this IConnection connection, IScalarQuery<T> queryObject)
         {
             return connection.RunAsync<T>(connection.DatumConverterFactory, queryObject);
         }
@@ -16,11 +16,6 @@ namespace RethinkDb
         public static IAsyncEnumerator<T> RunAsync<T>(this IConnection connection, ISequenceQuery<T> queryObject)
         {
             return connection.RunAsync<T>(connection.DatumConverterFactory, queryObject);
-        }
-
-        public static Task<TResponseType> RunAsync<TResponseType>(this IConnection connection, IWriteQuery<TResponseType> queryObject)
-        {
-            return connection.RunAsync<TResponseType>(connection.DatumConverterFactory, queryObject);
         }
 
         #endregion

@@ -167,6 +167,7 @@
     <Compile Include="Configuration\NetworkErrorHandlingElement.cs" />
     <Compile Include="ConnectionExtensions.cs" />
     <Compile Include="SynchronousApiExtensions.cs" />
+    <Compile Include="Interfaces\IScalarQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

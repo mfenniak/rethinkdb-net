@@ -4,7 +4,7 @@ using System.ComponentModel;
 namespace RethinkDb
 {
     [ImmutableObject(true)]
-    public interface ISingleObjectQuery<T> : IScalarQuery<T>
+    public interface IScalarQuery<T> : IQuery
     {
     }
 }

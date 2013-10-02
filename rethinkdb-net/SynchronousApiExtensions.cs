@@ -23,24 +23,14 @@ namespace RethinkDb
         #endregion
         #region IConnection
 
-        public static T Run<T>(this IConnection connection, IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
+        public static T Run<T>(this IConnection connection, IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject)
         {
             return TaskUtilities.ExecuteSynchronously(() => connection.RunAsync<T>(datumConverterFactory, queryObject));
         }
 
-        public static T Run<T>(this IConnection connection, ISingleObjectQuery<T> queryObject)
+        public static T Run<T>(this IConnection connection, IScalarQuery<T> queryObject)
         {
             return TaskUtilities.ExecuteSynchronously(() => connection.RunAsync<T>(queryObject));
-        }
-
-        public static TResponseType Run<TResponseType>(this IConnection connection, IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
-        {
-            return TaskUtilities.ExecuteSynchronously(() => connection.RunAsync<TResponseType>(datumConverterFactory, queryObject));
-        }
-
-        public static TResponseType Run<TResponseType>(this IConnection connection, IWriteQuery<TResponseType> queryObject)
-        {
-            return TaskUtilities.ExecuteSynchronously(() => connection.RunAsync<TResponseType>(queryObject));
         }
 
         public static IEnumerable<T> Run<T>(this IConnection connection, IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)

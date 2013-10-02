@@ -66,7 +66,7 @@ namespace RethinkDb.ConnectionFactories
             #endregion
             #region IConnection implementation
 
-            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
+            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject)
             {
                 if (this.disposed)
                     throw new ObjectDisposedException("PooledConnectionWrapper");
@@ -78,13 +78,6 @@ namespace RethinkDb.ConnectionFactories
                 if (this.disposed)
                     throw new ObjectDisposedException("PooledConnectionWrapper");
                 return this.innerConnection.RunAsync<T>(datumConverterFactory, queryObject);
-            }
-
-            public Task<TResponseType> RunAsync<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
-            {
-                if (this.disposed)
-                    throw new ObjectDisposedException("PooledConnectionWrapper");
-                return this.innerConnection.RunAsync<TResponseType>(datumConverterFactory, queryObject);
             }
 
             // Hm... doesn't really seem like you'd want to set these properties on a pooled connection.  Not sure

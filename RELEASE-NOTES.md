@@ -40,6 +40,8 @@
 
 * Moved the entire synchronous API, and some redundant default-value style methods, out of IConnection, IConnectableConnection, and IConnectionFactory, and into static extension methods of those interfaces.  This makes it easier to create new implementations of these interfaces with less duplicated code.  Refactoring done as part of [pull request #73](https://github.com/mfenniak/rethinkdb-net/issues/73) for connection pooling.
 
+* Created a base-interface, IScalarQuery&lt;T&gt;, for IWriteQuery and ISingleObjectQuery, allowing the removal of duplicate methods on IConnection & Connection.  Refactoring done as part of [pull request #73](https://github.com/mfenniak/rethinkdb-net/issues/73) for connection pooling.
+
 * Create new namespaces RethinkDb.DatumConverters (for all datum converter) and RethinkDb.Logging (for logging requirements).  This cleans up the RethinkDb namespace and simplifies the API for library users.  [Issue #141](https://github.com/mfenniak/rethinkdb-net/issues/141)
 
 ### Internals
