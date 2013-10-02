@@ -26,8 +26,6 @@ namespace RethinkDb
         }
 
         Task ConnectAsync();
-
-        void Connect();
     }
 }
 

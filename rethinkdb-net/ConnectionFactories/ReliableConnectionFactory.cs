@@ -59,21 +59,6 @@ namespace RethinkDb.ConnectionFactories
                 return await action();
             }
 
-            private TReturnValue RetryRun<TReturnValue>(Func<TReturnValue> action)
-            {
-                if (this.disposed)
-                    throw new ObjectDisposedException("ReliableConnectionWrapper");
-                try
-                {
-                    return action();
-                }
-                catch (RethinkDbNetworkException)
-                {
-                    Reconnect();
-                }
-                return action();
-            }
-
             #region IDisposable implementation
 
             public void Dispose()
@@ -122,44 +107,6 @@ namespace RethinkDb.ConnectionFactories
                 if (this.disposed)
                     throw new ObjectDisposedException("ReliableConnectionWrapper");
                 return new RetryAsyncEnumeratorWrapper<T>(this, () => this.innerConnection.RunAsync(queryObject));
-            }
-
-            public T Run<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
-            {
-                return RetryRun(() => this.innerConnection.Run<T>(datumConverterFactory, queryObject));
-            }
-
-            public T Run<T>(ISingleObjectQuery<T> queryObject)
-            {
-                return RetryRun(() => this.innerConnection.Run<T>(queryObject));
-            }
-
-            public TResponseType Run<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
-            {
-                return RetryRun(() => this.innerConnection.Run<TResponseType>(datumConverterFactory, queryObject));
-            }
-
-            public TResponseType Run<TResponseType>(IWriteQuery<TResponseType> queryObject)
-            {
-                return RetryRun(() => this.innerConnection.Run<TResponseType>(queryObject));
-            }
-
-            public IEnumerable<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
-            {
-                if (this.disposed)
-                    throw new ObjectDisposedException("ReliableConnectionWrapper");
-                // Hm... we so wouldn't have to implement this if IConnection only had an asynchronous API, with a
-                // synchronous API provided by extension methods... will delay until that is done.
-                throw new System.NotImplementedException();
-            }
-
-            public IEnumerable<T> Run<T>(ISequenceQuery<T> queryObject)
-            {
-                if (this.disposed)
-                    throw new ObjectDisposedException("ReliableConnectionWrapper");
-                // Hm... we so wouldn't have to implement this if IConnection only had an asynchronous API, with a
-                // synchronous API provided by extension methods... will delay until that is done.
-                throw new System.NotImplementedException();
             }
 
             public IDatumConverterFactory DatumConverterFactory

@@ -16,7 +16,7 @@ using RethinkDb.Logging;
 
 namespace RethinkDb
 {
-    public sealed class Connection : IConnection, IDisposable
+    public sealed class Connection : IConnectableConnection, IDisposable
     {
         private static byte[] connectHeader = null;
        
@@ -682,125 +682,6 @@ namespace RethinkDb
                 }
                 tcpClient = null;
             }
-        }
-
-        #endregion
-        #region IConnection implementation
-
-        public void Connect()
-        {
-            TaskUtilities.ExecuteSynchronously(() => ConnectAsync());
-        }
-
-        public T Run<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
-        {
-            return TaskUtilities.ExecuteSynchronously(() => RunAsync(datumConverterFactory, queryObject));
-        }
-
-        public T Run<T>(ISingleObjectQuery<T> queryObject)
-        {
-            return TaskUtilities.ExecuteSynchronously(() => RunAsync(queryObject));
-        }
-
-        public IEnumerable<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
-        {
-            return new AsyncEnumerableSynchronizer<T>(() => RunAsync(datumConverterFactory, queryObject));
-        }
-
-        public IEnumerable<T> Run<T>(ISequenceQuery<T> queryObject)
-        {
-            return new AsyncEnumerableSynchronizer<T>(() => RunAsync(queryObject));
-        }
-
-        public TResponseType Run<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
-        {
-            return TaskUtilities.ExecuteSynchronously(() => RunAsync(datumConverterFactory, queryObject));
-        }
-
-        public TResponseType Run<TResponseType>(IWriteQuery<TResponseType> queryObject)
-        {
-            return TaskUtilities.ExecuteSynchronously(() => RunAsync(queryObject));
-        }
-
-        private class AsyncEnumerableSynchronizer<T> : IEnumerable<T>
-        {
-            private readonly Func<IAsyncEnumerator<T>> asyncEnumeratorFactory;
-
-            public AsyncEnumerableSynchronizer(Func<IAsyncEnumerator<T>> asyncEnumeratorFactory)
-            {
-                this.asyncEnumeratorFactory = asyncEnumeratorFactory;
-            }
-
-            public System.Collections.IEnumerator GetEnumerator()
-            {
-                return new AsyncEnumeratorSynchronizer<T>(asyncEnumeratorFactory());
-            }
-
-            IEnumerator<T> IEnumerable<T>.GetEnumerator()
-            {
-                return new AsyncEnumeratorSynchronizer<T>(asyncEnumeratorFactory());
-            }
-        }
-
-        private sealed class AsyncEnumeratorSynchronizer<T> : IEnumerator<T>
-        {
-            private IAsyncEnumerator<T> asyncEnumerator;
-
-            public AsyncEnumeratorSynchronizer(IAsyncEnumerator<T> asyncEnumerator)
-            {
-                this.asyncEnumerator = asyncEnumerator;
-            }
-
-            #region IDisposable implementation
-
-            public void Dispose()
-            {
-                if (this.asyncEnumerator != null)
-                {
-                    TaskUtilities.ExecuteSynchronously(() => this.asyncEnumerator.Dispose());
-                    this.asyncEnumerator = null;
-                }
-            }
-
-            #endregion
-            #region IEnumerator implementation
-
-            public bool MoveNext()
-            {
-                if (asyncEnumerator == null)
-                    throw new ObjectDisposedException(GetType().FullName);
-                return TaskUtilities.ExecuteSynchronously(() => asyncEnumerator.MoveNext());
-            }
-
-            public void Reset()
-            {
-                throw new NotSupportedException();
-            }
-
-            public object Current
-            {
-                get
-                {
-                    if (asyncEnumerator == null)
-                        throw new ObjectDisposedException(GetType().FullName);
-                    return asyncEnumerator.Current;
-                }
-            }
-
-            #endregion
-            #region IEnumerator implementation
-
-            T IEnumerator<T>.Current
-            {
-                get
-                {
-                    if (asyncEnumerator == null)
-                        throw new ObjectDisposedException(GetType().FullName);
-                    return asyncEnumerator.Current;
-                }
-            }
-
-            #endregion
         }
 
         #endregion

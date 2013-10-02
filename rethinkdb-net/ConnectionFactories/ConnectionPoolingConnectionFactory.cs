@@ -108,48 +108,6 @@ namespace RethinkDb.ConnectionFactories
                 return this.innerConnection.RunAsync<TResponseType>(queryObject);
             }
 
-            public T Run<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
-            {
-                if (this.disposed)
-                    throw new ObjectDisposedException("PooledConnectionWrapper");
-                return this.innerConnection.Run<T>(datumConverterFactory, queryObject);
-            }
-
-            public T Run<T>(ISingleObjectQuery<T> queryObject)
-            {
-                if (this.disposed)
-                    throw new ObjectDisposedException("PooledConnectionWrapper");
-                return this.innerConnection.Run<T>(queryObject);
-            }
-
-            public IEnumerable<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
-            {
-                if (this.disposed)
-                    throw new ObjectDisposedException("PooledConnectionWrapper");
-                return this.innerConnection.Run<T>(datumConverterFactory, queryObject);
-            }
-
-            public IEnumerable<T> Run<T>(ISequenceQuery<T> queryObject)
-            {
-                if (this.disposed)
-                    throw new ObjectDisposedException("PooledConnectionWrapper");
-                return this.innerConnection.Run<T>(queryObject);
-            }
-
-            public TResponseType Run<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
-            {
-                if (this.disposed)
-                    throw new ObjectDisposedException("PooledConnectionWrapper");
-                return this.innerConnection.Run<TResponseType>(datumConverterFactory, queryObject);
-            }
-
-            public TResponseType Run<TResponseType>(IWriteQuery<TResponseType> queryObject)
-            {
-                if (this.disposed)
-                    throw new ObjectDisposedException("PooledConnectionWrapper");
-                return this.innerConnection.Run<TResponseType>(queryObject);
-            }
-
             // Hm... doesn't really seem like you'd want to set these properties on a pooled connection.  Not sure
             // what the correct solution is to that, but to prevent possibly confusing behavior, we'll just throw
             // an error on set.
