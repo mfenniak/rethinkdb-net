@@ -16,7 +16,7 @@ using RethinkDb.Logging;
 
 namespace RethinkDb
 {
-    public sealed class Connection : IConnection, IDisposable
+    public sealed class Connection : IConnectableConnection, IDisposable
     {
         private static byte[] connectHeader = null;
        
@@ -314,6 +314,12 @@ namespace RethinkDb
                 Logger.Debug("ReadLoop terminated by network exception; this is expected if the connection was closed intentionally");
                 responseException = new RethinkDbNetworkException("ReadLoop terminated unexpectedly while waiting for response from query", e);
             }
+            catch (ObjectDisposedException e)
+            {
+                // Probably a result of this connection being disposed; that's pretty graceful too...
+                Logger.Debug("ReadLoop terminated by network exception; this is expected if the connection was closed intentionally");
+                responseException = new RethinkDbRuntimeException("ReadLoop terminated unexpectedly due to connection Dispose while waiting for response from query", e);
+            }
             catch (Exception e)
             {
                 Logger.Fatal("Exception occurred in Connection.ReadLoop: {0}; this connection will no longer function correctly, no error recovery will take place", e);
@@ -415,7 +421,7 @@ namespace RethinkDb
             }
         }
 
-        public async Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
+        public async Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
@@ -441,50 +447,9 @@ namespace RethinkDb
             }
         }
 
-        public Task<T> RunAsync<T>(ISingleObjectQuery<T> queryObject)
-        {
-            return RunAsync<T>(DatumConverterFactory, queryObject);
-        }
-
         public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
         {
             return new QueryEnumerator<T>(this, datumConverterFactory, queryObject);
-        }
-
-        public IAsyncEnumerator<T> RunAsync<T>(ISequenceQuery<T> queryObject)
-        {
-            return RunAsync(DatumConverterFactory, queryObject);
-        }
-
-        public async Task<TResponseType> RunAsync<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
-        {
-            var query = new Spec.Query();
-            query.token = GetNextToken();
-            query.type = Spec.Query.QueryType.START;
-            query.query = queryObject.GenerateTerm(datumConverterFactory);
-
-            var response = await InternalRunQuery(query);
-
-            switch (response.type)
-            {
-                case Response.ResponseType.SUCCESS_SEQUENCE:
-                case Response.ResponseType.SUCCESS_ATOM:
-                    if (response.response.Count != 1)
-                        throw new RethinkDbRuntimeException(String.Format("Expected 1 object, received {0}", response.response.Count));
-                    return datumConverterFactory.Get<TResponseType>().ConvertDatum(response.response[0]);
-                case Response.ResponseType.CLIENT_ERROR:
-                case Response.ResponseType.COMPILE_ERROR:
-                    throw new RethinkDbInternalErrorException("Client error: " + response.response[0].r_str);
-                case Response.ResponseType.RUNTIME_ERROR:
-                    throw new RethinkDbRuntimeException("Runtime error: " + response.response[0].r_str);
-                default:
-                    throw new RethinkDbInternalErrorException("Unhandled response type: " + response.type);
-            }
-        }
-
-        public Task<TResponseType> RunAsync<TResponseType>(IWriteQuery<TResponseType> queryObject)
-        {
-            return RunAsync(DatumConverterFactory, queryObject);
         }
 
         private class QueryEnumerator<T> : IAsyncEnumerator<T>
@@ -676,125 +641,6 @@ namespace RethinkDb
                 }
                 tcpClient = null;
             }
-        }
-
-        #endregion
-        #region IConnection implementation
-
-        public void Connect()
-        {
-            TaskUtilities.ExecuteSynchronously(() => ConnectAsync());
-        }
-
-        public T Run<T>(IDatumConverterFactory datumConverterFactory, ISingleObjectQuery<T> queryObject)
-        {
-            return TaskUtilities.ExecuteSynchronously(() => RunAsync(datumConverterFactory, queryObject));
-        }
-
-        public T Run<T>(ISingleObjectQuery<T> queryObject)
-        {
-            return TaskUtilities.ExecuteSynchronously(() => RunAsync(queryObject));
-        }
-
-        public IEnumerable<T> Run<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
-        {
-            return new AsyncEnumerableSynchronizer<T>(() => RunAsync(datumConverterFactory, queryObject));
-        }
-
-        public IEnumerable<T> Run<T>(ISequenceQuery<T> queryObject)
-        {
-            return new AsyncEnumerableSynchronizer<T>(() => RunAsync(queryObject));
-        }
-
-        public TResponseType Run<TResponseType>(IDatumConverterFactory datumConverterFactory, IWriteQuery<TResponseType> queryObject)
-        {
-            return TaskUtilities.ExecuteSynchronously(() => RunAsync(datumConverterFactory, queryObject));
-        }
-
-        public TResponseType Run<TResponseType>(IWriteQuery<TResponseType> queryObject)
-        {
-            return TaskUtilities.ExecuteSynchronously(() => RunAsync(queryObject));
-        }
-
-        private class AsyncEnumerableSynchronizer<T> : IEnumerable<T>
-        {
-            private readonly Func<IAsyncEnumerator<T>> asyncEnumeratorFactory;
-
-            public AsyncEnumerableSynchronizer(Func<IAsyncEnumerator<T>> asyncEnumeratorFactory)
-            {
-                this.asyncEnumeratorFactory = asyncEnumeratorFactory;
-            }
-
-            public System.Collections.IEnumerator GetEnumerator()
-            {
-                return new AsyncEnumeratorSynchronizer<T>(asyncEnumeratorFactory());
-            }
-
-            IEnumerator<T> IEnumerable<T>.GetEnumerator()
-            {
-                return new AsyncEnumeratorSynchronizer<T>(asyncEnumeratorFactory());
-            }
-        }
-
-        private sealed class AsyncEnumeratorSynchronizer<T> : IEnumerator<T>
-        {
-            private IAsyncEnumerator<T> asyncEnumerator;
-
-            public AsyncEnumeratorSynchronizer(IAsyncEnumerator<T> asyncEnumerator)
-            {
-                this.asyncEnumerator = asyncEnumerator;
-            }
-
-            #region IDisposable implementation
-
-            public void Dispose()
-            {
-                if (this.asyncEnumerator != null)
-                {
-                    TaskUtilities.ExecuteSynchronously(() => this.asyncEnumerator.Dispose());
-                    this.asyncEnumerator = null;
-                }
-            }
-
-            #endregion
-            #region IEnumerator implementation
-
-            public bool MoveNext()
-            {
-                if (asyncEnumerator == null)
-                    throw new ObjectDisposedException(GetType().FullName);
-                return TaskUtilities.ExecuteSynchronously(() => asyncEnumerator.MoveNext());
-            }
-
-            public void Reset()
-            {
-                throw new NotSupportedException();
-            }
-
-            public object Current
-            {
-                get
-                {
-                    if (asyncEnumerator == null)
-                        throw new ObjectDisposedException(GetType().FullName);
-                    return asyncEnumerator.Current;
-                }
-            }
-
-            #endregion
-            #region IEnumerator implementation
-
-            T IEnumerator<T>.Current
-            {
-                get
-                {
-                    if (asyncEnumerator == null)
-                        throw new ObjectDisposedException(GetType().FullName);
-                    return asyncEnumerator.Current;
-                }
-            }
-
-            #endregion
         }
 
         #endregion

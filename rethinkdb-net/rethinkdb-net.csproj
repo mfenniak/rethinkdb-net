@@ -108,7 +108,6 @@
     <Compile Include="QueryTerm\SumReduction.cs" />
     <Compile Include="QueryTerm\AvgReduction.cs" />
     <Compile Include="Interfaces\IConnectionFactory.cs" />
-    <Compile Include="Configuration\ConfigConnectionFactory.cs" />
     <Compile Include="Configuration\EndPointElement.cs" />
     <Compile Include="Configuration\EndPointElementCollection.cs" />
     <Compile Include="Configuration\ClusterElement.cs" />
@@ -158,6 +157,17 @@
     <Compile Include="DatumConverters\AbstractReferenceTypeDatumConverter.cs" />
     <Compile Include="QueryTerm\SampleQuery.cs" />
     <Compile Include="DatumConverters\UriDatumConverterFactory.cs" />
+    <Compile Include="ConnectionFactories\ConnectionPoolingConnectionFactory.cs" />
+    <Compile Include="Interfaces\IConnectableConnection.cs" />
+    <Compile Include="ConnectionFactories\DefaultConnectionFactory.cs" />
+    <Compile Include="Configuration\ConfigurationAssembler.cs" />
+    <Compile Include="Configuration\ConnectionPoolElement.cs" />
+    <Compile Include="Configuration\DefaultLoggerElement.cs" />
+    <Compile Include="ConnectionFactories\ReliableConnectionFactory.cs" />
+    <Compile Include="Configuration\NetworkErrorHandlingElement.cs" />
+    <Compile Include="ConnectionExtensions.cs" />
+    <Compile Include="SynchronousApiExtensions.cs" />
+    <Compile Include="Interfaces\IScalarQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -178,5 +188,6 @@
     <Folder Include="Configuration\" />
     <Folder Include="Exceptions\" />
     <Folder Include="Expressions\" />
+    <Folder Include="ConnectionFactories\" />
   </ItemGroup>
 </Project>
