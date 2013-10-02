@@ -14,12 +14,26 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		RELEASE-NOTES.md = RELEASE-NOTES.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{9F8AB94D-246B-420B-91C7-145B94D75FA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RethinkDb.Examples.ConsoleApp", "Examples\RethinkDb.Examples.ConsoleApp\RethinkDb.Examples.ConsoleApp.csproj", "{0349F544-F60D-40E0-BCAD-FC4A41BB8595}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0349F544-F60D-40E0-BCAD-FC4A41BB8595}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{0349F544-F60D-40E0-BCAD-FC4A41BB8595}.Debug|Any CPU.Build.0 = Debug|x86
+		{0349F544-F60D-40E0-BCAD-FC4A41BB8595}.Debug|x86.ActiveCfg = Debug|x86
+		{0349F544-F60D-40E0-BCAD-FC4A41BB8595}.Debug|x86.Build.0 = Debug|x86
+		{0349F544-F60D-40E0-BCAD-FC4A41BB8595}.Release|Any CPU.ActiveCfg = Release|x86
+		{0349F544-F60D-40E0-BCAD-FC4A41BB8595}.Release|Any CPU.Build.0 = Release|x86
+		{0349F544-F60D-40E0-BCAD-FC4A41BB8595}.Release|x86.ActiveCfg = Release|x86
+		{0349F544-F60D-40E0-BCAD-FC4A41BB8595}.Release|x86.Build.0 = Release|x86
 		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -30,6 +44,7 @@ Global
 		{BA84988B-0D7C-468E-B412-1389C8D69852}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{0349F544-F60D-40E0-BCAD-FC4A41BB8595} = {9F8AB94D-246B-420B-91C7-145B94D75FA3}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = rethinkdb-net-test\rethinkdb-net-test.csproj

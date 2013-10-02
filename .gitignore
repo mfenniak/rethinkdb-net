@@ -3,6 +3,8 @@ rethinkdb-net/obj
 rethinkdb-net-test/bin
 rethinkdb-net-test/obj
 rethinkdb-net-test/test-results
+Examples/*/bin
+Examples/*/obj
 *.suo
 *.userprefs
 rethinkdb_data
