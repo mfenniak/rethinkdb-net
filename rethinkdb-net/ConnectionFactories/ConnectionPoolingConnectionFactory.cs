@@ -34,11 +34,6 @@ namespace RethinkDb.ConnectionFactories
             return new PooledConnectionWrapper(this, await innerConnectionFactory.GetAsync());
         }
 
-        public IConnection Get()
-        {
-            return TaskUtilities.ExecuteSynchronously(() => GetAsync());
-        }
-
         private void Unget(IConnection connection)
         {
             lock (pool)

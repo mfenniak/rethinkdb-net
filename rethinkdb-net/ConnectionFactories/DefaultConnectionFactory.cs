@@ -53,12 +53,6 @@ namespace RethinkDb.ConnectionFactories
             await connection.ConnectAsync();
             return connection;
         }
-
-        public IConnection Get()
-        {
-            return TaskUtilities.ExecuteSynchronously(() => GetAsync());
-        }
-
     }
 }
 

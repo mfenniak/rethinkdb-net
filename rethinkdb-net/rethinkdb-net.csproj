@@ -163,6 +163,7 @@
     <Compile Include="Configuration\ConfigurationAssembler.cs" />
     <Compile Include="Configuration\ConnectionPoolElement.cs" />
     <Compile Include="Configuration\DefaultLoggerElement.cs" />
+    <Compile Include="SynchronousApi.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

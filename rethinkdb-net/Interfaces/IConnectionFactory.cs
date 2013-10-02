@@ -9,10 +9,5 @@ namespace RethinkDb
         Task<IConnection> GetAsync();
 
         #endregion
-        #region Synchronous API
-
-        IConnection Get();
-
-        #endregion
     }
 }
