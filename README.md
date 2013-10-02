@@ -2,16 +2,87 @@
 
 This is a prototype of a RethinkDB client driver written in C# for the .NET platform.  This driver utilizes .NET 4.5 and C# 5.0.
 
+Tiny Example
+------------
+
+Main.cs:
+
+```c#
+using System;
+using System.Linq;
+using System.Runtime.Serialization;
+using RethinkDb;
+using RethinkDb.Configuration;
+
+[DataContract]
+public class Person
+{
+    public static IDatabaseQuery Db = Query.Db("test");
+    public static ITableQuery<Person> Table = Db.Table<Person>("people");
+
+    [DataMember(Name = "id", EmitDefaultValue = false)]
+    public string Id;
+
+    [DataMember]
+    public string Name;
+}
+
+public static class MainClass
+{
+    private static IConnectionFactory connectionFactory =
+        ConfigurationAssembler.CreateConnectionFactory("example");
+
+    public static void Main(string[] args)
+    {
+        var conn = connectionFactory.Get();
+
+        // Create DB if needed
+        if (!conn.Run(Query.DbList()).Contains("test"))
+            conn.Run(Query.DbCreate("test"));
+
+        // Create table if needed
+        if (!conn.Run(Person.Db.TableList()).Contains("people"))
+            conn.Run(Person.Db.TableCreate("people"));
+
+        // Read all the contents of the table
+        foreach (var person in conn.Run(Person.Table))
+            Console.WriteLine("Id: {0}, Name: {1}", person.Id, person.Name);
+
+        // Insert a new record
+        conn.Run(Person.Table.Insert(new Person() { Name = "Jack Black" }));
+    }
+}
+```
+
+App.config:
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+    <configSections>
+        <section name="rethinkdb" type="RethinkDb.Configuration.RethinkDbClientSection, RethinkDb"/>
+    </configSections>
+    <rethinkdb>
+        <clusters>
+            <cluster name="example">
+                <defaultLogger enabled="true" category="Warning"/>
+                <connectionPool enabled="true"/>
+                <networkErrorHandling enabled="true" />
+                <endpoints>
+                    <endpoint address="127.0.0.1" port="28015"/>
+                </endpoints>
+            </cluster>
+        </clusters>
+    </rethinkdb>
+</configuration>
+```
+
+Capabilities
+------------
+
 Currently this driver is capable of the following things:
   
-  * Connecting to a RethinkDB database. For example:
-    ```
-    IConnection connection;
-    connection = ConfigConnectionFactory.Instance.Get("testCluster");
-    connection.Logger = new DefaultLogger(LoggingCategory.Debug, Console.Out);
-      
-    await connection.ConnectAsync();      
-    ```
+  * Connecting to a RethinkDB database.
 
   * A decent number of RethinkDB's queries, joins, transformations, aggregations, and reductions:
 
