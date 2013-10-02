@@ -6,14 +6,45 @@
 
 * Add support for Query.HasFields to check if a single record has non-null field values, or to filter a query based upon records having non-null fields. [PR #139](https://github.com/mfenniak/rethinkdb-net/pull/139)
 
+* Added two new forms of connection pooling; one which reduces the need to disconnect and reconnect all the time by using persistent connections, and another which monitors for network disconnects and can retry queries against a new network connection.  [PR #73](https://github.com/mfenniak/rethinkdb-net/issues/73)
+
+* Extended configuration to support the new connection pooling modes, as part of [PR #73](https://github.com/mfenniak/rethinkdb-net/issues/73):
+
+    ```xml
+<cluster name="testCluster">
+    <defaultLogger enabled="true" category="Warning"/>
+    <connectionPool enabled="true"/>
+    <networkErrorHandling enabled="true" />
+    <endpoints>
+        <endpoint address="127.0.0.1" port="55558"/>
+    </endpoints>
+</cluster>
+```
+
 ### API Changes
+
+* Changed how connection factories are created from configuration; previously a connection factory called ConfigConnectionFactory existed, but now a static class called the RethinkDb.Configuration.ConfigurationAssembler will create a connection factory for a specified cluster from the current configuration file.  Refactoring done as part of [pull request #73](https://github.com/mfenniak/rethinkdb-net/issues/73) for connection pooling.  Example code changes:
+
+    Previously:
+
+        connection = RethinkDb.Configuration.ConfigConnectionFactory.Instance.Get("testCluster");
+
+    Now:
+
+        IConnectionFactory connectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
+        connection = connectionFactory.Get();
+
+* Added IDispoable interface to the IConnection interface.  Connections retrieves from a connection factory should be Disposed now, especially is using connection pooling, to return the connections to the pool.  Part of [pull request #73](https://github.com/mfenniak/rethinkdb-net/issues/73).
+
+* Moved methods related to the establishment of connections out of IConnection and into a derived interface, IConnectableConnection.  This reflects the fact that the connection factories will typically return connected connections.  Refactoring done as part of [pull request #73](https://github.com/mfenniak/rethinkdb-net/issues/73) for connection pooling.
+
+* Moved the entire synchronous API, and some redundant default-value style methods, out of IConnection, IConnectableConnection, and IConnectionFactory, and into static extension methods of those interfaces.  This makes it easier to create new implementations of these interfaces with less duplicated code.  Refactoring done as part of [pull request #73](https://github.com/mfenniak/rethinkdb-net/issues/73) for connection pooling.
 
 * Create new namespaces RethinkDb.DatumConverters (for all datum converter) and RethinkDb.Logging (for logging requirements).  This cleans up the RethinkDb namespace and simplifies the API for library users.  [Issue #141](https://github.com/mfenniak/rethinkdb-net/issues/141)
 
 ### Internals
 
 * Better unit test coverage of builtin datum converters.  [Issue #60](https://github.com/mfenniak/rethinkdb-net/issues/60), [PR #140](https://github.com/mfenniak/rethinkdb-net/pull/140)
-
 
 
 ## 0.5.0.0
