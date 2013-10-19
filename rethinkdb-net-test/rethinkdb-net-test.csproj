@@ -53,6 +53,7 @@
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DatumConverters\EnumDatumConverterFactoryTests.cs" />
     <Compile Include="Integration\HasFieldsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DatumConverters\IntDatumConverterTests.cs" />
@@ -126,11 +127,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="DatumConverters\" />
-    <Folder Include="Integration\" />
-    <Folder Include="QueryTests\" />
-    <Folder Include="Integration\Documentation\" />
-    <Folder Include="ConnectionFactories\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

@@ -21,6 +21,8 @@
 </cluster>
 ```
 
+* Support converting enum values to RethinkDB datums with numeric value serialization.  [Issue #143](https://github.com/mfenniak/rethinkdb-net/issues/143).  Thanks to @berlotte for the initial implementation of this feature.
+
 ### API Changes
 
 * Changed how connection factories are created from configuration; previously a connection factory called ConfigConnectionFactory existed, but now a static class called the RethinkDb.Configuration.ConfigurationAssembler will create a connection factory for a specified cluster from the current configuration file.  Refactoring done as part of [pull request #73](https://github.com/mfenniak/rethinkdb-net/issues/73) for connection pooling.  Example code changes:
