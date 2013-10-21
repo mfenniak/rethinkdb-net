@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
 using RethinkDb.Logging;
+using System.Threading;
 
 namespace RethinkDb.ConnectionFactories
 {
@@ -87,9 +88,9 @@ namespace RethinkDb.ConnectionFactories
             #endregion
             #region IConnection implementation
 
-            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject)
+            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
             {
-                return RetryRunAsync(() => this.innerConnection.RunAsync<T>(datumConverterFactory, queryObject));
+                return RetryRunAsync(() => this.innerConnection.RunAsync<T>(datumConverterFactory, queryObject, cancellationToken));
             }
 
             public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
@@ -136,7 +137,12 @@ namespace RethinkDb.ConnectionFactories
 
             #region IAsyncEnumerator implementation
 
-            public async Task<bool> MoveNext()
+            public IConnection Connection
+            {
+                get { return reliableConnection; }
+            }
+
+            public async Task<bool> MoveNext(CancellationToken cancellationToken)
             {
                 if (this.innerEnumerator == null)
                 {
@@ -145,7 +151,7 @@ namespace RethinkDb.ConnectionFactories
                     try
                     {
                         this.innerEnumerator = this.enumeratorConstructor();
-                        return await this.innerEnumerator.MoveNext();
+                        return await this.innerEnumerator.MoveNext(cancellationToken);
                     }
                     catch (RethinkDbNetworkException e)
                     {
@@ -154,18 +160,18 @@ namespace RethinkDb.ConnectionFactories
                     }
 
                     this.innerEnumerator = this.enumeratorConstructor();
-                    return await this.innerEnumerator.MoveNext();
+                    return await this.innerEnumerator.MoveNext(cancellationToken);
                 }
                 else
                 {
-                    return await this.innerEnumerator.MoveNext();
+                    return await this.innerEnumerator.MoveNext(cancellationToken);
                 }
             }
 
-            public async Task Dispose()
+            public async Task Dispose(CancellationToken cancellationToken)
             {
                 if (this.innerEnumerator != null)
-                    await this.innerEnumerator.Dispose();
+                    await this.innerEnumerator.Dispose(cancellationToken);
             }
 
             public T Current

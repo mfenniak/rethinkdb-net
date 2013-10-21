@@ -87,10 +87,8 @@ namespace RethinkDb
             set;
         }
 
-        public async Task ConnectAsync()
+        public async Task ConnectAsync(CancellationToken cancellationToken)
         {
-            var cancellationToken = new CancellationTokenSource(this.ConnectTimeout).Token;
-
             foreach (var ep in EndPoints)
             {
                 IEnumerable<IPEndPoint> resolvedIpEndpoints = null;
@@ -379,12 +377,11 @@ namespace RethinkDb
             return Interlocked.Increment(ref nextToken);
         }
 
-        internal async Task<Response> InternalRunQuery(Spec.Query query)
+        internal async Task<Response> InternalRunQuery(Spec.Query query, CancellationToken cancellationToken)
         {
             var tcs = new TaskCompletionSource<Response>();
             tokenResponse[query.token] = tcs;
 
-            var cancellationToken = new CancellationTokenSource(this.QueryTimeout).Token;
             Action abortToken = () => {
                 Logger.Warning("Query token {0} timed out after {1}", query.token, this.QueryTimeout);
                 if (tokenResponse.Remove(query.token))
@@ -423,14 +420,14 @@ namespace RethinkDb
             }
         }
 
-        public async Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject)
+        public async Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
             query.type = Spec.Query.QueryType.START;
             query.query = queryObject.GenerateTerm(datumConverterFactory);
 
-            var response = await InternalRunQuery(query);
+            var response = await InternalRunQuery(query, cancellationToken);
 
             switch (response.type)
             {
@@ -476,6 +473,11 @@ namespace RethinkDb
                 this.stackTrace = new StackTrace(true);
             }
 
+            public IConnection Connection
+            {
+                get { return connection; }
+            }
+
             ~QueryEnumerator()
             {
                 if (!disposed)
@@ -492,7 +494,7 @@ namespace RethinkDb
                 }
             }
 
-            public async Task Dispose()
+            public async Task Dispose(CancellationToken cancellationToken)
             {
                 if (disposed)
                     return;
@@ -510,7 +512,7 @@ namespace RethinkDb
                 // Looks like we have a query in-progress that we should stop on the server-side to free up resources.
                 query.type = Spec.Query.QueryType.STOP;
                 query.query = null;
-                var response = await connection.InternalRunQuery(query);
+                var response = await connection.InternalRunQuery(query, cancellationToken);
 
                 switch (response.type)
                 {
@@ -551,9 +553,9 @@ namespace RethinkDb
                 }
             }
 
-            private async Task ReissueQuery()
+            private async Task ReissueQuery(CancellationToken cancellationToken)
             {
-                lastResponse = await connection.InternalRunQuery(query);
+                lastResponse = await connection.InternalRunQuery(query, cancellationToken);
                 lastResponseIndex = -1;
 
                 switch (lastResponse.type)
@@ -575,7 +577,7 @@ namespace RethinkDb
                 }
             }
 
-            public async Task<bool> MoveNext()
+            public async Task<bool> MoveNext(CancellationToken cancellationToken)
             {
                 if (disposed)
                     throw new ObjectDisposedException(GetType().FullName);
@@ -586,7 +588,7 @@ namespace RethinkDb
                     query.token = connection.GetNextToken();
                     query.type = Spec.Query.QueryType.START;
                     query.query = this.queryObject.GenerateTerm(datumConverterFactory);
-                    await ReissueQuery();
+                    await ReissueQuery(cancellationToken);
                 }
 
                 if (lastResponseIndex < (LoadedRecordCount() - 1))
@@ -604,8 +606,8 @@ namespace RethinkDb
                 {
                     query.type = RethinkDb.Spec.Query.QueryType.CONTINUE;
                     query.query = null;
-                    await ReissueQuery();
-                    return await MoveNext();
+                    await ReissueQuery(cancellationToken);
+                    return await MoveNext(cancellationToken);
                 }
                 else
                 {

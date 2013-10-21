@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace RethinkDb
 {
@@ -15,32 +16,22 @@ namespace RethinkDb
         #endregion
         #region IConnectableConnection
 
-        public static void Connect(this IConnectableConnection connection)
+        public static void Connect(this IConnectableConnection connection, CancellationToken? cancellationToken = null)
         {
-            TaskUtilities.ExecuteSynchronously(() => connection.ConnectAsync());
+            TaskUtilities.ExecuteSynchronously(() => connection.ConnectAsync(cancellationToken));
         }
 
         #endregion
         #region IConnection
 
-        public static T Run<T>(this IConnection connection, IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject)
+        public static T Run<T>(this IConnection connection, IScalarQuery<T> queryObject, IDatumConverterFactory datumConverterFactory = null, CancellationToken? cancellationToken = null)
         {
-            return TaskUtilities.ExecuteSynchronously(() => connection.RunAsync<T>(datumConverterFactory, queryObject));
+            return TaskUtilities.ExecuteSynchronously(() => connection.RunAsync<T>(queryObject, datumConverterFactory, cancellationToken));
         }
 
-        public static T Run<T>(this IConnection connection, IScalarQuery<T> queryObject)
+        public static IEnumerable<T> Run<T>(this IConnection connection, ISequenceQuery<T> queryObject, IDatumConverterFactory datumConverterFactory = null, CancellationToken? cancellationToken = null)
         {
-            return TaskUtilities.ExecuteSynchronously(() => connection.RunAsync<T>(queryObject));
-        }
-
-        public static IEnumerable<T> Run<T>(this IConnection connection, IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
-        {
-            return new AsyncEnumerableSynchronizer<T>(() => connection.RunAsync<T>(datumConverterFactory, queryObject));
-        }
-
-        public static IEnumerable<T> Run<T>(this IConnection connection, ISequenceQuery<T> queryObject)
-        {
-            return new AsyncEnumerableSynchronizer<T>(() => connection.RunAsync<T>(queryObject));
+            return new AsyncEnumerableSynchronizer<T>(() => connection.RunAsync<T>(queryObject, datumConverterFactory), cancellationToken);
         }
 
         #endregion
@@ -49,30 +40,34 @@ namespace RethinkDb
         private class AsyncEnumerableSynchronizer<T> : IEnumerable<T>
         {
             private readonly Func<IAsyncEnumerator<T>> asyncEnumeratorFactory;
+            private readonly CancellationToken? cancellationToken;
 
-            public AsyncEnumerableSynchronizer(Func<IAsyncEnumerator<T>> asyncEnumeratorFactory)
+            public AsyncEnumerableSynchronizer(Func<IAsyncEnumerator<T>> asyncEnumeratorFactory, CancellationToken? cancellationToken)
             {
                 this.asyncEnumeratorFactory = asyncEnumeratorFactory;
+                this.cancellationToken = cancellationToken;
             }
 
             public System.Collections.IEnumerator GetEnumerator()
             {
-                return new AsyncEnumeratorSynchronizer<T>(asyncEnumeratorFactory());
+                return new AsyncEnumeratorSynchronizer<T>(asyncEnumeratorFactory(), cancellationToken);
             }
 
             IEnumerator<T> IEnumerable<T>.GetEnumerator()
             {
-                return new AsyncEnumeratorSynchronizer<T>(asyncEnumeratorFactory());
+                return new AsyncEnumeratorSynchronizer<T>(asyncEnumeratorFactory(), cancellationToken);
             }
         }
 
         private sealed class AsyncEnumeratorSynchronizer<T> : IEnumerator<T>
         {
             private IAsyncEnumerator<T> asyncEnumerator;
+            private readonly CancellationToken? cancellationToken;
 
-            public AsyncEnumeratorSynchronizer(IAsyncEnumerator<T> asyncEnumerator)
+            public AsyncEnumeratorSynchronizer(IAsyncEnumerator<T> asyncEnumerator, CancellationToken? cancellationToken)
             {
                 this.asyncEnumerator = asyncEnumerator;
+                this.cancellationToken = cancellationToken;
             }
 
             #region IDisposable implementation
@@ -81,7 +76,7 @@ namespace RethinkDb
             {
                 if (this.asyncEnumerator != null)
                 {
-                    TaskUtilities.ExecuteSynchronously(() => this.asyncEnumerator.Dispose());
+                    TaskUtilities.ExecuteSynchronously(() => this.asyncEnumerator.Dispose(cancellationToken));
                     this.asyncEnumerator = null;
                 }
             }
@@ -93,7 +88,7 @@ namespace RethinkDb
             {
                 if (asyncEnumerator == null)
                     throw new ObjectDisposedException(GetType().FullName);
-                return TaskUtilities.ExecuteSynchronously(() => asyncEnumerator.MoveNext());
+                return TaskUtilities.ExecuteSynchronously(() => asyncEnumerator.MoveNext(cancellationToken));
             }
 
             public void Reset()

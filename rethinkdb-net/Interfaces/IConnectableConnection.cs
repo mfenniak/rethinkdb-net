@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RethinkDb
@@ -25,7 +26,7 @@ namespace RethinkDb
             set;
         }
 
-        Task ConnectAsync();
+        Task ConnectAsync(CancellationToken cancellationToken);
     }
 }
 

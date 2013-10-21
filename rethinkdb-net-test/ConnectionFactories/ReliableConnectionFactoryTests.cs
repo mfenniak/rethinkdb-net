@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using NSubstitute;
 using RethinkDb.ConnectionFactories;
+using System.Threading;
 
 namespace RethinkDb.Test.ConnectionFactories
 {
@@ -48,7 +49,7 @@ namespace RethinkDb.Test.ConnectionFactories
         public void DelegateRunISingleObjectQuery()
         {
             var mockConnection = Substitute.For<IConnection>();
-            mockConnection.RunAsync(Arg.Any<IDatumConverterFactory>(), (ISingleObjectQuery<int>)null).Returns(
+            mockConnection.RunAsync(Arg.Any<IDatumConverterFactory>(), (ISingleObjectQuery<int>)null, Arg.Any<CancellationToken>()).Returns(
                 y => { var x = new TaskCompletionSource<int>(); x.SetResult(1); return x.Task; }
             );
 
@@ -66,12 +67,12 @@ namespace RethinkDb.Test.ConnectionFactories
         {
             var errorConnection = Substitute.For<IConnection>();
             errorConnection
-                .RunAsync(Arg.Any<IDatumConverterFactory>(), (ISingleObjectQuery<int>)null)
+                .RunAsync(Arg.Any<IDatumConverterFactory>(), (ISingleObjectQuery<int>)null, Arg.Any<CancellationToken>())
                 .Returns(x => { throw new RethinkDbNetworkException("!"); });
 
             var successConnection = Substitute.For<IConnection>();
             successConnection
-                .RunAsync(Arg.Any<IDatumConverterFactory>(), (ISingleObjectQuery<int>)null)
+                .RunAsync(Arg.Any<IDatumConverterFactory>(), (ISingleObjectQuery<int>)null, Arg.Any<CancellationToken>())
                 .Returns(y => { var x = new TaskCompletionSource<int>(); x.SetResult(1); return x.Task; });
 
             var rootConnectionFactory = CreateRootConnectionFactory(errorConnection, successConnection);
@@ -83,9 +84,9 @@ namespace RethinkDb.Test.ConnectionFactories
             conn.Dispose();
 
             // Error connection was attempted...
-            errorConnection.Received().RunAsync(Arg.Any<IDatumConverterFactory>(), (ISingleObjectQuery<int>)null);
+            errorConnection.Received().RunAsync(Arg.Any<IDatumConverterFactory>(), (ISingleObjectQuery<int>)null, Arg.Any<CancellationToken>());
             // Then another connection was attempted after the error failed.
-            successConnection.Received().RunAsync(Arg.Any<IDatumConverterFactory>(), (ISingleObjectQuery<int>)null);
+            successConnection.Received().RunAsync(Arg.Any<IDatumConverterFactory>(), (ISingleObjectQuery<int>)null, Arg.Any<CancellationToken>());
         }
     }
 }

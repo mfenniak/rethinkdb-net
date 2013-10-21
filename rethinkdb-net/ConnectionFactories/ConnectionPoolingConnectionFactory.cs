@@ -1,6 +1,7 @@
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RethinkDb.ConnectionFactories
 {
@@ -66,11 +67,11 @@ namespace RethinkDb.ConnectionFactories
             #endregion
             #region IConnection implementation
 
-            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject)
+            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
             {
                 if (this.disposed)
                     throw new ObjectDisposedException("PooledConnectionWrapper");
-                return this.innerConnection.RunAsync<T>(datumConverterFactory, queryObject);
+                return this.innerConnection.RunAsync<T>(datumConverterFactory, queryObject, cancellationToken);
             }
 
             public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
