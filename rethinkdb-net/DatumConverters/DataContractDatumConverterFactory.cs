@@ -27,6 +27,11 @@ namespace RethinkDb.DatumConverters
             if (dataContractAttribute == null)
                 return false;
 
+            if (typeof(T).IsEnum)
+                // [DataContract] on an enum type isn't supported by this datum converter.  It possibly should be,
+                // as using the [EnumValue] attribute allows users to assign arbitrary text values to enums. (#146)
+                return false;
+
             Type datumConverterType = TypeCache<T>.Instance.Value;
             datumConverter = (IDatumConverter<T>)Activator.CreateInstance(datumConverterType, rootDatumConverterFactory);
             return true;
