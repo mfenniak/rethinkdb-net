@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace RethinkDb.Test.Integration
 {
@@ -21,8 +22,8 @@ namespace RethinkDb.Test.Integration
         public virtual void SetUp()
         {
             connection.RunAsync(testTable.Insert(new TestObject[] {
-                new TestObject() { Id = "1", Name = null, Children = new TestObject[] { }},
-                new TestObject() { Id = "2", Name = "2", Children = new TestObject[] { }},
+                new TestObject() { Id = "1", Name = null, Children = new TestObject[0], ChildrenList = new List<TestObject>(), ChildrenIList = new List<TestObject>() },
+                new TestObject() { Id = "2", Name = "2", Children = new TestObject[0], ChildrenList = new List<TestObject>(), ChildrenIList = new List<TestObject>() },
                 new TestObject() { Id = "3", Name = null, Children = null },
                 new TestObject() { Id = "4", Name = string.Empty, Children = null }
             })).Wait();
@@ -49,6 +50,24 @@ namespace RethinkDb.Test.Integration
         {
             TestObject[] hasFields = connection.Run(testTable.HasFields(m => m.Name, m => m.Children)).ToArray();
             
+            Assert.That(hasFields.Length, Is.EqualTo(1));
+            Assert.That(hasFields, Has.Exactly(1).EqualTo(new TestObject { Id = "2" }));
+        }
+
+        [Test]
+        public void HasFields_OnSequence_ReturnsResultsWithMultipleNonNullNamesAndChildrenList()
+        {
+            TestObject[] hasFields = connection.Run(testTable.HasFields(m => m.Name, m => m.ChildrenList)).ToArray();
+
+            Assert.That(hasFields.Length, Is.EqualTo(1));
+            Assert.That(hasFields, Has.Exactly(1).EqualTo(new TestObject { Id = "2" }));
+        }
+
+        [Test]
+        public void HasFields_OnSequence_ReturnsResultsWithMultipleNonNullNamesAndChildrenIList()
+        {
+            TestObject[] hasFields = connection.Run(testTable.HasFields(m => m.Name, m => m.ChildrenIList)).ToArray();
+
             Assert.That(hasFields.Length, Is.EqualTo(1));
             Assert.That(hasFields, Has.Exactly(1).EqualTo(new TestObject { Id = "2" }));
         }

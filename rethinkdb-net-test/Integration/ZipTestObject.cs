@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 
 namespace RethinkDb.Test.Integration
 {
@@ -20,6 +21,12 @@ namespace RethinkDb.Test.Integration
 
         [DataMember(Name = "children")]
         public TestObject[] Children;
+
+        [DataMember(Name = "childrenList")]
+        public List<TestObject> ChildrenList;
+
+        [DataMember(Name = "childrenListInterface")]
+        public IList<TestObject> ChildrenIList;
 
         [DataMember(Name = "number")]
         public double SomeNumber;

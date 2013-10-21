@@ -108,6 +108,7 @@
     <Compile Include="DatumHelpers.cs" />
     <Compile Include="ConnectionFactories\ConnectionPoolingConnectionFactoryTests.cs" />
     <Compile Include="ConnectionFactories\ReliableConnectionFactoryTests.cs" />
+    <Compile Include="DatumConverters\ListDatumConverterFactoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

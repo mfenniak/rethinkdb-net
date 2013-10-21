@@ -32,10 +32,10 @@ namespace RethinkDb.Test.Integration
         public virtual void SetUp()
         {
             connection.RunAsync(testTable.Insert(new TestObject[] {
-                new TestObject() { Id = "1", Name = "1", SomeNumber = 1, Children = new TestObject[1] },
-                new TestObject() { Id = "2", Name = "2", SomeNumber = 2, Children = new TestObject[2] },
-                new TestObject() { Id = "3", Name = "3", SomeNumber = 3, Children = new TestObject[3] },
-                new TestObject() { Id = "4", Name = "4", SomeNumber = 4, Children = new TestObject[4] },
+                new TestObject() { Id = "1", Name = "1", SomeNumber = 1, Children = new TestObject[1], ChildrenList = new List<TestObject> { null }, ChildrenIList = new List<TestObject> { null } },
+                new TestObject() { Id = "2", Name = "2", SomeNumber = 2, Children = new TestObject[2], ChildrenList = new List<TestObject> { null, null }, ChildrenIList = new List<TestObject> { null, null } },
+                new TestObject() { Id = "3", Name = "3", SomeNumber = 3, Children = new TestObject[3], ChildrenList = new List<TestObject> { null, null, null }, ChildrenIList = new List<TestObject> { null, null, null } },
+                new TestObject() { Id = "4", Name = "4", SomeNumber = 4, Children = new TestObject[4], ChildrenList = new List<TestObject> { null, null, null, null }, ChildrenIList = new List<TestObject> { null, null, null, null } },
             })).Wait();
 
             connection.RunAsync(anotherTestTable.Insert(new AnotherTestObject[] {
@@ -246,6 +246,8 @@ namespace RethinkDb.Test.Integration
                 Assert.That(obj.FirstName, Is.EqualTo(obj.Id));
                 Assert.That(obj.LastName, Is.EqualTo(obj.Id));
                 Assert.That(obj.Children.Length, Is.EqualTo(obj.SomeNumber));
+                Assert.That(obj.ChildrenList.Count, Is.EqualTo(obj.SomeNumber));
+                Assert.That(obj.ChildrenIList.Count, Is.EqualTo(obj.SomeNumber));
             }
             Assert.That(count, Is.EqualTo(3));
             Assert.That(objects, Has.Count.EqualTo(3));

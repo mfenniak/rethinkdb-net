@@ -48,6 +48,12 @@ namespace RethinkDb.Test.Integration
                 Name = "456",
                 SomeNumber = 789,
                 Children = new TestObject[] {
+                    new TestObject() { Id = "987", Name="654", SomeNumber = 321 },
+                },
+                ChildrenList = new List<TestObject> {
+                    new TestObject() { Id = "987", Name = "654", SomeNumber = 321 },
+                },
+                ChildrenIList = new List<TestObject> {
                     new TestObject() { Id = "987", Name = "654", SomeNumber = 321 },
                 },
             };

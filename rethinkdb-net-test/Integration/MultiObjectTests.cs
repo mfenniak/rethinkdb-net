@@ -26,14 +26,14 @@ namespace RethinkDb.Test.Integration
         [SetUp]
         public virtual void SetUp()
         {
-            connection.RunAsync(testTable.Insert(new TestObject[] {
-                new TestObject() { Id = "1", Name = "1", SomeNumber = 1, Tags = new[] { "odd" }, Children = new TestObject[] { new TestObject() { Name = "C1" } } },
-                new TestObject() { Id = "2", Name = "2", SomeNumber = 2, Tags = new[] { "even" }, Children = new TestObject[] { } },
-                new TestObject() { Id = "3", Name = "3", SomeNumber = 3, Tags = new[] { "odd" }, Children = new TestObject[] { new TestObject() { Name = "C3" } }  },
-                new TestObject() { Id = "4", Name = "4", SomeNumber = 4, Tags = new[] { "even" }, Children = new TestObject[] { } },
-                new TestObject() { Id = "5", Name = "5", SomeNumber = 5, Tags = new[] { "odd" }, Children = new TestObject[] { new TestObject() { Name = "C5" } }  },
-                new TestObject() { Id = "6", Name = "6", SomeNumber = 6, Tags = new[] { "even" }, Children = new TestObject[] { } },
-                new TestObject() { Id = "7", Name = "7", SomeNumber = 7, Tags = new[] { "odd" }, Children = new TestObject[] { new TestObject() { Name = "C7" } }  },
+            connection.RunAsync(testTable.Insert(new List<TestObject> {
+                new TestObject() { Id = "1", Name = "1", SomeNumber = 1, Tags = new[] { "odd" }, Children = new TestObject[] { new TestObject { Name = "C1" } }, ChildrenList = new List<TestObject> { new TestObject() { Name = "C1" } }, ChildrenIList = new List<TestObject> { new TestObject() { Name = "C1" } } },
+                new TestObject() { Id = "2", Name = "2", SomeNumber = 2, Tags = new[] { "even" }, Children = new TestObject[0], ChildrenList = new List<TestObject> { }, ChildrenIList = new List<TestObject> { } },
+                new TestObject() { Id = "3", Name = "3", SomeNumber = 3, Tags = new[] { "odd" }, Children = new TestObject[] { new TestObject { Name = "C3" } }, ChildrenList = new List<TestObject> { new TestObject() { Name = "C3" } }, ChildrenIList = new List<TestObject> { new TestObject() { Name = "C3" } } },
+                new TestObject() { Id = "4", Name = "4", SomeNumber = 4, Tags = new[] { "even" }, Children = new TestObject[0], ChildrenList = new List<TestObject> { }, ChildrenIList = new List<TestObject> { } },
+                new TestObject() { Id = "5", Name = "5", SomeNumber = 5, Tags = new[] { "odd" }, Children = new TestObject[] { new TestObject { Name = "C5" } }, ChildrenList = new List<TestObject> { new TestObject() { Name = "C5" } }, ChildrenIList = new List<TestObject> { new TestObject() { Name = "C5" } } },
+                new TestObject() { Id = "6", Name = "6", SomeNumber = 6, Tags = new[] { "even" }, Children = new TestObject[0], ChildrenList = new List<TestObject> { }, ChildrenIList = new List<TestObject> { } },
+                new TestObject() { Id = "7", Name = "7", SomeNumber = 7, Tags = new[] { "odd" }, Children = new TestObject[] { new TestObject { Name = "C7" } }, ChildrenList = new List<TestObject> { new TestObject() { Name = "C7" } }, ChildrenIList = new List<TestObject> { new TestObject() { Name = "C7" } } },
             })).Wait();
         }
 
@@ -345,6 +345,18 @@ namespace RethinkDb.Test.Integration
             DoFilterExpectedObjects(o => o.Children.Length > 0, new string[] { "1", "3", "5", "7" }).Wait();
         }
 
+        [Test]
+        public void FilterListCount()
+        {
+            DoFilterExpectedObjects(o => o.ChildrenList.Count > 0, new string[] { "1", "3", "5", "7" }).Wait();
+        }
+
+        [Test]
+        public void FilterIListCount()
+        {
+            DoFilterExpectedObjects(o => o.ChildrenIList.Count > 0, new string[] { "1", "3", "5", "7" }).Wait();
+        }
+
         private const string strValConst = "2";
         private static string strValStaticField = "2";
         private static string strValStaticProperty { get { return "2"; } }
@@ -633,10 +645,38 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
-        public void ConcatMap()
+        public void ConcatMapArray()
         {
             var enumerable = connection.Run(
                 testTable.ConcatMap(to => to.Children));
+            int count = 0;
+            foreach (var testObject in enumerable)
+            {
+                count++;
+                Assert.That(testObject.Name, Is.StringStarting("C"));
+            }
+            Assert.That(count, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void ConcatMapList()
+        {
+            var enumerable = connection.Run(
+                testTable.ConcatMap(to => to.ChildrenList));
+            int count = 0;
+            foreach (var testObject in enumerable)
+            {
+                count++;
+                Assert.That(testObject.Name, Is.StringStarting("C"));
+            }
+            Assert.That(count, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void ConcatMapIList()
+        {
+            var enumerable = connection.Run(
+                testTable.ConcatMap(to => to.ChildrenIList));
             int count = 0;
             foreach (var testObject in enumerable)
             {
@@ -769,15 +809,39 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
-        public void FilterOnChildCollection()
+        public void FilterOnChildArray()
         {
-            DoFilterExpectedObjects(o => o.Children.Filter(c => c.Name == "C1").Length > 0, "1").Wait();
+            DoFilterExpectedObjects(o => o.Children.Where(c => c.Name == "C1").Count() > 0, "1").Wait();
         }
 
         [Test]
-        public void CountOnChildCollection()
+        public void FilterOnChildList()
+        {
+            DoFilterExpectedObjects(o => o.ChildrenList.Where(c => c.Name == "C1").Count() > 0, "1").Wait();
+        }
+
+        [Test]
+        public void FilterOnChildIList()
+        {
+            DoFilterExpectedObjects(o => o.ChildrenIList.Where(c => c.Name == "C1").Count() > 0, "1").Wait();
+        }
+
+        [Test]
+        public void CountOnChildArray()
         {
             DoFilterExpectedObjects(o => o.Children.Count() == 1, "1", "3", "5", "7").Wait();
+        }
+
+        [Test]
+        public void CountOnChildList()
+        {
+            DoFilterExpectedObjects(o => o.ChildrenList.Count() == 1, "1", "3", "5", "7").Wait();
+        }
+
+        [Test]
+        public void CountOnChildIList()
+        {
+            DoFilterExpectedObjects(o => o.ChildrenIList.Count() == 1, "1", "3", "5", "7").Wait();
         }
     }
 }

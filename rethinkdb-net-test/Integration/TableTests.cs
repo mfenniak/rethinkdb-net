@@ -4,6 +4,7 @@ using RethinkDb;
 using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace RethinkDb.Test.Integration
 {
@@ -74,7 +75,13 @@ namespace RethinkDb.Test.Integration
                 Name = "Jim Brown",
                 Children = new TestObject[] {
                     new TestObject() { Name = "Scan" }
-                }
+                },
+                ChildrenList = new List<TestObject> {
+                    new TestObject() { Name = "Scan" }
+                },
+                ChildrenIList = new List<TestObject> {
+                    new TestObject() { Name = "Scan" }
+                },
             };
             var resp = await connection.RunAsync(testTable.Insert(obj));
             Assert.That(resp, Is.Not.Null);

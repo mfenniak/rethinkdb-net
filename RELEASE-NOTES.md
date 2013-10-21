@@ -23,6 +23,8 @@
 
 * Support converting enum values to RethinkDB datums with numeric value serialization.  [Issue #143](https://github.com/mfenniak/rethinkdb-net/issues/143).  Thanks to @berlotte for the initial implementation of this feature.
 
+* Support for List<T> and IList<T> serialization and basic filtering.  [Issue #145](https://github.com/mfenniak/rethinkdb-net/issues/145).  Thanks to @berlotte for the initial implementation of this feature.
+
 ### API Changes
 
 * Changed how connection factories are created from configuration; previously a connection factory called ConfigConnectionFactory existed, but now a static class called the RethinkDb.Configuration.ConfigurationAssembler will create a connection factory for a specified cluster from the current configuration file.  Refactoring done as part of [pull request #73](https://github.com/mfenniak/rethinkdb-net/issues/73) for connection pooling.  Example code changes:
@@ -45,6 +47,8 @@
 * Created a base-interface, IScalarQuery&lt;T&gt;, for IWriteQuery and ISingleObjectQuery, allowing the removal of duplicate methods on IConnection & Connection.  Refactoring done as part of [pull request #73](https://github.com/mfenniak/rethinkdb-net/issues/73) for connection pooling.
 
 * Create new namespaces RethinkDb.DatumConverters (for all datum converter) and RethinkDb.Logging (for logging requirements).  This cleans up the RethinkDb namespace and simplifies the API for library users.  [Issue #141](https://github.com/mfenniak/rethinkdb-net/issues/141)
+
+* Removed extension method ReQLExpression.Filter<T>(this T[], Func<T, bool>), and replaced it with support for server-side execution of LINQ's Enumerable<T>(this IEnumerable<T>, Func<T, bool>).  Part of [Issue #145](https://github.com/mfenniak/rethinkdb-net/issues/145).
 
 ### Internals
 

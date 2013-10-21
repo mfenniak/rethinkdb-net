@@ -11,6 +11,22 @@ namespace RethinkDb.Expressions
 {
     abstract class BaseExpression
     {
+        private static Lazy<MethodInfo> ReQLAppend = new Lazy<MethodInfo>(() =>
+            typeof(ReQLExpression).GetMethod("Append", BindingFlags.Static | BindingFlags.Public)
+        );
+
+        private static Lazy<MethodInfo> EnumerableWhereWithSimplePredicate = new Lazy<MethodInfo>(() =>
+            typeof(Enumerable)
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Single(m => m.Name == "Where" && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>))
+        );
+
+        private static Lazy<MethodInfo> EnumerableCountWithNoPredicate = new Lazy<MethodInfo>(() =>
+            typeof(Enumerable)
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Single(m => m.Name == "Count" && m.GetParameters().Length == 1)
+        );
+
         #region Parameter-independent Mappings
 
         protected abstract Term RecursiveMap(Expression expression);
@@ -106,7 +122,7 @@ namespace RethinkDb.Expressions
                     var callExpression = (MethodCallExpression)expr;
                     var method = callExpression.Method;
 
-                    if (method.IsGenericMethod && method.GetGenericMethodDefinition() == typeof(ReQLExpression).GetMethod("Append", BindingFlags.Static | BindingFlags.Public))
+                    if (method.IsGenericMethod && method.GetGenericMethodDefinition() == ReQLAppend.Value)
                     {
                         var target = callExpression.Arguments[0];
 
@@ -139,36 +155,31 @@ namespace RethinkDb.Expressions
 
                         return term;
                     }
-                    else if (method.IsGenericMethod && method.GetGenericMethodDefinition() == typeof(ReQLExpression).GetMethod("Filter", BindingFlags.Public | BindingFlags.Static))
+                    else if (method.IsGenericMethod && method.GetGenericMethodDefinition() == EnumerableWhereWithSimplePredicate.Value)
                     {
                         var target = callExpression.Arguments[0];
                         var predicate = callExpression.Arguments[1];
-
-                        var term = RecursiveMap(target);
 
                         var filterTerm = new Term()
                         {
                             type = Term.TermType.FILTER
                         };
                         
-                        filterTerm.args.Add(term);
+                        filterTerm.args.Add(RecursiveMap(target));
 
-                        var arrayElementType = method.ReturnType.GetElementType();
-
-                        var createFunctionTermMethod = typeof (ExpressionUtils)
+                        var enumerableElementType = method.ReturnType.GetGenericArguments()[0];
+                        var createFunctionTermMethod = typeof(ExpressionUtils)
                             .GetMethods(BindingFlags.Public | BindingFlags.Static)
                             .Single(m => m.Name == "CreateFunctionTerm" && 
                                          m.GetGenericArguments().Length == 2);
-                        
-                        createFunctionTermMethod = createFunctionTermMethod.MakeGenericMethod(arrayElementType, typeof (bool));
+                        createFunctionTermMethod = createFunctionTermMethod.MakeGenericMethod(enumerableElementType, typeof(bool));
 
-                        var functionTerm = (Term) createFunctionTermMethod.Invoke(null, new object[] { datumConverterFactory, ((UnaryExpression) predicate).Operand });
+                        var functionTerm = (Term)createFunctionTermMethod.Invoke(null, new object[] { datumConverterFactory, predicate });
                         filterTerm.args.Add(functionTerm);
 
                         return filterTerm;
                     }
-                    else if (method.IsGenericMethod && 
-                             method.GetGenericMethodDefinition() == typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static).Single(m => m.Name == "Count" && m.GetParameters().Length == 1))
+                    else if (method.IsGenericMethod && method.GetGenericMethodDefinition() == EnumerableCountWithNoPredicate.Value)
                     {
                         var target = callExpression.Arguments[0];
 
@@ -176,10 +187,32 @@ namespace RethinkDb.Expressions
                         {
                             type = Term.TermType.COUNT,
                         };
+                        countTerm.args.Add(RecursiveMap(target));
+                        return countTerm;
+                    }
+                    else
+                    {
+                        return AttemptClientSideConversion(datumConverterFactory, expr);
+                    }
+                }
 
-                        var term = RecursiveMap(target);
+                case ExpressionType.MemberAccess:
+                {
+                    var memberExpression = (MemberExpression)expr;
+                    var member = memberExpression.Member;
 
-                        countTerm.args.Add(term);
+                    if (member.DeclaringType.IsGenericType &&
+                        (
+                            member.DeclaringType.GetGenericTypeDefinition() == typeof(List<>) ||
+                            member.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>)
+                        ) &&
+                        member.Name == "Count")
+                    {
+                        var countTerm = new Term()
+                        {
+                            type = Term.TermType.COUNT,
+                        };
+                        countTerm.args.Add(RecursiveMap(memberExpression.Expression));
                         return countTerm;
                     }
                     else
@@ -189,7 +222,9 @@ namespace RethinkDb.Expressions
                 }
 
                 default:
+                {
                     return AttemptClientSideConversion(datumConverterFactory, expr);
+                }
             }
         }
 
