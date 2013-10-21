@@ -23,7 +23,7 @@
 
 * Support converting enum values to RethinkDB datums with numeric value serialization.  [Issue #143](https://github.com/mfenniak/rethinkdb-net/issues/143).  Thanks to @berlotte for the initial implementation of this feature.
 
-* Support for List<T> and IList<T> serialization and basic filtering.  [Issue #145](https://github.com/mfenniak/rethinkdb-net/issues/145).  Thanks to @berlotte for the initial implementation of this feature.
+* Support for List&lt;T&gt; and IList&lt;T&gt; serialization and basic filtering.  [Issue #145](https://github.com/mfenniak/rethinkdb-net/issues/145).  Thanks to @berlotte for the initial implementation of this feature.
 
 ### API Changes
 
@@ -48,7 +48,7 @@
 
 * Create new namespaces RethinkDb.DatumConverters (for all datum converter) and RethinkDb.Logging (for logging requirements).  This cleans up the RethinkDb namespace and simplifies the API for library users.  [Issue #141](https://github.com/mfenniak/rethinkdb-net/issues/141)
 
-* Removed extension method ReQLExpression.Filter<T>(this T[], Func<T, bool>), and replaced it with support for server-side execution of LINQ's Enumerable<T>(this IEnumerable<T>, Func<T, bool>).  Part of [Issue #145](https://github.com/mfenniak/rethinkdb-net/issues/145).
+* Removed extension method ReQLExpression.Filter&lt;T&gt;(this T[], Func&lt;T, bool&gt;), and replaced it with support for server-side execution of LINQ's Enumerable&lt;T&gt;(this IEnumerable&lt;T&gt;, Func&lt;T, bool&gt;).  Part of [Issue #145](https://github.com/mfenniak/rethinkdb-net/issues/145).
 
 ### Internals
 
