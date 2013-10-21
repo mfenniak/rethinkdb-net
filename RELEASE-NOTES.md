@@ -1,6 +1,6 @@
 # rethinkdb-net Release Notes
 
-## 0.6.0.0
+## 0.6.0.0 (2013-10-21)
 
 ### Features
 
@@ -55,7 +55,7 @@
 * Better unit test coverage of builtin datum converters.  [Issue #60](https://github.com/mfenniak/rethinkdb-net/issues/60), [PR #140](https://github.com/mfenniak/rethinkdb-net/pull/140)
 
 
-## 0.5.0.0
+## 0.5.0.0 (2013-09-22)
 
 ### Features
 
@@ -90,21 +90,21 @@
 * Changed and hopefully improved behavior in cleanup of read dispatcher thread when closing a Connection.  It now dispatches exceptions to any pending queries from that connection, and issues various logging messages depending upon how the dispatcher thread terminated. [Issue #64](https://github.com/mfenniak/rethinkdb-net/issues/64)
 
 
-## 0.4.2.0
+## 0.4.2.0 (2013-09-17)
 
 ### Bugfixes
 
 * Fix deadlocks when using synchronous API under ASP.NET.  [Issue #130](https://github.com/mfenniak/rethinkdb-net/issues/130)  Thanks to Jonathan Channon (@jchannon) for reporting the issue and providing testing feedback.
 
 
-## 0.4.1.0
+## 0.4.1.0 (2013-09-17)
 
 ### Minor Changes
 
 * Update protobuf-net dependency to version 2.0.0.666, and specify version dependency in nuspec file.
 
 
-## 0.4.0.0
+## 0.4.0.0 (2013-09-11)
 
 ### Features
 
@@ -127,7 +127,7 @@
 * Allow client-side evaluation of unrecognized expression nodes, like variable, field, or property references.  Not supporting this previously was a huge oversight.  [Issue #122](https://github.com/mfenniak/rethinkdb-net/issues/122)
 
 
-## 0.3.1.0
+## 0.3.1.0 (2013-08-18)
 
 ### Features
 
@@ -162,7 +162,7 @@
 * Fixed performance issue w/ multithreaded shared connections, which would also cause deadlock in mixed async&sync code.  Thanks to @AshD for reporting the issue.  [PR #112](https://github.com/mfenniak/rethinkdb-net/pull/112)
 
 
-## 0.2.0.0
+## 0.2.0.0 (2013-06-13)
 
 ### Features
 
@@ -198,7 +198,7 @@
 * Fixed incorrect parameterization in Logger.Debug call in Connection.cs; thanks @rvlieshout for the patch.  [PR #105](https://github.com/mfenniak/rethinkdb-net/pull/105)
 
 
-## 0.1.2
+## 0.1.2.0 (2013-05-17)
 
 ### Features
 
