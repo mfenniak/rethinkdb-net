@@ -21,7 +21,7 @@ public class Person
     public static ITableQuery<Person> Table = Db.Table<Person>("people");
 
     [DataMember(Name = "id", EmitDefaultValue = false)]
-    public string Id;
+    public Guid Id;
 
     [DataMember]
     public string Name;
