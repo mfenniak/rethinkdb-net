@@ -1,16 +1,50 @@
+using System;
+using System.Runtime.Serialization;
 using NUnit.Framework;
-using RethinkDb.Spec;
-using RethinkDb.Test.Integration;
 using NSubstitute;
 using RethinkDb.DatumConverters;
+using RethinkDb.Spec;
+using RethinkDb.Test.Integration;
 
 namespace RethinkDb.Test.DatumConverters
 {
+    // Test object for issue #142; Guid w/ EmitDefaultValue=false, as a field
+    [DataContract]
+    public class TestObjectStructEmitDefaultValueField
+    {
+        [DataMember(Name = "id", EmitDefaultValue = false)]
+        public Guid Id;
+
+        [DataMember(Name = "name")]
+        public string Name;
+    }
+
+    // Test object for issue #142; Guid w/ EmitDefaultValue=false, as a property
+    [DataContract]
+    public class TestObjectStructEmitDefaultValueProperty
+    {
+        [DataMember(Name = "id", EmitDefaultValue = false)]
+        public Guid Id
+        {
+            get;
+            set;
+        }
+
+        [DataMember(Name = "name")]
+        public string Name
+        {
+            get;
+            set;
+        }
+    }
+
     [TestFixture]
     public class DataContractDatumConverterTests
     {
         private IDatumConverter<TestObject2> testObject2Converter;
         private IDatumConverter<TestObject4> testObject4Converter;
+        private IDatumConverter<TestObjectStructEmitDefaultValueField> testObjectStructEmitDefaultValueFieldConverter;
+        private IDatumConverter<TestObjectStructEmitDefaultValueProperty> testObjectStructEmitDefaultValuePropertyConverter;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
@@ -31,6 +65,8 @@ namespace RethinkDb.Test.DatumConverters
 
             testObject2Converter = DataContractDatumConverterFactory.Instance.Get<TestObject2>(datumConverterFactory);
             testObject4Converter = DataContractDatumConverterFactory.Instance.Get<TestObject4>(datumConverterFactory);
+            testObjectStructEmitDefaultValueFieldConverter = DataContractDatumConverterFactory.Instance.Get<TestObjectStructEmitDefaultValueField>(datumConverterFactory);
+            testObjectStructEmitDefaultValuePropertyConverter = DataContractDatumConverterFactory.Instance.Get<TestObjectStructEmitDefaultValueProperty>(datumConverterFactory);
 
             IDatumConverter<string> value;
             datumConverterFactory
@@ -135,6 +171,36 @@ namespace RethinkDb.Test.DatumConverters
             var property = typeof(TestObject4).GetProperty("Name");
 
             Assert.That(objectDatumConverter.GetDatumFieldName(property), Is.EqualTo("name"));
+        }
+
+        [Test]
+        public void EmitDefaultValueOnStructField()
+        {
+            var obj = new TestObjectStructEmitDefaultValueField() { Name = "Jackpot!" };
+            var datum = testObjectStructEmitDefaultValueFieldConverter.ConvertObject(obj);
+
+            Assert.That(datum.type, Is.EqualTo(Datum.DatumType.R_OBJECT));
+            Assert.That(datum.r_object.Count, Is.EqualTo(1));
+
+            var pair = datum.r_object[0];
+            Assert.That(pair.key, Is.EqualTo("name"));
+            Assert.That(pair.val.type, Is.EqualTo(Datum.DatumType.R_STR));
+            Assert.That(pair.val.r_str, Is.EqualTo("Jackpot!"));
+        }
+
+        [Test]
+        public void EmitDefaultValueOnStructProperty()
+        {
+            var obj = new TestObjectStructEmitDefaultValueProperty() { Name = "Jackpot!" };
+            var datum = testObjectStructEmitDefaultValuePropertyConverter.ConvertObject(obj);
+
+            Assert.That(datum.type, Is.EqualTo(Datum.DatumType.R_OBJECT));
+            Assert.That(datum.r_object.Count, Is.EqualTo(1));
+
+            var pair = datum.r_object[0];
+            Assert.That(pair.key, Is.EqualTo("name"));
+            Assert.That(pair.val.type, Is.EqualTo(Datum.DatumType.R_STR));
+            Assert.That(pair.val.r_str, Is.EqualTo("Jackpot!"));
         }
     }
 }

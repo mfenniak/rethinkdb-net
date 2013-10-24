@@ -353,10 +353,24 @@ namespace RethinkDb.DatumConverters
                     gen.Emit(OpCodes.Initobj, field.FieldType);
 
                     skipInclude = gen.DefineLabel();
-                    gen.Emit(OpCodes.Ldarg_1);
-                    gen.Emit(OpCodes.Ldfld, field);
-                    gen.Emit(OpCodes.Ldloc, local);
-                    gen.Emit(OpCodes.Ceq);
+
+                    if (field.FieldType.IsPrimitive)
+                    {
+                        gen.Emit(OpCodes.Ldarg_1);
+                        gen.Emit(OpCodes.Ldfld, field);
+                        gen.Emit(OpCodes.Ldloc, local);
+                        gen.Emit(OpCodes.Ceq);
+                    }
+                    else
+                    {
+                        gen.Emit(OpCodes.Ldarg_1);
+                        gen.Emit(OpCodes.Ldfld, field);
+                        gen.Emit(OpCodes.Box, field.FieldType);
+                        gen.Emit(OpCodes.Ldloc, local);
+                        gen.Emit(OpCodes.Box, field.FieldType);
+                        gen.Emit(OpCodes.Call, typeof(Object).GetMethod("Equals", BindingFlags.Static | BindingFlags.Public));
+                    }
+
                     gen.Emit(OpCodes.Brtrue, skipInclude.Value);
                 }
 
@@ -410,10 +424,24 @@ namespace RethinkDb.DatumConverters
                     gen.Emit(OpCodes.Initobj, property.PropertyType);
 
                     skipInclude = gen.DefineLabel();
-                    gen.Emit(OpCodes.Ldarg_1);
-                    gen.Emit(OpCodes.Callvirt, property.GetGetMethod());
-                    gen.Emit(OpCodes.Ldloc, local);
-                    gen.Emit(OpCodes.Ceq);
+
+                    if (property.PropertyType.IsPrimitive)
+                    {
+                        gen.Emit(OpCodes.Ldarg_1);
+                        gen.Emit(OpCodes.Callvirt, property.GetGetMethod());
+                        gen.Emit(OpCodes.Ldloc, local);
+                        gen.Emit(OpCodes.Ceq);
+                    }
+                    else
+                    {
+                        gen.Emit(OpCodes.Ldarg_1);
+                        gen.Emit(OpCodes.Callvirt, property.GetGetMethod());
+                        gen.Emit(OpCodes.Box, property.PropertyType);
+                        gen.Emit(OpCodes.Ldloc, local);
+                        gen.Emit(OpCodes.Box, property.PropertyType);
+                        gen.Emit(OpCodes.Call, typeof(Object).GetMethod("Equals", BindingFlags.Static | BindingFlags.Public));
+                    }
+
                     gen.Emit(OpCodes.Brtrue, skipInclude.Value);
                 }
 
