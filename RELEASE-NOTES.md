@@ -1,5 +1,12 @@
 # rethinkdb-net Release Notes
 
+## Next Release
+
+### Bugfixes
+
+* Permit [DataMember(EmitDefaultValue=false)] on non-primitive value types (structs), like System.Guid.  [Issue #142](https://github.com/mfenniak/rethinkdb-net/issues/142).
+
+
 ## 0.6.0.0 (2013-10-21)
 
 ### Features
