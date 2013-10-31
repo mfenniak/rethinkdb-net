@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A2238079-AE5F-4FDC-85AC-69FFE4F39CAF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RethinkDb.Newtonsoft.Test</RootNamespace>
+    <AssemblyName>rethinkdb-net-newtonsoft-test</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FluentAssertions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\FluentAssertions.2.1.0.0\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\packages\protobuf-net.2.0.0.666\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Integration\InsertComplexObjectTests.cs" />
+    <Compile Include="Integration\InsertTestObjectTests.cs" />
+    <Compile Include="Native.cs" />
+    <Compile Include="DatumConversion\ComplexObjectTests.cs" />
+    <Compile Include="DatumConversion\DateTimeOffsetTests.cs" />
+    <Compile Include="DatumConversion\DateTimeTests.cs" />
+    <Compile Include="DatumConversion\FatDateTimeTests.cs" />
+    <Compile Include="DatumConversion\GeneralTests.cs" />
+    <Compile Include="DatumConversion\TimeSpanTests.cs" />
+    <Compile Include="DatumConversion\Util.cs" />
+    <Compile Include="DebugTests.cs" />
+    <Compile Include="DebugExtensionsForDatum.cs" />
+    <Compile Include="Integration\InsertTestObjectNewtonTests.cs" />
+    <Compile Include="Integration\TestBase.cs" />
+    <Compile Include="ObjectDumper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestObjects\ADateTime.cs" />
+    <Compile Include="TestObjects\ADateTimeOffset.cs" />
+    <Compile Include="TestObjects\ComplexObject.cs" />
+    <Compile Include="TestObjects\DateTimeNullable.cs" />
+    <Compile Include="TestObjects\DateTimeOffsetNullable.cs" />
+    <Compile Include="TestObjects\FatDateTimeObject.cs" />
+    <Compile Include="TestObjects\TestObjectNewton.cs" />
+    <Compile Include="TestObjects\TimeSpanObject.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\rethinkdb-net-newtonsoft\rethinkdb-net-newtonsoft.csproj">
+      <Project>{8a73ed1f-43f0-472e-963f-f508ac69c69b}</Project>
+      <Name>rethinkdb-net-newtonsoft</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\rethinkdb-net-test\rethinkdb-net-test.csproj">
+      <Project>{ba84988b-0d7c-468e-b412-1389c8d69852}</Project>
+      <Name>rethinkdb-net-test</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\rethinkdb-net\rethinkdb-net.csproj">
+      <Project>{4632c7da-1c4f-4dab-b212-ef69059959c5}</Project>
+      <Name>rethinkdb-net</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

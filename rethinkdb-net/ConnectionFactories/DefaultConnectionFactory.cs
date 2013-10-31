@@ -40,7 +40,7 @@ namespace RethinkDb.ConnectionFactories
             set;
         }
 
-        public async Task<IConnection> GetAsync()
+        public virtual async Task<IConnection> GetAsync()
         {
             var connection = new Connection();
             connection.EndPoints = EndPoints;
