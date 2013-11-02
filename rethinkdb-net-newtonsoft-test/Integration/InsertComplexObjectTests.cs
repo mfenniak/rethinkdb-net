@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
+using RethinkDb.Newtonsoft.Configuration;
 using RethinkDb.Newtonsoft.Test.TestObjects;
+using RethinkDb.Test.Integration;
 
 namespace RethinkDb.Newtonsoft.Test.Integration
 {
@@ -51,8 +53,8 @@ namespace RethinkDb.Newtonsoft.Test.Integration
             result.Id.Should().Be( insertedObject.Id );
 
 
-            var insertedDatum = DatumConvert.SerializeObject( insertedObject, NewtonsoftDatumConverterFactory.DefaultSeralizerSettings );
-            var resultDatum = DatumConvert.SerializeObject( result, NewtonsoftDatumConverterFactory.DefaultSeralizerSettings );
+            var insertedDatum = DatumConvert.SerializeObject( insertedObject, ConfigurationAssembler.DefaultJsonSerializerSettings );
+            var resultDatum = DatumConvert.SerializeObject( result, ConfigurationAssembler.DefaultJsonSerializerSettings );
             insertedDatum.ShouldBeEquivalentTo( resultDatum );
         }
 

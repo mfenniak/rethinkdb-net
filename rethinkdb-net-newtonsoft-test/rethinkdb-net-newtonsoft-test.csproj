@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Integration\NewtonTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DebugExtensionsForDatum.cs" />
     <Compile Include="DebugTests.cs" />
@@ -61,8 +62,6 @@
     <Compile Include="DatumConversion\Util.cs" />
     <Compile Include="Integration\InsertComplexObjectTests.cs" />
     <Compile Include="Integration\InsertTestObjectNewtonTests.cs" />
-    <Compile Include="Integration\InsertTestObjectTests.cs" />
-    <Compile Include="Integration\TestBase.cs" />
     <Compile Include="TestObjects\ADateTime.cs" />
     <Compile Include="TestObjects\ADateTimeOffset.cs" />
     <Compile Include="TestObjects\ComplexObject.cs" />
@@ -77,11 +76,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DatumConversion\" />
-    <Folder Include="Integration\" />
-    <Folder Include="TestObjects\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\rethinkdb-net\rethinkdb-net.csproj">
       <Project>{4632C7DA-1C4F-4DAB-B212-EF69059959C5}</Project>

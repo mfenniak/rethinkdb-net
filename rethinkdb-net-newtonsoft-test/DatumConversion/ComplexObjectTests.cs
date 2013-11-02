@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
+using RethinkDb.Newtonsoft.Configuration;
 using RethinkDb.Newtonsoft.Converters;
 using RethinkDb.Newtonsoft.Test.TestObjects;
 using RethinkDb.Spec;
@@ -29,7 +30,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
         {
             var datum = GetDatum_InlineOrder();
 
-            var newtonObject = DatumConvert.DeserializeObject<ComplexObject>( datum, NewtonsoftDatumConverterFactory.DefaultSeralizerSettings );
+            var newtonObject = DatumConvert.DeserializeObject<ComplexObject>( datum, ConfigurationAssembler.DefaultJsonSerializerSettings );
 
             var truth = NewObjectWithDefaults();
 
@@ -41,7 +42,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
         {
             var datum = GetDatum_RandomOrder();
 
-            var newtonObject = DatumConvert.DeserializeObject<ComplexObject>( datum, NewtonsoftDatumConverterFactory.DefaultSeralizerSettings );
+            var newtonObject = DatumConvert.DeserializeObject<ComplexObject>( datum, ConfigurationAssembler.DefaultJsonSerializerSettings );
 
             var truth = NewObjectWithDefaults();
 

@@ -11,7 +11,7 @@ namespace RethinkDb.Test.Integration
 {
     public class TestBase
     {
-        private static IConnectionFactory connectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
+        public static IConnectionFactory ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
 
         protected IConnection connection;
 
@@ -31,7 +31,7 @@ namespace RethinkDb.Test.Integration
 
         private async Task DoTestFixtureSetUp()
         {
-            connection = await connectionFactory.GetAsync();
+            connection = await ConnectionFactory.GetAsync();
 
             try
             {

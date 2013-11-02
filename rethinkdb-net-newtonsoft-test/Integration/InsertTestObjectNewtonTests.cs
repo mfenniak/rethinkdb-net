@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
+using RethinkDb.Newtonsoft.Configuration;
 using RethinkDb.Newtonsoft.Test.TestObjects;
 using RethinkDb.Test.Integration;
 
@@ -52,8 +53,8 @@ namespace RethinkDb.Newtonsoft.Test.Integration
             //FluentAssertions doesn't check "field" equality, so 
             //converting everything to datums and THEN checking for equality
             //is best.
-            var insertedDatum = DatumConvert.SerializeObject(insertedObject, NewtonsoftDatumConverterFactory.DefaultSeralizerSettings);
-            var resultDatum = DatumConvert.SerializeObject(result, NewtonsoftDatumConverterFactory.DefaultSeralizerSettings);
+            var insertedDatum = DatumConvert.SerializeObject(insertedObject, ConfigurationAssembler.DefaultJsonSerializerSettings);
+            var resultDatum = DatumConvert.SerializeObject(result, ConfigurationAssembler.DefaultJsonSerializerSettings);
             insertedDatum.ShouldBeEquivalentTo(resultDatum);
 
         }
