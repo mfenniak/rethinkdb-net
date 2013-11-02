@@ -47,9 +47,7 @@ namespace RethinkDb.Configuration
                     endpoints.Add(new DnsEndPoint(ep.Address, ep.Port));
             }
 
-            //var connectionFactory = new DefaultConnectionFactory( endpoints );
-            var connectionFactory = ConnectionFactoryProvider(endpoints);
-
+            var connectionFactory = new DefaultConnectionFactory(endpoints);
 
             if (!String.IsNullOrEmpty(cluster.AuthorizationKey))
                 connectionFactory.AuthorizationKey = cluster.AuthorizationKey;
@@ -59,8 +57,6 @@ namespace RethinkDb.Configuration
 
             return connectionFactory;
         }
-
-        public static Func<List<EndPoint>, DefaultConnectionFactory> ConnectionFactoryProvider = ( eps ) => new DefaultConnectionFactory( eps );
     }
 }
 
