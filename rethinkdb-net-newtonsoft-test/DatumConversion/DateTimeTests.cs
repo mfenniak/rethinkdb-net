@@ -27,8 +27,6 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                 .ConvertObject( utcNow )
                 .ToConsoleDebug();
 
-            //Foffsets
-
             Console.WriteLine( "----------- OFFSETS BELOW" );
 
 

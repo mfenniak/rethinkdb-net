@@ -52,7 +52,6 @@
     <Compile Include="DebugExtensionsForDatum.cs" />
     <Compile Include="DebugTests.cs" />
     <Compile Include="Native.cs" />
-    <Compile Include="ObjectDumper.cs" />
     <Compile Include="DatumConversion\ComplexObjectTests.cs" />
     <Compile Include="DatumConversion\DateTimeOffsetTests.cs" />
     <Compile Include="DatumConversion\DateTimeTests.cs" />

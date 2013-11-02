@@ -4,6 +4,12 @@ using RethinkDb.Test.Integration;
 
 namespace RethinkDb.Newtonsoft.Test.Integration
 {
+    [SetUpFixture]
+    public class NIntegrationTestSetup : IntegrationTestSetup
+    {
+        
+    }
+
     [TestFixture]
     public class NSingleObjectTest : SingleObjectTests
     {

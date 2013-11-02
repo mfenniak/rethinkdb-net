@@ -55,7 +55,6 @@ namespace RethinkDb.Newtonsoft
         public override DateTime? ReadAsDateTime()
         {
             this.ReadInternal(ReadAs.DateTime);
-            //throw new JsonException("ReadAsDateTime should not be called. Please ensure you're using a DateTimeConverter.");
             return null;
         }
 
