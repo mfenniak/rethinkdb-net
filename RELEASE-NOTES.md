@@ -2,6 +2,10 @@
 
 ## Next Release
 
+### Features
+
+* (rethinkdb-net-newtonsoft): Introduction of a new assembly, RethinkDb.Newtonsoft.dll, that introduces an alternative to the provided DataContract-based approach to serializing .NET objects to RethinkDB; this new library allows for the use of the same semantics that the Newtonsoft.Json library uses to convert objects.  As the new assembly has dependencies on Newtonsoft.Json that not all users of RethinkDB may desire, we will be distributing this additional assembly as a new NuGet package named rethinkdb-net-newtonsoft.  To use the new library, an alternative implementation of the `ConfigurationAssembler` class has been created in the namespace `RethinkDb.Newtonsoft.Configuration`; using this assembler will create connection factories that reference the new serializer capabilities.  Big thanks to Brian Chavez (@bchavez) for the implementation of this new feature.  [PR #151](https://github.com/mfenniak/rethinkdb-net/issues/151) & [Issue #149](https://github.com/mfenniak/rethinkdb-net/issues/149)
+
 ### Bugfixes
 
 * Permit [DataMember(EmitDefaultValue=false)] on non-primitive value types (structs), like System.Guid.  [Issue #142](https://github.com/mfenniak/rethinkdb-net/issues/142).

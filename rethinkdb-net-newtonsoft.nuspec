@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>rethinkdb-net-newtonsoft</id>
+        <version>0.6.0.0</version>
+        <authors>Brian Chavez</authors>
+        <owners>Mathieu Fenniak</owners>
+        <projectUrl>https://github.com/mfenniak/rethinkdb-net</projectUrl>
+        <licenseUrl>https://raw.github.com/mfenniak/rethinkdb-net/master/LICENSE.txt</licenseUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Alternative object serializer for rethinkdb-net using Newtonsoft.Json</description>
+        <dependencies>
+            <dependency id="rethinkdb-net" version="0.6.0.0" />
+            <dependency id="Newtonsoft.Json" version="5.0.8" />
+            <dependency id="protobuf-net" version="2.0.0.666" />
+        </dependencies>
+        <releaseNotes>Compatible only with the matching version of rethinkdb-net, see https://github.com/mfenniak/rethinkdb-net/blob/master/RELEASE-NOTES.md for detailed release notes.</releaseNotes>
+    </metadata>
+    <files>
+        <file src="rethinkdb-net-newtonsoft/bin/Release/RethinkDb.Newtonsoft.dll" target="lib/net45" />
+        <file src="rethinkdb-net-newtonsoft/bin/Release/RethinkDb.Newtonsoft.dll.mdb" target="lib/net45" />
+        <file src="LICENSE.txt" target="lib" />
+        <file src="README.md" target="lib" />
+        <file src="RELEASE-NOTES.md" target="lib" />
+    </files>
+</package>
