@@ -15,3 +15,14 @@ Examples/*/obj
 rethinkdb_data
 test-results
 TestResult.xml
+
+# ReSharper is a .NET coding add-in
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# User-specific files
+*.suo
+*.user
+
+#mono pdbs
+*.pidb
