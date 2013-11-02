@@ -43,7 +43,7 @@
     <Compile Include="Configuration\ConfigurationAssembler.cs" />
     <Compile Include="Configuration\NewtonSerializer.cs" />
     <Compile Include="Configuration\NewtonsoftConnectionFactory.cs" />
-    <Compile Include="Configuration\NewtonsoftDatumConverter.cs" />
+    <Compile Include="Configuration\NewtonsoftReferenceDatumConverter.cs" />
     <Compile Include="Configuration\NewtonsoftDatumConverterFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DatumConvert.cs" />

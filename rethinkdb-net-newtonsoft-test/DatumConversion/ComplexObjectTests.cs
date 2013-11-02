@@ -53,7 +53,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
         {
             var obj = new ComplexObject
                 {
-                    Id = Guid.Parse("{32753EDC-E5EF-46E0-ABCD-CE5413B30797}"),
+                    Id = Guid.Parse("{32753EDC-E5EF-46E0-ABCD-CE5413B30797}").ToString(),
                     Name = "Brian Chavez",
                     ProfileUri = new Uri("http://www.bitarmory.com"),
                     CompanyUri = null,

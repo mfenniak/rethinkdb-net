@@ -1,4 +1,5 @@
-﻿using RethinkDb.DatumConverters;
+﻿using System;
+using RethinkDb.DatumConverters;
 
 namespace RethinkDb.Newtonsoft.Configuration
 {
@@ -11,7 +12,17 @@ namespace RethinkDb.Newtonsoft.Configuration
             //I guess we could have some more specific checks here
             //but if we get here last in the NewtonsoftSerializer order, then
             //I suppose we can handle it if no preceding converters could handle it. 
-            datumConverter = new NewtonsoftDatumConverter<T>();
+
+
+            //makes no difference to Newtonsoft, but base class constructor 
+            //checks this constraint and throws if it's not exactly a Value type converter...
+            if ( typeof(T).IsValueType )
+            {
+                datumConverter = new NewtonsoftValueDatumConverter<T>();
+                return true;
+            }
+
+            datumConverter = new NewtonsoftReferenceDatumConverter<T>();
             return true;
         }
     }

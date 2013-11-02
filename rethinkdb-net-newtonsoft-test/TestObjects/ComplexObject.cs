@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using RethinkDb.Spec;
 
 namespace RethinkDb.Newtonsoft.Test.TestObjects
 {
     public class ComplexObject
     {
-        public Guid Id { get; set; }
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; set; }
         public string Name { get; set; }
         public Uri ProfileUri { get; set; }
         public Uri CompanyUri { get; set; }
@@ -24,5 +26,7 @@ namespace RethinkDb.Newtonsoft.Test.TestObjects
         public bool? Notify { get; set; }
         public bool[] BinaryBools { get; set; }
         public bool?[] NullBinaryBools { get; set; }
+
+        public double SomeNumber { get; set; }
     }
 }

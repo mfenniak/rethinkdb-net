@@ -6,7 +6,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.Newtonsoft.Configuration
 {
-    public class NewtonsoftDatumConverter<T> : AbstractReferenceTypeDatumConverter<T>, IObjectDatumConverter
+    public class NewtonsoftReferenceDatumConverter<T> : AbstractReferenceTypeDatumConverter<T>, IObjectDatumConverter
     {
         public override T ConvertDatum(Datum datum)
         {
@@ -29,6 +29,19 @@ namespace RethinkDb.Newtonsoft.Configuration
             return contract.Properties
                 .First( p => p.UnderlyingName == memberInfo.Name )
                 .PropertyName;
+        }
+    }
+
+    public class NewtonsoftValueDatumConverter<T> : AbstractValueTypeDatumConverter<T>
+    {
+        public override T ConvertDatum( Datum datum )
+        {
+            return DatumConvert.DeserializeObject<T>( datum, ConfigurationAssembler.DefaultJsonSerializerSettings );
+        }
+
+        public override Datum ConvertObject( T value )
+        {
+            return DatumConvert.SerializeObject( value, ConfigurationAssembler.DefaultJsonSerializerSettings );
         }
     }
 
