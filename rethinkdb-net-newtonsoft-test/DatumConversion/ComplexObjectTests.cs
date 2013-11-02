@@ -75,7 +75,8 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                     Enabled = true,
                     Notify = null,
                     BinaryBools = new[] {true, false, true},
-                    NullBinaryBools = new bool?[] {true, null, true}
+                    NullBinaryBools = new bool?[] {true, null, true},
+                    SomeNumber = 1234
                 };
             return obj;
         }
@@ -91,7 +92,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                 };
             truth.r_object.Add( new Datum.AssocPair
                 {
-                    key = "Id",
+                    key = "id",
                     val = new Datum
                         {
                             type = Datum.DatumType.R_STR,
@@ -283,6 +284,15 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                                 }
                         }
                 } );
+            truth.r_object.Add( new Datum.AssocPair
+            {
+                key = "SomeNumber",
+                val = new Datum
+                {
+                    type = Datum.DatumType.R_NUM,
+                    r_num = 1234
+                }
+            } );
 
             return truth;
         }
@@ -296,7 +306,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
             };
             truth.r_object.Add( new Datum.AssocPair
             {
-                key = "Id",
+                key = "id",
                 val = new Datum
                 {
                     type = Datum.DatumType.R_STR,
@@ -487,6 +497,16 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                 {
                     type = Datum.DatumType.R_NUM,
                     r_num = 1000001.2
+                }
+            } );
+
+            truth.r_object.Add( new Datum.AssocPair
+            {
+                key = "SomeNumber",
+                val = new Datum
+                {
+                    type = Datum.DatumType.R_NUM,
+                    r_num = 1234
                 }
             } );
 
