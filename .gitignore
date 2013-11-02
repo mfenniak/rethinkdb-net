@@ -2,7 +2,12 @@ rethinkdb-net/bin
 rethinkdb-net/obj
 rethinkdb-net-test/bin
 rethinkdb-net-test/obj
+rethinkdb-net-newtonsoft/bin
+rethinkdb-net-newtonsoft/obj
+rethinkdb-net-newtonsoft-test/bin
+rethinkdb-net-newtonsoft-test/obj
 rethinkdb-net-test/test-results
+rethinkdb-net-newtonsoft-test/test-results
 Examples/*/bin
 Examples/*/obj
 *.suo
