@@ -25,6 +25,16 @@ run_tests() {
 
     RUNNER_PATH="packages/NUnit.Runners.2.6.1/tools"
     mono ${RUNNER_PATH}/nunit-console.exe rethinkdb-net-test/bin/Debug/rethinkdb-net-test.dll
+            
+    local test_result=$?
+    
+    if [[ "${test_result}" != 0 ]] ; then
+        tests_failed
+    else
+        tests_passed
+    fi
+    
+    mono ${RUNNER_PATH}/nunit-console.exe rethinkdb-net-newtonsoft-test/bin/Debug/rethinkdb-net-newtonsoft-test.dll
     
     local test_result=$?
     

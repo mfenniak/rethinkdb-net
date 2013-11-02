@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rethinkdb-net", "rethinkdb-net\rethinkdb-net.csproj", "{4632C7DA-1C4F-4DAB-B212-EF69059959C5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rethinkdb-net-test", "rethinkdb-net-test\rethinkdb-net-test.csproj", "{BA84988B-0D7C-468E-B412-1389C8D69852}"
@@ -8,10 +10,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DAD64B79-3A83-4443-B343-007BF749AD8C}"
 	ProjectSection(SolutionItems) = preProject
 		build.sh = build.sh
-		README.md = README.md
-		rethinkdb-net.nuspec = rethinkdb-net.nuspec
 		LICENSE.txt = LICENSE.txt
+		README.md = README.md
 		RELEASE-NOTES.md = RELEASE-NOTES.md
+		rethinkdb-net.nuspec = rethinkdb-net.nuspec
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{9F8AB94D-246B-420B-91C7-145B94D75FA3}"
@@ -25,11 +27,23 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Release|x86.ActiveCfg = Release|Any CPU
+		{BA84988B-0D7C-468E-B412-1389C8D69852}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA84988B-0D7C-468E-B412-1389C8D69852}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA84988B-0D7C-468E-B412-1389C8D69852}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BA84988B-0D7C-468E-B412-1389C8D69852}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA84988B-0D7C-468E-B412-1389C8D69852}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA84988B-0D7C-468E-B412-1389C8D69852}.Release|x86.ActiveCfg = Release|Any CPU
 		{0349F544-F60D-40E0-BCAD-FC4A41BB8595}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{0349F544-F60D-40E0-BCAD-FC4A41BB8595}.Debug|Any CPU.Build.0 = Debug|x86
 		{0349F544-F60D-40E0-BCAD-FC4A41BB8595}.Debug|x86.ActiveCfg = Debug|x86
@@ -46,10 +60,6 @@ Global
 		{1D419EAA-2611-4F3B-B7E0-3175841E46EC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1D419EAA-2611-4F3B-B7E0-3175841E46EC}.Release|x86.ActiveCfg = Release|Any CPU
 		{1D419EAA-2611-4F3B-B7E0-3175841E46EC}.Release|x86.Build.0 = Release|Any CPU
-		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4632C7DA-1C4F-4DAB-B212-EF69059959C5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A0F00278-C0F6-4E36-AAC2-8F5BCFD9A804}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A0F00278-C0F6-4E36-AAC2-8F5BCFD9A804}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0F00278-C0F6-4E36-AAC2-8F5BCFD9A804}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -58,10 +68,9 @@ Global
 		{A0F00278-C0F6-4E36-AAC2-8F5BCFD9A804}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A0F00278-C0F6-4E36-AAC2-8F5BCFD9A804}.Release|x86.ActiveCfg = Release|Any CPU
 		{A0F00278-C0F6-4E36-AAC2-8F5BCFD9A804}.Release|x86.Build.0 = Release|Any CPU
-		{BA84988B-0D7C-468E-B412-1389C8D69852}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA84988B-0D7C-468E-B412-1389C8D69852}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA84988B-0D7C-468E-B412-1389C8D69852}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA84988B-0D7C-468E-B412-1389C8D69852}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0349F544-F60D-40E0-BCAD-FC4A41BB8595} = {9F8AB94D-246B-420B-91C7-145B94D75FA3}
@@ -72,12 +81,11 @@ Global
 		$0.DotNetNamingPolicy = $1
 		$1.DirectoryNamespaceAssociation = None
 		$1.ResourceNamePolicy = FileFormatDefault
-		$0.TextStylePolicy = $2
+		$0.TextStylePolicy = $7
 		$2.FileWidth = 120
 		$2.inheritsSet = VisualStudio
 		$2.inheritsScope = text/plain
 		$2.scope = text/plain
-		$0.TextStylePolicy = $3
 		$3.FileWidth = 120
 		$3.inheritsSet = VisualStudio
 		$3.inheritsScope = text/plain
@@ -101,21 +109,15 @@ Global
 		$4.inheritsSet = Mono
 		$4.inheritsScope = text/x-csharp
 		$4.scope = text/x-csharp
-		$0.TextStylePolicy = $5
 		$5.inheritsSet = null
 		$5.scope = application/config+xml
-		$0.XmlFormattingPolicy = $6
+		$0.XmlFormattingPolicy = $8
 		$6.inheritsSet = null
 		$6.scope = application/config+xml
-		$0.TextStylePolicy = $7
 		$7.inheritsSet = null
 		$7.scope = application/xml
-		$0.XmlFormattingPolicy = $8
 		$8.inheritsSet = Mono
 		$8.inheritsScope = application/xml
 		$8.scope = application/xml
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
