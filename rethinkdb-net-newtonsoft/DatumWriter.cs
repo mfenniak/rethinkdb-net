@@ -268,14 +268,14 @@ namespace RethinkDb.Newtonsoft
         {
             //base.WriteValue(value);
             //WritePrimitive(value.TotalSeconds);
-            throw new JsonException( "TimeSpans can only be converted by including the DatumTimeSpanConverter in JsonSeralizerSettings. See source comment for: DatumTimeSpanConverter." );
+            throw new JsonException( "TimeSpans can only be converted by including the TimeSpanConverter in JsonSeralizerSettings. Be sure to include it if you're using custom serializer settings." );
         }
 
         public override void WriteValue( TimeSpan? value )
         {
             //base.WriteValue(value);
             //WriteNullable(value == null ? (double?)null : value.Value.TotalSeconds);
-            throw new JsonException( "TimeSpans can only be converted by including the DatumTimeSpanConverter in JsonSeralizerSettings. See source comment for: DatumTimeSpanConverter." );
+            throw new JsonException( "TimeSpans can only be converted by including the TimeSpanConverter in JsonSeralizerSettings. Be sure to include it if you're using custom serializer settings." );
 
         }
 
