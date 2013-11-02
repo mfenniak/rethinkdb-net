@@ -34,7 +34,7 @@ run_tests() {
         tests_passed
     fi
     
-    mono ${RUNNER_PATH}/nunit-console.exe rethinkdb-net-test/bin/Debug/rethinkdb-net-newtonsoft-test.dll
+    mono ${RUNNER_PATH}/nunit-console.exe rethinkdb-net-newtonsoft-test/bin/Debug/rethinkdb-net-newtonsoft-test.dll
     
     local test_result=$?
     
