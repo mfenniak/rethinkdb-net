@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>rethinkdb-net-newtonsoft</id>
-        <version>0.6.0.0</version>
+        <version>0.7.0.0</version>
         <authors>Brian Chavez</authors>
         <owners>Mathieu Fenniak</owners>
         <projectUrl>https://github.com/mfenniak/rethinkdb-net</projectUrl>
@@ -10,7 +10,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Alternative object serializer for rethinkdb-net using Newtonsoft.Json</description>
         <dependencies>
-            <dependency id="rethinkdb-net" version="0.6.0.0" />
+            <dependency id="rethinkdb-net" version="0.7.0.0" />
             <dependency id="Newtonsoft.Json" version="5.0.8" />
             <dependency id="protobuf-net" version="2.0.0.666" />
         </dependencies>
