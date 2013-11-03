@@ -27,6 +27,48 @@ namespace RethinkDb.Expressions
                 .Single(m => m.Name == "Count" && m.GetParameters().Length == 1)
         );
 
+        private static Lazy<MethodInfo> DateTimeAddTimeSpan = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "Add")
+        );
+
+        private static Lazy<MethodInfo> DateTimeAddMinutes = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddMinutes")
+        );
+
+        private static Lazy<MethodInfo> DateTimeAddSeconds = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddSeconds")
+        );
+
+        private static Lazy<MethodInfo> DateTimeAddHours = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddHours")
+        );
+
+        private static Lazy<MethodInfo> DateTimeAddMilliseconds = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddMilliseconds")
+        );
+
+        private static Lazy<MethodInfo> DateTimeAddTicks = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddTicks")
+        );
+
+        private static Lazy<MethodInfo> DateTimeAddDays = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddDays")
+        );
+
         #region Parameter-independent Mappings
 
         protected abstract Term RecursiveMap(Expression expression);
@@ -49,6 +91,29 @@ namespace RethinkDb.Expressions
             };
             term.args.Add(RecursiveMap(expr.Operand));
             return term;
+        }
+
+        private Term ConvertDateTimeAddFunctionToTerm(MethodCallExpression callExpression, double conversionToSeconds)
+        {
+            return new Term() {
+                type = Term.TermType.ADD,
+                args = {
+                    RecursiveMap(callExpression.Object),
+                    new Term() {
+                        type = Term.TermType.MUL,
+                        args = {
+                            RecursiveMap(callExpression.Arguments[0]),
+                            new Term() {
+                                type = Term.TermType.DATUM,
+                                datum = new Datum() {
+                                    type = Datum.DatumType.R_NUM,
+                                    r_num = conversionToSeconds
+                                }
+                            }
+                        }
+                    }
+                }
+            };
         }
 
         protected Term SimpleMap(IDatumConverterFactory datumConverterFactory, Expression expr)
@@ -101,7 +166,7 @@ namespace RethinkDb.Expressions
                 {
                     var newExpression = (NewExpression)expr;
                     if (!AnonymousTypeDatumConverterFactory.Instance.IsTypeSupported(newExpression.Type))
-                        throw new NotSupportedException(String.Format("Unsupported type in New expression: {0}; only anonymous types are supported", expr.Type));
+                        return AttemptClientSideConversion(datumConverterFactory, expr);
 
                     var retval = new Term() {
                         type = Term.TermType.MAKE_OBJ,
@@ -189,6 +254,40 @@ namespace RethinkDb.Expressions
                         };
                         countTerm.args.Add(RecursiveMap(target));
                         return countTerm;
+                    }
+                    else if (method == DateTimeAddTimeSpan.Value)
+                    {
+                        var addTerm = new Term()
+                        {
+                            type = Term.TermType.ADD,
+                        };
+                        addTerm.args.Add(RecursiveMap(callExpression.Object));
+                        addTerm.args.Add(RecursiveMap(callExpression.Arguments[0]));
+                        return addTerm;
+                    }
+                    else if (method == DateTimeAddMinutes.Value)
+                    {
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, TimeSpan.TicksPerMinute / TimeSpan.TicksPerSecond);
+                    }
+                    else if (method == DateTimeAddHours.Value)
+                    {
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, TimeSpan.TicksPerHour / TimeSpan.TicksPerSecond);
+                    }
+                    else if (method == DateTimeAddMilliseconds.Value)
+                    {
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, (double)TimeSpan.TicksPerMillisecond / TimeSpan.TicksPerSecond);
+                    }
+                    else if (method == DateTimeAddSeconds.Value)
+                    {
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, 1);
+                    }
+                    else if (method == DateTimeAddTicks.Value)
+                    {
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, 1.0 / TimeSpan.TicksPerSecond);
+                    }
+                    else if (method == DateTimeAddDays.Value)
+                    {
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, TimeSpan.TicksPerDay / TimeSpan.TicksPerSecond);
                     }
                     else
                     {

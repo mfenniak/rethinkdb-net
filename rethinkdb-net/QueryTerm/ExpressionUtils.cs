@@ -7,7 +7,7 @@ using RethinkDb.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    static class ExpressionUtils
+    public static class ExpressionUtils
     {
         public static Term CreateValueTerm<TReturn>(IDatumConverterFactory datumConverterFactory, Expression<Func<TReturn>> expression)
         {

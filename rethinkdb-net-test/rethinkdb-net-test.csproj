@@ -51,6 +51,9 @@
       <HintPath>..\packages\NSubstitute.1.6.0.0\lib\NET40\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="System.Configuration" />
+    <Reference Include="FluentAssertions">
+      <HintPath>..\packages\FluentAssertions.2.1.0.0\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatumConverters\EnumDatumConverterFactoryTests.cs" />
@@ -109,6 +112,8 @@
     <Compile Include="ConnectionFactories\ConnectionPoolingConnectionFactoryTests.cs" />
     <Compile Include="ConnectionFactories\ReliableConnectionFactoryTests.cs" />
     <Compile Include="DatumConverters\ListDatumConverterFactoryTests.cs" />
+    <Compile Include="DatumConverters\TimeSpanDatumConverterTests.cs" />
+    <Compile Include="Expressions\DateTimeExpressionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -129,4 +134,7 @@
   </Target>
   -->
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Expressions\" />
+  </ItemGroup>
 </Project>

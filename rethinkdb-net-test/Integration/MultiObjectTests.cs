@@ -843,5 +843,71 @@ namespace RethinkDb.Test.Integration
         {
             DoFilterExpectedObjects(o => o.ChildrenIList.Count() == 1, "1", "3", "5", "7").Wait();
         }
+
+        [Test]
+        public void DateTimeAddDays()
+        {
+            var q = testTable.Select(t => new { n = t.SomeNumber, dt = new DateTime(2010, 1, 2, 3, 4, 5).AddDays(t.SomeNumber) });
+            foreach (var rec in connection.Run(q))
+            {
+                Assert.That(rec.dt, Is.EqualTo(new DateTime(2010, 1, 2, 3, 4, 5).AddDays(rec.n)));
+            }
+        }
+
+        [Test]
+        public void DateTimeAddHours()
+        {
+            var q = testTable.Select(t => new { n = t.SomeNumber, dt = new DateTime(2010, 1, 2, 3, 4, 5).AddHours(t.SomeNumber) });
+            foreach (var rec in connection.Run(q))
+            {
+                Assert.That(rec.dt, Is.EqualTo(new DateTime(2010, 1, 2, 3, 4, 5).AddHours(rec.n)));
+            }
+        }
+
+        [Test]
+        public void DateTimeAddMinutes()
+        {
+            var q = testTable.Select(t => new { n = t.SomeNumber, dt = new DateTime(2010, 1, 2, 3, 4, 5).AddMinutes(t.SomeNumber) });
+            foreach (var rec in connection.Run(q))
+            {
+                Assert.That(rec.dt, Is.EqualTo(new DateTime(2010, 1, 2, 3, 4, 5).AddMinutes(rec.n)));
+            }
+        }
+
+        [Test]
+        public void DateTimeAddSeconds()
+        {
+            var q = testTable.Select(t => new { n = t.SomeNumber, dt = new DateTime(2010, 1, 2, 3, 4, 5).AddSeconds(t.SomeNumber) });
+            foreach (var rec in connection.Run(q))
+            {
+                Assert.That(rec.dt, Is.EqualTo(new DateTime(2010, 1, 2, 3, 4, 5).AddSeconds(rec.n)));
+            }
+        }
+
+        [Test]
+        public void DateTimeAddMilliseconds()
+        {
+            var q = testTable.Select(t => new { n = t.SomeNumber, dt = new DateTime(2010, 1, 2, 3, 4, 5).AddMilliseconds(t.SomeNumber) });
+            foreach (var rec in connection.Run(q))
+            {
+                // double seconds doesn't have quite the same precision as .NET's ticks; so we need to do a slightly
+                // fuzzy comparison here; check that it's within 5 ticks, which is well within a millisecond
+                // (10,000 ticks) of accuracy.
+                Assert.That(rec.dt.Ticks, Is.EqualTo(new DateTime(2010, 1, 2, 3, 4, 5).AddMilliseconds(rec.n).Ticks).Within(5));
+            }
+        }
+
+        [Test]
+        public void DateTimeAddTicks()
+        {
+            // Unlike the other DateTimeAdd... tests, we don't reference t.SomeNumber here because it's a double and
+            // we need a long; our expressions don't support numeric type casts because RethinkDB only supports one
+            // numeric type, a double.
+            var q = testTable.Select(t => new { n = t.SomeNumber, dt = new DateTime(2010, 1, 2, 3, 4, 5).AddTicks(5000000L) });
+            foreach (var rec in connection.Run(q))
+            {
+                Assert.That(rec.dt, Is.EqualTo(new DateTime(2010, 1, 2, 3, 4, 5).AddTicks(5000000L)));
+            }
+        }
     }
 }
