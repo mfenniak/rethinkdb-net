@@ -146,35 +146,35 @@ namespace RethinkDb.Test.Expressions
         public void DateTimeAddDays()
         {
             var expr = ExpressionUtils.CreateFunctionTerm<DateTime, DateTime>(datumConverterFactory, dt => dt.AddDays(1));
-            AssertAddFunctionWithConversion(expr, 1, TimeSpan.TicksPerDay / TimeSpan.TicksPerSecond);
+            AssertAddFunctionWithConversion(expr, 1, (double)TimeSpan.TicksPerDay / TimeSpan.TicksPerSecond);
         }
 
         [Test]
         public void DateTimeAddHours()
         {
             var expr = ExpressionUtils.CreateFunctionTerm<DateTime, DateTime>(datumConverterFactory, dt => dt.AddHours(1));
-            AssertAddFunctionWithConversion(expr, 1, TimeSpan.TicksPerHour / TimeSpan.TicksPerSecond);
+            AssertAddFunctionWithConversion(expr, 1, (double)TimeSpan.TicksPerHour / TimeSpan.TicksPerSecond);
         }
 
         [Test]
         public void DateTimeAddMilliseconds()
         {
             var expr = ExpressionUtils.CreateFunctionTerm<DateTime, DateTime>(datumConverterFactory, dt => dt.AddMilliseconds(100));
-            AssertAddFunctionWithConversion(expr, 100, TimeSpan.TicksPerMillisecond / TimeSpan.TicksPerSecond);
+            AssertAddFunctionWithConversion(expr, 100, (double)TimeSpan.TicksPerMillisecond / TimeSpan.TicksPerSecond);
         }
 
         [Test]
         public void DateTimeAddMinutes()
         {
             var expr = ExpressionUtils.CreateFunctionTerm<DateTime, DateTime>(datumConverterFactory, dt => dt.AddMinutes(23));
-            AssertAddFunctionWithConversion(expr, 23, TimeSpan.TicksPerMinute / TimeSpan.TicksPerSecond);
+            AssertAddFunctionWithConversion(expr, 23, (double)TimeSpan.TicksPerMinute / TimeSpan.TicksPerSecond);
         }
 
         [Test]
         public void DateTimeAddSeconds()
         {
             var expr = ExpressionUtils.CreateFunctionTerm<DateTime, DateTime>(datumConverterFactory, dt => dt.AddSeconds(123));
-            AssertAddFunctionWithConversion(expr, 123, TimeSpan.TicksPerSecond / TimeSpan.TicksPerSecond);
+            AssertAddFunctionWithConversion(expr, 123, (double)TimeSpan.TicksPerSecond / TimeSpan.TicksPerSecond);
         }
 
         [Test]

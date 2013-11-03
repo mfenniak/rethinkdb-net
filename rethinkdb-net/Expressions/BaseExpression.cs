@@ -275,7 +275,7 @@ namespace RethinkDb.Expressions
                     }
                     else if (method == DateTimeAddMilliseconds.Value)
                     {
-                        return ConvertDateTimeAddFunctionToTerm(callExpression, TimeSpan.TicksPerMillisecond / TimeSpan.TicksPerSecond);
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, (double)TimeSpan.TicksPerMillisecond / TimeSpan.TicksPerSecond);
                     }
                     else if (method == DateTimeAddSeconds.Value)
                     {
