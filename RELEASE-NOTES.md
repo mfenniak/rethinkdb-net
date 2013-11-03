@@ -1,5 +1,14 @@
 # rethinkdb-net Release Notes
 
+## Next Release
+
+### Features
+
+* Support for serializing and deserializing TimeSpan data types, which was added to the Newtonsoft serializer but not the basic serialization implementation. [PR #152](https://github.com/mfenniak/rethinkdb-net/issues/152)
+
+* Expressions now support the addition of DateTime and TimeSpan objects, as well as DateTime's Add methods (eg. AddHours, AddDays).  [PR #152](https://github.com/mfenniak/rethinkdb-net/issues/152)  Note, AddMonths is not supported.
+
+
 ## 0.7.0.0 (2013-11-02)
 
 ### Features
