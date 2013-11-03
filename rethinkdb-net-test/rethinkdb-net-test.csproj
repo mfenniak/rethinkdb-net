@@ -109,6 +109,7 @@
     <Compile Include="ConnectionFactories\ConnectionPoolingConnectionFactoryTests.cs" />
     <Compile Include="ConnectionFactories\ReliableConnectionFactoryTests.cs" />
     <Compile Include="DatumConverters\ListDatumConverterFactoryTests.cs" />
+    <Compile Include="DatumConverters\TimeSpanDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

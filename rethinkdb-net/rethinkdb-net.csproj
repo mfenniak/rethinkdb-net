@@ -170,6 +170,7 @@
     <Compile Include="SynchronousApiExtensions.cs" />
     <Compile Include="Interfaces\IScalarQuery.cs" />
     <Compile Include="DatumConverters\ListDatumConverterFactory.cs" />
+    <Compile Include="DatumConverters\TimeSpanDatumConverterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
