@@ -93,6 +93,29 @@ namespace RethinkDb.Expressions
             return term;
         }
 
+        private Term ConvertDateTimeAddFunctionToTerm(MethodCallExpression callExpression, double conversionToSeconds)
+        {
+            return new Term() {
+                type = Term.TermType.ADD,
+                args = {
+                    RecursiveMap(callExpression.Object),
+                    new Term() {
+                        type = Term.TermType.MUL,
+                        args = {
+                            RecursiveMap(callExpression.Arguments[0]),
+                            new Term() {
+                                type = Term.TermType.DATUM,
+                                datum = new Datum() {
+                                    type = Datum.DatumType.R_NUM,
+                                    r_num = conversionToSeconds
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
         protected Term SimpleMap(IDatumConverterFactory datumConverterFactory, Expression expr)
         {
             switch (expr.NodeType)
@@ -143,7 +166,7 @@ namespace RethinkDb.Expressions
                 {
                     var newExpression = (NewExpression)expr;
                     if (!AnonymousTypeDatumConverterFactory.Instance.IsTypeSupported(newExpression.Type))
-                        throw new NotSupportedException(String.Format("Unsupported type in New expression: {0}; only anonymous types are supported", expr.Type));
+                        return AttemptClientSideConversion(datumConverterFactory, expr);
 
                     var retval = new Term() {
                         type = Term.TermType.MAKE_OBJ,
@@ -244,93 +267,27 @@ namespace RethinkDb.Expressions
                     }
                     else if (method == DateTimeAddMinutes.Value)
                     {
-                        var addTerm = new Term()
-                        {
-                            type = Term.TermType.ADD,
-                        };
-                        addTerm.args.Add(RecursiveMap(callExpression.Object));
-                        var arg = RecursiveMap(callExpression.Arguments[0]);
-                        var timespan = TimeSpan.FromMinutes(arg.datum.r_num);
-                        addTerm.args.Add(new Term() {
-                            type = Term.TermType.DATUM,
-                            datum = datumConverterFactory.Get<TimeSpan>().ConvertObject(timespan)
-                        });
-                        return addTerm;
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, TimeSpan.TicksPerMinute / TimeSpan.TicksPerSecond);
                     }
                     else if (method == DateTimeAddHours.Value)
                     {
-                        var addTerm = new Term()
-                        {
-                            type = Term.TermType.ADD,
-                        };
-                        addTerm.args.Add(RecursiveMap(callExpression.Object));
-                        var arg = RecursiveMap(callExpression.Arguments[0]);
-                        var timespan = TimeSpan.FromHours(arg.datum.r_num);
-                        addTerm.args.Add(new Term() {
-                            type = Term.TermType.DATUM,
-                            datum = datumConverterFactory.Get<TimeSpan>().ConvertObject(timespan)
-                        });
-                        return addTerm;
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, TimeSpan.TicksPerHour / TimeSpan.TicksPerSecond);
                     }
                     else if (method == DateTimeAddMilliseconds.Value)
                     {
-                        var addTerm = new Term()
-                        {
-                            type = Term.TermType.ADD,
-                        };
-                        addTerm.args.Add(RecursiveMap(callExpression.Object));
-                        var arg = RecursiveMap(callExpression.Arguments[0]);
-                        var timespan = TimeSpan.FromMilliseconds(arg.datum.r_num);
-                        addTerm.args.Add(new Term() {
-                            type = Term.TermType.DATUM,
-                            datum = datumConverterFactory.Get<TimeSpan>().ConvertObject(timespan)
-                        });
-                        return addTerm;
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, TimeSpan.TicksPerMillisecond / TimeSpan.TicksPerSecond);
                     }
                     else if (method == DateTimeAddSeconds.Value)
                     {
-                        var addTerm = new Term()
-                        {
-                            type = Term.TermType.ADD,
-                        };
-                        addTerm.args.Add(RecursiveMap(callExpression.Object));
-                        var arg = RecursiveMap(callExpression.Arguments[0]);
-                        var timespan = TimeSpan.FromSeconds(arg.datum.r_num);
-                        addTerm.args.Add(new Term() {
-                            type = Term.TermType.DATUM,
-                            datum = datumConverterFactory.Get<TimeSpan>().ConvertObject(timespan)
-                        });
-                        return addTerm;
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, 1);
                     }
                     else if (method == DateTimeAddTicks.Value)
                     {
-                        var addTerm = new Term()
-                        {
-                            type = Term.TermType.ADD,
-                        };
-                        addTerm.args.Add(RecursiveMap(callExpression.Object));
-                        var arg = RecursiveMap(callExpression.Arguments[0]);
-                        var timespan = TimeSpan.FromTicks((long)arg.datum.r_num);
-                        addTerm.args.Add(new Term() {
-                            type = Term.TermType.DATUM,
-                            datum = datumConverterFactory.Get<TimeSpan>().ConvertObject(timespan)
-                        });
-                        return addTerm;
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, 1.0 / TimeSpan.TicksPerSecond);
                     }
                     else if (method == DateTimeAddDays.Value)
                     {
-                        var addTerm = new Term()
-                        {
-                            type = Term.TermType.ADD,
-                        };
-                        addTerm.args.Add(RecursiveMap(callExpression.Object));
-                        var arg = RecursiveMap(callExpression.Arguments[0]);
-                        var timespan = TimeSpan.FromDays(arg.datum.r_num);
-                        addTerm.args.Add(new Term() {
-                            type = Term.TermType.DATUM,
-                            datum = datumConverterFactory.Get<TimeSpan>().ConvertObject(timespan)
-                        });
-                        return addTerm;
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, TimeSpan.TicksPerDay / TimeSpan.TicksPerSecond);
                     }
                     else
                     {
