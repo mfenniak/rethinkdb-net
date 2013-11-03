@@ -27,6 +27,48 @@ namespace RethinkDb.Expressions
                 .Single(m => m.Name == "Count" && m.GetParameters().Length == 1)
         );
 
+        private static Lazy<MethodInfo> DateTimeAddTimeSpan = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "Add")
+        );
+
+        private static Lazy<MethodInfo> DateTimeAddMinutes = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddMinutes")
+        );
+
+        private static Lazy<MethodInfo> DateTimeAddSeconds = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddSeconds")
+        );
+
+        private static Lazy<MethodInfo> DateTimeAddHours = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddHours")
+        );
+
+        private static Lazy<MethodInfo> DateTimeAddMilliseconds = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddMilliseconds")
+        );
+
+        private static Lazy<MethodInfo> DateTimeAddTicks = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddTicks")
+        );
+
+        private static Lazy<MethodInfo> DateTimeAddDays = new Lazy<MethodInfo>(() =>
+            typeof(DateTime)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddDays")
+        );
+
         #region Parameter-independent Mappings
 
         protected abstract Term RecursiveMap(Expression expression);
@@ -189,6 +231,106 @@ namespace RethinkDb.Expressions
                         };
                         countTerm.args.Add(RecursiveMap(target));
                         return countTerm;
+                    }
+                    else if (method == DateTimeAddTimeSpan.Value)
+                    {
+                        var addTerm = new Term()
+                        {
+                            type = Term.TermType.ADD,
+                        };
+                        addTerm.args.Add(RecursiveMap(callExpression.Object));
+                        addTerm.args.Add(RecursiveMap(callExpression.Arguments[0]));
+                        return addTerm;
+                    }
+                    else if (method == DateTimeAddMinutes.Value)
+                    {
+                        var addTerm = new Term()
+                        {
+                            type = Term.TermType.ADD,
+                        };
+                        addTerm.args.Add(RecursiveMap(callExpression.Object));
+                        var arg = RecursiveMap(callExpression.Arguments[0]);
+                        var timespan = TimeSpan.FromMinutes(arg.datum.r_num);
+                        addTerm.args.Add(new Term() {
+                            type = Term.TermType.DATUM,
+                            datum = datumConverterFactory.Get<TimeSpan>().ConvertObject(timespan)
+                        });
+                        return addTerm;
+                    }
+                    else if (method == DateTimeAddHours.Value)
+                    {
+                        var addTerm = new Term()
+                        {
+                            type = Term.TermType.ADD,
+                        };
+                        addTerm.args.Add(RecursiveMap(callExpression.Object));
+                        var arg = RecursiveMap(callExpression.Arguments[0]);
+                        var timespan = TimeSpan.FromHours(arg.datum.r_num);
+                        addTerm.args.Add(new Term() {
+                            type = Term.TermType.DATUM,
+                            datum = datumConverterFactory.Get<TimeSpan>().ConvertObject(timespan)
+                        });
+                        return addTerm;
+                    }
+                    else if (method == DateTimeAddMilliseconds.Value)
+                    {
+                        var addTerm = new Term()
+                        {
+                            type = Term.TermType.ADD,
+                        };
+                        addTerm.args.Add(RecursiveMap(callExpression.Object));
+                        var arg = RecursiveMap(callExpression.Arguments[0]);
+                        var timespan = TimeSpan.FromMilliseconds(arg.datum.r_num);
+                        addTerm.args.Add(new Term() {
+                            type = Term.TermType.DATUM,
+                            datum = datumConverterFactory.Get<TimeSpan>().ConvertObject(timespan)
+                        });
+                        return addTerm;
+                    }
+                    else if (method == DateTimeAddSeconds.Value)
+                    {
+                        var addTerm = new Term()
+                        {
+                            type = Term.TermType.ADD,
+                        };
+                        addTerm.args.Add(RecursiveMap(callExpression.Object));
+                        var arg = RecursiveMap(callExpression.Arguments[0]);
+                        var timespan = TimeSpan.FromSeconds(arg.datum.r_num);
+                        addTerm.args.Add(new Term() {
+                            type = Term.TermType.DATUM,
+                            datum = datumConverterFactory.Get<TimeSpan>().ConvertObject(timespan)
+                        });
+                        return addTerm;
+                    }
+                    else if (method == DateTimeAddTicks.Value)
+                    {
+                        var addTerm = new Term()
+                        {
+                            type = Term.TermType.ADD,
+                        };
+                        addTerm.args.Add(RecursiveMap(callExpression.Object));
+                        var arg = RecursiveMap(callExpression.Arguments[0]);
+                        var timespan = TimeSpan.FromTicks((long)arg.datum.r_num);
+                        addTerm.args.Add(new Term() {
+                            type = Term.TermType.DATUM,
+                            datum = datumConverterFactory.Get<TimeSpan>().ConvertObject(timespan)
+                        });
+                        return addTerm;
+                    }
+                    else if (method == DateTimeAddDays.Value)
+                    {
+                        var addTerm = new Term()
+                        {
+                            type = Term.TermType.ADD,
+                        };
+                        addTerm.args.Add(RecursiveMap(callExpression.Object));
+                        var arg = RecursiveMap(callExpression.Arguments[0]);
+                        var timespan = TimeSpan.FromDays(arg.datum.r_num);
+                        addTerm.args.Add(new Term() {
+                            type = Term.TermType.DATUM,
+                            datum = datumConverterFactory.Get<TimeSpan>().ConvertObject(timespan)
+                        });
+                        return addTerm;
                     }
                     else
                     {
