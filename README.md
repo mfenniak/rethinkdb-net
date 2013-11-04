@@ -121,7 +121,7 @@ Currently this driver is capable of the following things:
 
   * Converting data into objects and objects into data; non-primitive objects are marked up using [DataContract] and [DataMember] attributes similar to WCF data contracts.
 
-  * Alternatively, the RethinkDb driver also supports the [Newtonsoft  Json.NET](https://github.com/mfenniak/rethinkdb-net/wiki/Newtonsoft-Serialization) object serialization.
+  * Alternatively, the RethinkDb driver also supports the [Newtonsoft Json.NET](https://github.com/mfenniak/rethinkdb-net/wiki/Newtonsoft-Serialization) object serialization.
 
   * References to object attributes are compile-time verified by using C# expression trees.  For example, `Query.Db("db").Table<ObjectDefinition>("objects").OrderBy(o => o.Name)`.  Applies to OrderBy, EqJoin, and GroupBy.
 
