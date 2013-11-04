@@ -121,6 +121,8 @@ Currently this driver is capable of the following things:
 
   * Converting data into objects and objects into data; non-primitive objects are marked up using [DataContract] and [DataMember] attributes similar to WCF data contracts.
 
+  * Alternatively, the RethinkDb driver also supports the [Newtonsoft  Json.NET](https://github.com/mfenniak/rethinkdb-net/wiki/Newtonsoft-Serialization) object serialization.
+
   * References to object attributes are compile-time verified by using C# expression trees.  For example, `Query.Db("db").Table<ObjectDefinition>("objects").OrderBy(o => o.Name)`.  Applies to OrderBy, EqJoin, and GroupBy.
 
   * Anonymous types can be used in functions like Map and Reduce.  For example:
@@ -142,7 +144,7 @@ Currently this driver is capable of the following things:
 
   * Support for serialized object types with the provided DataContract-based datum converter classes (all .NET primitives supported)
 
-For examples of usage, you can look at the unit tests in https://github.com/mfenniak/rethinkdb-net/tree/master/rethinkdb-net-test/Integration/Documentation.  These tests are C# versions of the code snippets from RethinkDB's official documentation.
+For examples of usage, you can look at the unit tests in [Integration Documentation](https://github.com/mfenniak/rethinkdb-net/tree/master/rethinkdb-net-test/Integration/Documentation).  These tests are C# versions of the code snippets from RethinkDB's official documentation.
 
 Currently this driver is lacking in the following areas:
 
