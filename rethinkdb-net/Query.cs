@@ -55,9 +55,9 @@ namespace RethinkDb
             return new TableListQuery(target);
         }
 
-        public static IWriteQuery<DmlResponse> IndexCreate<T, TIndexExpression>(this ITableQuery<T> target, string indexName, Expression<Func<T, TIndexExpression>> indexExpression)
+        public static IWriteQuery<DmlResponse> IndexCreate<T, TIndexExpression>(this ITableQuery<T> target, string indexName, Expression<Func<T, TIndexExpression>> indexExpression, bool multiIndex = false)
         {
-            return new IndexCreateQuery<T, TIndexExpression>(target, indexName, indexExpression);
+            return new IndexCreateQuery<T, TIndexExpression>(target, indexName, indexExpression, multiIndex);
         }
 
         public static ISequenceQuery<string> IndexList<T>(this ITableQuery<T> target)
