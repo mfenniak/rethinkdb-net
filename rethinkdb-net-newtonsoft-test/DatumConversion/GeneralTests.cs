@@ -18,7 +18,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
         {
             var testObject = TestObjectWithTestData();
 
-            var nativeDatum = Native.RootFactory.Get<TestObject>().ConvertObject( testObject );
+            var nativeDatum = Native.RootFactory.Get<TestObject>().ConvertObject(testObject);
 
             var newtonDatum = DatumConvert.SerializeObject(testObject);
 
@@ -67,7 +67,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
             obj.Id = "my_id_1234";
             obj.Name = "Brian Chavez";
             obj.SomeNumber = 1234.5;
-            obj.Tags = new[] { "tag1", "tag2", "tag3" };
+            obj.Tags = new[] {"tag1", "tag2", "tag3"};
 
             obj.Children = new[]
                 {
@@ -118,7 +118,6 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                 };
 
             return obj;
-
         }
 
         public TestObjectNewton TestObjectNewtonWithTestData()
@@ -127,7 +126,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
             obj.Id = "my_id_1234";
             obj.Name = "Brian Chavez";
             obj.SomeNumber = 1234.5;
-            obj.Tags = new[] { "tag1", "tag2", "tag3" };
+            obj.Tags = new[] {"tag1", "tag2", "tag3"};
 
             obj.Children = new[]
                 {
@@ -179,8 +178,5 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
 
             return obj;
         }
-
-      
- 
     }
 }

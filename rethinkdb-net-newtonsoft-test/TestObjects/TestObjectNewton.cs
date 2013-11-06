@@ -21,7 +21,7 @@ namespace RethinkDb.Newtonsoft.Test.TestObjects
         public List<TestObject> ChildrenList { get; set; }
 
         //[DataMember( Name = "childrenListInterface" )]
-        [JsonProperty( "childrenListInterface" )]
+        [JsonProperty("childrenListInterface")]
         public IList<TestObject> ChildrenIList { get; set; }
 
         //[DataMember( Name = "number" )]
@@ -31,5 +31,4 @@ namespace RethinkDb.Newtonsoft.Test.TestObjects
         //[DataMember( Name = "tags" )]
         public string[] Tags { get; set; }
     }
-
 }

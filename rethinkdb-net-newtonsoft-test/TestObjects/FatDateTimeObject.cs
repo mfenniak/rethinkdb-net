@@ -7,7 +7,6 @@ namespace RethinkDb.Newtonsoft.Test.TestObjects
     {
         public FatDateTimeObject()
         {
-            
         }
 
         public Guid Id { get; set; }

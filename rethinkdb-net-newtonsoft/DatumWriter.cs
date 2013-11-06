@@ -264,18 +264,20 @@ namespace RethinkDb.Newtonsoft
             AddValue(d);
         }
 
-        public override void WriteValue( TimeSpan value )
+        public override void WriteValue(TimeSpan value)
         {
-            throw new JsonException( "TimeSpans can only be converted by including the TimeSpanConverter in JsonSeralizerSettings. Be sure to include it if you're using custom serializer settings." );
+            throw new JsonException(
+                "TimeSpans can only be converted by including the TimeSpanConverter in JsonSeralizerSettings. Be sure to include it if you're using custom serializer settings.");
         }
 
-        public override void WriteValue( TimeSpan? value )
+        public override void WriteValue(TimeSpan? value)
         {
-            throw new JsonException( "TimeSpans can only be converted by including the TimeSpanConverter in JsonSeralizerSettings. Be sure to include it if you're using custom serializer settings." );
-
+            throw new JsonException(
+                "TimeSpans can only be converted by including the TimeSpanConverter in JsonSeralizerSettings. Be sure to include it if you're using custom serializer settings.");
         }
 
         #region Not Implemented
+
         public override void WriteRaw(string json)
         {
             throw new JsonException("Not Valid Operation for Datum.", null);
@@ -295,6 +297,7 @@ namespace RethinkDb.Newtonsoft
         {
             throw new JsonException("Not Valid Operation for Datum.", null);
         }
+
         #endregion
     }
 }

@@ -9,6 +9,7 @@ namespace RethinkDb.Newtonsoft.Test.TestObjects
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public string Id { get; set; }
+
         public string Name { get; set; }
         public Uri ProfileUri { get; set; }
         public Uri CompanyUri { get; set; }
