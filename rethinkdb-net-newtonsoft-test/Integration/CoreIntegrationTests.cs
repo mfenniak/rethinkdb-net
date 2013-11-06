@@ -7,7 +7,6 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     [SetUpFixture]
     public class NIntegrationTestSetup : IntegrationTestSetup
     {
-        
     }
 
     [TestFixture]
@@ -15,7 +14,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     {
         static NSingleObjectTest()
         {
-            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory( "testCluster" );
+            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
         }
     }
 
@@ -24,7 +23,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     {
         static NTableTests()
         {
-            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory( "testCluster" );
+            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
         }
     }
 
@@ -33,7 +32,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     {
         static NMultiTableTests()
         {
-            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory( "testCluster" );
+            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
         }
     }
 
@@ -42,7 +41,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     {
         static NMultiObjectTests()
         {
-            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory( "testCluster" );
+            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
         }
     }
 
@@ -51,7 +50,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     {
         static NManyObjectTests()
         {
-            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory( "testCluster" );
+            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
         }
     }
 
@@ -60,7 +59,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     {
         static NBlankTests()
         {
-            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory( "testCluster" );
+            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
         }
     }
 
@@ -70,7 +69,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     {
         static NDatabaseTests()
         {
-            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory( "testCluster" );
+            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
         }
     }
 
@@ -80,7 +79,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     {
         static NGroupingTests()
         {
-            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory( "testCluster" );
+            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
         }
     }
 
@@ -90,7 +89,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     {
         static NHasFieldsTests()
         {
-            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory( "testCluster" );
+            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
         }
     }
 }

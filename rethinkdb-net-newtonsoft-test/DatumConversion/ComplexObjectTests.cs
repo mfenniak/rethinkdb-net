@@ -17,11 +17,11 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
         {
             var obj = NewObjectWithDefaults();
 
-            var newtonDatum = DatumConvert.SerializeObject( obj, new TimeSpanConverter() );
+            var newtonDatum = DatumConvert.SerializeObject(obj, new TimeSpanConverter());
 
             var truthDatum = GetDatum_InlineOrder();
 
-            truthDatum.ShouldBeEquivalentTo( newtonDatum );
+            truthDatum.ShouldBeEquivalentTo(newtonDatum);
         }
 
 
@@ -30,11 +30,11 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
         {
             var datum = GetDatum_InlineOrder();
 
-            var newtonObject = DatumConvert.DeserializeObject<ComplexObject>( datum, ConfigurationAssembler.DefaultJsonSerializerSettings );
+            var newtonObject = DatumConvert.DeserializeObject<ComplexObject>(datum, ConfigurationAssembler.DefaultJsonSerializerSettings);
 
             var truth = NewObjectWithDefaults();
 
-            truth.ShouldBeEquivalentTo( newtonObject );
+            truth.ShouldBeEquivalentTo(newtonObject);
         }
 
         [Test]
@@ -42,11 +42,11 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
         {
             var datum = GetDatum_RandomOrder();
 
-            var newtonObject = DatumConvert.DeserializeObject<ComplexObject>( datum, ConfigurationAssembler.DefaultJsonSerializerSettings );
+            var newtonObject = DatumConvert.DeserializeObject<ComplexObject>(datum, ConfigurationAssembler.DefaultJsonSerializerSettings);
 
             var truth = NewObjectWithDefaults();
 
-            truth.ShouldBeEquivalentTo( newtonObject );
+            truth.ShouldBeEquivalentTo(newtonObject);
         }
 
         public static ComplexObject NewObjectWithDefaults()
@@ -82,7 +82,6 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
         }
 
 
-
         public Datum GetDatum_InlineOrder()
         {
             //the truth datum the constructor represents.
@@ -90,7 +89,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                 {
                     type = Datum.DatumType.R_OBJECT
                 };
-            truth.r_object.Add( new Datum.AssocPair
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "id",
                     val = new Datum
@@ -98,8 +97,8 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             type = Datum.DatumType.R_STR,
                             r_str = "32753EDC-E5EF-46E0-ABCD-CE5413B30797".ToLower()
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "Name",
                     val = new Datum
@@ -107,8 +106,8 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             type = Datum.DatumType.R_STR,
                             r_str = "Brian Chavez"
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "ProfileUri",
                     val = new Datum
@@ -116,16 +115,16 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             type = Datum.DatumType.R_STR,
                             r_str = "http://www.bitarmory.com"
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "CompanyUri",
                     val = new Datum
                         {
                             type = Datum.DatumType.R_NULL,
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "Clicks",
                     val = new Datum
@@ -133,16 +132,16 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             type = Datum.DatumType.R_NUM,
                             r_num = 2000
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "Views",
                     val = new Datum
                         {
                             type = Datum.DatumType.R_NULL,
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "SecurityStamp",
                     val = new Datum
@@ -150,16 +149,16 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             type = Datum.DatumType.R_STR,
                             r_str = "32753edc-e5ef-46e0-abcd-ce5413b30797"
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "TrackingId",
                     val = new Datum
                         {
                             type = Datum.DatumType.R_NULL,
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "Balance",
                     val = new Datum
@@ -167,8 +166,8 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             type = Datum.DatumType.R_NUM,
                             r_num = 1000001.2
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "Signature",
                     val = new Datum
@@ -176,15 +175,14 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             type = Datum.DatumType.R_ARRAY,
                             r_array =
                                 {
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 222},
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 173},
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 190},
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 239},
-
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 222},
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 173},
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 190},
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 239},
                                 }
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "Hours",
                     val = new Datum
@@ -192,15 +190,14 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             type = Datum.DatumType.R_ARRAY,
                             r_array =
                                 {
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 1},
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 2},
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 3},
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 4},
-
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 1},
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 2},
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 3},
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 4},
                                 }
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "LastLogin",
                     val = new Datum
@@ -213,17 +210,17 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                                     new Datum.AssocPair {key = "timezone", val = new Datum {type = Datum.DatumType.R_STR, r_str = "+00:00"}},
                                 }
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "LoginWindow",
                     val = new Datum
                         {
                             type = Datum.DatumType.R_NUM,
-                            r_num = new TimeSpan( 1, 2, 3, 4, 5 ).TotalSeconds
+                            r_num = new TimeSpan(1, 2, 3, 4, 5).TotalSeconds
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "ExtraInfo",
                     val = new Datum
@@ -236,8 +233,8 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                                     new Datum.AssocPair() {key = "key3", val = new Datum {type = Datum.DatumType.R_STR, r_str = "value3"}},
                                 }
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "Enabled",
                     val = new Datum
@@ -245,16 +242,16 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             type = Datum.DatumType.R_BOOL,
                             r_bool = true
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "Notify",
                     val = new Datum
                         {
                             type = Datum.DatumType.R_NULL
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "BinaryBools",
                     val = new Datum
@@ -262,14 +259,13 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             type = Datum.DatumType.R_ARRAY,
                             r_array =
                                 {
-                                    new Datum{type = Datum.DatumType.R_BOOL, r_bool = true},
-                                    new Datum{type = Datum.DatumType.R_BOOL, r_bool = false},
-                                    new Datum{type = Datum.DatumType.R_BOOL, r_bool = true},
-
+                                    new Datum {type = Datum.DatumType.R_BOOL, r_bool = true},
+                                    new Datum {type = Datum.DatumType.R_BOOL, r_bool = false},
+                                    new Datum {type = Datum.DatumType.R_BOOL, r_bool = true},
                                 }
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "NullBinaryBools",
                     val = new Datum
@@ -277,22 +273,21 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             type = Datum.DatumType.R_ARRAY,
                             r_array =
                                 {
-                                    new Datum{type = Datum.DatumType.R_BOOL, r_bool = true},
-                                    new Datum{type = Datum.DatumType.R_NULL},
-                                    new Datum{type = Datum.DatumType.R_BOOL, r_bool = true},
-
+                                    new Datum {type = Datum.DatumType.R_BOOL, r_bool = true},
+                                    new Datum {type = Datum.DatumType.R_NULL},
+                                    new Datum {type = Datum.DatumType.R_BOOL, r_bool = true},
                                 }
                         }
-                } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "SomeNumber",
-                val = new Datum
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_NUM,
-                    r_num = 1234
-                }
-            } );
+                    key = "SomeNumber",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_NUM,
+                            r_num = 1234
+                        }
+                });
 
             return truth;
         }
@@ -301,214 +296,210 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
         {
             //the truth datum the constructor represents.
             var truth = new Datum
-            {
-                type = Datum.DatumType.R_OBJECT
-            };
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "id",
-                val = new Datum
                 {
-                    type = Datum.DatumType.R_STR,
-                    r_str = "32753EDC-E5EF-46E0-ABCD-CE5413B30797".ToLower()
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "Views",
-                val = new Datum
+                    type = Datum.DatumType.R_OBJECT
+                };
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_NULL,
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "TrackingId",
-                val = new Datum
+                    key = "id",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_STR,
+                            r_str = "32753EDC-E5EF-46E0-ABCD-CE5413B30797".ToLower()
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_NULL,
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "Signature",
-                val = new Datum
+                    key = "Views",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_NULL,
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_ARRAY,
-                    r_array =
+                    key = "TrackingId",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_NULL,
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
+                {
+                    key = "Signature",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_ARRAY,
+                            r_array =
                                 {
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 222},
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 173},
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 190},
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 239},
-
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 222},
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 173},
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 190},
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 239},
                                 }
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "SecurityStamp",
-                val = new Datum
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_STR,
-                    r_str = "32753edc-e5ef-46e0-abcd-ce5413b30797"
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "ProfileUri",
-                val = new Datum
+                    key = "SecurityStamp",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_STR,
+                            r_str = "32753edc-e5ef-46e0-abcd-ce5413b30797"
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_STR,
-                    r_str = "http://www.bitarmory.com"
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "NullBinaryBools",
-                val = new Datum
+                    key = "ProfileUri",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_STR,
+                            r_str = "http://www.bitarmory.com"
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_ARRAY,
-                    r_array =
+                    key = "NullBinaryBools",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_ARRAY,
+                            r_array =
                                 {
-                                    new Datum{type = Datum.DatumType.R_BOOL, r_bool = true},
-                                    new Datum{type = Datum.DatumType.R_NULL},
-                                    new Datum{type = Datum.DatumType.R_BOOL, r_bool = true},
-
+                                    new Datum {type = Datum.DatumType.R_BOOL, r_bool = true},
+                                    new Datum {type = Datum.DatumType.R_NULL},
+                                    new Datum {type = Datum.DatumType.R_BOOL, r_bool = true},
                                 }
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "Notify",
-                val = new Datum
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_NULL
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "Name",
-                val = new Datum
+                    key = "Notify",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_NULL
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_STR,
-                    r_str = "Brian Chavez"
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "LoginWindow",
-                val = new Datum
+                    key = "Name",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_STR,
+                            r_str = "Brian Chavez"
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_NUM,
-                    r_num = new TimeSpan( 1, 2, 3, 4, 5 ).TotalSeconds
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "LastLogin",
-                val = new Datum
+                    key = "LoginWindow",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_NUM,
+                            r_num = new TimeSpan(1, 2, 3, 4, 5).TotalSeconds
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_OBJECT,
-                    r_object =
+                    key = "LastLogin",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_OBJECT,
+                            r_object =
                                 {
                                     new Datum.AssocPair {key = "$reql_type$", val = new Datum {type = Datum.DatumType.R_STR, r_str = "TIME"}},
                                     new Datum.AssocPair {key = "epoch_time", val = new Datum {type = Datum.DatumType.R_NUM, r_num = 1358138665}},
                                     new Datum.AssocPair {key = "timezone", val = new Datum {type = Datum.DatumType.R_STR, r_str = "+00:00"}},
                                 }
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "Hours",
-                val = new Datum
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_ARRAY,
-                    r_array =
+                    key = "Hours",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_ARRAY,
+                            r_array =
                                 {
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 1},
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 2},
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 3},
-                                    new Datum{type = Datum.DatumType.R_NUM, r_num = 4},
-
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 1},
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 2},
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 3},
+                                    new Datum {type = Datum.DatumType.R_NUM, r_num = 4},
                                 }
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "ExtraInfo",
-                val = new Datum
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_OBJECT,
-                    r_object =
+                    key = "ExtraInfo",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_OBJECT,
+                            r_object =
                                 {
                                     new Datum.AssocPair() {key = "key1", val = new Datum {type = Datum.DatumType.R_STR, r_str = "value1"}},
                                     new Datum.AssocPair() {key = "key2", val = new Datum {type = Datum.DatumType.R_STR, r_str = "value2"}},
                                     new Datum.AssocPair() {key = "key3", val = new Datum {type = Datum.DatumType.R_STR, r_str = "value3"}},
                                 }
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "Enabled",
-                val = new Datum
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_BOOL,
-                    r_bool = true
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "CompanyUri",
-                val = new Datum
+                    key = "Enabled",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_BOOL,
+                            r_bool = true
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_NULL,
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "Clicks",
-                val = new Datum
+                    key = "CompanyUri",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_NULL,
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_NUM,
-                    r_num = 2000
-                }
-            } );
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "BinaryBools",
-                val = new Datum
+                    key = "Clicks",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_NUM,
+                            r_num = 2000
+                        }
+                });
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_ARRAY,
-                    r_array =
+                    key = "BinaryBools",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_ARRAY,
+                            r_array =
                                 {
-                                    new Datum{type = Datum.DatumType.R_BOOL, r_bool = true},
-                                    new Datum{type = Datum.DatumType.R_BOOL, r_bool = false},
-                                    new Datum{type = Datum.DatumType.R_BOOL, r_bool = true},
-
+                                    new Datum {type = Datum.DatumType.R_BOOL, r_bool = true},
+                                    new Datum {type = Datum.DatumType.R_BOOL, r_bool = false},
+                                    new Datum {type = Datum.DatumType.R_BOOL, r_bool = true},
                                 }
-                }
-            } );
+                        }
+                });
 
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "Balance",
-                val = new Datum
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_NUM,
-                    r_num = 1000001.2
-                }
-            } );
+                    key = "Balance",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_NUM,
+                            r_num = 1000001.2
+                        }
+                });
 
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "SomeNumber",
-                val = new Datum
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_NUM,
-                    r_num = 1234
-                }
-            } );
+                    key = "SomeNumber",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_NUM,
+                            r_num = 1234
+                        }
+                });
 
             return truth;
         }

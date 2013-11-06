@@ -19,6 +19,5 @@ namespace RethinkDb.Newtonsoft.Test.TestObjects
         public TimeSpan TheTimeSpan { get; set; }
         public TimeSpan? NullTimeSpan { get; set; }
         public TimeSpan? NotNullTimeSpan { get; set; }
-
     }
 }

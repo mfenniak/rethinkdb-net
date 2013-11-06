@@ -15,7 +15,6 @@ namespace RethinkDb.Newtonsoft
         public DatumReader(Datum datum)
         {
             this.stack.Push(new DatumReaderToken(datum));
-
         }
 
         private DatumReaderToken Context

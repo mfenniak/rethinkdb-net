@@ -10,39 +10,38 @@ namespace RethinkDb.Newtonsoft.Configuration
     {
         public override T ConvertDatum(Datum datum)
         {
-            return DatumConvert.DeserializeObject<T>( datum, ConfigurationAssembler.DefaultJsonSerializerSettings );
+            return DatumConvert.DeserializeObject<T>(datum, ConfigurationAssembler.DefaultJsonSerializerSettings);
         }
 
         public override Datum ConvertObject(T value)
         {
-            return DatumConvert.SerializeObject( value, ConfigurationAssembler.DefaultJsonSerializerSettings );
+            return DatumConvert.SerializeObject(value, ConfigurationAssembler.DefaultJsonSerializerSettings);
         }
 
-        public string GetDatumFieldName( MemberInfo memberInfo )
+        public string GetDatumFieldName(MemberInfo memberInfo)
         {
             var contract = ConfigurationAssembler
                 .DefaultJsonSerializerSettings
                 .ContractResolver
-                .ResolveContract( typeof(T) )
+                .ResolveContract(typeof(T))
                 as JsonObjectContract;
 
             return contract.Properties
-                .First( p => p.UnderlyingName == memberInfo.Name )
+                .First(p => p.UnderlyingName == memberInfo.Name)
                 .PropertyName;
         }
     }
 
     public class NewtonsoftValueDatumConverter<T> : AbstractValueTypeDatumConverter<T>
     {
-        public override T ConvertDatum( Datum datum )
+        public override T ConvertDatum(Datum datum)
         {
-            return DatumConvert.DeserializeObject<T>( datum, ConfigurationAssembler.DefaultJsonSerializerSettings );
+            return DatumConvert.DeserializeObject<T>(datum, ConfigurationAssembler.DefaultJsonSerializerSettings);
         }
 
-        public override Datum ConvertObject( T value )
+        public override Datum ConvertObject(T value)
         {
-            return DatumConvert.SerializeObject( value, ConfigurationAssembler.DefaultJsonSerializerSettings );
+            return DatumConvert.SerializeObject(value, ConfigurationAssembler.DefaultJsonSerializerSettings);
         }
     }
-
 }

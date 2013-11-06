@@ -24,23 +24,23 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
             Console.WriteLine("-----------");
 
             DateTimeDatumConverter.Instance.Value
-                .ConvertObject( utcNow )
+                .ConvertObject(utcNow)
                 .ToConsoleDebug();
 
-            Console.WriteLine( "----------- OFFSETS BELOW" );
+            Console.WriteLine("----------- OFFSETS BELOW");
 
 
             var onow = DateTimeOffset.Now;
             var oUtcNow = DateTimeOffset.UtcNow;
 
             DateTimeOffsetDatumConverter.Instance.Value
-                .ConvertObject( onow )
+                .ConvertObject(onow)
                 .ToConsoleDebug();
 
-            Console.WriteLine( "-----------" );
+            Console.WriteLine("-----------");
 
             DateTimeOffsetDatumConverter.Instance.Value
-                .ConvertObject( oUtcNow )
+                .ConvertObject(oUtcNow)
                 .ToConsoleDebug();
         }
 
@@ -54,18 +54,18 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                 };
 
             var truth = new Datum
-            {
-                type = Datum.DatumType.R_OBJECT
-            };
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "Id",
-                val = new Datum
                 {
-                    type = Datum.DatumType.R_STR,
-                    r_str = "my_id_value"
-                }
-            } );
+                    type = Datum.DatumType.R_OBJECT
+                };
+            truth.r_object.Add(new Datum.AssocPair
+                {
+                    key = "Id",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_STR,
+                            r_str = "my_id_value"
+                        }
+                });
             truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "TheDate",
@@ -104,15 +104,15 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                 {
                     type = Datum.DatumType.R_OBJECT
                 };
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "Id",
-                val = new Datum
+            truth.r_object.Add(new Datum.AssocPair
                 {
-                    type = Datum.DatumType.R_STR,
-                    r_str = "my_id"
-                }
-            } );
+                    key = "Id",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_STR,
+                            r_str = "my_id"
+                        }
+                });
             truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "NullableDateTime",
@@ -135,24 +135,24 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
         public void ser_deser_datetimenullable_dateset()
         {
             var obj = new DateTimeNullable()
-            {
-                Id = "my_id",
-                NullableDateTime = DateTime.Parse("10/30/2013 4:55 PM")
-            };
+                {
+                    Id = "my_id",
+                    NullableDateTime = DateTime.Parse("10/30/2013 4:55 PM")
+                };
 
             var truth = new Datum
-            {
-                type = Datum.DatumType.R_OBJECT
-            };
-            truth.r_object.Add( new Datum.AssocPair
-            {
-                key = "Id",
-                val = new Datum
                 {
-                    type = Datum.DatumType.R_STR,
-                    r_str = "my_id"
-                }
-            } );
+                    type = Datum.DatumType.R_OBJECT
+                };
+            truth.r_object.Add(new Datum.AssocPair
+                {
+                    key = "Id",
+                    val = new Datum
+                        {
+                            type = Datum.DatumType.R_STR,
+                            r_str = "my_id"
+                        }
+                });
             truth.r_object.Add(new Datum.AssocPair
                 {
                     key = "NullableDateTime",
@@ -169,14 +169,12 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                 });
 
             //ser test
-            var ser = DatumConvert.SerializeObject( obj );
-            ser.ShouldBeEquivalentTo( truth );
+            var ser = DatumConvert.SerializeObject(obj);
+            ser.ShouldBeEquivalentTo(truth);
 
             //deser test
-            var newtonObj = DatumConvert.DeserializeObject<DateTimeNullable>( truth );
-            newtonObj.ShouldBeEquivalentTo( obj );
+            var newtonObj = DatumConvert.DeserializeObject<DateTimeNullable>(truth);
+            newtonObj.ShouldBeEquivalentTo(obj);
         }
-
-
     }
 }

@@ -59,7 +59,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                     type = Datum.DatumType.R_NULL,
                 };
 
-            var output = DatumConvert.DeserializeObject<TimeSpan>( input, new TimeSpanConverter() );
+            var output = DatumConvert.DeserializeObject<TimeSpan>(input, new TimeSpanConverter());
 
             output.Should().Be(default(TimeSpan));
         }
