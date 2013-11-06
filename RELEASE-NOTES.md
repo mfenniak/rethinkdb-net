@@ -8,6 +8,8 @@
 
 * Expressions now support the addition of DateTime and TimeSpan objects, as well as DateTime's Add methods (eg. AddHours, AddDays).  [PR #152](https://github.com/mfenniak/rethinkdb-net/issues/152)  Note, AddMonths is not supported.
 
+* Support for multi-index creation.  [Issue #160](https://github.com/mfenniak/rethinkdb-net/issues/160) & [PR #161](https://github.com/mfenniak/rethinkdb-net/issues/161)
+
 
 ## 0.7.0.0 (2013-11-02)
 
