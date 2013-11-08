@@ -24,18 +24,22 @@ run_tests() {
     print_status "RUNNING TESTS"
 
     RUNNER_PATH="packages/NUnit.Runners.2.6.1/tools"
-    mono ${RUNNER_PATH}/nunit-console.exe rethinkdb-net-test/bin/Debug/rethinkdb-net-test.dll
-            
-    local test_result=$?
-    
-    if [[ "${test_result}" != 0 ]] ; then
-        tests_failed
-    else
-        tests_passed
+    NUNIT_ADDT_ARGS=""
+
+    if [[ $NUNIT_RUN != "" ]]; then
+        NUNIT_RUN_CSV=""
+        for RUN in $NUNIT_RUN
+        do
+            NUNIT_RUN_CSV="$NUNIT_RUN_CSV,$RUN"
+        done
+        NUNIT_ADDT_ARGS="$NUNIT_ADDT_ARGS -run $NUNIT_RUN_CSV"
     fi
-    
-    mono ${RUNNER_PATH}/nunit-console.exe rethinkdb-net-newtonsoft-test/bin/Debug/rethinkdb-net-newtonsoft-test.dll
-    
+
+    mono ${RUNNER_PATH}/nunit-console.exe \
+        rethinkdb-net-test/bin/Debug/rethinkdb-net-test.dll \
+        rethinkdb-net-newtonsoft-test/bin/Debug/rethinkdb-net-newtonsoft-test.dll \
+        $NUNIT_ADDT_ARGS
+
     local test_result=$?
     
     if [[ "${test_result}" != 0 ]] ; then
@@ -67,6 +71,7 @@ print_status() {
     echo ""
 }
 
+NUNIT_RUN=$*
 build
 
 EXIT_CODE=$?
