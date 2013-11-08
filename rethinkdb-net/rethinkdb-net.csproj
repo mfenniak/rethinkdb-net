@@ -171,6 +171,7 @@
     <Compile Include="Interfaces\IScalarQuery.cs" />
     <Compile Include="DatumConverters\ListDatumConverterFactory.cs" />
     <Compile Include="DatumConverters\TimeSpanDatumConverterFactory.cs" />
+    <Compile Include="Interfaces\OrderByTerm.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

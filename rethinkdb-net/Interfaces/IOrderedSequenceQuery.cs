@@ -9,7 +9,6 @@ namespace RethinkDb
     public interface IOrderedSequenceQuery<T> : ISequenceQuery<T>
     {
         ISequenceQuery<T> SequenceQuery { get; }
-        IEnumerable<Tuple<Expression<Func<T, object>>, OrderByDirection>> OrderByMembers { get; }
+        IEnumerable<OrderByTerm<T>> OrderByMembers { get; }
     }
 }
-

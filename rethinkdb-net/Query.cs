@@ -185,37 +185,32 @@ namespace RethinkDb
             return sequenceQuery.Map(mapExpression);
         }
 
-        public static IOrderedSequenceQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression, OrderByDirection direction)
+        public static IOrderedSequenceQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression, OrderByDirection direction = OrderByDirection.Ascending, string indexName = null)
         {
-            return new OrderByQuery<T>(sequenceQuery, new Tuple<Expression<Func<T, object>>, OrderByDirection>(memberReferenceExpression, direction));
-        }
-
-        // LINQ-compatible OrderBy
-        public static IOrderedSequenceQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression)
-        {
-            return sequenceQuery.OrderBy(memberReferenceExpression, OrderByDirection.Ascending);
+            return new OrderByQuery<T>(sequenceQuery, new OrderByTerm<T> {
+                Expression = memberReferenceExpression,
+                Direction = direction,
+                IndexName = indexName
+            });
         }
 
         // LINQ-compatible alias for OrderBy
-        public static IOrderedSequenceQuery<T> OrderByDescending<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression)
+        public static IOrderedSequenceQuery<T> OrderByDescending<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression, string indexName = null)
         {
-            return sequenceQuery.OrderBy(memberReferenceExpression, OrderByDirection.Descending);
+            return sequenceQuery.OrderBy(memberReferenceExpression, OrderByDirection.Descending, indexName);
         }
 
-        public static IOrderedSequenceQuery<T> ThenBy<T>(this IOrderedSequenceQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression, OrderByDirection direction)
+        public static IOrderedSequenceQuery<T> ThenBy<T>(this IOrderedSequenceQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression, OrderByDirection direction = OrderByDirection.Ascending)
         {
             return new OrderByQuery<T>(
                 orderByQuery.SequenceQuery,
                 orderByQuery.OrderByMembers.Concat(
                     Enumerable.Repeat(
-                        new Tuple<Expression<Func<T, object>>, OrderByDirection>(memberReferenceExpression, direction),
-                        1)).ToArray());
-        }
-
-        // LINQ-compatible alias for OrderBy
-        public static IOrderedSequenceQuery<T> ThenBy<T>(this IOrderedSequenceQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression)
-        {
-            return orderByQuery.ThenBy(memberReferenceExpression, OrderByDirection.Ascending);
+                        new OrderByTerm<T> {
+                            Expression = memberReferenceExpression,
+                            Direction = direction,
+                            IndexName = null
+                        }, 1)).ToArray());
         }
 
         // LINQ-compatible alias for OrderBy

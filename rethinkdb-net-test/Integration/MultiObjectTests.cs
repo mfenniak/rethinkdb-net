@@ -526,6 +526,36 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void OrderByIndexAsc()
+        {
+            // Order by field doesn't matter when you specify an index; "Tags" is used here even though we're sorting
+            // on an index on Name, just to make sure that the index sort is actually being used.
+            var enumerable = connection.Run(testTable.OrderBy(o => o.Tags, indexName: "index1"));
+            var count = 0;
+            foreach (var obj in enumerable)
+            {
+                ++count;
+                Assert.That(obj.Name, Is.EqualTo(count.ToString()));
+            }
+            Assert.That(count, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void OrderByIndexDesc()
+        {
+            // Order by field doesn't matter when you specify an index; "Tags" is used here even though we're sorting
+            // on an index on Name, just to make sure that the index sort is actually being used.
+            var enumerable = connection.Run(testTable.OrderBy(o => o.Tags, direction: OrderByDirection.Descending, indexName: "index1"));
+            var count = 0;
+            foreach (var obj in enumerable)
+            {
+                ++count;
+                Assert.That(obj.Name, Is.EqualTo((8 - count).ToString()));
+            }
+            Assert.That(count, Is.EqualTo(7));
+        }
+
+        [Test]
         public void Reduce()
         {
             DoReduce().Wait();
