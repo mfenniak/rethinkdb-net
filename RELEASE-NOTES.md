@@ -10,6 +10,8 @@
 
 * Support for multi-index creation.  [Issue #160](https://github.com/mfenniak/rethinkdb-net/issues/160) & [PR #161](https://github.com/mfenniak/rethinkdb-net/issues/161)
 
+* Support for OrderBy on indexes.  [Issue #162](https://github.com/mfenniak/rethinkdb-net/issues/162)
+
 
 ## 0.7.0.0 (2013-11-02)
 
