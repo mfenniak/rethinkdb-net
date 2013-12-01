@@ -69,6 +69,48 @@ namespace RethinkDb.Expressions
                 .Single(m => m.Name == "AddDays")
         );
 
+        private static Lazy<MethodInfo> DateTimeOffsetAddTimeSpan = new Lazy<MethodInfo>(() =>
+            typeof(DateTimeOffset)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "Add")
+        );
+
+        private static Lazy<MethodInfo> DateTimeOffsetAddMinutes = new Lazy<MethodInfo>(() =>
+            typeof(DateTimeOffset)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddMinutes")
+        );
+
+        private static Lazy<MethodInfo> DateTimeOffsetAddSeconds = new Lazy<MethodInfo>(() =>
+            typeof(DateTimeOffset)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddSeconds")
+        );
+
+        private static Lazy<MethodInfo> DateTimeOffsetAddHours = new Lazy<MethodInfo>(() =>
+            typeof(DateTimeOffset)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddHours")
+        );
+
+        private static Lazy<MethodInfo> DateTimeOffsetAddMilliseconds = new Lazy<MethodInfo>(() =>
+            typeof(DateTimeOffset)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddMilliseconds")
+        );
+
+        private static Lazy<MethodInfo> DateTimeOffsetAddTicks = new Lazy<MethodInfo>(() =>
+            typeof(DateTimeOffset)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddTicks")
+        );
+
+        private static Lazy<MethodInfo> DateTimeOffsetAddDays = new Lazy<MethodInfo>(() =>
+            typeof(DateTimeOffset)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(m => m.Name == "AddDays")
+        );
+
         #region Parameter-independent Mappings
 
         protected abstract Term RecursiveMap(Expression expression);
@@ -286,6 +328,40 @@ namespace RethinkDb.Expressions
                         return ConvertDateTimeAddFunctionToTerm(callExpression, 1.0 / TimeSpan.TicksPerSecond);
                     }
                     else if (method == DateTimeAddDays.Value)
+                    {
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, TimeSpan.TicksPerDay / TimeSpan.TicksPerSecond);
+                    }
+                    else if (method == DateTimeOffsetAddTimeSpan.Value)
+                    {
+                        var addTerm = new Term()
+                        {
+                            type = Term.TermType.ADD,
+                        };
+                        addTerm.args.Add(RecursiveMap(callExpression.Object));
+                        addTerm.args.Add(RecursiveMap(callExpression.Arguments[0]));
+                        return addTerm;
+                    }
+                    else if (method == DateTimeOffsetAddMinutes.Value)
+                    {
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, TimeSpan.TicksPerMinute / TimeSpan.TicksPerSecond);
+                    }
+                    else if (method == DateTimeOffsetAddHours.Value)
+                    {
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, TimeSpan.TicksPerHour / TimeSpan.TicksPerSecond);
+                    }
+                    else if (method == DateTimeOffsetAddMilliseconds.Value)
+                    {
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, (double)TimeSpan.TicksPerMillisecond / TimeSpan.TicksPerSecond);
+                    }
+                    else if (method == DateTimeOffsetAddSeconds.Value)
+                    {
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, 1);
+                    }
+                    else if (method == DateTimeOffsetAddTicks.Value)
+                    {
+                        return ConvertDateTimeAddFunctionToTerm(callExpression, 1.0 / TimeSpan.TicksPerSecond);
+                    }
+                    else if (method == DateTimeOffsetAddDays.Value)
                     {
                         return ConvertDateTimeAddFunctionToTerm(callExpression, TimeSpan.TicksPerDay / TimeSpan.TicksPerSecond);
                     }
