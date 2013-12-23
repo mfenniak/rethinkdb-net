@@ -33,13 +33,13 @@ namespace RethinkDb.QueryTerm
             this.fields = fields;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
         {
             var hasFieldsTerm = new Term()
             {
                 type = Term.TermType.HAS_FIELDS,
             };
-            hasFieldsTerm.args.Add(query.GenerateTerm(datumConverterFactory));
+            hasFieldsTerm.args.Add(query.GenerateTerm(datumConverterFactory, expressionConverterFactory));
             hasFieldsTerm.args.AddRange(GetMembers(datumConverterFactory));
             return hasFieldsTerm;
         }

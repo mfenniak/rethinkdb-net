@@ -67,18 +67,18 @@ namespace RethinkDb.ConnectionFactories
             #endregion
             #region IConnection implementation
 
-            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
+            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
             {
                 if (this.disposed)
                     throw new ObjectDisposedException("PooledConnectionWrapper");
-                return this.innerConnection.RunAsync<T>(datumConverterFactory, queryObject, cancellationToken);
+                return this.innerConnection.RunAsync<T>(datumConverterFactory, expressionConverterFactory, queryObject, cancellationToken);
             }
 
-            public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
+            public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory, ISequenceQuery<T> queryObject)
             {
                 if (this.disposed)
                     throw new ObjectDisposedException("PooledConnectionWrapper");
-                return this.innerConnection.RunAsync<T>(datumConverterFactory, queryObject);
+                return this.innerConnection.RunAsync<T>(datumConverterFactory, expressionConverterFactory, queryObject);
             }
 
             // Hm... doesn't really seem like you'd want to set these properties on a pooled connection.  Not sure
@@ -89,6 +89,12 @@ namespace RethinkDb.ConnectionFactories
             {
                 get { return this.innerConnection.DatumConverterFactory; }
                 set { throw new NotSupportedException("set_DatumConverterFactory not supported on pooled connection"); }
+            }
+
+            public IExpressionConverterFactory ExpressionConverterFactory
+            {
+                get { return this.innerConnection.ExpressionConverterFactory; }
+                set { throw new NotSupportedException("set_LambdaTermConverterFactory not supported on pooled connection"); }
             }
 
             public ILogger Logger

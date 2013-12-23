@@ -7,7 +7,7 @@ namespace RethinkDb
     [ImmutableObject(true)]
     public interface IQuery
     {
-        Term GenerateTerm(IDatumConverterFactory datumConverterFactory);
+        Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory);
     }
 }
 

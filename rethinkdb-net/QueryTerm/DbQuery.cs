@@ -31,7 +31,7 @@ namespace RethinkDb.QueryTerm
             return new TableQuery<T>(this, table, useOutdated);
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
         {
             var dbTerm = new Term()
             {

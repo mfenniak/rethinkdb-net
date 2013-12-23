@@ -11,7 +11,7 @@ namespace RethinkDb.QueryTerm
             this.db = db;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
         {
             var dbTerm = new Term()
             {

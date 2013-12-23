@@ -36,6 +36,7 @@ namespace RethinkDb.ConnectionFactories
                 this.innerConnection = innerConnection;
 
                 this.DatumConverterFactory = innerConnection.DatumConverterFactory;
+                this.ExpressionConverterFactory = innerConnection.ExpressionConverterFactory;
                 this.Logger = innerConnection.Logger;
                 this.QueryTimeout = innerConnection.QueryTimeout;
             }
@@ -53,6 +54,7 @@ namespace RethinkDb.ConnectionFactories
 
                 // Re-set the new connection's properties to match this one's.
                 innerConnection.DatumConverterFactory = this.DatumConverterFactory;
+                innerConnection.ExpressionConverterFactory = this.ExpressionConverterFactory;
                 innerConnection.Logger = this.Logger;
                 innerConnection.QueryTimeout = this.QueryTimeout;
             }
@@ -88,19 +90,25 @@ namespace RethinkDb.ConnectionFactories
             #endregion
             #region IConnection implementation
 
-            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
+            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
             {
-                return RetryRunAsync(() => this.innerConnection.RunAsync<T>(datumConverterFactory, queryObject, cancellationToken));
+                return RetryRunAsync(() => this.innerConnection.RunAsync<T>(datumConverterFactory, expressionConverterFactory, queryObject, cancellationToken));
             }
 
-            public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, ISequenceQuery<T> queryObject)
+            public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory, ISequenceQuery<T> queryObject)
             {
                 if (this.disposed)
                     throw new ObjectDisposedException("ReliableConnectionWrapper");
-                return new RetryAsyncEnumeratorWrapper<T>(this, () => this.innerConnection.RunAsync(datumConverterFactory, queryObject));
+                return new RetryAsyncEnumeratorWrapper<T>(this, () => this.innerConnection.RunAsync(datumConverterFactory, expressionConverterFactory, queryObject));
             }
 
             public IDatumConverterFactory DatumConverterFactory
+            {
+                get;
+                set;
+            }
+
+            public IExpressionConverterFactory ExpressionConverterFactory
             {
                 get;
                 set;

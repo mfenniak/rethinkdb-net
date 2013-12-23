@@ -7,15 +7,17 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.Expressions
 {
-    class SingleParameterLambda<TParameter1, TReturn> : BaseExpression
+    class SingleParameterLambda<TParameter1, TReturn> : BaseExpression, IExpressionConverterOneParameter<TParameter1, TReturn>
     {
         #region Public interface
 
         private readonly IDatumConverterFactory datumConverterFactory;
+        private readonly IExpressionConverterFactory expressionConverterFactory;
 
-        public SingleParameterLambda(IDatumConverterFactory datumConverterFactory)
+        public SingleParameterLambda(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
         {
             this.datumConverterFactory = datumConverterFactory;
+            this.expressionConverterFactory = expressionConverterFactory;
         }
 
         public Term CreateFunctionTerm(Expression<Func<TParameter1, TReturn>> expression)
@@ -91,6 +93,11 @@ namespace RethinkDb.Expressions
             return retval;
         }
 
+        protected override IExpressionConverterFactory ExpressionConverterFactory
+        {
+            get { return expressionConverterFactory; }
+        }
+
         protected override Term RecursiveMap(Expression expression)
         {
             return MapExpressionToTerm(expression);
@@ -98,7 +105,7 @@ namespace RethinkDb.Expressions
 
         protected override Term RecursiveMapMemberInit<TInnerReturn>(Expression expression)
         {
-            var newConverter = new SingleParameterLambda<TParameter1, TInnerReturn>(datumConverterFactory);
+            var newConverter = new SingleParameterLambda<TParameter1, TInnerReturn>(datumConverterFactory, expressionConverterFactory);
             return newConverter.MapMemberInitToTerm((MemberInitExpression)expression);
         }
 

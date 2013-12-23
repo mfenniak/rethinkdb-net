@@ -15,17 +15,17 @@ namespace RethinkDb.QueryTerm
             this.filterExpression = filterExpression;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
         {
             var filterTerm = new Term()
             {
                 type = Term.TermType.FILTER,
             };
-            filterTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
+            filterTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory, expressionConverterFactory));
 
             if (filterExpression.NodeType != ExpressionType.Lambda)
                 throw new NotSupportedException("Unsupported expression type");
-            filterTerm.args.Add(ExpressionUtils.CreateFunctionTerm<T, bool>(datumConverterFactory, filterExpression));
+            filterTerm.args.Add(ExpressionUtils.CreateFunctionTerm<T, bool>(datumConverterFactory, expressionConverterFactory, filterExpression));
 
             return filterTerm;
         }

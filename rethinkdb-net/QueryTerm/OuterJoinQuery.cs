@@ -17,15 +17,15 @@ namespace RethinkDb.QueryTerm
             this.joinPredicate = joinPredicate;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
         {
             var filterTerm = new Term()
             {
                 type = Term.TermType.OUTER_JOIN,
             };
-            filterTerm.args.Add(leftQuery.GenerateTerm(datumConverterFactory));
-            filterTerm.args.Add(rightQuery.GenerateTerm(datumConverterFactory));
-            filterTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TLeft, TRight, bool>(datumConverterFactory, joinPredicate));
+            filterTerm.args.Add(leftQuery.GenerateTerm(datumConverterFactory, expressionConverterFactory));
+            filterTerm.args.Add(rightQuery.GenerateTerm(datumConverterFactory, expressionConverterFactory));
+            filterTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TLeft, TRight, bool>(datumConverterFactory, expressionConverterFactory, joinPredicate));
             return filterTerm;
         }
     }

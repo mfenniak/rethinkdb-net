@@ -28,7 +28,7 @@ namespace RethinkDb.QueryTerm
             get { return orderByMembers; }
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
         {
             Term indexOrderBy;
 
@@ -36,7 +36,7 @@ namespace RethinkDb.QueryTerm
             {
                 type = Term.TermType.ORDER_BY,
             };
-            orderByTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
+            orderByTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory, expressionConverterFactory));
             orderByTerm.args.AddRange(GetMembers(datumConverterFactory, out indexOrderBy));
 
             if (indexOrderBy != null)

@@ -18,19 +18,17 @@ namespace RethinkDb.QueryTerm
             this.indexName = indexName;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
         {
             var getAllTerm = new Term() {
                 type = Term.TermType.GET_ALL,
             };
-            getAllTerm.args.Add(tableTerm.GenerateTerm(datumConverterFactory));
-            var datumConverter = datumConverterFactory.Get<TKey>();
+            getAllTerm.args.Add(tableTerm.GenerateTerm(datumConverterFactory, expressionConverterFactory));
             foreach (var key in keys)
             {
-                getAllTerm.args.Add(new Term()
-                {
+                getAllTerm.args.Add(new Term() {
                     type = Term.TermType.DATUM,
-                    datum = datumConverter.ConvertObject(key)
+                    datum = datumConverterFactory.Get<TKey>().ConvertObject(key)
                 });
             }
             if (!String.IsNullOrEmpty(indexName))

@@ -11,6 +11,7 @@ namespace RethinkDb.Test.QueryTests
     public class UpdateQueryTests
     {
         private IDatumConverterFactory datumConverterFactory;
+        private IExpressionConverterFactory expressionConverterFactory = new RethinkDb.Expressions.DefaultExpressionConverterFactory();
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
@@ -56,7 +57,7 @@ namespace RethinkDb.Test.QueryTests
                 s => "woot",
                 true);
 
-            var term = query.GenerateTerm(datumConverterFactory);
+            var term = query.GenerateTerm(datumConverterFactory, expressionConverterFactory);
 
             var nonAtomicArgs = term.optargs.Where(kv => kv.key == "non_atomic");
             Assert.That(nonAtomicArgs.Count(), Is.EqualTo(1));
@@ -80,7 +81,7 @@ namespace RethinkDb.Test.QueryTests
                 s => "woot",
                 false);
 
-            var term = query.GenerateTerm(datumConverterFactory);
+            var term = query.GenerateTerm(datumConverterFactory, expressionConverterFactory);
 
             var nonAtomicArgs = term.optargs.Where(kv => kv.key == "non_atomic");
             Assert.That(nonAtomicArgs.Count(), Is.EqualTo(0));

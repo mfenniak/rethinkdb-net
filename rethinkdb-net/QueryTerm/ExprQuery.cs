@@ -20,11 +20,11 @@ namespace RethinkDb.QueryTerm
             this.objectExpr = objectExpr;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
         {
             if (objectExpr != null)
             {
-                return ExpressionUtils.CreateValueTerm<T>(datumConverterFactory, objectExpr);
+                return ExpressionUtils.CreateValueTerm<T>(datumConverterFactory, expressionConverterFactory, objectExpr);
             }
             else
             {

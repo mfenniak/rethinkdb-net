@@ -19,13 +19,13 @@ namespace RethinkDb.QueryTerm
             this.multiIndex = multiIndex;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
         {
             var indexCreate = new Term()
             {
                 type = Term.TermType.INDEX_CREATE,
             };
-            indexCreate.args.Add(tableTerm.GenerateTerm(datumConverterFactory));
+            indexCreate.args.Add(tableTerm.GenerateTerm(datumConverterFactory, expressionConverterFactory));
             indexCreate.args.Add(new Term() {
                 type = Term.TermType.DATUM,
                 datum = new Datum() {
@@ -33,7 +33,7 @@ namespace RethinkDb.QueryTerm
                     r_str = indexName
                 },
             });
-            indexCreate.args.Add(ExpressionUtils.CreateFunctionTerm(datumConverterFactory, indexExpression));
+            indexCreate.args.Add(ExpressionUtils.CreateFunctionTerm(datumConverterFactory, expressionConverterFactory, indexExpression));
             if (multiIndex)
             {
                 indexCreate.optargs.Add( new Term.AssocPair

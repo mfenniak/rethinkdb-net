@@ -115,6 +115,7 @@ namespace RethinkDb.Expressions
 
         protected abstract Term RecursiveMap(Expression expression);
         protected abstract Term RecursiveMapMemberInit<TInnerReturn>(Expression expression);
+        protected abstract IExpressionConverterFactory ExpressionConverterFactory { get; }
 
         private Term ConvertBinaryExpressionToTerm(BinaryExpression expr, Term.TermType termType)
         {
@@ -281,7 +282,7 @@ namespace RethinkDb.Expressions
                                          m.GetGenericArguments().Length == 2);
                         createFunctionTermMethod = createFunctionTermMethod.MakeGenericMethod(enumerableElementType, typeof(bool));
 
-                        var functionTerm = (Term)createFunctionTermMethod.Invoke(null, new object[] { datumConverterFactory, predicate });
+                        var functionTerm = (Term)createFunctionTermMethod.Invoke(null, new object[] { datumConverterFactory, ExpressionConverterFactory, predicate });
                         filterTerm.args.Add(functionTerm);
 
                         return filterTerm;

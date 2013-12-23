@@ -9,20 +9,24 @@ namespace RethinkDb
     {
         #region IConnection minimalism
 
-        public static Task<T> RunAsync<T>(this IConnection connection, IScalarQuery<T> queryObject, IDatumConverterFactory datumConverterFactory = null, CancellationToken? cancellationToken = null)
+        public static Task<T> RunAsync<T>(this IConnection connection, IScalarQuery<T> queryObject, IDatumConverterFactory datumConverterFactory = null, IExpressionConverterFactory expressionConverterFactory = null, CancellationToken? cancellationToken = null)
         {
             if (datumConverterFactory == null)
                 datumConverterFactory = connection.DatumConverterFactory;
+            if (expressionConverterFactory == null)
+                expressionConverterFactory = connection.ExpressionConverterFactory;
             if (!cancellationToken.HasValue)
                 cancellationToken = new CancellationTokenSource(connection.QueryTimeout).Token;
-            return connection.RunAsync<T>(datumConverterFactory, queryObject, cancellationToken.Value);
+            return connection.RunAsync<T>(datumConverterFactory, expressionConverterFactory, queryObject, cancellationToken.Value);
         }
 
-        public static IAsyncEnumerator<T> RunAsync<T>(this IConnection connection, ISequenceQuery<T> queryObject, IDatumConverterFactory datumConverterFactory = null)
+        public static IAsyncEnumerator<T> RunAsync<T>(this IConnection connection, ISequenceQuery<T> queryObject, IDatumConverterFactory datumConverterFactory = null, IExpressionConverterFactory expressionConverterFactory = null)
         {
             if (datumConverterFactory == null)
                 datumConverterFactory = connection.DatumConverterFactory;
-            return connection.RunAsync<T>(datumConverterFactory, queryObject);
+            if (expressionConverterFactory == null)
+                expressionConverterFactory = connection.ExpressionConverterFactory;
+            return connection.RunAsync<T>(datumConverterFactory, expressionConverterFactory, queryObject);
         }
 
         #endregion
