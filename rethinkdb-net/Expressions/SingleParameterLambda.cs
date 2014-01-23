@@ -12,12 +12,11 @@ namespace RethinkDb.Expressions
         #region Public interface
 
         private readonly IDatumConverterFactory datumConverterFactory;
-        private readonly IExpressionConverterFactory expressionConverterFactory;
 
-        public SingleParameterLambda(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        public SingleParameterLambda(IDatumConverterFactory datumConverterFactory, DefaultExpressionConverterFactory expressionConverterFactory)
+            : base(expressionConverterFactory)
         {
             this.datumConverterFactory = datumConverterFactory;
-            this.expressionConverterFactory = expressionConverterFactory;
         }
 
         public Term CreateFunctionTerm(Expression<Func<TParameter1, TReturn>> expression)
@@ -91,11 +90,6 @@ namespace RethinkDb.Expressions
             retval.val = MapExpressionToTerm(memberAssignment.Expression);
 
             return retval;
-        }
-
-        protected override IExpressionConverterFactory ExpressionConverterFactory
-        {
-            get { return expressionConverterFactory; }
         }
 
         protected override Term RecursiveMap(Expression expression)

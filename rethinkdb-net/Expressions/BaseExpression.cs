@@ -11,6 +11,7 @@ namespace RethinkDb.Expressions
 {
     abstract class BaseExpression
     {
+        /*
         private static Lazy<MethodInfo> ReQLAppend = new Lazy<MethodInfo>(() =>
             typeof(ReQLExpression).GetMethod("Append", BindingFlags.Static | BindingFlags.Public)
         );
@@ -110,12 +111,22 @@ namespace RethinkDb.Expressions
                 .GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .Single(m => m.Name == "AddDays")
         );
+        */
 
+        #region Constructor
+
+        protected readonly DefaultExpressionConverterFactory expressionConverterFactory;
+
+        protected BaseExpression(DefaultExpressionConverterFactory expressionConverterFactory)
+        {
+            this.expressionConverterFactory = expressionConverterFactory;
+        }
+
+        #endregion
         #region Parameter-independent Mappings
 
         protected abstract Term RecursiveMap(Expression expression);
         protected abstract Term RecursiveMapMemberInit<TInnerReturn>(Expression expression);
-        protected abstract IExpressionConverterFactory ExpressionConverterFactory { get; }
 
         private Term ConvertBinaryExpressionToTerm(BinaryExpression expr, Term.TermType termType)
         {
@@ -230,6 +241,13 @@ namespace RethinkDb.Expressions
                     var callExpression = (MethodCallExpression)expr;
                     var method = callExpression.Method;
 
+                    DefaultExpressionConverterFactory.MethodCallMappingDelegate methodCallMapping;
+                    if (expressionConverterFactory.TryGetMethodCallMapping(method, out methodCallMapping))
+                        return methodCallMapping(callExpression, RecursiveMap, datumConverterFactory, expressionConverterFactory);
+                    else
+                        return AttemptClientSideConversion(datumConverterFactory, expr);
+
+                    /*
                     if (method.IsGenericMethod && method.GetGenericMethodDefinition() == ReQLAppend.Value)
                     {
                         var target = callExpression.Arguments[0];
@@ -282,7 +300,7 @@ namespace RethinkDb.Expressions
                                          m.GetGenericArguments().Length == 2);
                         createFunctionTermMethod = createFunctionTermMethod.MakeGenericMethod(enumerableElementType, typeof(bool));
 
-                        var functionTerm = (Term)createFunctionTermMethod.Invoke(null, new object[] { datumConverterFactory, ExpressionConverterFactory, predicate });
+                        var functionTerm = (Term)createFunctionTermMethod.Invoke(null, new object[] { datumConverterFactory, expressionConverterFactory, predicate });
                         filterTerm.args.Add(functionTerm);
 
                         return filterTerm;
@@ -370,6 +388,7 @@ namespace RethinkDb.Expressions
                     {
                         return AttemptClientSideConversion(datumConverterFactory, expr);
                     }
+                    */
                 }
 
                 case ExpressionType.MemberAccess:

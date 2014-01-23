@@ -11,12 +11,11 @@ namespace RethinkDb.Expressions
         #region Public interface
 
         private readonly IDatumConverterFactory datumConverterFactory;
-        private readonly IExpressionConverterFactory expressionConverterFactory;
 
-        public ZeroParameterLambda(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        public ZeroParameterLambda(IDatumConverterFactory datumConverterFactory, DefaultExpressionConverterFactory expressionConverterFactory)
+            : base(expressionConverterFactory)
         {
             this.datumConverterFactory = datumConverterFactory;
-            this.expressionConverterFactory = expressionConverterFactory;
         }
 
         public Term CreateFunctionTerm(Expression<Func<TReturn>> expression)
@@ -26,11 +25,6 @@ namespace RethinkDb.Expressions
 
         #endregion
         #region Abstract implementation
-
-        protected override IExpressionConverterFactory ExpressionConverterFactory
-        {
-            get { return expressionConverterFactory; }
-        }
 
         protected override Term RecursiveMap(Expression expression)
         {

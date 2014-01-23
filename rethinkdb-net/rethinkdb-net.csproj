@@ -208,6 +208,7 @@
     <Compile Include="Interfaces\IExpressionConverterTwoParameter.cs" />
     <Compile Include="Interfaces\IExpressionConverterZeroParameter.cs" />
     <Compile Include="Expressions\DefaultExpressionConverterFactory.cs" />
+    <Compile Include="Expressions\LinqExpressionConverters.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
