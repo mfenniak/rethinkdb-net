@@ -127,7 +127,11 @@ namespace RethinkDb.Expressions
                 {
                     var memberExpr = (MemberExpression)expr;
 
-                    if (memberExpr.Expression == null || memberExpr.Expression.NodeType != ExpressionType.Parameter)
+                    if ((memberExpr.Expression == null || memberExpr.Expression.NodeType != ExpressionType.Parameter) &&
+                        // FIXME: Issue #169: In some cases the CLR can insert a type-cast when a generic type constrant is present on a generic type that's a parameter.
+                        // This is a really hacky work-around: if there's a cast on the expression, we and the expression inside is a parameter, we just proceed like it's
+                        // a normal member access and ignore the cast.  Need to investigate a better fix.
+                        !(memberExpr.Expression.NodeType == ExpressionType.Convert && ((System.Linq.Expressions.UnaryExpression)memberExpr.Expression).Operand.NodeType == ExpressionType.Parameter))
                         return SimpleMap(datumConverterFactory, expr);
 
                     var getAttrTerm = new Term() {
