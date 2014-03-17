@@ -139,11 +139,37 @@ namespace RethinkDb.Expressions
                 case ExpressionType.MemberAccess:
                 {
                     var memberExpr = (MemberExpression)expr;
+                    ParameterExpression parameterExpr = null;
 
-                    if (memberExpr.Expression.NodeType != ExpressionType.Parameter)
-                        throw new NotSupportedException("Unrecognized member access pattern");
+                    if (memberExpr.Expression == null)
+                    {
+                        return SimpleMap(datumConverterFactory, expr);
+                    }
+                    else if (memberExpr.Expression.NodeType == ExpressionType.Convert)
+                    {
+                        // In some cases the CLR can insert a type-cast when a generic type constrant is present on a
+                        // generic type that's a parameter.  We pretty much just ignore those casts.  It might be
+                        // valid to use the cast to switch to a different datum converter?, but the use-case isn't
+                        // really clear right now.  We do check that the type-cast makes sense for the parameter type,
+                        // but it's just to feel safer; it seems like the compiler should've made sure about that.
 
-                    var parameterExpr = (ParameterExpression)memberExpr.Expression;
+                        var convertExpression = (UnaryExpression)memberExpr.Expression;
+                        if (convertExpression.Operand.NodeType != ExpressionType.Parameter)
+                            return SimpleMap(datumConverterFactory, expr);
+
+                        parameterExpr = (ParameterExpression)convertExpression.Operand;
+                        if (!convertExpression.Type.IsAssignableFrom(parameterExpr.Type))
+                            throw new NotSupportedException(String.Format(
+                                "Cast on parameter expression not currently supported (from type {0} to type {1})",
+                                parameterExpr.Type, convertExpression.Type));
+                    }
+                    else if (memberExpr.Expression.NodeType != ExpressionType.Parameter)
+                    {
+                        return SimpleMap(datumConverterFactory, expr);
+                    }
+
+                    if (parameterExpr == null)
+                        parameterExpr = (ParameterExpression)memberExpr.Expression;
                     int parameterIndex;
                     if (parameterExpr.Name == parameter1Name)
                         parameterIndex = 3;
