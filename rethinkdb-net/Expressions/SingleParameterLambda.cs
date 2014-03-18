@@ -127,8 +127,32 @@ namespace RethinkDb.Expressions
                 {
                     var memberExpr = (MemberExpression)expr;
 
-                    if (memberExpr.Expression == null || memberExpr.Expression.NodeType != ExpressionType.Parameter)
+                    if (memberExpr.Expression == null)
+                    {
                         return SimpleMap(datumConverterFactory, expr);
+                    }
+                    else if (memberExpr.Expression.NodeType == ExpressionType.Convert)
+                    {
+                        // In some cases the CLR can insert a type-cast when a generic type constrant is present on a
+                        // generic type that's a parameter.  We pretty much just ignore those casts.  It might be
+                        // valid to use the cast to switch to a different datum converter?, but the use-case isn't
+                        // really clear right now.  We do check that the type-cast makes sense for the parameter type,
+                        // but it's just to feel safer; it seems like the compiler should've made sure about that.
+
+                        var convertExpression = (UnaryExpression)memberExpr.Expression;
+                        if (convertExpression.Operand.NodeType != ExpressionType.Parameter)
+                            return SimpleMap(datumConverterFactory, expr);
+
+                        var parameterExpression = (ParameterExpression)convertExpression.Operand;
+                        if (!convertExpression.Type.IsAssignableFrom(parameterExpression.Type))
+                            throw new NotSupportedException(String.Format(
+                                "Cast on parameter expression not currently supported (from type {0} to type {1})",
+                                parameterExpression.Type, convertExpression.Type));
+                    }
+                    else if (memberExpr.Expression.NodeType != ExpressionType.Parameter)
+                    {
+                        return SimpleMap(datumConverterFactory, expr);
+                    }
 
                     var getAttrTerm = new Term() {
                         type = Term.TermType.GET_FIELD
