@@ -42,7 +42,7 @@ namespace RethinkDb
                 NullableDatumConverterFactory.Instance,
                 ListDatumConverterFactory.Instance,
                 TimeSpanDatumConverterFactory.Instance,
-                DictionaryDatumConverterFactory.Instance
+                GroupingDictionaryDatumConverterFactory.Instance
             );
             ConnectTimeout = QueryTimeout = TimeSpan.FromSeconds(30);
         }

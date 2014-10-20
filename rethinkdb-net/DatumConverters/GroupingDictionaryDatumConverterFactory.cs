@@ -5,11 +5,12 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.DatumConverters
 {
-    public class DictionaryDatumConverterFactory : AbstractDatumConverterFactory
+    // A special datum converter to support RethinkDB's $reql_type$ = GROUPED_DATA return values.
+    public class GroupingDictionaryDatumConverterFactory : AbstractDatumConverterFactory
     {
-        public static readonly DictionaryDatumConverterFactory Instance = new DictionaryDatumConverterFactory();
+        public static readonly GroupingDictionaryDatumConverterFactory Instance = new GroupingDictionaryDatumConverterFactory();
 
-        private DictionaryDatumConverterFactory()
+        private GroupingDictionaryDatumConverterFactory()
         {
         }
 
@@ -19,9 +20,9 @@ namespace RethinkDb.DatumConverters
             if (rootDatumConverterFactory == null)
                 throw new ArgumentNullException("rootDatumConverterFactory");
 
-            if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(IDictionary<,>))
+            if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(IGroupingDictionary<,>))
             {
-                Type converterType = typeof(DictionaryDatumConverter<,>).MakeGenericType(typeof(T).GetGenericArguments());
+                Type converterType = typeof(GroupingDictionaryDatumConverter<,>).MakeGenericType(typeof(T).GetGenericArguments());
                 datumConverter = (IDatumConverter<T>)Activator.CreateInstance(converterType, rootDatumConverterFactory);
                 return true;
             }
@@ -30,12 +31,12 @@ namespace RethinkDb.DatumConverters
         }
     }
 
-    public class DictionaryDatumConverter<TKey, TValue> : AbstractReferenceTypeDatumConverter<IDictionary<TKey, TValue>>
+    public class GroupingDictionaryDatumConverter<TKey, TValue> : AbstractReferenceTypeDatumConverter<IGroupingDictionary<TKey, TValue>>
     {
         private readonly IDatumConverter<TKey> keyTypeConverter;
         private readonly IDatumConverter<TValue> valueTypeConverter;
 
-        public DictionaryDatumConverter(IDatumConverterFactory rootDatumConverterFactory)
+        public GroupingDictionaryDatumConverter(IDatumConverterFactory rootDatumConverterFactory)
         {
             this.keyTypeConverter = rootDatumConverterFactory.Get<TKey>();
             this.valueTypeConverter = rootDatumConverterFactory.Get<TValue>();
@@ -43,7 +44,7 @@ namespace RethinkDb.DatumConverters
 
         #region IDatumConverter<T> Members
 
-        public override IDictionary<TKey, TValue> ConvertDatum(Datum datum)
+        public override IGroupingDictionary<TKey, TValue> ConvertDatum(Datum datum)
         {
             if (datum.type == Datum.DatumType.R_NULL)
             {
@@ -65,7 +66,7 @@ namespace RethinkDb.DatumConverters
                 if (dataDatum.type != Datum.DatumType.R_ARRAY)
                     throw new NotSupportedException("Object's data key must be an array type");
 
-                var retval = new Dictionary<TKey, TValue>(dataDatum.r_array.Count);
+                var retval = new GroupingDictionary<TKey, TValue>(dataDatum.r_array.Count);
                 foreach (var item in dataDatum.r_array)
                 {
                     if (item.type != Datum.DatumType.R_ARRAY || item.r_array.Count != 2)
@@ -83,13 +84,21 @@ namespace RethinkDb.DatumConverters
             }
         }
 
-        public override Spec.Datum ConvertObject(IDictionary<TKey, TValue> dictionary)
+        public override Spec.Datum ConvertObject(IGroupingDictionary<TKey, TValue> dictionary)
         {
             //if (dictionary == null)
             //    return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
-            throw new NotImplementedException("IDictionary objects are only currently supported for reading Group results");
+            throw new NotImplementedException("IGroupingDictionary objects are only currently supported for reading Group results");
         }
 
         #endregion
+    }
+
+    class GroupingDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IGroupingDictionary<TKey, TValue>
+    {
+        public GroupingDictionary(int capacity)
+            : base(capacity)
+        {
+        }
     }
 }

@@ -166,7 +166,6 @@
     <Compile Include="DatumConverters\TimeSpanDatumConverterFactory.cs" />
     <Compile Include="Interfaces\OrderByTerm.cs" />
     <Compile Include="Interfaces\IGroupingQuery.cs" />
-    <Compile Include="DatumConverters\DictionaryDatumConverterFactory.cs" />
     <Compile Include="QueryTerm\GroupByFunctionQuery.cs" />
     <Compile Include="QueryTerm\GroupByIndexQuery.cs" />
     <Compile Include="QueryTerm\MaxGroupAggregateQuery.cs" />
@@ -181,6 +180,8 @@
     <Compile Include="QueryTerm\CountGroupAggregateQuery.cs" />
     <Compile Include="QueryTerm\ContainsAggregateQuery.cs" />
     <Compile Include="QueryTerm\ContainsGroupAggregateQuery.cs" />
+    <Compile Include="Interfaces\IGroupingDictionary.cs" />
+    <Compile Include="DatumConverters\GroupingDictionaryDatumConverterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
