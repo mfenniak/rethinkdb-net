@@ -14,16 +14,12 @@ namespace RethinkDb.Test.Integration
         public override void TestFixtureSetUp()
         {
             base.TestFixtureSetUp();
-            connection.RunAsync(Query.DbCreate("test")).Wait();
-            connection.RunAsync(Query.Db("test").TableCreate("table")).Wait();
-        }
+            connection.Run(Query.DbCreate("test"));
+            connection.Run(Query.Db("test").TableCreate("table"));
 
-        [SetUp]
-        public virtual void SetUp()
-        {
             testTable = Query.Db("test").Table<TestObject>("table");
             connection.Run(testTable.Insert(new TestObject[]
-            {
+                                            {
                 new TestObject() { Name = "1", SomeNumber = 1 },
                 new TestObject() { Name = "1", SomeNumber = 1 },
                 new TestObject() { Name = "2", SomeNumber = 2, Tags = new string[] { "A", "B" } },
@@ -38,13 +34,6 @@ namespace RethinkDb.Test.Integration
                 new TestObject() { Name = "7", SomeNumber = 7 },
             }));
             connection.Run(testTable.IndexCreate("name", to => to.Name));
-        }
-
-        [TearDown]
-        public virtual void TearDown()
-        {
-            connection.Run(testTable.IndexDrop("name"));
-            connection.Run(testTable.Delete());
         }
 
         [Test]
