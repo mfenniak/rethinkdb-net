@@ -139,27 +139,17 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
-        public void Reduce()
+        public void ReduceEmptyTable()
         {
-            DoReduce().Wait();
-        }
-
-        private async Task DoReduce()
-        {
-            var resp = await connection.RunAsync(testTable.Reduce((acc, val) => new TestObject() { SomeNumber = acc.SomeNumber + val.SomeNumber }, new TestObject() { SomeNumber = -1 }));
-            Assert.That(resp.SomeNumber, Is.EqualTo(-1));
-        }
-
-        [Test]
-        public void ReduceToPrimitive()
-        {
-            DoReduceToPrimitive().Wait();
-        }
-
-        private async Task DoReduceToPrimitive()
-        {
-            var resp = await connection.RunAsync(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val, -1.0));
-            Assert.That(resp, Is.EqualTo(-1.0));
+            try
+            {
+                connection.Run(testTable.Reduce((acc, val) => new TestObject() { SomeNumber = acc.SomeNumber + val.SomeNumber }));
+                Assert.Fail("Expected exception");
+            }
+            catch (AggregateException ex)
+            {
+                Assert.That(ex.InnerException is RethinkDbRuntimeException);
+            }
         }
 
         [Test]

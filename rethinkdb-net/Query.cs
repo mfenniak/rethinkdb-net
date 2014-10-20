@@ -270,11 +270,6 @@ namespace RethinkDb
             return new ReduceQuery<T>(sequenceQuery, reduceFunction);
         }
 
-        public static ISingleObjectQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction, T @base)
-        {
-            return new ReduceQuery<T>(sequenceQuery, reduceFunction, @base);
-        }
-
         public static ISingleObjectQuery<T> Nth<T>(this ISequenceQuery<T> sequenceQuery, int index)
         {
             return new NthQuery<T>(sequenceQuery, index);
