@@ -14,7 +14,7 @@ namespace RethinkDb.QueryTerm
         protected override void AddOptionalArguments(Term updateTerm)
         {
             updateTerm.optargs.Add(new Term.AssocPair() {
-                key = "return_vals",
+                key = "return_changes",
                 val = new Term() {
                     type = Term.TermType.DATUM,
                     datum = new Datum() {

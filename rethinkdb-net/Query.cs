@@ -119,7 +119,7 @@ namespace RethinkDb
             return new UpdateQuery<T>(target, updateExpression, nonAtomic);
         }
 
-        public static IWriteQuery<DmlResponse<T>> UpdateAndReturnValue<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
+        public static IWriteQuery<DmlResponse<T>> UpdateAndReturnChanges<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
         {
             return new UpdateAndReturnValueQuery<T>(target, updateExpression, nonAtomic);
         }
@@ -134,7 +134,7 @@ namespace RethinkDb
             return new DeleteQuery<T>(target);
         }
 
-        public static IWriteQuery<DmlResponse<T>> DeleteAndReturnValue<T>(this IMutableSingleObjectQuery<T> target)
+        public static IWriteQuery<DmlResponse<T>> DeleteAndReturnChanges<T>(this IMutableSingleObjectQuery<T> target)
         {
             return new DeleteAndReturnValueQuery<T>(target);
         }
@@ -144,7 +144,7 @@ namespace RethinkDb
             return new ReplaceQuery<T>(target, newObject, nonAtomic);
         }
 
-        public static IWriteQuery<DmlResponse<T>> ReplaceAndReturnValue<T>(this IMutableSingleObjectQuery<T> target, T newObject, bool nonAtomic = false)
+        public static IWriteQuery<DmlResponse<T>> ReplaceAndReturnChanges<T>(this IMutableSingleObjectQuery<T> target, T newObject, bool nonAtomic = false)
         {
             return new ReplaceAndReturnValueQuery<T>(target, newObject, nonAtomic);
         }
