@@ -285,6 +285,7 @@ namespace RethinkDb
             return new DistinctQuery<T>(sequenceQuery);
         }
 
+#if false
         public static ISequenceQuery<Tuple<TGroup, TMap>> GroupedMapReduce<TOriginal, TGroup, TMap>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TGroup>> grouping, Expression<Func<TOriginal, TMap>> mapping, Expression<Func<TMap, TMap, TMap>> reduction)
         {
             return new GroupedMapReduceQuery<TOriginal, TGroup, TMap>(sequenceQuery, grouping, mapping, reduction);
@@ -294,6 +295,7 @@ namespace RethinkDb
         {
             return new GroupedMapReduceQuery<TOriginal, TGroup, TMap>(sequenceQuery, grouping, mapping, reduction, @base);
         }
+#endif
 
         public static ISequenceQuery<TTarget> ConcatMap<TOriginal, TTarget>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, IEnumerable<TTarget>>> mapping)
         {
@@ -310,10 +312,12 @@ namespace RethinkDb
             return new NowQuery();
         }
 
+#if false
         public static ISequenceQuery<Tuple<TGroupKeyType, TReductionType>> GroupBy<TObject, TReductionType, TGroupKeyType>(this ISequenceQuery<TObject> sequenceQuery, IGroupByReduction<TReductionType> reductionObject, Expression<Func<TObject, TGroupKeyType>> groupKeyConstructor)
         {
             return new GroupByQuery<TObject, TReductionType, TGroupKeyType>(sequenceQuery, reductionObject, groupKeyConstructor);
         }
+#endif
 
         public static ISequenceQuery<T> Sample<T>(this ISequenceQuery<T> target, int count)
         {

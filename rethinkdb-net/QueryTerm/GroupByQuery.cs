@@ -7,6 +7,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
+#if false
     public abstract class GroupByQueryBase<TObject, TReductionType>
     {
         private readonly ISequenceQuery<TObject> sequenceQuery;
@@ -22,6 +23,8 @@ namespace RethinkDb.QueryTerm
 
         public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
         {
+            throw new NotSupportedException();
+            /*
             var term = new Term()
             {
                 type = Term.TermType.GROUPBY,
@@ -59,6 +62,7 @@ namespace RethinkDb.QueryTerm
             term.args.Add(reductionObject.GenerateReductionObject(datumConverterFactory));
 
             return term;
+            */
         }
 
         private Datum GetMemberName(Expression memberReference, IDatumConverterFactory datumConverterFactory)
@@ -94,4 +98,5 @@ namespace RethinkDb.QueryTerm
         {
         }
     }
+#endif
 }

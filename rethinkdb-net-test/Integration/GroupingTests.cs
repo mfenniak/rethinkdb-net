@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.Test.Integration
 {
+#if false
     [TestFixture]
     public class GroupingTests : TestBase
     {
@@ -242,4 +243,5 @@ namespace RethinkDb.Test.Integration
             Assert.That(count, Is.EqualTo(7));
         }
     }
+#endif
 }

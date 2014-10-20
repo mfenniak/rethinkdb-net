@@ -716,6 +716,7 @@ namespace RethinkDb.Test.Integration
             Assert.That(count, Is.EqualTo(4));
         }
 
+#if false
         [Test, Description("Tests that the SingleParameterLambda class can map a Parameter Expression (tag => tag) to a Term")]
         public void ConcatMap_OnSimpleDataType_CanUseParameterExpressionForQuery()
         {
@@ -732,6 +733,7 @@ namespace RethinkDb.Test.Integration
             Assert.That(enumerable, Has.Member(Tuple.Create("even", 3)));
             Assert.That(enumerable, Has.Member(Tuple.Create("odd", 4)));
         }
+#endif
 
         [Test]
         public void Union()

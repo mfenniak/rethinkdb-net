@@ -73,7 +73,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
         }
     }
 
-
+#if false
     [TestFixture]
     public class NGroupingTests : GroupingTests
     {
@@ -82,6 +82,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
             ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
         }
     }
+#endif
 
 
     [TestFixture]

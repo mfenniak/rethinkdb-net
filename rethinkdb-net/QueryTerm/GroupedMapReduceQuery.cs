@@ -5,6 +5,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
+#if false
     public class GroupedMapReduceQuery<TOriginal, TGroup, TMap> : ISequenceQuery<Tuple<TGroup, TMap>>
     {
         private readonly ISequenceQuery<TOriginal> sequenceQuery;
@@ -31,8 +32,9 @@ namespace RethinkDb.QueryTerm
 
         public Term GenerateTerm (IDatumConverterFactory datumConverterFactory)
         {
-            var retval = new Term() {
-                type = Term.TermType.GROUPED_MAP_REDUCE,
+            var retval = new Term()
+            {
+                type = Term.TermType.GROUP,
             };
             retval.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
             retval.args.Add(ExpressionUtils.CreateFunctionTerm(datumConverterFactory, grouping));
@@ -41,7 +43,8 @@ namespace RethinkDb.QueryTerm
 
             if (this.baseProvided)
             {
-                retval.optargs.Add(new Term.AssocPair() {
+                retval.optargs.Add(new Term.AssocPair()
+                {
                     key = "base",
                     val = new Term() {
                         type = Term.TermType.DATUM,
@@ -53,5 +56,6 @@ namespace RethinkDb.QueryTerm
             return retval;
         }
     }
+#endif
 }
 

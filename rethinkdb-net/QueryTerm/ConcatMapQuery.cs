@@ -20,7 +20,7 @@ namespace RethinkDb.QueryTerm
         {
             var mapTerm = new Term()
             {
-                type = Term.TermType.CONCATMAP,
+                type = Term.TermType.CONCAT_MAP,
             };
             mapTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
             mapTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TOriginal, IEnumerable<TTarget>>(datumConverterFactory, mapExpression));
