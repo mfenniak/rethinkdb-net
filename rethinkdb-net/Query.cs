@@ -343,41 +343,41 @@ namespace RethinkDb
             return new GroupByFunctionQuery<TRecord, TKey1, TKey2, TKey3>(sequenceQuery, key1, key2, key3);
         }
 
-        public static IGroupingQuery<TKey, TRecord> Min<TKey, TRecord>(
+        public static IGroupingQuery<TKey, TRecord> Min<TKey, TRecord, TExpressionValue>(
             this IGroupingQuery<TKey, TRecord[]> groupingQuery,
-            Expression<Func<TRecord, object>> field = null
+            Expression<Func<TRecord, TExpressionValue>> field = null
             )
         {
             throw new NotImplementedException();
         }
 
-        public static ISingleObjectQuery<TRecord> Min<TRecord>(
+        public static ISingleObjectQuery<TRecord> Min<TRecord, TExpressionValue>(
             this ISequenceQuery<TRecord> sequenceQuery,
-            Expression<Func<TRecord, object>> field = null
+            Expression<Func<TRecord, TExpressionValue>> field = null
             )
         {
             throw new NotImplementedException();
         }
 
-        public static IGroupingQuery<TKey, TRecord[]> Max<TKey, TRecord>(
+        public static IGroupingQuery<TKey, TRecord> Max<TKey, TRecord, TExpressionValue>(
             this IGroupingQuery<TKey, TRecord[]> groupingQuery,
-            Expression<Func<TRecord, object>> field = null
+            Expression<Func<TRecord, TExpressionValue>> field = null
             )
         {
-            throw new NotImplementedException();
+            return new MaxGroupAggregateQuery<TKey, TRecord, TExpressionValue>(groupingQuery, field);
         }
 
-        public static ISingleObjectQuery<TRecord> Max<TRecord>(
+        public static ISingleObjectQuery<TRecord> Max<TRecord, TExpressionValue>(
             this ISequenceQuery<TRecord> sequenceQuery,
-            Expression<Func<TRecord, object>> field = null
+            Expression<Func<TRecord, TExpressionValue>> field = null
             )
         {
-            throw new NotImplementedException();
+            return new MaxAggregateQuery<TRecord, TExpressionValue>(sequenceQuery, field);
         }
 
         public static IGroupingQuery<TKey, double> Avg<TKey, TRecord>(
             this IGroupingQuery<TKey, TRecord[]> groupingQuery,
-            Expression<Func<TRecord, object>> field = null
+            Expression<Func<TRecord, double>> field = null
             )
         {
             throw new NotImplementedException();
@@ -385,7 +385,7 @@ namespace RethinkDb
 
         public static ISingleObjectQuery<double> Avg<TRecord>(
             this ISequenceQuery<TRecord> groupingQuery,
-            Expression<Func<TRecord, object>> field = null
+            Expression<Func<TRecord, double>> field = null
             )
         {
             throw new NotImplementedException();
@@ -393,7 +393,7 @@ namespace RethinkDb
 
         public static IGroupingQuery<TKey, double> Sum<TKey, TRecord>(
             this IGroupingQuery<TKey, TRecord[]> groupingQuery,
-            Expression<Func<TRecord, object>> field = null
+            Expression<Func<TRecord, double>> field = null
             )
         {
             throw new NotImplementedException();
@@ -401,7 +401,7 @@ namespace RethinkDb
 
         public static ISingleObjectQuery<double> Sum<TRecord>(
             this ISequenceQuery<TRecord> groupingQuery,
-            Expression<Func<TRecord, object>> field = null
+            Expression<Func<TRecord, double>> field = null
             )
         {
             throw new NotImplementedException();
