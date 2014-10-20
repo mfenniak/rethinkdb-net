@@ -348,7 +348,7 @@ namespace RethinkDb
             Expression<Func<TRecord, TExpressionValue>> field = null
             )
         {
-            throw new NotImplementedException();
+            return new MinGroupAggregateQuery<TKey, TRecord, TExpressionValue>(groupingQuery, field);
         }
 
         public static ISingleObjectQuery<TRecord> Min<TRecord, TExpressionValue>(
@@ -356,7 +356,7 @@ namespace RethinkDb
             Expression<Func<TRecord, TExpressionValue>> field = null
             )
         {
-            throw new NotImplementedException();
+            return new MinAggregateQuery<TRecord, TExpressionValue>(sequenceQuery, field);
         }
 
         public static IGroupingQuery<TKey, TRecord> Max<TKey, TRecord, TExpressionValue>(

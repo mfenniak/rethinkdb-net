@@ -270,13 +270,54 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupAndMinAggregate()
         {
-            throw new NotImplementedException();
+            var query = testTable.Group<TestObject, string>("name").Min(to => to.SomeNumber);
+
+            int count = 0;
+            foreach (var record in connection.Run(query))
+            {
+                var groupName = record.Key;
+                var testObject = record.Value;
+
+                switch (groupName)
+                {
+                    case "1":
+                        Assert.That(testObject.SomeNumber, Is.EqualTo(1));
+                        break;
+                    case "2":
+                        Assert.That(testObject.SomeNumber, Is.EqualTo(2));
+                        break;
+                    case "3":
+                        Assert.That(testObject.SomeNumber, Is.EqualTo(3));
+                        break;
+                    case "4":
+                        Assert.That(testObject.SomeNumber, Is.EqualTo(4));
+                        break;
+                    case "5":
+                        Assert.That(testObject.SomeNumber, Is.EqualTo(5));
+                        break;
+                    case "6":
+                        Assert.That(testObject.SomeNumber, Is.EqualTo(6));
+                        break;
+                    case "7":
+                        Assert.That(testObject.SomeNumber, Is.EqualTo(7));
+                        break;
+                    default:
+                        Assert.Fail("Unexpected group name: {0}", groupName);
+                        break;
+                }
+
+                ++count;
+            }
+
+            Assert.That(count, Is.EqualTo(7));
         }
 
         [Test]
         public void MinAggregate()
         {
-            throw new NotImplementedException();
+            var query = testTable.Min(to => to.SomeNumber);
+            var testObject = connection.Run(query);
+            Assert.That(testObject.SomeNumber, Is.EqualTo(1));
         }
 
         [Test]

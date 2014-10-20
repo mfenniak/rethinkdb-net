@@ -177,6 +177,8 @@
     <Compile Include="QueryTerm\GroupByIndexQuery.cs" />
     <Compile Include="QueryTerm\MaxGroupAggregateQuery.cs" />
     <Compile Include="QueryTerm\MaxAggregateQuery.cs" />
+    <Compile Include="QueryTerm\MinAggregateQuery.cs" />
+    <Compile Include="QueryTerm\MinGroupAggregateQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
