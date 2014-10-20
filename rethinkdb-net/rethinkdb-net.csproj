@@ -179,6 +179,8 @@
     <Compile Include="QueryTerm\MaxAggregateQuery.cs" />
     <Compile Include="QueryTerm\MinAggregateQuery.cs" />
     <Compile Include="QueryTerm\MinGroupAggregateQuery.cs" />
+    <Compile Include="QueryTerm\AvgAggregateQuery.cs" />
+    <Compile Include="QueryTerm\AvgGroupAggregateQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

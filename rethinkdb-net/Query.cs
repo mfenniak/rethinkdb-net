@@ -380,15 +380,15 @@ namespace RethinkDb
             Expression<Func<TRecord, double>> field = null
             )
         {
-            throw new NotImplementedException();
+            return new AvgGroupAggregateQuery<TKey, TRecord>(groupingQuery, field);
         }
 
         public static ISingleObjectQuery<double> Avg<TRecord>(
-            this ISequenceQuery<TRecord> groupingQuery,
+            this ISequenceQuery<TRecord> sequenceQuery,
             Expression<Func<TRecord, double>> field = null
             )
         {
-            throw new NotImplementedException();
+            return new AvgAggregateQuery<TRecord>(sequenceQuery, field);
         }
 
         public static IGroupingQuery<TKey, double> Sum<TKey, TRecord>(
