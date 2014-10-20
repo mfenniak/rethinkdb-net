@@ -172,8 +172,9 @@
     <Compile Include="DatumConverters\TimeSpanDatumConverterFactory.cs" />
     <Compile Include="Interfaces\OrderByTerm.cs" />
     <Compile Include="Interfaces\IGroupingQuery.cs" />
-    <Compile Include="QueryTerm\GroupQuery.cs" />
     <Compile Include="DatumConverters\DictionaryDatumConverterFactory.cs" />
+    <Compile Include="QueryTerm\GroupByFunctionQuery.cs" />
+    <Compile Include="QueryTerm\GroupByIndexQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

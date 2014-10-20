@@ -1,18 +1,13 @@
-using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Collections.Generic;
-using RethinkDb.DatumConverters;
 using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
-    public class GroupQuery<TRecord, TIndexType> : IGroupingQuery<TIndexType, TRecord[]>
+    public class GroupByIndexQuery<TRecord, TIndexType> : IGroupingQuery<TIndexType, TRecord[]>
     {
         private ITableQuery<TRecord> tableQuery;
         private string indexName;
 
-        public GroupQuery(ITableQuery<TRecord> tableQuery, string indexName)
+        public GroupByIndexQuery(ITableQuery<TRecord> tableQuery, string indexName)
         {
             this.tableQuery = tableQuery;
             this.indexName = indexName;

@@ -313,38 +313,38 @@ namespace RethinkDb
             string indexName
             )
         {
-            return new GroupQuery<TRecord, TIndexType>(table, indexName);
+            return new GroupByIndexQuery<TRecord, TIndexType>(table, indexName);
         }
 
-        public static IGroupingQuery<TKey, IEnumerable<TRecord>> Group<TRecord, TKey>(
+        public static IGroupingQuery<TKey, TRecord[]> Group<TRecord, TKey>(
             this ISequenceQuery<TRecord> sequenceQuery,
             Expression<Func<TRecord, TKey>> key
             )
         {
-            throw new NotImplementedException();
+            return new GroupByFunctionQuery<TRecord, TKey>(sequenceQuery, key);
         }
 
-        public static IGroupingQuery<Tuple<TKey1, TKey2>, IEnumerable<TRecord>> Group<TRecord, TKey1, TKey2>(
+        public static IGroupingQuery<Tuple<TKey1, TKey2>, TRecord[]> Group<TRecord, TKey1, TKey2>(
             this ISequenceQuery<TRecord> sequenceQuery,
             Expression<Func<TRecord, TKey1>> key1,
             Expression<Func<TRecord, TKey2>> key2
             )
         {
-            throw new NotImplementedException();
+            return new GroupByFunctionQuery<TRecord, TKey1, TKey2>(sequenceQuery, key1, key2);
         }
 
-        public static IGroupingQuery<Tuple<TKey1, TKey2, TKey3>, IEnumerable<TRecord>> Group<TRecord, TKey1, TKey2, TKey3>(
+        public static IGroupingQuery<Tuple<TKey1, TKey2, TKey3>, TRecord[]> Group<TRecord, TKey1, TKey2, TKey3>(
             this ISequenceQuery<TRecord> sequenceQuery,
             Expression<Func<TRecord, TKey1>> key1,
             Expression<Func<TRecord, TKey2>> key2,
             Expression<Func<TRecord, TKey3>> key3
             )
         {
-            throw new NotImplementedException();
+            return new GroupByFunctionQuery<TRecord, TKey1, TKey2, TKey3>(sequenceQuery, key1, key2, key3);
         }
 
         public static IGroupingQuery<TKey, TRecord> Min<TKey, TRecord>(
-            this IGroupingQuery<TKey, IEnumerable<TRecord>> groupingQuery,
+            this IGroupingQuery<TKey, TRecord[]> groupingQuery,
             Expression<Func<TRecord, object>> field = null
             )
         {
@@ -359,8 +359,8 @@ namespace RethinkDb
             throw new NotImplementedException();
         }
 
-        public static IGroupingQuery<TKey, IEnumerable<TRecord>> Max<TKey, TRecord>(
-            this IGroupingQuery<TKey, IEnumerable<TRecord>> groupingQuery,
+        public static IGroupingQuery<TKey, TRecord[]> Max<TKey, TRecord>(
+            this IGroupingQuery<TKey, TRecord[]> groupingQuery,
             Expression<Func<TRecord, object>> field = null
             )
         {
@@ -376,7 +376,7 @@ namespace RethinkDb
         }
 
         public static IGroupingQuery<TKey, double> Avg<TKey, TRecord>(
-            this IGroupingQuery<TKey, IEnumerable<TRecord>> groupingQuery,
+            this IGroupingQuery<TKey, TRecord[]> groupingQuery,
             Expression<Func<TRecord, object>> field = null
             )
         {
@@ -392,7 +392,7 @@ namespace RethinkDb
         }
 
         public static IGroupingQuery<TKey, double> Sum<TKey, TRecord>(
-            this IGroupingQuery<TKey, IEnumerable<TRecord>> groupingQuery,
+            this IGroupingQuery<TKey, TRecord[]> groupingQuery,
             Expression<Func<TRecord, object>> field = null
             )
         {
@@ -408,7 +408,7 @@ namespace RethinkDb
         }
 
         public static IGroupingQuery<TKey, int> Count<TKey, TRecord>(
-            this IGroupingQuery<TKey, IEnumerable<TRecord>> groupingQuery,
+            this IGroupingQuery<TKey, TRecord[]> groupingQuery,
             Expression<Func<TRecord, bool>> predicate = null
             )
         {
@@ -424,7 +424,7 @@ namespace RethinkDb
         }
 
         public static IGroupingQuery<TKey, bool> Contains<TKey, TRecord>(
-            this IGroupingQuery<TKey, IEnumerable<TRecord>> groupingQuery,
+            this IGroupingQuery<TKey, TRecord[]> groupingQuery,
             Expression<Func<TRecord, bool>> predicate = null
             )
         {

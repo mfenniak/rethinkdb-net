@@ -26,9 +26,9 @@ namespace RethinkDb.Test.Integration
             {
                 new TestObject() { Name = "1", SomeNumber = 1 },
                 new TestObject() { Name = "1", SomeNumber = 1 },
-                new TestObject() { Name = "2", SomeNumber = 2 },
+                new TestObject() { Name = "2", SomeNumber = 2, Tags = new string[] { "A", "B" } },
                 new TestObject() { Name = "2", SomeNumber = 200 },
-                new TestObject() { Name = "2", SomeNumber = 2 },
+                new TestObject() { Name = "2", SomeNumber = 2, Tags = new string[] { "A", "C" } },
                 new TestObject() { Name = "3", SomeNumber = 3 },
                 new TestObject() { Name = "3", SomeNumber = 3 },
                 new TestObject() { Name = "4", SomeNumber = 4 },
@@ -87,19 +87,131 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupByOneField()
         {
-            throw new NotImplementedException();
+            var query = testTable.Group(to => to.Name);
+
+            int count = 0;
+            foreach (var record in connection.Run(query))
+            {
+                var groupName = record.Key;
+                var objects = record.Value;
+
+                switch (groupName)
+                {
+                    case "1":
+                    case "3":
+                    case "6":
+                        Assert.That(objects.Count(), Is.EqualTo(2));
+                        break;
+                    case "2":
+                        Assert.That(objects.Count(), Is.EqualTo(3));
+                        break;
+                    case "4":
+                    case "5":
+                    case "7":
+                        Assert.That(objects.Count(), Is.EqualTo(1));
+                        break;
+                    default:
+                        Assert.Fail("Unexpected group name: {0}", groupName);
+                        break;
+                }
+
+                ++count;
+            }
+
+            Assert.That(count, Is.EqualTo(7));
         }
 
         [Test]
         public void GroupByTwoFields()
         {
-            throw new NotImplementedException();
+            var query = testTable.Group(
+                to => to.Name,
+                to => to.SomeNumber
+            );
+
+            int count = 0;
+            foreach (var record in connection.Run(query))
+            {
+                var groupKey = record.Key;
+                var objects = record.Value;
+
+                if (groupKey.Equals(Tuple.Create("1", 1d)) ||
+                    groupKey.Equals(Tuple.Create("2", 2d)) ||
+                    groupKey.Equals(Tuple.Create("3", 3d)) ||
+                    groupKey.Equals(Tuple.Create("6", 6d)))
+                {
+                    Assert.That(objects.Count(), Is.EqualTo(2));
+                }
+                else if (
+                    groupKey.Equals(Tuple.Create("2", 200d)) ||
+                    groupKey.Equals(Tuple.Create("4", 4d)) ||
+                    groupKey.Equals(Tuple.Create("5", 5d)) ||
+                    groupKey.Equals(Tuple.Create("7", 7d)))
+                {
+                    Assert.That(objects.Count(), Is.EqualTo(1));
+                }
+                else
+                {
+                    Assert.Fail("Unexpected group key: {0}", groupKey);
+                    break;
+                }
+
+                ++count;
+            }
+
+            Assert.That(count, Is.EqualTo(8));
         }
 
         [Test]
         public void GroupByThreeFields()
         {
-            throw new NotImplementedException();
+            var query = testTable.Group(
+                to => to.Name,
+                to => to.SomeNumber,
+                to => to.Tags
+            );
+
+            int count = 0;
+            foreach (var record in connection.Run(query))
+            {
+                var groupKey = record.Key;
+                var objects = record.Value;
+
+                if (groupKey.Item1 == "2" && Math.Abs(groupKey.Item2 - 2d) <= Double.Epsilon)
+                {
+                    if (groupKey.Item3.SequenceEqual(new string[] { "A", "B" }) ||
+                        groupKey.Item3.SequenceEqual(new string[] { "A", "C" }))
+                    {
+                        Assert.That(objects.Count(), Is.EqualTo(1));
+                    }
+                    else
+                    {
+                        Assert.Fail("Unexpected Tags on (2, 2): {0}", groupKey.Item3);
+                    }
+                }
+                else if (groupKey.Equals(Tuple.Create<string, double, string[]>("1", 1d, null)) ||
+                    groupKey.Equals(Tuple.Create<string, double, string[]>("3", 3d, null)) ||
+                    groupKey.Equals(Tuple.Create<string, double, string[]>("6", 6d, null)))
+                {
+                    Assert.That(objects.Count(), Is.EqualTo(2));
+                }
+                else if (groupKey.Equals(Tuple.Create<string, double, string[]>("2", 200d, null)) ||
+                    groupKey.Equals(Tuple.Create<string, double, string[]>("4", 4d, null)) ||
+                    groupKey.Equals(Tuple.Create<string, double, string[]>("5", 5d, null)) ||
+                    groupKey.Equals(Tuple.Create<string, double, string[]>("7", 7d, null)))
+                {
+                    Assert.That(objects.Count(), Is.EqualTo(1));
+                }
+                else
+                {
+                    Assert.Fail("Unexpected group key: {0}", groupKey);
+                    break;
+                }
+
+                ++count;
+            }
+
+            Assert.That(count, Is.EqualTo(9));
         }
 
         [Test]
