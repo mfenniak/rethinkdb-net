@@ -19,7 +19,7 @@ namespace RethinkDb.Test.Integration
 
             testTable = Query.Db("test").Table<TestObject>("table");
             connection.Run(testTable.Insert(new TestObject[]
-                                            {
+            {
                 new TestObject() { Name = "1", SomeNumber = 1 },
                 new TestObject() { Name = "1", SomeNumber = 1 },
                 new TestObject() { Name = "2", SomeNumber = 2, Tags = new string[] { "A", "B" } },
@@ -465,13 +465,45 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupAndContainsAggregate()
         {
-            throw new NotImplementedException();
+            var query = testTable.Group(to => to.Name).Contains(to => to.SomeNumber > 1);
+
+            int count = 0;
+            foreach (var record in connection.Run(query))
+            {
+                var groupName = record.Key;
+                var predicateResult = record.Value;
+
+                switch (groupName)
+                {
+                    case "1":
+                        Assert.That(predicateResult, Is.False);
+                        break;
+                    case "3":
+                    case "2":
+                    case "4":
+                    case "5":
+                    case "6":
+                    case "7":
+                        Assert.That(predicateResult, Is.True);
+                        break;
+                    default:
+                        Assert.Fail("Unexpected group name: {0}", groupName);
+                        break;
+                }
+
+                ++count;
+            }
+
+            Assert.That(count, Is.EqualTo(7));
         }
 
         [Test]
         public void ContainsAggregate()
         {
-            throw new NotImplementedException();
+            var contains = connection.Run(testTable.Contains(to => to.SomeNumber > 1));
+            Assert.That(contains, Is.True);
+            contains = connection.Run(testTable.Contains(to => to.SomeNumber > 1000));
+            Assert.That(contains, Is.False);
         }
 
 #if false

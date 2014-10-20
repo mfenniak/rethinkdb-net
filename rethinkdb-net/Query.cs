@@ -428,7 +428,15 @@ namespace RethinkDb
             Expression<Func<TRecord, bool>> predicate = null
             )
         {
-            throw new NotImplementedException();
+            return new ContainsGroupAggregateQuery<TKey, TRecord>(groupingQuery, predicate);
+        }
+
+        public static ISingleObjectQuery<bool> Contains<T>(
+            this ISequenceQuery<T> target,
+            Expression<Func<T, bool>> predicate = null
+            )
+        {
+            return new ContainsAggregateQuery<T>(target, predicate);
         }
 
         #endregion

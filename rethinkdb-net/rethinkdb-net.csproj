@@ -184,6 +184,8 @@
     <Compile Include="QueryTerm\SumGroupAggregateQuery.cs" />
     <Compile Include="QueryTerm\CountAggregateQuery.cs" />
     <Compile Include="QueryTerm\CountGroupAggregateQuery.cs" />
+    <Compile Include="QueryTerm\ContainsAggregateQuery.cs" />
+    <Compile Include="QueryTerm\ContainsGroupAggregateQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
