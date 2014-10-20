@@ -184,6 +184,8 @@
     <Compile Include="DatumConverters\GroupingDictionaryDatumConverterFactory.cs" />
     <Compile Include="QueryTerm\UngroupQuery.cs" />
     <Compile Include="UngroupObject.cs" />
+    <Compile Include="QueryTerm\MapGroupQuery.cs" />
+    <Compile Include="QueryTerm\ReduceGroupQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

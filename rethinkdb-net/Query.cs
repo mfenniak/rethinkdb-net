@@ -348,6 +348,20 @@ namespace RethinkDb
             return new UngroupQuery<TKey, TValue>(groupingQuery);
         }
 
+        public static IGroupingQuery<TKey, TTarget[]> Map<TKey, TOriginal, TTarget>(
+            this IGroupingQuery<TKey, TOriginal[]> groupingQuery,
+            Expression<Func<TOriginal, TTarget>> mapExpression)
+        {
+            return new MapGroupQuery<TKey, TOriginal, TTarget>(groupingQuery, mapExpression);
+        }
+
+        public static IGroupingQuery<TKey, TRecord> Reduce<TKey, TRecord>(
+            this IGroupingQuery<TKey, TRecord[]> groupingQuery,
+            Expression<Func<TRecord, TRecord, TRecord>> reduceFunction)
+        {
+            return new ReduceGroupQuery<TKey, TRecord>(groupingQuery, reduceFunction);
+        }
+
         public static IGroupingQuery<TKey, TRecord> Min<TKey, TRecord, TExpressionValue>(
             this IGroupingQuery<TKey, TRecord[]> groupingQuery,
             Expression<Func<TRecord, TExpressionValue>> field = null

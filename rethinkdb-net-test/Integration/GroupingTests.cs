@@ -525,5 +525,54 @@ namespace RethinkDb.Test.Integration
             Assert.That(result[5].Group, Is.EqualTo("6")); Assert.That(result[5].Reduction, Is.EqualTo(2));
             Assert.That(result[6].Group, Is.EqualTo("2")); Assert.That(result[6].Reduction, Is.EqualTo(3));
         }
+
+        [Test]
+        public void GroupedMapReduce()
+        {
+            // This is functionally the same as .Group().Sum(), but tests that Map and Reduce work on grouping queries.
+            var query = testTable
+                .Group(to => to.Name)
+                .Map(to => to.SomeNumber)
+                .Reduce((l, r) => l + r);
+
+            int count = 0;
+            foreach (var record in connection.Run(query))
+            {
+                var groupName = record.Key;
+                var average = record.Value;
+
+                switch (groupName)
+                {
+                    case "1":
+                        Assert.That(average, Is.EqualTo(2));
+                        break;
+                    case "2":
+                        Assert.That(average, Is.EqualTo(204));
+                        break;
+                    case "3":
+                        Assert.That(average, Is.EqualTo(6));
+                        break;
+                    case "4":
+                        Assert.That(average, Is.EqualTo(4));
+                        break;
+                    case "5":
+                        Assert.That(average, Is.EqualTo(5));
+                        break;
+                    case "6":
+                        Assert.That(average, Is.EqualTo(12));
+                        break;
+                    case "7":
+                        Assert.That(average, Is.EqualTo(7));
+                        break;
+                    default:
+                        Assert.Fail("Unexpected group name: {0}", groupName);
+                        break;
+                }
+
+                ++count;
+            }
+
+            Assert.That(count, Is.EqualTo(7));
+        }
     }
 }
