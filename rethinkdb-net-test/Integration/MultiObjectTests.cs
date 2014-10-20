@@ -716,24 +716,19 @@ namespace RethinkDb.Test.Integration
             Assert.That(count, Is.EqualTo(4));
         }
 
-#if false
         [Test, Description("Tests that the SingleParameterLambda class can map a Parameter Expression (tag => tag) to a Term")]
         public void ConcatMap_OnSimpleDataType_CanUseParameterExpressionForQuery()
         {
             var query = testTable
                 .ConcatMap(to => to.Tags)
-                .GroupedMapReduce(
-                    tag => tag,
-                    tag => 1,
-                    (l, r) => l+r);
+                .Group(tag => tag)
+                .Count();
 
             var enumerable = connection.Run(query);
-
             Assert.That(enumerable.Count(), Is.EqualTo(2));
-            Assert.That(enumerable, Has.Member(Tuple.Create("even", 3)));
-            Assert.That(enumerable, Has.Member(Tuple.Create("odd", 4)));
+            Assert.That(enumerable["even"], Is.EqualTo(3));
+            Assert.That(enumerable["odd"], Is.EqualTo(4));
         }
-#endif
 
         [Test]
         public void Union()

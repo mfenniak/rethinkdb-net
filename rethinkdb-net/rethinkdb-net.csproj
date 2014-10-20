@@ -99,14 +99,9 @@
     <Compile Include="QueryTerm\NthQuery.cs" />
     <Compile Include="QueryTerm\DistinctQuery.cs" />
     <Compile Include="Interfaces\IConnection.cs" />
-    <Compile Include="QueryTerm\GroupedMapReduceQuery.cs" />
     <Compile Include="DatumConverters\AnonymousTypeDatumConverterFactory.cs" />
     <Compile Include="QueryTerm\ConcatMapQuery.cs" />
     <Compile Include="QueryTerm\UnionQuery.cs" />
-    <Compile Include="QueryTerm\GroupByQuery.cs" />
-    <Compile Include="QueryTerm\CountReduction.cs" />
-    <Compile Include="QueryTerm\SumReduction.cs" />
-    <Compile Include="QueryTerm\AvgReduction.cs" />
     <Compile Include="Interfaces\IConnectionFactory.cs" />
     <Compile Include="Configuration\EndPointElement.cs" />
     <Compile Include="Configuration\EndPointElementCollection.cs" />
