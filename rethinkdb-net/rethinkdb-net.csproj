@@ -147,7 +147,6 @@
     <Compile Include="Interfaces\IMutableSingleObjectQuery.cs" />
     <Compile Include="Interfaces\ISequenceQuery.cs" />
     <Compile Include="Interfaces\IWriteQuery.cs" />
-    <Compile Include="Interfaces\IGroupByReduction.cs" />
     <Compile Include="Interfaces\IDatabaseQuery.cs" />
     <Compile Include="Interfaces\ITableQuery.cs" />
     <Compile Include="Interfaces\IOrderedSequenceQuery.cs" />
@@ -172,6 +171,9 @@
     <Compile Include="DatumConverters\ListDatumConverterFactory.cs" />
     <Compile Include="DatumConverters\TimeSpanDatumConverterFactory.cs" />
     <Compile Include="Interfaces\OrderByTerm.cs" />
+    <Compile Include="Interfaces\IGroupingQuery.cs" />
+    <Compile Include="QueryTerm\GroupQuery.cs" />
+    <Compile Include="DatumConverters\DictionaryDatumConverterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -5,6 +5,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
+#if false
     public class AvgReduction<TObject> : IGroupByReduction<double>
     {
         private readonly Expression<Func<TObject, double>> numericMemberReference;
@@ -56,5 +57,5 @@ namespace RethinkDb.QueryTerm
             return fieldConverter.GetDatumFieldName(memberExpr.Member);
         }
     }
+#endif
 }
-

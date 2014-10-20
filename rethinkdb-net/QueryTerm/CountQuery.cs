@@ -3,7 +3,7 @@ using System;
 
 namespace RethinkDb.QueryTerm
 {
-    public class CountQuery<T> : ISingleObjectQuery<double>
+    public class CountQuery<T> : ISingleObjectQuery<int>
     {
         private readonly ISequenceQuery<T> sequenceQuery;
 

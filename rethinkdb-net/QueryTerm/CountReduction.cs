@@ -3,6 +3,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
+#if false
     public class CountReduction : IGroupByReduction<double>
     {
         public static readonly CountReduction Instance = new CountReduction();
@@ -35,5 +36,6 @@ namespace RethinkDb.QueryTerm
             return retval;
         }
     }
+#endif
 }
 

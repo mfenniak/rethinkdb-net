@@ -154,11 +154,6 @@ namespace RethinkDb
             return new BetweenQuery<TSequence, TKey>(target, leftKey, rightKey, indexName, leftBound, rightBound);
         }
 
-        public static ISingleObjectQuery<double> Count<T>(this ISequenceQuery<T> target)
-        {
-            return new CountQuery<T>(target);
-        }
-
         public static ISingleObjectQuery<T> Expr<T>(T @object)
         {
             return new ExprQuery<T>(@object);
@@ -280,18 +275,6 @@ namespace RethinkDb
             return new DistinctQuery<T>(sequenceQuery);
         }
 
-#if false
-        public static ISequenceQuery<Tuple<TGroup, TMap>> GroupedMapReduce<TOriginal, TGroup, TMap>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TGroup>> grouping, Expression<Func<TOriginal, TMap>> mapping, Expression<Func<TMap, TMap, TMap>> reduction)
-        {
-            return new GroupedMapReduceQuery<TOriginal, TGroup, TMap>(sequenceQuery, grouping, mapping, reduction);
-        }
-
-        public static ISequenceQuery<Tuple<TGroup, TMap>> GroupedMapReduce<TOriginal, TGroup, TMap>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, TGroup>> grouping, Expression<Func<TOriginal, TMap>> mapping, Expression<Func<TMap, TMap, TMap>> reduction, TMap @base)
-        {
-            return new GroupedMapReduceQuery<TOriginal, TGroup, TMap>(sequenceQuery, grouping, mapping, reduction, @base);
-        }
-#endif
-
         public static ISequenceQuery<TTarget> ConcatMap<TOriginal, TTarget>(this ISequenceQuery<TOriginal> sequenceQuery, Expression<Func<TOriginal, IEnumerable<TTarget>>> mapping)
         {
             return new ConcatMapQuery<TOriginal, TTarget>(sequenceQuery, mapping);
@@ -306,13 +289,6 @@ namespace RethinkDb
         {
             return new NowQuery();
         }
-
-#if false
-        public static ISequenceQuery<Tuple<TGroupKeyType, TReductionType>> GroupBy<TObject, TReductionType, TGroupKeyType>(this ISequenceQuery<TObject> sequenceQuery, IGroupByReduction<TReductionType> reductionObject, Expression<Func<TObject, TGroupKeyType>> groupKeyConstructor)
-        {
-            return new GroupByQuery<TObject, TReductionType, TGroupKeyType>(sequenceQuery, reductionObject, groupKeyConstructor);
-        }
-#endif
 
         public static ISequenceQuery<T> Sample<T>(this ISequenceQuery<T> target, int count)
         {
@@ -329,24 +305,133 @@ namespace RethinkDb
             return new HasFieldsSingleObjectQuery<T>(target, fields);
         }
 
+        #region Grouping and Aggregation
+
+        public static IGroupingQuery<TIndexType, TRecord[]> Group<TRecord, TIndexType>(
+            // Can only use indexName on Group on a TABLE, not any arbitrary sequence
+            this ITableQuery<TRecord> table,
+            string indexName
+            )
+        {
+            return new GroupQuery<TRecord, TIndexType>(table, indexName);
+        }
+
+        public static IGroupingQuery<TKey, IEnumerable<TRecord>> Group<TRecord, TKey>(
+            this ISequenceQuery<TRecord> sequenceQuery,
+            Expression<Func<TRecord, TKey>> key
+            )
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IGroupingQuery<Tuple<TKey1, TKey2>, IEnumerable<TRecord>> Group<TRecord, TKey1, TKey2>(
+            this ISequenceQuery<TRecord> sequenceQuery,
+            Expression<Func<TRecord, TKey1>> key1,
+            Expression<Func<TRecord, TKey2>> key2
+            )
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IGroupingQuery<Tuple<TKey1, TKey2, TKey3>, IEnumerable<TRecord>> Group<TRecord, TKey1, TKey2, TKey3>(
+            this ISequenceQuery<TRecord> sequenceQuery,
+            Expression<Func<TRecord, TKey1>> key1,
+            Expression<Func<TRecord, TKey2>> key2,
+            Expression<Func<TRecord, TKey3>> key3
+            )
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IGroupingQuery<TKey, TRecord> Min<TKey, TRecord>(
+            this IGroupingQuery<TKey, IEnumerable<TRecord>> groupingQuery,
+            Expression<Func<TRecord, object>> field = null
+            )
+        {
+            throw new NotImplementedException();
+        }
+
+        public static ISingleObjectQuery<TRecord> Min<TRecord>(
+            this ISequenceQuery<TRecord> sequenceQuery,
+            Expression<Func<TRecord, object>> field = null
+            )
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IGroupingQuery<TKey, IEnumerable<TRecord>> Max<TKey, TRecord>(
+            this IGroupingQuery<TKey, IEnumerable<TRecord>> groupingQuery,
+            Expression<Func<TRecord, object>> field = null
+            )
+        {
+            throw new NotImplementedException();
+        }
+
+        public static ISingleObjectQuery<TRecord> Max<TRecord>(
+            this ISequenceQuery<TRecord> sequenceQuery,
+            Expression<Func<TRecord, object>> field = null
+            )
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IGroupingQuery<TKey, double> Avg<TKey, TRecord>(
+            this IGroupingQuery<TKey, IEnumerable<TRecord>> groupingQuery,
+            Expression<Func<TRecord, object>> field = null
+            )
+        {
+            throw new NotImplementedException();
+        }
+
+        public static ISingleObjectQuery<double> Avg<TRecord>(
+            this ISequenceQuery<TRecord> groupingQuery,
+            Expression<Func<TRecord, object>> field = null
+            )
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IGroupingQuery<TKey, double> Sum<TKey, TRecord>(
+            this IGroupingQuery<TKey, IEnumerable<TRecord>> groupingQuery,
+            Expression<Func<TRecord, object>> field = null
+            )
+        {
+            throw new NotImplementedException();
+        }
+
+        public static ISingleObjectQuery<double> Sum<TRecord>(
+            this ISequenceQuery<TRecord> groupingQuery,
+            Expression<Func<TRecord, object>> field = null
+            )
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IGroupingQuery<TKey, int> Count<TKey, TRecord>(
+            this IGroupingQuery<TKey, IEnumerable<TRecord>> groupingQuery,
+            Expression<Func<TRecord, bool>> predicate = null
+            )
+        {
+            throw new NotImplementedException();
+        }
+
+        public static ISingleObjectQuery<int> Count<T>(
+            this ISequenceQuery<T> target,
+            Expression<Func<T, bool>> predicate = null
+            )
+        {
+            return new CountQuery<T>(target);
+        }
+
+        public static IGroupingQuery<TKey, bool> Contains<TKey, TRecord>(
+            this IGroupingQuery<TKey, IEnumerable<TRecord>> groupingQuery,
+            Expression<Func<TRecord, bool>> predicate = null
+            )
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
-        #region Prebuilt GroupBy reductions
-
-        public static IGroupByReduction<double> Count()
-        {
-            return CountReduction.Instance;
-        }
-
-        public static IGroupByReduction<double> Sum<TObject>(Expression<Func<TObject, double>> numericMemberReference)
-        {
-            return new SumReduction<TObject>(numericMemberReference);
-        }
-
-        public static IGroupByReduction<double> Avg<TObject>(Expression<Func<TObject, double>> numericMemberReference)
-        {
-            return new AvgReduction<TObject>(numericMemberReference);
-        }
-
         #endregion
     }
 }

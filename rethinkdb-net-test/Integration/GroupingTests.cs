@@ -1,15 +1,11 @@
 using System;
 using NUnit.Framework;
 using RethinkDb;
-using System.Net;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 
 namespace RethinkDb.Test.Integration
 {
-#if false
     [TestFixture]
     public class GroupingTests : TestBase
     {
@@ -26,7 +22,8 @@ namespace RethinkDb.Test.Integration
         public virtual void SetUp()
         {
             testTable = Query.Db("test").Table<TestObject>("table");
-            connection.RunAsync(testTable.Insert(new TestObject[] {
+            connection.Run(testTable.Insert(new TestObject[]
+            {
                 new TestObject() { Name = "1", SomeNumber = 1 },
                 new TestObject() { Name = "1", SomeNumber = 1 },
                 new TestObject() { Name = "2", SomeNumber = 2 },
@@ -39,15 +36,145 @@ namespace RethinkDb.Test.Integration
                 new TestObject() { Name = "6", SomeNumber = 6 },
                 new TestObject() { Name = "6", SomeNumber = 6 },
                 new TestObject() { Name = "7", SomeNumber = 7 },
-            })).Wait();
+            }));
+            connection.Run(testTable.IndexCreate("name", to => to.Name));
         }
 
         [TearDown]
         public virtual void TearDown()
         {
-            connection.RunAsync(testTable.Delete()).Wait();
+            connection.Run(testTable.IndexDrop("name"));
+            connection.Run(testTable.Delete());
         }
 
+        [Test]
+        public void GroupByIndex()
+        {
+            var query = testTable.Group<TestObject, string>("name");
+
+            int count = 0;
+            foreach (var record in connection.Run(query))
+            {
+                var groupName = record.Key;
+                var objects = record.Value;
+
+                switch (groupName)
+                {
+                    case "1":
+                    case "3":
+                    case "6":
+                        Assert.That(objects.Count(), Is.EqualTo(2));
+                        break;
+                    case "2":
+                        Assert.That(objects.Count(), Is.EqualTo(3));
+                        break;
+                    case "4":
+                    case "5":
+                    case "7":
+                        Assert.That(objects.Count(), Is.EqualTo(1));
+                        break;
+                    default:
+                        Assert.Fail("Unexpected group name: {0}", groupName);
+                        break;
+                }
+
+                ++count;
+            }
+
+            Assert.That(count, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void GroupByOneField()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void GroupByTwoFields()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void GroupByThreeFields()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void GroupAndMaxAggregate()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void MaxAggregate()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void GroupAndMinAggregate()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void MinAggregate()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void GroupAndAverageAggregate()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void AverageAggregate()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void GroupAndSumAggregate()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void SumAggregate()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void GroupAndCountAggregate()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void CountAggregate()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void GroupAndContainsAggregate()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void ContainsAggregate()
+        {
+            throw new NotImplementedException();
+        }
+
+#if false
         [Test]
         public void GroupedMapReduce()
         {
@@ -242,6 +369,6 @@ namespace RethinkDb.Test.Integration
 
             Assert.That(count, Is.EqualTo(7));
         }
+        #endif
     }
-#endif
 }
