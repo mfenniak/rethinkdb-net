@@ -418,13 +418,48 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupAndCountAggregate()
         {
-            throw new NotImplementedException();
+            var query = testTable.Group(to => to.Name).Count(to => to.SomeNumber > 1);
+
+            int count = 0;
+            foreach (var record in connection.Run(query))
+            {
+                var groupName = record.Key;
+                var objectCount = record.Value;
+
+                switch (groupName)
+                {
+                    // Surprisingly missing; https://groups.google.com/forum/#!topic/rethinkdb/HXCHeTthF64
+                    //case "1":
+                    //    Assert.That(objectCount, Is.EqualTo(0));
+                    //    break;
+                    case "3":
+                    case "6":
+                        Assert.That(objectCount, Is.EqualTo(2));
+                        break;
+                    case "2":
+                        Assert.That(objectCount, Is.EqualTo(3));
+                        break;
+                    case "4":
+                    case "5":
+                    case "7":
+                        Assert.That(objectCount, Is.EqualTo(1));
+                        break;
+                    default:
+                        Assert.Fail("Unexpected group name: {0}", groupName);
+                        break;
+                }
+
+                ++count;
+            }
+
+            Assert.That(count, Is.EqualTo(6));
         }
 
         [Test]
         public void CountAggregate()
         {
-            throw new NotImplementedException();
+            var count = connection.Run(testTable.Count(to => to.SomeNumber > 1));
+            Assert.That(count, Is.EqualTo(10));
         }
 
         [Test]

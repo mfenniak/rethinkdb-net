@@ -412,7 +412,7 @@ namespace RethinkDb
             Expression<Func<TRecord, bool>> predicate = null
             )
         {
-            throw new NotImplementedException();
+            return new CountGroupAggregateQuery<TKey, TRecord>(groupingQuery, predicate);
         }
 
         public static ISingleObjectQuery<int> Count<T>(
@@ -420,7 +420,7 @@ namespace RethinkDb
             Expression<Func<T, bool>> predicate = null
             )
         {
-            return new CountQuery<T>(target);
+            return new CountAggregateQuery<T>(target, predicate);
         }
 
         public static IGroupingQuery<TKey, bool> Contains<TKey, TRecord>(

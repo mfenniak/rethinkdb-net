@@ -71,7 +71,6 @@
     <Compile Include="QueryTerm\DeleteQuery.cs" />
     <Compile Include="QueryTerm\BetweenQuery.cs" />
     <Compile Include="QueryTerm\UpdateQuery.cs" />
-    <Compile Include="QueryTerm\CountQuery.cs" />
     <Compile Include="QueryTerm\FilterQuery.cs" />
     <Compile Include="QueryTerm\ExpressionUtils.cs" />
     <Compile Include="QueryTerm\ExprQuery.cs" />
@@ -183,6 +182,8 @@
     <Compile Include="QueryTerm\AvgGroupAggregateQuery.cs" />
     <Compile Include="QueryTerm\SumAggregateQuery.cs" />
     <Compile Include="QueryTerm\SumGroupAggregateQuery.cs" />
+    <Compile Include="QueryTerm\CountAggregateQuery.cs" />
+    <Compile Include="QueryTerm\CountGroupAggregateQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
