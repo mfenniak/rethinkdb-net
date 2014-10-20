@@ -376,13 +376,54 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupAndSumAggregate()
         {
-            throw new NotImplementedException();
+            var query = testTable.Group<TestObject, string>("name").Sum(to => to.SomeNumber);
+
+            int count = 0;
+            foreach (var record in connection.Run(query))
+            {
+                var groupName = record.Key;
+                var average = record.Value;
+
+                switch (groupName)
+                {
+                    case "1":
+                        Assert.That(average, Is.EqualTo(2));
+                        break;
+                    case "2":
+                        Assert.That(average, Is.EqualTo(204));
+                        break;
+                    case "3":
+                        Assert.That(average, Is.EqualTo(6));
+                        break;
+                    case "4":
+                        Assert.That(average, Is.EqualTo(4));
+                        break;
+                    case "5":
+                        Assert.That(average, Is.EqualTo(5));
+                        break;
+                    case "6":
+                        Assert.That(average, Is.EqualTo(12));
+                        break;
+                    case "7":
+                        Assert.That(average, Is.EqualTo(7));
+                        break;
+                    default:
+                        Assert.Fail("Unexpected group name: {0}", groupName);
+                        break;
+                }
+
+                ++count;
+            }
+
+            Assert.That(count, Is.EqualTo(7));
         }
 
         [Test]
         public void SumAggregate()
         {
-            throw new NotImplementedException();
+            var query = testTable.Sum(to => to.SomeNumber);
+            var average = connection.Run(query);
+            Assert.That(average, Is.EqualTo(240));
         }
 
         [Test]

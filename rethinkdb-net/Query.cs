@@ -396,15 +396,15 @@ namespace RethinkDb
             Expression<Func<TRecord, double>> field = null
             )
         {
-            throw new NotImplementedException();
+            return new SumGroupAggregateQuery<TKey, TRecord>(groupingQuery, field);
         }
 
         public static ISingleObjectQuery<double> Sum<TRecord>(
-            this ISequenceQuery<TRecord> groupingQuery,
+            this ISequenceQuery<TRecord> sequenceQuery,
             Expression<Func<TRecord, double>> field = null
             )
         {
-            throw new NotImplementedException();
+            return new SumAggregateQuery<TRecord>(sequenceQuery, field);
         }
 
         public static IGroupingQuery<TKey, int> Count<TKey, TRecord>(
