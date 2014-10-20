@@ -343,6 +343,11 @@ namespace RethinkDb
             return new GroupByFunctionQuery<TRecord, TKey1, TKey2, TKey3>(sequenceQuery, key1, key2, key3);
         }
 
+        public static ISequenceQuery<UngroupObject<TKey, TValue>> Ungroup<TKey, TValue>(this IGroupingQuery<TKey, TValue> groupingQuery)
+        {
+            return new UngroupQuery<TKey, TValue>(groupingQuery);
+        }
+
         public static IGroupingQuery<TKey, TRecord> Min<TKey, TRecord, TExpressionValue>(
             this IGroupingQuery<TKey, TRecord[]> groupingQuery,
             Expression<Func<TRecord, TExpressionValue>> field = null

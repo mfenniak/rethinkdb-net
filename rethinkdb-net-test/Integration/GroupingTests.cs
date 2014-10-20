@@ -505,5 +505,25 @@ namespace RethinkDb.Test.Integration
             contains = connection.Run(testTable.Contains(to => to.SomeNumber > 1000));
             Assert.That(contains, Is.False);
         }
+
+        [Test]
+        public void Ungroup()
+        {
+            var query = testTable
+                .Group(to => to.Name)
+                .Count()
+                .Ungroup()
+                .OrderBy(t => t.Reduction).ThenBy(t => t.Group);
+
+            var result = connection.Run(query).ToArray();
+            Assert.That(result, Has.Length.EqualTo(7));
+            Assert.That(result[0].Group, Is.EqualTo("4")); Assert.That(result[0].Reduction, Is.EqualTo(1));
+            Assert.That(result[1].Group, Is.EqualTo("5")); Assert.That(result[1].Reduction, Is.EqualTo(1));
+            Assert.That(result[2].Group, Is.EqualTo("7")); Assert.That(result[2].Reduction, Is.EqualTo(1));
+            Assert.That(result[3].Group, Is.EqualTo("1")); Assert.That(result[3].Reduction, Is.EqualTo(2));
+            Assert.That(result[4].Group, Is.EqualTo("3")); Assert.That(result[4].Reduction, Is.EqualTo(2));
+            Assert.That(result[5].Group, Is.EqualTo("6")); Assert.That(result[5].Reduction, Is.EqualTo(2));
+            Assert.That(result[6].Group, Is.EqualTo("2")); Assert.That(result[6].Reduction, Is.EqualTo(3));
+        }
     }
 }

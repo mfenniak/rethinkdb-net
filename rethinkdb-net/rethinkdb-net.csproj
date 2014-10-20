@@ -182,6 +182,8 @@
     <Compile Include="QueryTerm\ContainsGroupAggregateQuery.cs" />
     <Compile Include="Interfaces\IGroupingDictionary.cs" />
     <Compile Include="DatumConverters\GroupingDictionaryDatumConverterFactory.cs" />
+    <Compile Include="QueryTerm\UngroupQuery.cs" />
+    <Compile Include="UngroupObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
