@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace RethinkDb
@@ -7,9 +8,9 @@ namespace RethinkDb
     {
         private readonly ITableQuery<TRecord> table;
         private readonly string name;
-        private readonly Expression<Func<TRecord, TIndex[]>> indexAccessor;
+        private readonly Expression<Func<TRecord, IEnumerable<TIndex>>> indexAccessor;
 
-        public MultiIndex(ITableQuery<TRecord> table, string name, Expression<Func<TRecord, TIndex[]>> indexAccessor)
+        public MultiIndex(ITableQuery<TRecord> table, string name, Expression<Func<TRecord, IEnumerable<TIndex>>> indexAccessor)
         {
             this.table = table;
             this.name = name;
@@ -26,7 +27,7 @@ namespace RethinkDb
             get { return name; }
         }
 
-        public Expression<Func<TRecord, TIndex[]>> IndexAccessor
+        public Expression<Func<TRecord, IEnumerable<TIndex>>> IndexAccessor
         {
             get { return indexAccessor; }
         }

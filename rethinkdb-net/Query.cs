@@ -75,7 +75,7 @@ namespace RethinkDb
             return new Index<TRecord, TIndex>(table, name, indexAccessor);
         }
 
-        public static IMultiIndex<TRecord, TIndex> IndexDefineMulti<TRecord, TIndex>(this ITableQuery<TRecord> table, string name, Expression<Func<TRecord, TIndex[]>> indexAccessor)
+        public static IMultiIndex<TRecord, TIndex> IndexDefineMulti<TRecord, TIndex>(this ITableQuery<TRecord> table, string name, Expression<Func<TRecord, IEnumerable<TIndex>>> indexAccessor)
         {
             return new MultiIndex<TRecord, TIndex>(table, name, indexAccessor);
         }
@@ -90,7 +90,7 @@ namespace RethinkDb
             return index.Table.IndexCreate(index.Name, index.IndexAccessor, true);
         }
 
-        public static IWriteQuery<DmlResponse> IndexDrop<TRecord, TIndex>(this IIndex<TRecord, TIndex> index)
+        public static IWriteQuery<DmlResponse> IndexDrop<TRecord, TIndex>(this IBaseIndex<TRecord, TIndex> index)
         {
             return index.Table.IndexDrop(index.Name);
         }
@@ -128,22 +128,12 @@ namespace RethinkDb
             return new GetAllQuery<TSequence, TKey>(target, keys, indexName);
         }
 
-        public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey key, IIndex<TSequence, TKey> index)
+        public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey key, IBaseIndex<TSequence, TKey> index)
         {
             return target.GetAll(key, indexName: index.Name);
         }
 
-        public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this IIndex<TSequence, TKey> index, params TKey[] keys)
-        {
-            return index.Table.GetAll(keys: keys, indexName: index.Name);
-        }
-
-        public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey key, IMultiIndex<TSequence, TKey> index)
-        {
-            return target.GetAll(key, indexName: index.Name);
-        }
-
-        public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this IMultiIndex<TSequence, TKey> index, params TKey[] keys)
+        public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this IBaseIndex<TSequence, TKey> index, params TKey[] keys)
         {
             return index.Table.GetAll(keys: keys, indexName: index.Name);
         }
@@ -204,7 +194,7 @@ namespace RethinkDb
             return new BetweenQuery<TSequence, TKey>(target, leftKey, rightKey, indexName, leftBound, rightBound);
         }
 
-        public static ISequenceQuery<TSequence> Between<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey leftKey, TKey rightKey, IIndex<TSequence, TKey> index, Bound leftBound = Bound.Closed, Bound rightBound = Bound.Open)
+        public static ISequenceQuery<TSequence> Between<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey leftKey, TKey rightKey, IBaseIndex<TSequence, TKey> index, Bound leftBound = Bound.Closed, Bound rightBound = Bound.Open)
         {
             return target.Between(leftKey, rightKey, index.Name, leftBound, rightBound);
         }
@@ -361,16 +351,7 @@ namespace RethinkDb
             this ISequenceQuery<TLeft> leftQuery,
             Expression<Func<TLeft, object>> leftMemberReferenceExpression,
             ISequenceQuery<TRight> rightQuery,
-            IIndex<TRight, TIndexType> index)
-        {
-            return leftQuery.EqJoin(leftMemberReferenceExpression, rightQuery, index.Name);
-        }
-
-        public static ISequenceQuery<Tuple<TLeft, TRight>> EqJoin<TLeft, TRight, TIndexType>(
-            this ISequenceQuery<TLeft> leftQuery,
-            Expression<Func<TLeft, object>> leftMemberReferenceExpression,
-            ISequenceQuery<TRight> rightQuery,
-            IMultiIndex<TRight, TIndexType> index)
+            IBaseIndex<TRight, TIndexType> index)
         {
             return leftQuery.EqJoin(leftMemberReferenceExpression, rightQuery, index.Name);
         }

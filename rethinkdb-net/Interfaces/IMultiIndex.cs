@@ -1,14 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
 
 namespace RethinkDb
 {
     [ImmutableObject(true)]
-    public interface IMultiIndex<TRecord, TIndex>
+    public interface IMultiIndex<TRecord, TIndex> : IBaseIndex<TRecord, TIndex>
     {
-        ITableQuery<TRecord> Table { get; }
-        string Name { get; }
-        Expression<Func<TRecord, TIndex[]>> IndexAccessor { get; }
+        Expression<Func<TRecord, IEnumerable<TIndex>>> IndexAccessor { get; }
     }
 }
