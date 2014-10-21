@@ -10,6 +10,7 @@ namespace RethinkDb.Test.Integration
     public class GroupingTests : TestBase
     {
         private ITableQuery<TestObject> testTable;
+        private IIndex<TestObject, string> nameIndex;
 
         public override void TestFixtureSetUp()
         {
@@ -33,13 +34,15 @@ namespace RethinkDb.Test.Integration
                 new TestObject() { Name = "6", SomeNumber = 6 },
                 new TestObject() { Name = "7", SomeNumber = 7 },
             }));
-            connection.Run(testTable.IndexCreate("name", to => to.Name));
+
+            nameIndex = testTable.IndexDefine("name", to => to.Name);
+            connection.Run(nameIndex.IndexCreate());
         }
 
         [Test]
         public void GroupByIndex()
         {
-            var query = testTable.Group<TestObject, string>("name");
+            var query = testTable.Group(nameIndex);
 
             int count = 0;
             foreach (var record in connection.Run(query))
@@ -206,7 +209,7 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupAndMaxAggregate()
         {
-            var query = testTable.Group<TestObject, string>("name").Max(to => to.SomeNumber);
+            var query = testTable.Group(nameIndex).Max(to => to.SomeNumber);
 
             int count = 0;
             foreach (var record in connection.Run(query))
@@ -259,7 +262,7 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupAndMinAggregate()
         {
-            var query = testTable.Group<TestObject, string>("name").Min(to => to.SomeNumber);
+            var query = testTable.Group(nameIndex).Min(to => to.SomeNumber);
 
             int count = 0;
             foreach (var record in connection.Run(query))
@@ -312,7 +315,7 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupAndAverageAggregate()
         {
-            var query = testTable.Group<TestObject, string>("name").Avg(to => to.SomeNumber);
+            var query = testTable.Group(nameIndex).Avg(to => to.SomeNumber);
 
             int count = 0;
             foreach (var record in connection.Run(query))
@@ -365,7 +368,7 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GroupAndSumAggregate()
         {
-            var query = testTable.Group<TestObject, string>("name").Sum(to => to.SomeNumber);
+            var query = testTable.Group(nameIndex).Sum(to => to.SomeNumber);
 
             int count = 0;
             foreach (var record in connection.Run(query))

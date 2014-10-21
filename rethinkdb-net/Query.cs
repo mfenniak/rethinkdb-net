@@ -70,6 +70,21 @@ namespace RethinkDb
             return new IndexDropQuery<T>(target, indexName);
         }
 
+        public static IIndex<TRecord, TIndex> IndexDefine<TRecord, TIndex>(this ITableQuery<TRecord> table, string name, Expression<Func<TRecord, TIndex>> indexAccessor)
+        {
+            return new Index<TRecord, TIndex>(table, name, indexAccessor);
+        }
+
+        public static IWriteQuery<DmlResponse> IndexCreate<TRecord, TIndex>(this IIndex<TRecord, TIndex> index)
+        {
+            return index.Table.IndexCreate(index.Name, index.IndexAccessor, false);
+        }
+
+        public static IWriteQuery<DmlResponse> IndexDrop<TRecord, TIndex>(this IIndex<TRecord, TIndex> index)
+        {
+            return index.Table.IndexDrop(index.Name);
+        }
+
         public static IWriteQuery<DmlResponse> Insert<T>(this ITableQuery<T> target, T @object, bool upsert = false)
         {
             return new InsertQuery<T>(target, new T[] { @object }, upsert);
@@ -96,6 +111,11 @@ namespace RethinkDb
         public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey key, string indexName = null)
         {
             return new GetAllQuery<TSequence, TKey>(target, key, indexName);
+        }
+
+        public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey key, IIndex<TSequence, TKey> index)
+        {
+            return target.GetAll(key, index.Name);
         }
 
         public static ISequenceQuery<T> Filter<T>(this ISequenceQuery<T> target, Expression<Func<T, bool>> filterExpression)
@@ -154,6 +174,11 @@ namespace RethinkDb
             return new BetweenQuery<TSequence, TKey>(target, leftKey, rightKey, indexName, leftBound, rightBound);
         }
 
+        public static ISequenceQuery<TSequence> Between<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey leftKey, TKey rightKey, IIndex<TSequence, TKey> index, Bound leftBound = Bound.Closed, Bound rightBound = Bound.Open)
+        {
+            return target.Between(leftKey, rightKey, index.Name, leftBound, rightBound);
+        }
+
         public static ISingleObjectQuery<T> Expr<T>(T @object)
         {
             return new ExprQuery<T>(@object);
@@ -180,22 +205,63 @@ namespace RethinkDb
             return sequenceQuery.Map(mapExpression);
         }
 
-        public static IOrderedSequenceQuery<T> OrderBy<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression, OrderByDirection direction = OrderByDirection.Ascending, string indexName = null)
+        public static IOrderedSequenceQuery<T> OrderBy<T>(
+            this ISequenceQuery<T> sequenceQuery,
+            Expression<Func<T, object>> memberReferenceExpression,
+            OrderByDirection direction = OrderByDirection.Ascending)
         {
             return new OrderByQuery<T>(sequenceQuery, new OrderByTerm<T> {
                 Expression = memberReferenceExpression,
+                Direction = direction
+            });
+        }
+
+        public static IOrderedSequenceQuery<T> OrderBy<T>(
+            this ISequenceQuery<T> sequenceQuery,
+            string indexName,
+            OrderByDirection direction = OrderByDirection.Ascending)
+        {
+            return new OrderByQuery<T>(sequenceQuery, new OrderByTerm<T> {
                 Direction = direction,
-                IndexName = indexName
+                IndexName = indexName,
+            });
+        }
+
+        public static IOrderedSequenceQuery<T> OrderBy<T, TIndexType>(
+            this ISequenceQuery<T> sequenceQuery,
+            IIndex<T, TIndexType> index,
+            OrderByDirection direction = OrderByDirection.Ascending)
+        {
+            return new OrderByQuery<T>(sequenceQuery, new OrderByTerm<T> {
+                Direction = direction,
+                IndexName = index.Name,
             });
         }
 
         // LINQ-compatible alias for OrderBy
-        public static IOrderedSequenceQuery<T> OrderByDescending<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, object>> memberReferenceExpression, string indexName = null)
+        public static IOrderedSequenceQuery<T> OrderByDescending<T>(
+            this ISequenceQuery<T> sequenceQuery,
+            Expression<Func<T, object>> memberReferenceExpression)
         {
-            return sequenceQuery.OrderBy(memberReferenceExpression, OrderByDirection.Descending, indexName);
+            return sequenceQuery.OrderBy(memberReferenceExpression, OrderByDirection.Descending);
+        }
+        public static IOrderedSequenceQuery<T> OrderByDescending<T>(
+            this ISequenceQuery<T> sequenceQuery,
+            string indexName)
+        {
+            return sequenceQuery.OrderBy(indexName, OrderByDirection.Descending);
+        }
+        public static IOrderedSequenceQuery<T> OrderByDescending<T, TIndexType>(
+            this ISequenceQuery<T> sequenceQuery,
+            IIndex<T, TIndexType> index)
+        {
+            return sequenceQuery.OrderBy(index, OrderByDirection.Descending);
         }
 
-        public static IOrderedSequenceQuery<T> ThenBy<T>(this IOrderedSequenceQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression, OrderByDirection direction = OrderByDirection.Ascending)
+        public static IOrderedSequenceQuery<T> ThenBy<T>(
+            this IOrderedSequenceQuery<T> orderByQuery,
+            Expression<Func<T, object>> memberReferenceExpression,
+            OrderByDirection direction = OrderByDirection.Ascending)
         {
             return new OrderByQuery<T>(
                 orderByQuery.SequenceQuery,
@@ -209,7 +275,9 @@ namespace RethinkDb
         }
 
         // LINQ-compatible alias for OrderBy
-        public static IOrderedSequenceQuery<T> ThenByDescending<T>(this IOrderedSequenceQuery<T> orderByQuery, Expression<Func<T, object>> memberReferenceExpression)
+        public static IOrderedSequenceQuery<T> ThenByDescending<T>(
+            this IOrderedSequenceQuery<T> orderByQuery,
+            Expression<Func<T, object>> memberReferenceExpression)
         {
             return orderByQuery.ThenBy(memberReferenceExpression, OrderByDirection.Descending);
         }
@@ -250,14 +318,22 @@ namespace RethinkDb
             return new ZipQuery<TLeft, TRight, TTarget>(sequenceQuery);
         }
 
-        public static ISequenceQuery<Tuple<TLeft, TRight>> EqJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, Expression<Func<TLeft, object>> leftMemberReferenceExpression, ISequenceQuery<TRight> rightQuery)
-        {
-            return new EqJoinQuery<TLeft, TRight>(leftQuery, leftMemberReferenceExpression, rightQuery, null);
-        }
-
-        public static ISequenceQuery<Tuple<TLeft, TRight>> EqJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, Expression<Func<TLeft, object>> leftMemberReferenceExpression, ISequenceQuery<TRight> rightQuery, string indexName)
+        public static ISequenceQuery<Tuple<TLeft, TRight>> EqJoin<TLeft, TRight>(
+            this ISequenceQuery<TLeft> leftQuery,
+            Expression<Func<TLeft, object>> leftMemberReferenceExpression,
+            ISequenceQuery<TRight> rightQuery,
+            string indexName = null)
         {
             return new EqJoinQuery<TLeft, TRight>(leftQuery, leftMemberReferenceExpression, rightQuery, indexName);
+        }
+
+        public static ISequenceQuery<Tuple<TLeft, TRight>> EqJoin<TLeft, TRight, TIndexType>(
+            this ISequenceQuery<TLeft> leftQuery,
+            Expression<Func<TLeft, object>> leftMemberReferenceExpression,
+            ISequenceQuery<TRight> rightQuery,
+            IIndex<TRight, TIndexType> index)
+        {
+            return leftQuery.EqJoin(leftMemberReferenceExpression, rightQuery, index.Name);
         }
 
         public static ISingleObjectQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction)
@@ -314,6 +390,15 @@ namespace RethinkDb
             )
         {
             return new GroupByIndexQuery<TRecord, TIndexType>(table, indexName);
+        }
+
+        public static IGroupingQuery<TIndexType, TRecord[]> Group<TRecord, TIndexType>(
+            // Can only use indexName on Group on a TABLE, not any arbitrary sequence
+            this ITableQuery<TRecord> table,
+            IIndex<TRecord, TIndexType> index
+            )
+        {
+            return table.Group<TRecord, TIndexType>(index.Name);
         }
 
         public static IGroupingQuery<TKey, TRecord[]> Group<TRecord, TKey>(

@@ -14,6 +14,7 @@ namespace RethinkDb.Test.Integration
     {
         private ITableQuery<TestObject> testTable;
         private ITableQuery<AnotherTestObject> anotherTestTable;
+        private IIndex<AnotherTestObject, string> firstNameIndex;
 
         public override void TestFixtureSetUp()
         {
@@ -25,7 +26,8 @@ namespace RethinkDb.Test.Integration
             testTable = Query.Db("test").Table<TestObject>("table1");
             anotherTestTable = Query.Db("test").Table<AnotherTestObject>("table2");
 
-            connection.Run(anotherTestTable.IndexCreate("index1", o => o.FirstName));
+            firstNameIndex = anotherTestTable.IndexDefine("index1", o => o.FirstName);
+            connection.Run(firstNameIndex.IndexCreate());
         }
 
         [SetUp]
@@ -195,6 +197,34 @@ namespace RethinkDb.Test.Integration
                     testObject => testObject.Name,
                     anotherTestTable,
                     "index1"
+                )
+            );
+            Assert.That(enumerable, Is.Not.Null);
+
+            var objects = new List<Tuple<TestObject, AnotherTestObject>>();
+            var count = 0;
+            foreach (var tup in enumerable)
+            {
+                objects.Add(tup);
+                ++count;
+
+                Assert.That(tup.Item1, Is.Not.Null);
+
+                Assert.That(tup.Item2, Is.Not.Null);
+                Assert.That(tup.Item1.Name, Is.EqualTo(tup.Item2.FirstName));
+            }
+            Assert.That(count, Is.EqualTo(3));
+            Assert.That(objects, Has.Count.EqualTo(3));
+        }
+
+        [Test]
+        public void EqJoinIndexObject()
+        {
+            var enumerable = connection.Run(
+                testTable.EqJoin(
+                    testObject => testObject.Name,
+                    anotherTestTable,
+                    firstNameIndex
                 )
             );
             Assert.That(enumerable, Is.Not.Null);

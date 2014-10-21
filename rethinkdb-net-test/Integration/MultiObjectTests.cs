@@ -13,6 +13,7 @@ namespace RethinkDb.Test.Integration
     public class MultiObjectTests : TestBase
     {
         private ITableQuery<TestObject> testTable;
+        private IIndex<TestObject, string> nameIndex;
 
         public override void TestFixtureSetUp()
         {
@@ -20,7 +21,8 @@ namespace RethinkDb.Test.Integration
             connection.RunAsync(Query.DbCreate("test")).Wait();
             connection.RunAsync(Query.Db("test").TableCreate("table")).Wait();
             testTable = Query.Db("test").Table<TestObject>("table");
-            connection.Run(testTable.IndexCreate("index1", o => o.Name));
+            nameIndex = testTable.IndexDefine("index1", o => o.Name);
+            connection.Run(nameIndex.IndexCreate());
         }
 
         [SetUp]
@@ -528,9 +530,20 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void OrderByIndexAsc()
         {
-            // Order by field doesn't matter when you specify an index; "Tags" is used here even though we're sorting
-            // on an index on Name, just to make sure that the index sort is actually being used.
-            var enumerable = connection.Run(testTable.OrderBy(o => o.Tags, indexName: "index1"));
+            var enumerable = connection.Run(testTable.OrderBy("index1"));
+            var count = 0;
+            foreach (var obj in enumerable)
+            {
+                ++count;
+                Assert.That(obj.Name, Is.EqualTo(count.ToString()));
+            }
+            Assert.That(count, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void OrderByIndexObjectAsc()
+        {
+            var enumerable = connection.Run(testTable.OrderBy(nameIndex));
             var count = 0;
             foreach (var obj in enumerable)
             {
@@ -543,9 +556,7 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void OrderByIndexDesc()
         {
-            // Order by field doesn't matter when you specify an index; "Tags" is used here even though we're sorting
-            // on an index on Name, just to make sure that the index sort is actually being used.
-            var enumerable = connection.Run(testTable.OrderBy(o => o.Tags, direction: OrderByDirection.Descending, indexName: "index1"));
+            var enumerable = connection.Run(testTable.OrderBy("index1", direction: OrderByDirection.Descending));
             var count = 0;
             foreach (var obj in enumerable)
             {
@@ -751,7 +762,7 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void GetAllNullIndex()
         {
-            TestObject[] getAll = connection.Run(testTable.GetAll("3", null)).ToArray();
+            TestObject[] getAll = connection.Run(testTable.GetAll("3", (string)null)).ToArray();
             Assert.That(getAll.Length, Is.EqualTo(1));
             Assert.That(getAll[0].Id, Is.EqualTo("3"));
         }

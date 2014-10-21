@@ -20,6 +20,8 @@
 
 * Support for OrderBy on indexes.  [Issue #162](https://github.com/mfenniak/rethinkdb-net/issues/162)
 
+* A type-safe object model has been added for secondary indexes.  Calling table.IndexDefine("index-name", o => o.IndexedField) will return an IIndex<TRecord, TIndexType> interface.  This object can be used to create or drop the index (.IndexCreate, .IndexDrop), but more importantly provides type-consistency for operations that can use the index, such as .GetAll, .Between, .OrderBy, .EqJoin, and .Group.  It also removes the need for explicitly specifying the index type in the generic .Group method.  [Issue #163](https://github.com/mfenniak/rethinkdb-net/issues/163).
+
 ### Breaking Changes
 
 * [PR #173](https://github.com/mfenniak/rethinkdb-net/issues/173) contained a number of breaking changes to maintain consistency with RethinkDB driver changes on other platforms and remove functionality that is no longer supported by RethinkDB.
@@ -31,6 +33,10 @@
   * GroupedMapReduce has been removed for consistency with other RethinkDB drivers.  .Group(...).Map(...).Reduce(...) can be used as an alternative.  Part of [PR #173](https://github.com/mfenniak/rethinkdb-net/issues/173).
 
   * GroupBy and its prebuilt aggregates have been removed for consistency with other RethinkDB drivers.  .Group() followed by an aggregate can be used instead.  Part of [PR #173](https://github.com/mfenniak/rethinkdb-net/issues/173).
+
+* Explicitly supplying 'null' for the query method GetAll's indexName parameter (eg. .GetAll("3", null)) is now ambiguous between a "string" and "IIndex" second parameter; to resolve this, disambiguate the function call with an explicit cast (eg. .GetAll("3", (string)null)).  [Issue #163](https://github.com/mfenniak/rethinkdb-net/issues/163).
+
+* OrderBy and OrderByDescending overloads that took both a memberReferenceExpression and an indexName were removed.  The index always has priority, so rewrite such queries to have an OrderBy the index, and .ThenBy() the member field if required.  [Issue #163](https://github.com/mfenniak/rethinkdb-net/issues/163).
 
 
 ## 0.7.0.0 (2013-11-02)
