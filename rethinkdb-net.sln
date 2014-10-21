@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		rethinkdb-net.nuspec = rethinkdb-net.nuspec
 		LICENSE.txt = LICENSE.txt
 		RELEASE-NOTES.md = RELEASE-NOTES.md
+		rethinkdb-net-newtonsoft.nuspec = rethinkdb-net-newtonsoft.nuspec
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{9F8AB94D-246B-420B-91C7-145B94D75FA3}"

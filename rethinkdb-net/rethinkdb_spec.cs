@@ -23,7 +23,21 @@ namespace RethinkDb.Spec
       V0_1 = 1063369270,
             
       [global::ProtoBuf.ProtoEnum(Name=@"V0_2", Value=1915781601)]
-      V0_2 = 1915781601
+      V0_2 = 1915781601,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"V0_3", Value=1601562686)]
+      V0_3 = 1601562686
+    }
+  
+    [global::ProtoBuf.ProtoContract(Name=@"Protocol")]
+    public enum Protocol
+    {
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"PROTOBUF", Value=656407617)]
+      PROTOBUF = 656407617,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"JSON", Value=2120839367)]
+      JSON = 2120839367
     }
   
     private global::ProtoBuf.IExtension extensionObject;
@@ -72,6 +86,15 @@ namespace RethinkDb.Spec
       get { return _OBSOLETE_noreply; }
       set { _OBSOLETE_noreply = value; }
     }
+
+    private bool _accepts_r_json = (bool)false;
+    [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name=@"accepts_r_json", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue((bool)false)]
+    public bool accepts_r_json
+    {
+      get { return _accepts_r_json; }
+      set { _accepts_r_json = value; }
+    }
     private readonly global::System.Collections.Generic.List<Query.AssocPair> _global_optargs = new global::System.Collections.Generic.List<Query.AssocPair>();
     [global::ProtoBuf.ProtoMember(6, Name=@"global_optargs", DataFormat = global::ProtoBuf.DataFormat.Default)]
     public global::System.Collections.Generic.List<Query.AssocPair> global_optargs
@@ -118,7 +141,10 @@ namespace RethinkDb.Spec
       CONTINUE = 2,
             
       [global::ProtoBuf.ProtoEnum(Name=@"STOP", Value=3)]
-      STOP = 3
+      STOP = 3,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"NOREPLY_WAIT", Value=4)]
+      NOREPLY_WAIT = 4
     }
   
     private global::ProtoBuf.IExtension extensionObject;
@@ -230,6 +256,15 @@ namespace RethinkDb.Spec
       get { return _backtrace; }
       set { _backtrace = value; }
     }
+
+    private Datum _profile = null;
+    [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name=@"profile", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(null)]
+    public Datum profile
+    {
+      get { return _profile; }
+      set { _profile = value; }
+    }
     [global::ProtoBuf.ProtoContract(Name=@"ResponseType")]
     public enum ResponseType
     {
@@ -242,6 +277,12 @@ namespace RethinkDb.Spec
             
       [global::ProtoBuf.ProtoEnum(Name=@"SUCCESS_PARTIAL", Value=3)]
       SUCCESS_PARTIAL = 3,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SUCCESS_FEED", Value=5)]
+      SUCCESS_FEED = 5,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"WAIT_COMPLETE", Value=4)]
+      WAIT_COMPLETE = 4,
             
       [global::ProtoBuf.ProtoEnum(Name=@"CLIENT_ERROR", Value=16)]
       CLIENT_ERROR = 16,
@@ -361,7 +402,10 @@ namespace RethinkDb.Spec
       R_ARRAY = 5,
             
       [global::ProtoBuf.ProtoEnum(Name=@"R_OBJECT", Value=6)]
-      R_OBJECT = 6
+      R_OBJECT = 6,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"R_JSON", Value=7)]
+      R_JSON = 7
     }
   
     private global::ProtoBuf.IExtension extensionObject;
@@ -452,6 +496,12 @@ namespace RethinkDb.Spec
             
       [global::ProtoBuf.ProtoEnum(Name=@"JAVASCRIPT", Value=11)]
       JAVASCRIPT = 11,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"UUID", Value=169)]
+      UUID = 169,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"HTTP", Value=153)]
+      HTTP = 153,
             
       [global::ProtoBuf.ProtoEnum(Name=@"ERROR", Value=12)]
       ERROR = 12,
@@ -549,6 +599,9 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"KEYS", Value=94)]
       KEYS = 94,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"OBJECT", Value=143)]
+      OBJECT = 143,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"HAS_FIELDS", Value=32)]
       HAS_FIELDS = 32,
             
@@ -576,11 +629,11 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"FILTER", Value=39)]
       FILTER = 39,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"CONCATMAP", Value=40)]
-      CONCATMAP = 40,
+      [global::ProtoBuf.ProtoEnum(Name=@"CONCAT_MAP", Value=40)]
+      CONCAT_MAP = 40,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"ORDERBY", Value=41)]
-      ORDERBY = 41,
+      [global::ProtoBuf.ProtoEnum(Name=@"ORDER_BY", Value=41)]
+      ORDER_BY = 41,
             
       [global::ProtoBuf.ProtoEnum(Name=@"DISTINCT", Value=42)]
       DISTINCT = 42,
@@ -597,11 +650,8 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"NTH", Value=45)]
       NTH = 45,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"GROUPED_MAP_REDUCE", Value=46)]
-      GROUPED_MAP_REDUCE = 46,
-            
-      [global::ProtoBuf.ProtoEnum(Name=@"GROUPBY", Value=47)]
-      GROUPBY = 47,
+      [global::ProtoBuf.ProtoEnum(Name=@"BRACKET", Value=170)]
+      BRACKET = 170,
             
       [global::ProtoBuf.ProtoEnum(Name=@"INNER_JOIN", Value=48)]
       INNER_JOIN = 48,
@@ -614,6 +664,9 @@ namespace RethinkDb.Spec
             
       [global::ProtoBuf.ProtoEnum(Name=@"ZIP", Value=72)]
       ZIP = 72,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"RANGE", Value=173)]
+      RANGE = 173,
             
       [global::ProtoBuf.ProtoEnum(Name=@"INSERT_AT", Value=82)]
       INSERT_AT = 82,
@@ -630,8 +683,8 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"COERCE_TO", Value=51)]
       COERCE_TO = 51,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"TYPEOF", Value=52)]
-      TYPEOF = 52,
+      [global::ProtoBuf.ProtoEnum(Name=@"TYPE_OF", Value=52)]
+      TYPE_OF = 52,
             
       [global::ProtoBuf.ProtoEnum(Name=@"UPDATE", Value=53)]
       UPDATE = 53,
@@ -663,6 +716,9 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"TABLE_LIST", Value=62)]
       TABLE_LIST = 62,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"SYNC", Value=138)]
+      SYNC = 138,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"INDEX_CREATE", Value=75)]
       INDEX_CREATE = 75,
             
@@ -671,6 +727,15 @@ namespace RethinkDb.Spec
             
       [global::ProtoBuf.ProtoEnum(Name=@"INDEX_LIST", Value=77)]
       INDEX_LIST = 77,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"INDEX_STATUS", Value=139)]
+      INDEX_STATUS = 139,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"INDEX_WAIT", Value=140)]
+      INDEX_WAIT = 140,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"INDEX_RENAME", Value=156)]
+      INDEX_RENAME = 156,
             
       [global::ProtoBuf.ProtoEnum(Name=@"FUNCALL", Value=64)]
       FUNCALL = 64,
@@ -684,8 +749,8 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"ALL", Value=67)]
       ALL = 67,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"FOREACH", Value=68)]
-      FOREACH = 68,
+      [global::ProtoBuf.ProtoEnum(Name=@"FOR_EACH", Value=68)]
+      FOR_EACH = 68,
             
       [global::ProtoBuf.ProtoEnum(Name=@"FUNC", Value=69)]
       FUNC = 69,
@@ -702,6 +767,12 @@ namespace RethinkDb.Spec
       [global::ProtoBuf.ProtoEnum(Name=@"MATCH", Value=97)]
       MATCH = 97,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"UPCASE", Value=141)]
+      UPCASE = 141,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DOWNCASE", Value=142)]
+      DOWNCASE = 142,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"SAMPLE", Value=81)]
       SAMPLE = 81,
             
@@ -710,6 +781,9 @@ namespace RethinkDb.Spec
             
       [global::ProtoBuf.ProtoEnum(Name=@"JSON", Value=98)]
       JSON = 98,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"TO_JSON_STRING", Value=172)]
+      TO_JSON_STRING = 172,
             
       [global::ProtoBuf.ProtoEnum(Name=@"ISO8601", Value=99)]
       ISO8601 = 99,
@@ -826,7 +900,79 @@ namespace RethinkDb.Spec
       DECEMBER = 125,
             
       [global::ProtoBuf.ProtoEnum(Name=@"LITERAL", Value=137)]
-      LITERAL = 137
+      LITERAL = 137,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"GROUP", Value=144)]
+      GROUP = 144,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SUM", Value=145)]
+      SUM = 145,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"AVG", Value=146)]
+      AVG = 146,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"MIN", Value=147)]
+      MIN = 147,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"MAX", Value=148)]
+      MAX = 148,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SPLIT", Value=149)]
+      SPLIT = 149,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"UNGROUP", Value=150)]
+      UNGROUP = 150,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"RANDOM", Value=151)]
+      RANDOM = 151,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"CHANGES", Value=152)]
+      CHANGES = 152,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"ARGS", Value=154)]
+      ARGS = 154,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"BINARY", Value=155)]
+      BINARY = 155,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"GEOJSON", Value=157)]
+      GEOJSON = 157,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"TO_GEOJSON", Value=158)]
+      TO_GEOJSON = 158,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"POINT", Value=159)]
+      POINT = 159,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"LINE", Value=160)]
+      LINE = 160,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"POLYGON", Value=161)]
+      POLYGON = 161,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DISTANCE", Value=162)]
+      DISTANCE = 162,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"INTERSECTS", Value=163)]
+      INTERSECTS = 163,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"INCLUDES", Value=164)]
+      INCLUDES = 164,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"CIRCLE", Value=165)]
+      CIRCLE = 165,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"GET_INTERSECTING", Value=166)]
+      GET_INTERSECTING = 166,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"FILL", Value=167)]
+      FILL = 167,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"GET_NEAREST", Value=168)]
+      GET_NEAREST = 168,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"POLYGON_SUB", Value=171)]
+      POLYGON_SUB = 171
     }
   
     private global::ProtoBuf.IExtension extensionObject;

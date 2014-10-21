@@ -34,7 +34,7 @@ namespace RethinkDb.QueryTerm
 
             var orderByTerm = new Term()
             {
-                type = Term.TermType.ORDERBY,
+                type = Term.TermType.ORDER_BY,
             };
             orderByTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
             orderByTerm.args.AddRange(GetMembers(datumConverterFactory, out indexOrderBy));

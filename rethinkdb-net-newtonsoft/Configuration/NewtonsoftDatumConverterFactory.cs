@@ -9,6 +9,10 @@ namespace RethinkDb.Newtonsoft.Configuration
 
         public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
         {
+            // Use rethinkdb-net's support for $reql_type$=GROUPED_DATA return values.
+            if (GroupingDictionaryDatumConverterFactory.Instance.TryGet<T>(rootDatumConverterFactory, out datumConverter))
+                return true;
+
             //I guess we could have some more specific checks here
             //but if we get here last in the NewtonsoftSerializer order, then
             //I suppose we can handle it if no preceding converters could handle it. 

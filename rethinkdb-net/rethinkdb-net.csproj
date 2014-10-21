@@ -71,7 +71,6 @@
     <Compile Include="QueryTerm\DeleteQuery.cs" />
     <Compile Include="QueryTerm\BetweenQuery.cs" />
     <Compile Include="QueryTerm\UpdateQuery.cs" />
-    <Compile Include="QueryTerm\CountQuery.cs" />
     <Compile Include="QueryTerm\FilterQuery.cs" />
     <Compile Include="QueryTerm\ExpressionUtils.cs" />
     <Compile Include="QueryTerm\ExprQuery.cs" />
@@ -100,14 +99,9 @@
     <Compile Include="QueryTerm\NthQuery.cs" />
     <Compile Include="QueryTerm\DistinctQuery.cs" />
     <Compile Include="Interfaces\IConnection.cs" />
-    <Compile Include="QueryTerm\GroupedMapReduceQuery.cs" />
     <Compile Include="DatumConverters\AnonymousTypeDatumConverterFactory.cs" />
     <Compile Include="QueryTerm\ConcatMapQuery.cs" />
     <Compile Include="QueryTerm\UnionQuery.cs" />
-    <Compile Include="QueryTerm\GroupByQuery.cs" />
-    <Compile Include="QueryTerm\CountReduction.cs" />
-    <Compile Include="QueryTerm\SumReduction.cs" />
-    <Compile Include="QueryTerm\AvgReduction.cs" />
     <Compile Include="Interfaces\IConnectionFactory.cs" />
     <Compile Include="Configuration\EndPointElement.cs" />
     <Compile Include="Configuration\EndPointElementCollection.cs" />
@@ -147,7 +141,6 @@
     <Compile Include="Interfaces\IMutableSingleObjectQuery.cs" />
     <Compile Include="Interfaces\ISequenceQuery.cs" />
     <Compile Include="Interfaces\IWriteQuery.cs" />
-    <Compile Include="Interfaces\IGroupByReduction.cs" />
     <Compile Include="Interfaces\IDatabaseQuery.cs" />
     <Compile Include="Interfaces\ITableQuery.cs" />
     <Compile Include="Interfaces\IOrderedSequenceQuery.cs" />
@@ -172,6 +165,27 @@
     <Compile Include="DatumConverters\ListDatumConverterFactory.cs" />
     <Compile Include="DatumConverters\TimeSpanDatumConverterFactory.cs" />
     <Compile Include="Interfaces\OrderByTerm.cs" />
+    <Compile Include="Interfaces\IGroupingQuery.cs" />
+    <Compile Include="QueryTerm\GroupByFunctionQuery.cs" />
+    <Compile Include="QueryTerm\GroupByIndexQuery.cs" />
+    <Compile Include="QueryTerm\MaxGroupAggregateQuery.cs" />
+    <Compile Include="QueryTerm\MaxAggregateQuery.cs" />
+    <Compile Include="QueryTerm\MinAggregateQuery.cs" />
+    <Compile Include="QueryTerm\MinGroupAggregateQuery.cs" />
+    <Compile Include="QueryTerm\AvgAggregateQuery.cs" />
+    <Compile Include="QueryTerm\AvgGroupAggregateQuery.cs" />
+    <Compile Include="QueryTerm\SumAggregateQuery.cs" />
+    <Compile Include="QueryTerm\SumGroupAggregateQuery.cs" />
+    <Compile Include="QueryTerm\CountAggregateQuery.cs" />
+    <Compile Include="QueryTerm\CountGroupAggregateQuery.cs" />
+    <Compile Include="QueryTerm\ContainsAggregateQuery.cs" />
+    <Compile Include="QueryTerm\ContainsGroupAggregateQuery.cs" />
+    <Compile Include="Interfaces\IGroupingDictionary.cs" />
+    <Compile Include="DatumConverters\GroupingDictionaryDatumConverterFactory.cs" />
+    <Compile Include="QueryTerm\UngroupQuery.cs" />
+    <Compile Include="UngroupObject.cs" />
+    <Compile Include="QueryTerm\MapGroupQuery.cs" />
+    <Compile Include="QueryTerm\ReduceGroupQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

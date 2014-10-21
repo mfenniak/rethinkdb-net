@@ -105,30 +105,33 @@ namespace RethinkDb.Newtonsoft.Test.Integration
         [Test]
         public void ReplaceAndReturnValue()
         {
-            var resp = connection.Run(testTable.Get(insertedObject.Id).ReplaceAndReturnValue(new ComplexObject() {Id = insertedObject.Id, Name = "Jack Black"}));
+            var resp = connection.Run(testTable.Get(insertedObject.Id).ReplaceAndReturnChanges(new ComplexObject() {Id = insertedObject.Id, Name = "Jack Black"}));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Replaced, Is.EqualTo(1));
             Assert.That(resp.GeneratedKeys, Is.Null);
-            Assert.That(resp.OldValue, Is.Not.Null);
-            Assert.That(resp.OldValue.Name, Is.EqualTo("Brian Chavez"));
-            Assert.That(resp.NewValue, Is.Not.Null);
-            Assert.That(resp.NewValue.Name, Is.EqualTo("Jack Black"));
+            Assert.That(resp.Changes, Is.Not.Null);
+            Assert.That(resp.Changes, Has.Length.EqualTo(1));
+            Assert.That(resp.Changes[0].OldValue, Is.Not.Null);
+            Assert.That(resp.Changes[0].OldValue.Name, Is.EqualTo("Brian Chavez"));
+            Assert.That(resp.Changes[0].NewValue, Is.Not.Null);
+            Assert.That(resp.Changes[0].NewValue.Name, Is.EqualTo("Jack Black"));
         }
 
         [Test]
         public void UpdateAndReturnValue()
         {
-            var resp = connection.Run(testTable.Get(insertedObject.Id).UpdateAndReturnValue(o => new ComplexObject() {Name = "Hello " + o.Id + "!"}));
+            var resp = connection.Run(testTable.Get(insertedObject.Id).UpdateAndReturnChanges(o => new ComplexObject() {Name = "Hello " + o.Id + "!"}));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Replaced, Is.EqualTo(1));
 
-            Assert.That(resp.NewValue, Is.Not.Null);
-            Assert.That(resp.OldValue, Is.Not.Null);
-
-            Assert.That(resp.OldValue.Name, Is.EqualTo("Brian Chavez"));
-            Assert.That(resp.NewValue.Name, Is.EqualTo("Hello " + resp.OldValue.Id + "!"));
+            Assert.That(resp.Changes, Is.Not.Null);
+            Assert.That(resp.Changes, Has.Length.EqualTo(1));
+            Assert.That(resp.Changes[0].NewValue, Is.Not.Null);
+            Assert.That(resp.Changes[0].OldValue, Is.Not.Null);
+            Assert.That(resp.Changes[0].OldValue.Name, Is.EqualTo("Brian Chavez"));
+            Assert.That(resp.Changes[0].NewValue.Name, Is.EqualTo("Hello " + resp.Changes[0].OldValue.Id + "!"));
         }
 
         [Test]
@@ -149,14 +152,16 @@ namespace RethinkDb.Newtonsoft.Test.Integration
         [Test]
         public void DeleteAndReturnValues()
         {
-            var resp = connection.Run(testTable.Get(insertedObject.Id).DeleteAndReturnValue());
+            var resp = connection.Run(testTable.Get(insertedObject.Id).DeleteAndReturnChanges());
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Deleted, Is.EqualTo(1));
             Assert.That(resp.GeneratedKeys, Is.Null);
-            Assert.That(resp.OldValue, Is.Not.Null);
-            Assert.That(resp.OldValue.Id, Is.EqualTo(insertedObject.Id));
-            Assert.That(resp.NewValue, Is.Null);
+            Assert.That(resp.Changes, Is.Not.Null);
+            Assert.That(resp.Changes, Has.Length.EqualTo(1));
+            Assert.That(resp.Changes[0].OldValue, Is.Not.Null);
+            Assert.That(resp.Changes[0].OldValue.Id, Is.EqualTo(insertedObject.Id));
+            Assert.That(resp.Changes[0].NewValue, Is.Null);
         }
 
         [Test]

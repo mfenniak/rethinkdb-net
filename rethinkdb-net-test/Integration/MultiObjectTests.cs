@@ -721,16 +721,13 @@ namespace RethinkDb.Test.Integration
         {
             var query = testTable
                 .ConcatMap(to => to.Tags)
-                .GroupedMapReduce(
-                    tag => tag,
-                    tag => 1,
-                    (l, r) => l+r);
+                .Group(tag => tag)
+                .Count();
 
             var enumerable = connection.Run(query);
-
             Assert.That(enumerable.Count(), Is.EqualTo(2));
-            Assert.That(enumerable, Has.Member(Tuple.Create("even", 3)));
-            Assert.That(enumerable, Has.Member(Tuple.Create("odd", 4)));
+            Assert.That(enumerable["even"], Is.EqualTo(3));
+            Assert.That(enumerable["odd"], Is.EqualTo(4));
         }
 
         [Test]
