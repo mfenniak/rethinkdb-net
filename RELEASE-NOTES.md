@@ -4,6 +4,14 @@
 
 ### Features
 
+* Upgrade to support RethinkDB version 1.15. [PR #173](https://github.com/mfenniak/rethinkdb-net/issues/173) & [Issue #171](https://github.com/mfenniak/rethinkdb-net/issues/171)
+
+  * New Group method can be used for grouping on an index value, or between 1 and 3 different key values.
+
+  * Count aggregate now supports a predicate for counting only matching rows.
+
+  * Max, Min, Avg, Sum, Count, and Contains aggregates are now fully supported.  Previously only Avg and Sum aggregates were supported.
+
 * Support for serializing and deserializing TimeSpan data types, which was added to the Newtonsoft serializer but not the basic serialization implementation. [PR #152](https://github.com/mfenniak/rethinkdb-net/issues/152)
 
 * Expressions now support the addition of DateTime and TimeSpan objects, as well as DateTime and DateTimeOffset's Add methods (eg. AddHours, AddDays).  [PR #152](https://github.com/mfenniak/rethinkdb-net/issues/152), [Issue #158](https://github.com/mfenniak/rethinkdb-net/issues/158)  Note, AddMonths is not supported.
@@ -11,6 +19,18 @@
 * Support for multi-index creation.  [Issue #160](https://github.com/mfenniak/rethinkdb-net/issues/160) & [PR #161](https://github.com/mfenniak/rethinkdb-net/issues/161)
 
 * Support for OrderBy on indexes.  [Issue #162](https://github.com/mfenniak/rethinkdb-net/issues/162)
+
+### Breaking Changes
+
+* [PR #173](https://github.com/mfenniak/rethinkdb-net/issues/173) contained a number of breaking changes to maintain consistency with RethinkDB driver changes on other platforms and remove functionality that is no longer supported by RethinkDB.
+
+  * Remove base parameter from Reduce(); it's been removed in RethinkDB and instead an error occurs when attempting to reduce an empty sequence, and the only element is returned when reducing a single-element sequence.  Part of [PR #173](https://github.com/mfenniak/rethinkdb-net/issues/173).
+
+  * UpdateAndReturnValues, InsertAndReturnValues, and DeleteAndReturnValues have all been renamed to "...ReturnChanges", and their return value has changed to support returning multiple changes.  These changes are for compatibility and to maintain consistency with other RethinkDB drivers.  Part of [PR #173](https://github.com/mfenniak/rethinkdb-net/issues/173).
+
+  * GroupedMapReduce has been removed for consistency with other RethinkDB drivers.  .Group(...).Map(...).Reduce(...) can be used as an alternative.  Part of [PR #173](https://github.com/mfenniak/rethinkdb-net/issues/173).
+
+  * GroupBy and its prebuilt aggregates have been removed for consistency with other RethinkDB drivers.  .Group() followed by an aggregate can be used instead.  Part of [PR #173](https://github.com/mfenniak/rethinkdb-net/issues/173).
 
 
 ## 0.7.0.0 (2013-11-02)
