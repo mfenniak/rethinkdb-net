@@ -1,6 +1,6 @@
 <a href="http://teamcity.codebetter.com/viewType.html?buildTypeId=bt991&guest=1"><img src="http://teamcity.codebetter.com/app/rest/builds/buildType:(id:bt991)/statusIcon" alt="RethinkDB-Net Build Status"/></a>
 
-This is a prototype of a RethinkDB client driver written in C# for the .NET platform.  This driver utilizes .NET 4.5 and C# 5.0.
+rethinkdb-net is a RethinkDB client driver written in C# for the .NET platform.  This driver utilizes .NET 4.5 and C# 5.0.
 
 Tiny Example
 ------------
@@ -114,8 +114,7 @@ Currently this driver is capable of the following things:
     * Map
     * ConcatMap
     * Reduce
-    * GroupBy
-    * GroupedMapReduce
+    * Group
 
   * Filter, Update, Inner/Outer/EqJoin, Map, Reduce, etc. can be built using C# expressions (with limitations) that are compile-time safe, and are automatically translated into RethinkDB's query language.  For example, `Query.Db("db").Table<ObjectDefinition>("objects").Update(o => new ObjectDefinition { Name = o.Name + " (new name!)" })`.
 
