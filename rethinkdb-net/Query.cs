@@ -75,9 +75,19 @@ namespace RethinkDb
             return new Index<TRecord, TIndex>(table, name, indexAccessor);
         }
 
+        public static IMultiIndex<TRecord, TIndex> IndexDefineMulti<TRecord, TIndex>(this ITableQuery<TRecord> table, string name, Expression<Func<TRecord, TIndex[]>> indexAccessor)
+        {
+            return new MultiIndex<TRecord, TIndex>(table, name, indexAccessor);
+        }
+
         public static IWriteQuery<DmlResponse> IndexCreate<TRecord, TIndex>(this IIndex<TRecord, TIndex> index)
         {
             return index.Table.IndexCreate(index.Name, index.IndexAccessor, false);
+        }
+
+        public static IWriteQuery<DmlResponse> IndexCreate<TRecord, TIndex>(this IMultiIndex<TRecord, TIndex> index)
+        {
+            return index.Table.IndexCreate(index.Name, index.IndexAccessor, true);
         }
 
         public static IWriteQuery<DmlResponse> IndexDrop<TRecord, TIndex>(this IIndex<TRecord, TIndex> index)
@@ -110,12 +120,32 @@ namespace RethinkDb
 
         public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey key, string indexName = null)
         {
-            return new GetAllQuery<TSequence, TKey>(target, key, indexName);
+            return new GetAllQuery<TSequence, TKey>(target, new TKey[] { key }, indexName);
+        }
+
+        public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey[] keys, string indexName = null)
+        {
+            return new GetAllQuery<TSequence, TKey>(target, keys, indexName);
         }
 
         public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey key, IIndex<TSequence, TKey> index)
         {
-            return target.GetAll(key, index.Name);
+            return target.GetAll(key, indexName: index.Name);
+        }
+
+        public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this IIndex<TSequence, TKey> index, params TKey[] keys)
+        {
+            return index.Table.GetAll(keys: keys, indexName: index.Name);
+        }
+
+        public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this ISequenceQuery<TSequence> target, TKey key, IMultiIndex<TSequence, TKey> index)
+        {
+            return target.GetAll(key, indexName: index.Name);
+        }
+
+        public static ISequenceQuery<TSequence> GetAll<TSequence, TKey>(this IMultiIndex<TSequence, TKey> index, params TKey[] keys)
+        {
+            return index.Table.GetAll(keys: keys, indexName: index.Name);
         }
 
         public static ISequenceQuery<T> Filter<T>(this ISequenceQuery<T> target, Expression<Func<T, bool>> filterExpression)

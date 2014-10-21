@@ -188,6 +188,8 @@
     <Compile Include="QueryTerm\ReduceGroupQuery.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="Interfaces\IIndex.cs" />
+    <Compile Include="Interfaces\IMultiIndex.cs" />
+    <Compile Include="MultiIndex.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
