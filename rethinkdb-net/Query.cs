@@ -366,6 +366,15 @@ namespace RethinkDb
             return leftQuery.EqJoin(leftMemberReferenceExpression, rightQuery, index.Name);
         }
 
+        public static ISequenceQuery<Tuple<TLeft, TRight>> EqJoin<TLeft, TRight, TIndexType>(
+            this ISequenceQuery<TLeft> leftQuery,
+            Expression<Func<TLeft, object>> leftMemberReferenceExpression,
+            ISequenceQuery<TRight> rightQuery,
+            IMultiIndex<TRight, TIndexType> index)
+        {
+            return leftQuery.EqJoin(leftMemberReferenceExpression, rightQuery, index.Name);
+        }
+
         public static ISingleObjectQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction)
         {
             return new ReduceQuery<T>(sequenceQuery, reduceFunction);

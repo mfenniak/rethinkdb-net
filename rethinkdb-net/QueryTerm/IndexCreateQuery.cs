@@ -11,7 +11,7 @@ namespace RethinkDb.QueryTerm
         private readonly Expression<Func<TTable, TIndexExpression>> indexExpression;
         private readonly bool multiIndex;
 
-        public IndexCreateQuery( ITableQuery<TTable> tableTerm, string indexName, Expression<Func<TTable, TIndexExpression>> indexExpression, bool multiIndex )
+        public IndexCreateQuery(ITableQuery<TTable> tableTerm, string indexName, Expression<Func<TTable, TIndexExpression>> indexExpression, bool multiIndex)
         {
             this.tableTerm = tableTerm;
             this.indexName = indexName;
@@ -34,7 +34,7 @@ namespace RethinkDb.QueryTerm
                 },
             });
             indexCreate.args.Add(ExpressionUtils.CreateFunctionTerm(datumConverterFactory, indexExpression));
-            if( multiIndex )
+            if (multiIndex)
             {
                 indexCreate.optargs.Add( new Term.AssocPair
                     {
