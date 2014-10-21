@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using FluentAssertions;
 
 namespace RethinkDb.Test.Integration
 {
@@ -15,6 +16,7 @@ namespace RethinkDb.Test.Integration
         private ITableQuery<TestObject> testTable;
         private ITableQuery<AnotherTestObject> anotherTestTable;
         private IIndex<AnotherTestObject, string> firstNameIndex;
+        private IMultiIndex<TestObject, string> tagsIndex;
 
         public override void TestFixtureSetUp()
         {
@@ -28,16 +30,19 @@ namespace RethinkDb.Test.Integration
 
             firstNameIndex = anotherTestTable.IndexDefine("index1", o => o.FirstName);
             connection.Run(firstNameIndex.IndexCreate());
+
+            tagsIndex = testTable.IndexDefineMulti("indexTags", o => o.Tags);
+            connection.Run(tagsIndex.IndexCreate());
         }
 
         [SetUp]
         public virtual void SetUp()
         {
             connection.RunAsync(testTable.Insert(new TestObject[] {
-                new TestObject() { Id = "1", Name = "1", SomeNumber = 1, Children = new TestObject[1], ChildrenList = new List<TestObject> { null }, ChildrenIList = new List<TestObject> { null } },
-                new TestObject() { Id = "2", Name = "2", SomeNumber = 2, Children = new TestObject[2], ChildrenList = new List<TestObject> { null, null }, ChildrenIList = new List<TestObject> { null, null } },
-                new TestObject() { Id = "3", Name = "3", SomeNumber = 3, Children = new TestObject[3], ChildrenList = new List<TestObject> { null, null, null }, ChildrenIList = new List<TestObject> { null, null, null } },
-                new TestObject() { Id = "4", Name = "4", SomeNumber = 4, Children = new TestObject[4], ChildrenList = new List<TestObject> { null, null, null, null }, ChildrenIList = new List<TestObject> { null, null, null, null } },
+                new TestObject() { Id = "1", Name = "1", SomeNumber = 1, Tags = new[] { "1", "5" }, Children = new TestObject[1], ChildrenList = new List<TestObject> { null }, ChildrenIList = new List<TestObject> { null } },
+                new TestObject() { Id = "2", Name = "2", SomeNumber = 2, Tags = new[] { "2", "6" }, Children = new TestObject[2], ChildrenList = new List<TestObject> { null, null }, ChildrenIList = new List<TestObject> { null, null } },
+                new TestObject() { Id = "3", Name = "3", SomeNumber = 3, Tags = new[] { "3", "7" }, Children = new TestObject[3], ChildrenList = new List<TestObject> { null, null, null }, ChildrenIList = new List<TestObject> { null, null, null } },
+                new TestObject() { Id = "4", Name = "4", SomeNumber = 4, Tags = new[] { "4", "8" }, Children = new TestObject[4], ChildrenList = new List<TestObject> { null, null, null, null }, ChildrenIList = new List<TestObject> { null, null, null, null } },
             })).Wait();
 
             connection.RunAsync(anotherTestTable.Insert(new AnotherTestObject[] {
@@ -240,6 +245,33 @@ namespace RethinkDb.Test.Integration
 
                 Assert.That(tup.Item2, Is.Not.Null);
                 Assert.That(tup.Item1.Name, Is.EqualTo(tup.Item2.FirstName));
+            }
+            Assert.That(count, Is.EqualTo(3));
+            Assert.That(objects, Has.Count.EqualTo(3));
+        }
+
+        [Test]
+        public void EqJoinMultiIndex()
+        {
+            var enumerable = connection.Run(
+                anotherTestTable.EqJoin(
+                    anotherTestObject => anotherTestObject.FirstName,
+                    testTable,
+                    tagsIndex
+                )
+            );
+            Assert.That(enumerable, Is.Not.Null);
+
+            var objects = new List<Tuple<AnotherTestObject, TestObject>>();
+            var count = 0;
+            foreach (var tup in enumerable)
+            {
+                objects.Add(tup);
+                ++count;
+
+                Assert.That(tup.Item1, Is.Not.Null);
+                Assert.That(tup.Item2, Is.Not.Null);
+                tup.Item2.Tags.Should().Contain(tup.Item1.FirstName);
             }
             Assert.That(count, Is.EqualTo(3));
             Assert.That(objects, Has.Count.EqualTo(3));

@@ -247,6 +247,43 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void IndexCreateMultiObjectModel()
+        {
+            var languages = new[]
+            {
+                new TestObject
+                {
+                    Name = "C#",
+                    Tags = new[] {"dynamic", "lambdas", "object-oriented", "strongly-typed", "generics"}
+                },
+                new TestObject
+                {
+                    Name = "java",
+                    Tags = new[] {"object-oriented", "strongly-typed", "generics"}
+                },
+                new TestObject
+                {
+                    Name = "javascript",
+                    Tags = new[] {"dynamic"}
+                }
+            };
+
+            var resp = connection.Run(testTable.Insert(languages));
+            Assert.That(resp.Inserted, Is.EqualTo(3));
+
+            var index = testTable.IndexDefineMulti("index_tags", x => x.Tags);
+            resp = connection.Run(index.IndexCreate());
+            Assert.That(resp.Created, Is.EqualTo(1));
+
+            //and query
+            var stronglyTyped = connection.Run(index.GetAll("strongly-typed")).ToArray();
+
+            Assert.That(stronglyTyped, Is.Not.Null);
+            Assert.That(stronglyTyped.Length, Is.EqualTo(2));
+            Assert.That(stronglyTyped.All(x => x.Name != languages[2].Name));
+        }
+
+        [Test]
         public void IndexList()
         {
             IndexCreateSimple();

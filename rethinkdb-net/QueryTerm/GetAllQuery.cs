@@ -8,13 +8,13 @@ namespace RethinkDb.QueryTerm
     public class GetAllQuery<TSequence, TKey> : ISequenceQuery<TSequence>
     {
         private readonly ISequenceQuery<TSequence> tableTerm;
-        private readonly TKey key;
+        private readonly TKey[] keys;
         private readonly string indexName;
 
-        public GetAllQuery(ISequenceQuery<TSequence> tableTerm, TKey key, string indexName)
+        public GetAllQuery(ISequenceQuery<TSequence> tableTerm, TKey[] keys, string indexName)
         {
             this.tableTerm = tableTerm;
-            this.key = key;
+            this.keys = keys;
             this.indexName = indexName;
         }
 
@@ -24,10 +24,15 @@ namespace RethinkDb.QueryTerm
                 type = Term.TermType.GET_ALL,
             };
             getAllTerm.args.Add(tableTerm.GenerateTerm(datumConverterFactory));
-            getAllTerm.args.Add(new Term() {
-                type = Term.TermType.DATUM,
-                datum = datumConverterFactory.Get<TKey>().ConvertObject(key)
-            });
+            var datumConverter = datumConverterFactory.Get<TKey>();
+            foreach (var key in keys)
+            {
+                getAllTerm.args.Add(new Term()
+                {
+                    type = Term.TermType.DATUM,
+                    datum = datumConverter.ConvertObject(key)
+                });
+            }
             if (!String.IsNullOrEmpty(indexName))
             {
                 getAllTerm.optargs.Add(new Term.AssocPair() {

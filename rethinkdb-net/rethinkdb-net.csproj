@@ -186,8 +186,11 @@
     <Compile Include="UngroupObject.cs" />
     <Compile Include="QueryTerm\MapGroupQuery.cs" />
     <Compile Include="QueryTerm\ReduceGroupQuery.cs" />
-    <Compile Include="Index.cs" />
+    <Compile Include="Interfaces\IMultiIndex.cs" />
+    <Compile Include="MultiIndex.cs" />
+    <Compile Include="Interfaces\IBaseIndex.cs" />
     <Compile Include="Interfaces\IIndex.cs" />
+    <Compile Include="Index.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
