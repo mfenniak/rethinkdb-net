@@ -19,6 +19,7 @@ namespace RethinkDb
     public sealed class Connection : IConnectableConnection, IDisposable
     {
         private static byte[] connectHeader = null;
+        private static byte[] protocolHeader = null;
        
         private TcpClient tcpClient;
         private NetworkStream stream;
@@ -194,7 +195,7 @@ namespace RethinkDb
 
                 if (connectHeader == null)
                 {
-                    var header = BitConverter.GetBytes((int)Spec.VersionDummy.Version.V0_2);
+                    var header = BitConverter.GetBytes((int)Spec.VersionDummy.Version.V0_3);
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(header, 0, header.Length);
                     connectHeader = header;
@@ -221,9 +222,18 @@ namespace RethinkDb
                     await stream.WriteAsync(keyInBytes, 0, keyInBytes.Length);
                 }
 
+                if (protocolHeader == null)
+                {
+                    var header = BitConverter.GetBytes((int)Spec.VersionDummy.Protocol.PROTOBUF);
+                    if (!BitConverter.IsLittleEndian)
+                        Array.Reverse(header, 0, header.Length);
+                    protocolHeader = header;
+                }
+                await stream.WriteAsync(protocolHeader, 0, protocolHeader.Length, cancellationToken);
+
                 byte[] authReponseBuffer = new byte[1024];
                 var authResponseLength = await ReadUntilNullTerminator(authReponseBuffer, cancellationToken);
-                var authResponse = Encoding.UTF8.GetString(authReponseBuffer, 0, authResponseLength);
+                var authResponse = Encoding.ASCII.GetString(authReponseBuffer, 0, authResponseLength);
                 if (authResponse != "SUCCESS")
                     throw new RethinkDbRuntimeException("Unexpected authentication response; expected SUCCESS but got: " + authResponse);
 
