@@ -192,6 +192,7 @@
     <Compile Include="Interfaces\IBaseIndex.cs" />
     <Compile Include="Interfaces\IIndex.cs" />
     <Compile Include="Index.cs" />
+    <Compile Include="Json\JsonWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -206,4 +207,7 @@
   </Target>
   -->
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Json\" />
+  </ItemGroup>
 </Project>

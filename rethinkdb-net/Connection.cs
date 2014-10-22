@@ -20,6 +20,14 @@ namespace RethinkDb
     {
         private static byte[] connectHeader = null;
         private static byte[] protocolHeader = null;
+
+        private static Stopwatch ProtobufSw = new Stopwatch();
+        private static Stopwatch JsonSw = new Stopwatch();
+
+        static Connection()
+        {
+            Console.WriteLine("Initialized;  JSON: {0}, ProtoBuf: {1}", JsonSw.ElapsedTicks, ProtobufSw.ElapsedTicks);
+        }
        
         private TcpClient tcpClient;
         private NetworkStream stream;
@@ -224,7 +232,7 @@ namespace RethinkDb
 
                 if (protocolHeader == null)
                 {
-                    var header = BitConverter.GetBytes((int)Spec.VersionDummy.Protocol.PROTOBUF);
+                    var header = BitConverter.GetBytes((int)Spec.VersionDummy.Protocol.JSON);
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(header, 0, header.Length);
                     protocolHeader = header;
@@ -288,12 +296,19 @@ namespace RethinkDb
             {
                 while (true)
                 {
-                    byte[] headerSize = new byte[4];
-                    await ReadMyBytes(headerSize);
+                    byte[] tokenHeader = new byte[8];
+                    await ReadMyBytes(tokenHeader);
                     if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(headerSize, 0, headerSize.Length);
-                    var respSize = BitConverter.ToInt32(headerSize, 0);
-                    Logger.Debug("Received packet header, packet is {0} bytes", respSize);
+                        Array.Reverse(tokenHeader, 0, tokenHeader.Length);
+                    var token = BitConverter.ToInt64(tokenHeader, 0);
+                    Logger.Debug("Received packet token, token is {0}", token);
+
+                    byte[] lengthHeader = new byte[4];
+                    await ReadMyBytes(lengthHeader);
+                    if (!BitConverter.IsLittleEndian)
+                        Array.Reverse(lengthHeader, 0, lengthHeader.Length);
+                    var respSize = BitConverter.ToInt32(lengthHeader, 0);
+                    Logger.Debug("Received packet size header, packet is {0} bytes", respSize);
 
                     byte[] retVal = new byte[respSize];
                     await ReadMyBytes(retVal);
@@ -302,6 +317,13 @@ namespace RethinkDb
                     {
                         var response = Serializer.Deserialize<Response>(memoryBuffer);
                         Logger.Debug("Received packet deserialized to response for query token {0}, type: {1}", response.token, response.type);
+
+                        /*
+                        if (response.token != token)
+                            // I'm assuming this isn't possible, but just testing here; this goes away with the JSON
+                            // protocol conversion, so I don't have to worry about the exception type.
+                            throw new InvalidOperationException("response.token != token");
+                        */
 
                         TaskCompletionSource<Response> tcs;
                         if (tokenResponse.TryGetValue(response.token, out tcs))
@@ -389,10 +411,92 @@ namespace RethinkDb
             return Interlocked.Increment(ref nextToken);
         }
 
+        private static void WriteQuery(Json.JsonWriter writer, Spec.Query query)
+        {
+            writer.WriteStartArray();
+            writer.WriteNumber((int)query.type);
+            if (query.type == Spec.Query.QueryType.START)
+            {
+                WriteTerm(writer, query.query);
+                writer.WriteStartObject();
+                foreach (var opt in query.global_optargs)
+                {
+                    writer.WritePropertyName(opt.key);
+                    WriteTerm(writer, opt.val);
+                }
+                writer.WriteEndObject();
+            }
+            writer.WriteEndArray();
+        }
+
+        private static void WriteTerm(Json.JsonWriter writer, Spec.Term term)
+        {
+            if (term.type == Term.TermType.DATUM)
+            {
+                WriteDatum(writer, term.datum);
+                return;
+            }
+
+            writer.WriteStartArray();
+            writer.WriteNumber((int)term.type);
+            writer.WriteStartArray();
+            foreach (var arg in term.args)
+            {
+                WriteTerm(writer, arg);
+            }
+            writer.WriteEndArray();
+            writer.WriteStartObject();
+            foreach (var opt in term.optargs)
+            {
+                writer.WritePropertyName(opt.key);
+                WriteTerm(writer, opt.val);
+            }
+            writer.WriteEndObject();
+            writer.WriteEndArray();
+        }
+
+        private static void WriteDatum(Json.JsonWriter writer, Spec.Datum datum)
+        {
+            switch (datum.type)
+            {
+                case Spec.Datum.DatumType.R_ARRAY:
+                    writer.WriteStartArray();
+                    foreach (var innerDatum in datum.r_array)
+                        WriteDatum(writer, innerDatum);
+                    writer.WriteEndArray();
+                    break;
+                case Spec.Datum.DatumType.R_BOOL:
+                    writer.WriteBoolean(datum.r_bool);
+                    break;
+                case Spec.Datum.DatumType.R_JSON:
+                    throw new NotSupportedException();
+                case Spec.Datum.DatumType.R_NULL:
+                    writer.WriteNull();
+                    break;
+                case Spec.Datum.DatumType.R_NUM:
+                    writer.WriteNumber(datum.r_num);
+                    break;
+                case Spec.Datum.DatumType.R_OBJECT:
+                    writer.WriteStartObject();
+                    foreach (var kvp in datum.r_object)
+                    {
+                        writer.WritePropertyName(kvp.key);
+                        WriteDatum(writer, kvp.val);
+                    }
+                    writer.WriteEndObject();
+                    break;
+                case Spec.Datum.DatumType.R_STR:
+                    writer.WriteString(datum.r_str);
+                    break;
+            }
+        }
+
         internal async Task<Response> InternalRunQuery(Spec.Query query, CancellationToken cancellationToken)
         {
             var tcs = new TaskCompletionSource<Response>();
             tokenResponse[query.token] = tcs;
+
+            Console.WriteLine("PreCommand;  JSON: {0}, ProtoBuf: {1}", JsonSw.ElapsedTicks, ProtobufSw.ElapsedTicks);
 
             Action abortToken = () => {
                 Logger.Warning("Query token {0} timed out after {1}", query.token, this.QueryTimeout);
@@ -402,23 +506,30 @@ namespace RethinkDb
             using (cancellationToken.Register(abortToken))
             {
                 using (var memoryBuffer = new MemoryStream(1024))
+                using (var streamWriter = new StreamWriter(memoryBuffer, Encoding.UTF8))
                 {
-                    Serializer.Serialize(memoryBuffer, query);
+                    WriteQuery(new RethinkDb.Json.JsonWriter(streamWriter), query);
+                    streamWriter.Flush();
 
                     var data = memoryBuffer.ToArray();
-                    var header = BitConverter.GetBytes(data.Length);
+                    var lengthHeader = BitConverter.GetBytes(data.Length);
                     if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(header, 0, header.Length);
+                        Array.Reverse(lengthHeader, 0, lengthHeader.Length);
+
+                    var tokenHeader = BitConverter.GetBytes(query.token);
+                    if (!BitConverter.IsLittleEndian)
+                        Array.Reverse(tokenHeader, 0, tokenHeader.Length);
 
                     // Put query.token into writeTokenLock if writeTokenLock is 0 (ie. unlocked).  If it's not 0,
                     // spin-lock on the compare exchange.
-                    while (Interlocked.CompareExchange(ref writeTokenLock, (long)query.token, 0) != 0)
+                    while (Interlocked.CompareExchange(ref writeTokenLock, query.token, 0) != 0)
                         ;
 
                     try
                     {
                         Logger.Debug("Writing packet, {0} bytes", data.Length);
-                        await stream.WriteAsync(header, 0, header.Length, cancellationToken);
+                        await stream.WriteAsync(tokenHeader, 0, tokenHeader.Length, cancellationToken);
+                        await stream.WriteAsync(lengthHeader, 0, lengthHeader.Length, cancellationToken);
                         await stream.WriteAsync(data, 0, data.Length, cancellationToken);
                     }
                     finally
