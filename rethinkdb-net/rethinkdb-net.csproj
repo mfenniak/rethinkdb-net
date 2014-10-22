@@ -193,6 +193,19 @@
     <Compile Include="Interfaces\IIndex.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="Json\JsonWriter.cs" />
+    <Compile Include="Json\JsonParser.cs" />
+    <Compile Include="Json\TrueToken.cs" />
+    <Compile Include="Json\EndArrayToken.cs" />
+    <Compile Include="Json\EndObjectToken.cs" />
+    <Compile Include="Json\FalseToken.cs" />
+    <Compile Include="Json\NullToken.cs" />
+    <Compile Include="Json\NumberToken.cs" />
+    <Compile Include="Json\StartArrayToken.cs" />
+    <Compile Include="Json\StartObjectToken.cs" />
+    <Compile Include="Json\StringToken.cs" />
+    <Compile Include="Json\PropertyNameToken.cs" />
+    <Compile Include="Json\IToken.cs" />
+    <Compile Include="Json\TokenType.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
