@@ -42,9 +42,7 @@ namespace RethinkDb
                 GroupingDictionaryDatumConverterFactory.Instance
             );
             ConnectTimeout = QueryTimeout = TimeSpan.FromSeconds(30);
-            //Protocol = Version_0_3_Json.Instance;
-            //Protocol = Version_0_3_Protobuf.Instance;
-            Protocol = Version_0_2.Instance;
+            Protocol = Version_0_3_Json.Instance;
         }
 
         public Connection(params EndPoint[] endPoints)
