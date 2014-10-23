@@ -1,10 +1,9 @@
 using System;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using ProtoBuf;
-using System.Text;
 using RethinkDb.Logging;
 
 namespace RethinkDb.Protocols

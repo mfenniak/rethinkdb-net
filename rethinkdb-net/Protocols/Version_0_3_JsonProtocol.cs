@@ -1,14 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using System.IO;
+using System.Linq;
 using System.Text;
-using SineSignal.Ottoman.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 using RethinkDb.Logging;
 using RethinkDb.Spec;
-using System.Linq;
-using System.Collections.Generic;
+using SineSignal.Ottoman.Serialization;
 
 namespace RethinkDb.Protocols
 {

@@ -1,10 +1,9 @@
 using System;
-using System.Threading.Tasks;
-using System.Net.Sockets;
-using System.Threading;
-using System.Text;
-using RethinkDb.Logging;
 using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using RethinkDb.Logging;
 
 namespace RethinkDb.Protocols
 {
