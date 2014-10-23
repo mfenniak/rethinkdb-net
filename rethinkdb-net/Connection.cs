@@ -77,7 +77,7 @@ namespace RethinkDb
         {
             get;
             set;
-        }       
+        }
 
         public TimeSpan QueryTimeout
         {
@@ -570,7 +570,7 @@ namespace RethinkDb
 
             writer.BeginArray();
             writer.WriteNumber((int)term.type);
-            if (term.args.Count > 0)
+            if (term.args.Count > 0 || term.optargs.Count > 0)
             {
                 writer.BeginArray();
                 foreach (var arg in term.args)
@@ -578,9 +578,6 @@ namespace RethinkDb
                     WriteTerm(writer, arg);
                 }
                 writer.EndArray();
-            }
-            if (term.optargs.Count > 0)
-            {
                 writer.BeginObject();
                 foreach (var opt in term.optargs)
                 {
@@ -596,12 +593,6 @@ namespace RethinkDb
         {
             switch (datum.type)
             {
-                case Spec.Datum.DatumType.R_ARRAY:
-                    writer.BeginArray();
-                    foreach (var innerDatum in datum.r_array)
-                        WriteDatum(writer, innerDatum);
-                    writer.EndArray();
-                    break;
                 case Spec.Datum.DatumType.R_BOOL:
                     writer.WriteBoolean(datum.r_bool);
                     break;
@@ -613,17 +604,34 @@ namespace RethinkDb
                 case Spec.Datum.DatumType.R_NUM:
                     writer.WriteNumber(datum.r_num);
                     break;
-                case Spec.Datum.DatumType.R_OBJECT:
-                    writer.BeginObject();
-                    foreach (var kvp in datum.r_object)
-                    {
-                        writer.WriteMember(kvp.key);
-                        WriteDatum(writer, kvp.val);
-                    }
-                    writer.EndObject();
-                    break;
                 case Spec.Datum.DatumType.R_STR:
                     writer.WriteString(datum.r_str);
+                    break;
+                case Spec.Datum.DatumType.R_ARRAY:
+                    {
+                        var newterm = new Term() { type = Term.TermType.MAKE_ARRAY };
+                        newterm.args.AddRange(datum.r_array.Select(ap => new Term()
+                        {
+                            type = Term.TermType.DATUM,
+                            datum = ap,
+                        }));
+                        WriteTerm(writer, newterm);
+                    }
+                    break;
+                case Spec.Datum.DatumType.R_OBJECT:
+                    {
+                        var newterm = new Term() { type = Term.TermType.MAKE_OBJ };
+                        newterm.optargs.AddRange(datum.r_object.Select(ap => new Term.AssocPair()
+                        {
+                            key = ap.key,
+                            val = new Term()
+                            {
+                                type = Term.TermType.DATUM,
+                                datum = ap.val
+                            }
+                        }));
+                        WriteTerm(writer, newterm);
+                    }
                     break;
             }
         }
