@@ -197,6 +197,12 @@
     <Compile Include="Json\JsonParserToken.cs" />
     <Compile Include="Json\JsonReader.cs" />
     <Compile Include="Json\JsonWriter.cs" />
+    <Compile Include="Protocols\Version_0_2_Protocol.cs" />
+    <Compile Include="Protocols\Version_0_3_JsonProtocol.cs" />
+    <Compile Include="Protocols\Version_0_3_ProtobufProtocol.cs" />
+    <Compile Include="Protocols\IProtocol.cs" />
+    <Compile Include="Protocols\Version_0_3.cs" />
+    <Compile Include="Protocols\Extensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -213,5 +219,6 @@
   <ItemGroup />
   <ItemGroup>
     <Folder Include="Json\" />
+    <Folder Include="Protocols\" />
   </ItemGroup>
 </Project>

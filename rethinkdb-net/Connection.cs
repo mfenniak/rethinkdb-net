@@ -6,22 +6,17 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ProtoBuf;
 using RethinkDb.DatumConverters;
-using RethinkDb.Spec;
 using RethinkDb.Logging;
-using SineSignal.Ottoman.Serialization;
+using RethinkDb.Protocols;
+using RethinkDb.Spec;
 
 namespace RethinkDb
 {
     public sealed class Connection : IConnectableConnection, IDisposable
     {
-        private static byte[] connectHeader = null;
-        private static byte[] protocolHeader = null;
-
         private TcpClient tcpClient;
         private NetworkStream stream;
         private long nextToken = 1;
@@ -47,6 +42,9 @@ namespace RethinkDb
                 GroupingDictionaryDatumConverterFactory.Instance
             );
             ConnectTimeout = QueryTimeout = TimeSpan.FromSeconds(30);
+            //Protocol = Version_0_3_Json.Instance;
+            //Protocol = Version_0_3_Protobuf.Instance;
+            Protocol = Version_0_2.Instance;
         }
 
         public Connection(params EndPoint[] endPoints)
@@ -86,6 +84,12 @@ namespace RethinkDb
         }
 
         public string AuthorizationKey
+        {
+            get;
+            set;
+        }
+
+        public IProtocol Protocol
         {
             get;
             set;
@@ -194,49 +198,11 @@ namespace RethinkDb
 
                 Logger.Debug("Connected to {0}", endpoint);
 
-                if (connectHeader == null)
-                {
-                    var header = BitConverter.GetBytes((int)Spec.VersionDummy.Version.V0_3);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(header, 0, header.Length);
-                    connectHeader = header;
-                }
-
                 stream = tcpClient.GetStream();
                 this.tcpClient = tcpClient;
                 this.stream = stream;
 
-                await stream.WriteAsync(connectHeader, 0, connectHeader.Length, cancellationToken);
-                Logger.Debug("Sent ReQL header");
-
-                if (String.IsNullOrEmpty(AuthorizationKey))
-                {
-                    await stream.WriteAsync(new byte[] { 0, 0, 0, 0 }, 0, 4, cancellationToken);
-                }
-                else
-                {
-                    var keyInBytes = Encoding.UTF8.GetBytes(AuthorizationKey);
-                    var authKeyLength = BitConverter.GetBytes(keyInBytes.Length);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(authKeyLength, 0, authKeyLength.Length);
-                    await stream.WriteAsync(authKeyLength, 0, authKeyLength.Length);
-                    await stream.WriteAsync(keyInBytes, 0, keyInBytes.Length);
-                }
-
-                if (protocolHeader == null)
-                {
-                    var header = BitConverter.GetBytes((int)Spec.VersionDummy.Protocol.JSON);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(header, 0, header.Length);
-                    protocolHeader = header;
-                }
-                await stream.WriteAsync(protocolHeader, 0, protocolHeader.Length, cancellationToken);
-
-                byte[] authReponseBuffer = new byte[1024];
-                var authResponseLength = await ReadUntilNullTerminator(authReponseBuffer, cancellationToken);
-                var authResponse = Encoding.ASCII.GetString(authReponseBuffer, 0, authResponseLength);
-                if (authResponse != "SUCCESS")
-                    throw new RethinkDbRuntimeException("Unexpected authentication response; expected SUCCESS but got: " + authResponse);
+                await Protocol.ConnectionHandshake(stream, Logger, AuthorizationKey, cancellationToken);
 
 #pragma warning disable 4014
                 ReadLoop();
@@ -282,140 +248,6 @@ namespace RethinkDb
             }
         }
 
-        private Response ReadJsonResponse(JsonReader json, long token)
-        {
-            Spec.Response retval = new Spec.Response();
-            retval.token = token;
-
-            if (!json.Read() || json.CurrentToken != JsonToken.ObjectStart)
-                throw new RethinkDbInternalErrorException("Expected a readable JSON object in response");
-
-            while (true)
-            {
-                if (!json.Read())
-                    throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
-                if (json.CurrentToken == JsonToken.ObjectEnd)
-                    break;
-                if (json.CurrentToken != JsonToken.MemberName)
-                    throw new RethinkDbInternalErrorException("Unexpected JSON state");
-
-                string property = (string)json.CurrentTokenValue;
-                if (property == "t")
-                    retval.type = ReadResponseType(json);
-                else if (property == "r")
-                    retval.response.AddRange(ReadDatumArray(json));
-                else if (property == "b")
-                    retval.backtrace = ReadBacktrace(json);
-                else if (property == "p")
-                    Logger.Warning("Profiling is not currently supported by rethinkdb-net; profiling data will be discarded");
-                else
-                    Logger.Information("Unexpected property {0} in JSON response; ignoring", property);
-            }
-
-            return retval;
-        }
-
-        private static Response.ResponseType ReadResponseType(JsonReader json)
-        {
-            if (!json.Read())
-                throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
-            if (json.CurrentToken != JsonToken.Int)
-                throw new RethinkDbInternalErrorException("Unexpected value in 'r' key in response");
-            return (Response.ResponseType)(json.CurrentTokenValue);
-        }
-
-        private static IEnumerable<Datum> ReadDatumArray(JsonReader json)
-        {
-            if (!json.Read())
-                throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
-            if (json.CurrentToken != JsonToken.ArrayStart)
-                throw new RethinkDbInternalErrorException("Unexpected value in 'r' key in response");
-
-            while (true)
-            {
-                var datum = ReadDatum(json);
-                if (datum == null)
-                    break;
-                yield return datum;
-            }
-        }
-
-        private static Datum ReadDatum(JsonReader json)
-        {
-            if (!json.Read())
-                throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
-            switch (json.CurrentToken)
-            {
-                case JsonToken.Null:
-                    return new Datum() { type = Datum.DatumType.R_NULL };
-                case JsonToken.Boolean:
-                    return new Datum() { type = Datum.DatumType.R_BOOL, r_bool = (bool)json.CurrentTokenValue };
-                case JsonToken.Double:
-                    return new Datum() { type = Datum.DatumType.R_NUM, r_num = (double)json.CurrentTokenValue };
-                case JsonToken.Int:
-                    return new Datum() { type = Datum.DatumType.R_NUM, r_num = (int)json.CurrentTokenValue };
-                case JsonToken.Long:
-                    return new Datum() { type = Datum.DatumType.R_NUM, r_num = (long)json.CurrentTokenValue };
-                case JsonToken.String:
-                    return new Datum() { type = Datum.DatumType.R_STR, r_str = (string)json.CurrentTokenValue };
-                case JsonToken.ArrayStart:
-                    {
-                        var retval = new Datum() { type = Datum.DatumType.R_ARRAY };
-                        while (true)
-                        {
-                            var datum = ReadDatum(json);
-                            if (datum == null)
-                                break;
-                            retval.r_array.Add(datum);
-                        }
-                        return retval;
-                    }
-                case JsonToken.ObjectStart:
-                    {
-                        var retval = new Datum() { type = Datum.DatumType.R_OBJECT };
-                        while (true)
-                        {
-                            if (!json.Read())
-                                throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
-                            if (json.CurrentToken == JsonToken.ObjectEnd)
-                                break;
-                            if (json.CurrentToken != JsonToken.MemberName)
-                                throw new RethinkDbInternalErrorException("Expected MemberName next in object");
-
-                            string memberName = (string)json.CurrentTokenValue;
-                            var datum = ReadDatum(json);
-                            if (datum == null)
-                                throw new RethinkDbInternalErrorException("Expected a datum to be following MemberName");
-                            retval.r_object.Add(new Datum.AssocPair() { key = memberName, val = datum });
-                        }
-                        return retval;
-                    }
-                case JsonToken.ArrayEnd:
-                    // This wouldn't be expected at a datum, but instead signals the end of the array or object
-                    // being read by the caller.
-                    return null;
-                default:
-                    throw new RethinkDbInternalErrorException(String.Format("Unexpected token {0} in datum", json.CurrentToken));
-            }
-        }
-
-        private static Backtrace ReadBacktrace(JsonReader json)
-        {
-            if (!json.Read())
-                throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
-            if (json.CurrentToken != JsonToken.ArrayStart)
-                throw new RethinkDbInternalErrorException("Unexpected value in 'r' key in response");
-            var retval = new Backtrace();
-            while (true)
-            {
-                // FIXME: read backtraces...
-                json.Read();
-                if (json.CurrentToken == JsonToken.ArrayEnd)
-                    break;
-            }
-            return retval;
-        }
-
         private async Task ReadLoop()
         {
             RethinkDbException responseException = null;
@@ -423,53 +255,21 @@ namespace RethinkDb
             {
                 while (true)
                 {
-                    byte[] tokenHeader = new byte[8];
-                    await ReadMyBytes(tokenHeader);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(tokenHeader, 0, tokenHeader.Length);
-                    var token = BitConverter.ToInt64(tokenHeader, 0);
-                    Logger.Debug("Received packet token, token is {0}", token);
+                    var response = await Protocol.ReadResponseFromStream(stream, Logger);
 
-                    byte[] lengthHeader = new byte[4];
-                    await ReadMyBytes(lengthHeader);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(lengthHeader, 0, lengthHeader.Length);
-                    var respSize = BitConverter.ToInt32(lengthHeader, 0);
-                    Logger.Debug("Received packet size header, packet is {0} bytes", respSize);
-
-                    byte[] retVal = new byte[respSize];
-                    await ReadMyBytes(retVal);
-                    Logger.Debug("Received packet completely");
-                    using (var memoryBuffer = new MemoryStream(retVal))
-                    using (var textReader = new StreamReader(memoryBuffer))
+                    TaskCompletionSource<Response> tcs;
+                    if (tokenResponse.TryGetValue(response.token, out tcs))
                     {
-                        var json = new JsonReader(textReader);
-                        var response = ReadJsonResponse(json, token);
-
-                        //var response = Serializer.Deserialize<Response>(memoryBuffer);
-                        Logger.Debug("Received packet deserialized to response for query token {0}, type: {1}", response.token, response.type);
-
-                        /*
-                        if (response.token != token)
-                            // I'm assuming this isn't possible, but just testing here; this goes away with the JSON
-                            // protocol conversion, so I don't have to worry about the exception type.
-                            throw new InvalidOperationException("response.token != token");
-                        */
-
-                        TaskCompletionSource<Response> tcs;
-                        if (tokenResponse.TryGetValue(response.token, out tcs))
-                        {
-                            tokenResponse.Remove(response.token);
-                            // Send the result to the waiting thread via the thread-pool.  If we invoke
-                            // tcs.SetResult(response) synchronously, we actually block until the response handling
-                            // is completed, which could be an unknown quantity of user code.  It could also cause
-                            // a deadlock (see mfenniak/rethinkdb-net#112).
-                            ThreadPool.QueueUserWorkItem(_ => tcs.SetResult(response));
-                        }
-                        else
-                        {
-                            Logger.Warning("Received response to query token {0}, but no handler was waiting for that response.  This can occur if the query times out around the same time a response is received.", response.token);
-                        }
+                        tokenResponse.Remove(response.token);
+                        // Send the result to the waiting thread via the thread-pool.  If we invoke
+                        // tcs.SetResult(response) synchronously, we actually block until the response handling
+                        // is completed, which could be an unknown quantity of user code.  It could also cause
+                        // a deadlock (see mfenniak/rethinkdb-net#112).
+                        ThreadPool.QueueUserWorkItem(_ => tcs.SetResult(response));
+                    }
+                    else
+                    {
+                        Logger.Warning("Received response to query token {0}, but no handler was waiting for that response.  This can occur if the query times out around the same time a response is received.", response.token);
                     }
                 }
             }
@@ -503,137 +303,9 @@ namespace RethinkDb
                 Logger.Warning("Cleanup in ReadLoop termination didn't succeed, there are still tasks waiting for data from this connection that will never receive it");
         }
 
-        private async Task<int> ReadUntilNullTerminator(byte[] buffer, CancellationToken cancellationToken)
-        {
-            int totalBytesRead = 0;
-            while (true)
-            {
-                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length - totalBytesRead, cancellationToken);
-                totalBytesRead += bytesRead;
-                Logger.Debug("Received {0} / {1} bytes in NullTerminator buffer", bytesRead, buffer.Length);
-
-                if (bytesRead == 0)
-                    throw new RethinkDbNetworkException("Network stream closed while attempting to read");
-                else if (buffer[totalBytesRead - 1] == 0)
-                    return totalBytesRead - 1;
-                else if (totalBytesRead == buffer.Length)
-                    throw new RethinkDbNetworkException("Ran out of space in buffer while looking for a null-terminated string");
-            }
-        }
-
-        private async Task ReadMyBytes(byte[] buffer)
-        {
-            int totalBytesRead = 0;
-            while (true)
-            {
-                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length - totalBytesRead);
-                totalBytesRead += bytesRead;
-                Logger.Debug("Received {0} / {1} bytes of packet", bytesRead, buffer.Length);
-
-                if (bytesRead == 0)
-                    throw new RethinkDbNetworkException("Network stream closed while attempting to read");
-                else if (totalBytesRead == buffer.Length)
-                    break;
-            }
-        }
-
         internal long GetNextToken()
         {
             return Interlocked.Increment(ref nextToken);
-        }
-
-        private static void WriteQuery(JsonWriter writer, Spec.Query query)
-        {
-            writer.BeginArray();
-            writer.WriteNumber((int)query.type);
-            if (query.type == Spec.Query.QueryType.START)
-            {
-                WriteTerm(writer, query.query);
-                writer.BeginObject();
-                foreach (var opt in query.global_optargs)
-                {
-                    writer.WriteMember(opt.key);
-                    WriteTerm(writer, opt.val);
-                }
-                writer.EndObject();
-            }
-            writer.EndArray();
-        }
-
-        private static void WriteTerm(JsonWriter writer, Spec.Term term)
-        {
-            if (term.type == Term.TermType.DATUM)
-            {
-                WriteDatum(writer, term.datum);
-                return;
-            }
-
-            writer.BeginArray();
-            writer.WriteNumber((int)term.type);
-            if (term.args.Count > 0 || term.optargs.Count > 0)
-            {
-                writer.BeginArray();
-                foreach (var arg in term.args)
-                {
-                    WriteTerm(writer, arg);
-                }
-                writer.EndArray();
-                writer.BeginObject();
-                foreach (var opt in term.optargs)
-                {
-                    writer.WriteMember(opt.key);
-                    WriteTerm(writer, opt.val);
-                }
-                writer.EndObject();
-            }
-            writer.EndArray();
-        }
-
-        private static void WriteDatum(JsonWriter writer, Spec.Datum datum)
-        {
-            switch (datum.type)
-            {
-                case Spec.Datum.DatumType.R_BOOL:
-                    writer.WriteBoolean(datum.r_bool);
-                    break;
-                case Spec.Datum.DatumType.R_JSON:
-                    throw new NotSupportedException();
-                case Spec.Datum.DatumType.R_NULL:
-                    writer.WriteNull();
-                    break;
-                case Spec.Datum.DatumType.R_NUM:
-                    writer.WriteNumber(datum.r_num);
-                    break;
-                case Spec.Datum.DatumType.R_STR:
-                    writer.WriteString(datum.r_str);
-                    break;
-                case Spec.Datum.DatumType.R_ARRAY:
-                    {
-                        var newterm = new Term() { type = Term.TermType.MAKE_ARRAY };
-                        newterm.args.AddRange(datum.r_array.Select(ap => new Term()
-                        {
-                            type = Term.TermType.DATUM,
-                            datum = ap,
-                        }));
-                        WriteTerm(writer, newterm);
-                    }
-                    break;
-                case Spec.Datum.DatumType.R_OBJECT:
-                    {
-                        var newterm = new Term() { type = Term.TermType.MAKE_OBJ };
-                        newterm.optargs.AddRange(datum.r_object.Select(ap => new Term.AssocPair()
-                        {
-                            key = ap.key,
-                            val = new Term()
-                            {
-                                type = Term.TermType.DATUM,
-                                datum = ap.val
-                            }
-                        }));
-                        WriteTerm(writer, newterm);
-                    }
-                    break;
-            }
         }
 
         internal async Task<Response> InternalRunQuery(Spec.Query query, CancellationToken cancellationToken)
@@ -648,43 +320,19 @@ namespace RethinkDb
             };
             using (cancellationToken.Register(abortToken))
             {
-                using (var memoryBuffer = new MemoryStream(1024))
+                // Put query.token into writeTokenLock if writeTokenLock is 0 (ie. unlocked).  If it's not 0,
+                // spin-lock on the compare exchange.
+                while (Interlocked.CompareExchange(ref writeTokenLock, query.token, 0) != 0)
+                    ;
+
+                try
                 {
-                    // FIXME: don't create an encoder every time
-                    // and also, figure out exactly the right encoding that rethinkdb is expecting
-                    using (var streamWriter = new StreamWriter(memoryBuffer, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false)))
-                    {
-                        WriteQuery(new JsonWriter(streamWriter), query);
-                    }
-
-                    var data = memoryBuffer.ToArray();
-                    string dataStr = Encoding.UTF8.GetString(data);
-                    Logger.Information("JSON query: {0}", dataStr);
-                    var lengthHeader = BitConverter.GetBytes(data.Length);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(lengthHeader, 0, lengthHeader.Length);
-
-                    var tokenHeader = BitConverter.GetBytes(query.token);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(tokenHeader, 0, tokenHeader.Length);
-
-                    // Put query.token into writeTokenLock if writeTokenLock is 0 (ie. unlocked).  If it's not 0,
-                    // spin-lock on the compare exchange.
-                    while (Interlocked.CompareExchange(ref writeTokenLock, query.token, 0) != 0)
-                        ;
-
-                    try
-                    {
-                        Logger.Debug("Writing packet, {0} bytes", data.Length);
-                        await stream.WriteAsync(tokenHeader, 0, tokenHeader.Length, cancellationToken);
-                        await stream.WriteAsync(lengthHeader, 0, lengthHeader.Length, cancellationToken);
-                        await stream.WriteAsync(data, 0, data.Length, cancellationToken);
-                    }
-                    finally
-                    {
-                        // Revert writeTokenLock to 0.
-                        writeTokenLock = 0;
-                    }
+                    await Protocol.WriteQueryToStream(stream, Logger, query, cancellationToken);
+                }
+                finally
+                {
+                    // Revert writeTokenLock to 0.
+                    writeTokenLock = 0;
                 }
 
                 return await tcs.Task;
