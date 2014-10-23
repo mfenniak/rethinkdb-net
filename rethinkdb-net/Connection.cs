@@ -13,6 +13,7 @@ using ProtoBuf;
 using RethinkDb.DatumConverters;
 using RethinkDb.Spec;
 using RethinkDb.Logging;
+using SineSignal.Ottoman.Serialization;
 
 namespace RethinkDb
 {
@@ -21,14 +22,6 @@ namespace RethinkDb
         private static byte[] connectHeader = null;
         private static byte[] protocolHeader = null;
 
-        private static Stopwatch ProtobufSw = new Stopwatch();
-        private static Stopwatch JsonSw = new Stopwatch();
-
-        static Connection()
-        {
-            Console.WriteLine("Initialized;  JSON: {0}, ProtoBuf: {1}", JsonSw.ElapsedTicks, ProtobufSw.ElapsedTicks);
-        }
-       
         private TcpClient tcpClient;
         private NetworkStream stream;
         private long nextToken = 1;
@@ -289,6 +282,140 @@ namespace RethinkDb
             }
         }
 
+        private Response ReadJsonResponse(JsonReader json, long token)
+        {
+            Spec.Response retval = new Spec.Response();
+            retval.token = token;
+
+            if (!json.Read() || json.CurrentToken != JsonToken.ObjectStart)
+                throw new RethinkDbInternalErrorException("Expected a readable JSON object in response");
+
+            while (true)
+            {
+                if (!json.Read())
+                    throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
+                if (json.CurrentToken == JsonToken.ObjectEnd)
+                    break;
+                if (json.CurrentToken != JsonToken.MemberName)
+                    throw new RethinkDbInternalErrorException("Unexpected JSON state");
+
+                string property = (string)json.CurrentTokenValue;
+                if (property == "t")
+                    retval.type = ReadResponseType(json);
+                else if (property == "r")
+                    retval.response.AddRange(ReadDatumArray(json));
+                else if (property == "b")
+                    retval.backtrace = ReadBacktrace(json);
+                else if (property == "p")
+                    Logger.Warning("Profiling is not currently supported by rethinkdb-net; profiling data will be discarded");
+                else
+                    Logger.Information("Unexpected property {0} in JSON response; ignoring", property);
+            }
+
+            return retval;
+        }
+
+        private static Response.ResponseType ReadResponseType(JsonReader json)
+        {
+            if (!json.Read())
+                throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
+            if (json.CurrentToken != JsonToken.Int)
+                throw new RethinkDbInternalErrorException("Unexpected value in 'r' key in response");
+            return (Response.ResponseType)(json.CurrentTokenValue);
+        }
+
+        private static IEnumerable<Datum> ReadDatumArray(JsonReader json)
+        {
+            if (!json.Read())
+                throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
+            if (json.CurrentToken != JsonToken.ArrayStart)
+                throw new RethinkDbInternalErrorException("Unexpected value in 'r' key in response");
+
+            while (true)
+            {
+                var datum = ReadDatum(json);
+                if (datum == null)
+                    break;
+                yield return datum;
+            }
+        }
+
+        private static Datum ReadDatum(JsonReader json)
+        {
+            if (!json.Read())
+                throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
+            switch (json.CurrentToken)
+            {
+                case JsonToken.Null:
+                    return new Datum() { type = Datum.DatumType.R_NULL };
+                case JsonToken.Boolean:
+                    return new Datum() { type = Datum.DatumType.R_BOOL, r_bool = (bool)json.CurrentTokenValue };
+                case JsonToken.Double:
+                    return new Datum() { type = Datum.DatumType.R_NUM, r_num = (double)json.CurrentTokenValue };
+                case JsonToken.Int:
+                    return new Datum() { type = Datum.DatumType.R_NUM, r_num = (int)json.CurrentTokenValue };
+                case JsonToken.Long:
+                    return new Datum() { type = Datum.DatumType.R_NUM, r_num = (long)json.CurrentTokenValue };
+                case JsonToken.String:
+                    return new Datum() { type = Datum.DatumType.R_STR, r_str = (string)json.CurrentTokenValue };
+                case JsonToken.ArrayStart:
+                    {
+                        var retval = new Datum() { type = Datum.DatumType.R_ARRAY };
+                        while (true)
+                        {
+                            var datum = ReadDatum(json);
+                            if (datum == null)
+                                break;
+                            retval.r_array.Add(datum);
+                        }
+                        return retval;
+                    }
+                case JsonToken.ObjectStart:
+                    {
+                        var retval = new Datum() { type = Datum.DatumType.R_OBJECT };
+                        while (true)
+                        {
+                            if (!json.Read())
+                                throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
+                            if (json.CurrentToken == JsonToken.ObjectEnd)
+                                break;
+                            if (json.CurrentToken != JsonToken.MemberName)
+                                throw new RethinkDbInternalErrorException("Expected MemberName next in object");
+
+                            string memberName = (string)json.CurrentTokenValue;
+                            var datum = ReadDatum(json);
+                            if (datum == null)
+                                throw new RethinkDbInternalErrorException("Expected a datum to be following MemberName");
+                            retval.r_object.Add(new Datum.AssocPair() { key = memberName, val = datum });
+                        }
+                        return retval;
+                    }
+                case JsonToken.ArrayEnd:
+                    // This wouldn't be expected at a datum, but instead signals the end of the array or object
+                    // being read by the caller.
+                    return null;
+                default:
+                    throw new RethinkDbInternalErrorException(String.Format("Unexpected token {0} in datum", json.CurrentToken));
+            }
+        }
+
+        private static Backtrace ReadBacktrace(JsonReader json)
+        {
+            if (!json.Read())
+                throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
+            if (json.CurrentToken != JsonToken.ArrayStart)
+                throw new RethinkDbInternalErrorException("Unexpected value in 'r' key in response");
+            var retval = new Backtrace();
+            while (true)
+            {
+                // FIXME: read backtraces...
+                json.Read();
+                if (json.CurrentToken == JsonToken.ArrayEnd)
+                    break;
+            }
+            return retval;
+        }
+
         private async Task ReadLoop()
         {
             RethinkDbException responseException = null;
@@ -314,8 +441,12 @@ namespace RethinkDb
                     await ReadMyBytes(retVal);
                     Logger.Debug("Received packet completely");
                     using (var memoryBuffer = new MemoryStream(retVal))
+                    using (var textReader = new StreamReader(memoryBuffer))
                     {
-                        var response = Serializer.Deserialize<Response>(memoryBuffer);
+                        var json = new JsonReader(textReader);
+                        var response = ReadJsonResponse(json, token);
+
+                        //var response = Serializer.Deserialize<Response>(memoryBuffer);
                         Logger.Debug("Received packet deserialized to response for query token {0}, type: {1}", response.token, response.type);
 
                         /*
@@ -411,25 +542,25 @@ namespace RethinkDb
             return Interlocked.Increment(ref nextToken);
         }
 
-        private static void WriteQuery(Json.JsonWriter writer, Spec.Query query)
+        private static void WriteQuery(JsonWriter writer, Spec.Query query)
         {
-            writer.WriteStartArray();
+            writer.BeginArray();
             writer.WriteNumber((int)query.type);
             if (query.type == Spec.Query.QueryType.START)
             {
                 WriteTerm(writer, query.query);
-                writer.WriteStartObject();
+                writer.BeginObject();
                 foreach (var opt in query.global_optargs)
                 {
-                    writer.WritePropertyName(opt.key);
+                    writer.WriteMember(opt.key);
                     WriteTerm(writer, opt.val);
                 }
-                writer.WriteEndObject();
+                writer.EndObject();
             }
-            writer.WriteEndArray();
+            writer.EndArray();
         }
 
-        private static void WriteTerm(Json.JsonWriter writer, Spec.Term term)
+        private static void WriteTerm(JsonWriter writer, Spec.Term term)
         {
             if (term.type == Term.TermType.DATUM)
             {
@@ -437,33 +568,39 @@ namespace RethinkDb
                 return;
             }
 
-            writer.WriteStartArray();
+            writer.BeginArray();
             writer.WriteNumber((int)term.type);
-            writer.WriteStartArray();
-            foreach (var arg in term.args)
+            if (term.args.Count > 0)
             {
-                WriteTerm(writer, arg);
+                writer.BeginArray();
+                foreach (var arg in term.args)
+                {
+                    WriteTerm(writer, arg);
+                }
+                writer.EndArray();
             }
-            writer.WriteEndArray();
-            writer.WriteStartObject();
-            foreach (var opt in term.optargs)
+            if (term.optargs.Count > 0)
             {
-                writer.WritePropertyName(opt.key);
-                WriteTerm(writer, opt.val);
+                writer.BeginObject();
+                foreach (var opt in term.optargs)
+                {
+                    writer.WriteMember(opt.key);
+                    WriteTerm(writer, opt.val);
+                }
+                writer.EndObject();
             }
-            writer.WriteEndObject();
-            writer.WriteEndArray();
+            writer.EndArray();
         }
 
-        private static void WriteDatum(Json.JsonWriter writer, Spec.Datum datum)
+        private static void WriteDatum(JsonWriter writer, Spec.Datum datum)
         {
             switch (datum.type)
             {
                 case Spec.Datum.DatumType.R_ARRAY:
-                    writer.WriteStartArray();
+                    writer.BeginArray();
                     foreach (var innerDatum in datum.r_array)
                         WriteDatum(writer, innerDatum);
-                    writer.WriteEndArray();
+                    writer.EndArray();
                     break;
                 case Spec.Datum.DatumType.R_BOOL:
                     writer.WriteBoolean(datum.r_bool);
@@ -477,13 +614,13 @@ namespace RethinkDb
                     writer.WriteNumber(datum.r_num);
                     break;
                 case Spec.Datum.DatumType.R_OBJECT:
-                    writer.WriteStartObject();
+                    writer.BeginObject();
                     foreach (var kvp in datum.r_object)
                     {
-                        writer.WritePropertyName(kvp.key);
+                        writer.WriteMember(kvp.key);
                         WriteDatum(writer, kvp.val);
                     }
-                    writer.WriteEndObject();
+                    writer.EndObject();
                     break;
                 case Spec.Datum.DatumType.R_STR:
                     writer.WriteString(datum.r_str);
@@ -496,8 +633,6 @@ namespace RethinkDb
             var tcs = new TaskCompletionSource<Response>();
             tokenResponse[query.token] = tcs;
 
-            Console.WriteLine("PreCommand;  JSON: {0}, ProtoBuf: {1}", JsonSw.ElapsedTicks, ProtobufSw.ElapsedTicks);
-
             Action abortToken = () => {
                 Logger.Warning("Query token {0} timed out after {1}", query.token, this.QueryTimeout);
                 if (tokenResponse.Remove(query.token))
@@ -506,12 +641,17 @@ namespace RethinkDb
             using (cancellationToken.Register(abortToken))
             {
                 using (var memoryBuffer = new MemoryStream(1024))
-                using (var streamWriter = new StreamWriter(memoryBuffer, Encoding.UTF8))
                 {
-                    WriteQuery(new RethinkDb.Json.JsonWriter(streamWriter), query);
-                    streamWriter.Flush();
+                    // FIXME: don't create an encoder every time
+                    // and also, figure out exactly the right encoding that rethinkdb is expecting
+                    using (var streamWriter = new StreamWriter(memoryBuffer, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false)))
+                    {
+                        WriteQuery(new JsonWriter(streamWriter), query);
+                    }
 
                     var data = memoryBuffer.ToArray();
+                    string dataStr = Encoding.UTF8.GetString(data);
+                    Logger.Information("JSON query: {0}", dataStr);
                     var lengthHeader = BitConverter.GetBytes(data.Length);
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(lengthHeader, 0, lengthHeader.Length);
