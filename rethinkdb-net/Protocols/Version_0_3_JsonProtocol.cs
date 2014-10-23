@@ -18,6 +18,7 @@ namespace RethinkDb.Protocols
         public static readonly Version_0_3_Json Instance = new Version_0_3_Json();
 
         private byte[] protocolHeader;
+        private Encoding utf8Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
         private Version_0_3_Json()
         {
@@ -35,28 +36,34 @@ namespace RethinkDb.Protocols
         public override async Task WriteQueryToStream(Stream stream, ILogger logger, Spec.Query query, CancellationToken cancellationToken)
         {
             using (var memoryBuffer = new MemoryStream(1024))
+            using (var streamWriter = new StreamWriter(memoryBuffer, utf8Encoding))
             {
-                // FIXME: don't create an encoder every time
-                // and also, figure out exactly the right encoding that rethinkdb is expecting
-                using (var streamWriter = new StreamWriter(memoryBuffer, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false)))
-                {
-                    WriteQuery(new JsonWriter(streamWriter), query);
-                }
+                WriteQuery(new JsonWriter(streamWriter), query);
+                streamWriter.Flush();
 
                 var data = memoryBuffer.ToArray();
-                string dataStr = Encoding.UTF8.GetString(data);
-                logger.Information("JSON query: {0}", dataStr);
-                var lengthHeader = BitConverter.GetBytes(data.Length);
-                if (!BitConverter.IsLittleEndian)
-                    Array.Reverse(lengthHeader, 0, lengthHeader.Length);
+                memoryBuffer.Seek(0, SeekOrigin.Begin);
+
+                if (logger.InformationEnabled())
+                {
+                    string dataStr = Encoding.UTF8.GetString(data);
+                    logger.Information("JSON query: {0}", dataStr);
+                }
 
                 var tokenHeader = BitConverter.GetBytes(query.token);
                 if (!BitConverter.IsLittleEndian)
                     Array.Reverse(tokenHeader, 0, tokenHeader.Length);
+                memoryBuffer.Write(tokenHeader, 0, tokenHeader.Length);
+
+                var lengthHeader = BitConverter.GetBytes(data.Length);
+                if (!BitConverter.IsLittleEndian)
+                    Array.Reverse(lengthHeader, 0, lengthHeader.Length);
+                memoryBuffer.Write(lengthHeader, 0, lengthHeader.Length);
+
+                memoryBuffer.Write(data, 0, data.Length);
 
                 logger.Debug("Writing packet, {0} bytes", data.Length);
-                await stream.WriteAsync(tokenHeader, 0, tokenHeader.Length, cancellationToken);
-                await stream.WriteAsync(lengthHeader, 0, lengthHeader.Length, cancellationToken);
+                data = memoryBuffer.ToArray();
                 await stream.WriteAsync(data, 0, data.Length, cancellationToken);
             }
         }
