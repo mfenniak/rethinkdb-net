@@ -3,12 +3,8 @@ using System;
 
 namespace RethinkDb.QueryTerm
 {
-    public class NowQuery : ISingleObjectQuery<DateTimeOffset>
+    public class NowQuery<TResult> : ISingleObjectQuery<TResult>
     {
-        public NowQuery()
-        {
-        }
-
         public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var term = new Term()

@@ -4,12 +4,12 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class SumGroupAggregateQuery<TKey, TRecord> : IGroupingQuery<TKey, double>
+    public class SumGroupAggregateQuery<TKey, TRecord, TSumType> : IGroupingQuery<TKey, TSumType>
     {
         private readonly IGroupingQuery<TKey, TRecord[]> groupingQuery;
-        private readonly Expression<Func<TRecord, double>> field;
+        private readonly Expression<Func<TRecord, TSumType>> field;
 
-        public SumGroupAggregateQuery(IGroupingQuery<TKey, TRecord[]> groupingQuery, Expression<Func<TRecord, double>> field)
+        public SumGroupAggregateQuery(IGroupingQuery<TKey, TRecord[]> groupingQuery, Expression<Func<TRecord, TSumType>> field)
         {
             this.groupingQuery = groupingQuery;
             this.field = field;
@@ -26,7 +26,7 @@ namespace RethinkDb.QueryTerm
             {
                 if (field.NodeType != ExpressionType.Lambda)
                     throw new NotSupportedException("Unsupported expression type");
-                term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, double>(queryConverter, field));
+                term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TSumType>(queryConverter, field));
             }
             return term;
         }

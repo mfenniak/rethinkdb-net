@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class OuterJoinQuery<TLeft, TRight> : ISequenceQuery<Tuple<TLeft, TRight>>
+    public class OuterJoinQuery<TLeft, TRight, TResult> : ISequenceQuery<TResult>
     {
         private ISequenceQuery<TLeft> leftQuery;
         private ISequenceQuery<TRight> rightQuery;

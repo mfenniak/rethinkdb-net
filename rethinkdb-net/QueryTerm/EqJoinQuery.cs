@@ -5,7 +5,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
-    public class EqJoinQuery<TLeft, TRight> : ISequenceQuery<Tuple<TLeft, TRight>>
+    public class EqJoinQuery<TLeft, TRight, TResult> : ISequenceQuery<TResult>
     {
         private readonly ISequenceQuery<TLeft> leftQuery;
         private readonly ISequenceQuery<TRight> rightQuery;

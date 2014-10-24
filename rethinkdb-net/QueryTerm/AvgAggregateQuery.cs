@@ -4,12 +4,12 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class AvgAggregateQuery<TRecord> : ISingleObjectQuery<double>
+    public class AvgAggregateQuery<TRecord, TAvgType> : ISingleObjectQuery<TAvgType>
     {
         private readonly ISequenceQuery<TRecord> sequenceQuery;
-        private readonly Expression<Func<TRecord, double>> field;
+        private readonly Expression<Func<TRecord, TAvgType>> field;
 
-        public AvgAggregateQuery(ISequenceQuery<TRecord> sequenceQuery, Expression<Func<TRecord, double>> field)
+        public AvgAggregateQuery(ISequenceQuery<TRecord> sequenceQuery, Expression<Func<TRecord, TAvgType>> field)
         {
             this.sequenceQuery = sequenceQuery;
             this.field = field;
@@ -26,7 +26,7 @@ namespace RethinkDb.QueryTerm
             {
                 if (field.NodeType != ExpressionType.Lambda)
                     throw new NotSupportedException("Unsupported expression type");
-                term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, double>(queryConverter, field));
+                term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TAvgType>(queryConverter, field));
             }
             return term;
         }

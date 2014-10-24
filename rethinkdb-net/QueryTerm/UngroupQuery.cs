@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class UngroupQuery<TKey, TValue> : ISequenceQuery<UngroupObject<TKey, TValue>>
+    public class UngroupQuery<TKey, TValue, TResult> : ISequenceQuery<TResult>
     {
         private readonly IGroupingQuery<TKey, TValue> groupingQuery;
 

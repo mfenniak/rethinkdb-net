@@ -4,11 +4,11 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class ZipQuery<TLeft, TRight, TTarget> : ISequenceQuery<TTarget>
+    public class ZipQuery<TJoinedType, TTarget> : ISequenceQuery<TTarget>
     {
-        private ISequenceQuery<Tuple<TLeft, TRight>> sequenceQuery;
+        private ISequenceQuery<TJoinedType> sequenceQuery;
 
-        public ZipQuery(ISequenceQuery<Tuple<TLeft, TRight>> sequenceQuery)
+        public ZipQuery(ISequenceQuery<TJoinedType> sequenceQuery)
         {
             this.sequenceQuery = sequenceQuery;
         }

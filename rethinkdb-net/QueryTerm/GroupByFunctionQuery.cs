@@ -48,7 +48,7 @@ namespace RethinkDb.QueryTerm
         }
     }
 
-    public class GroupByFunctionQuery<TRecord, TKey1, TKey2> : GroupByFunctionQueryBase<TRecord, Tuple<TKey1, TKey2>>
+    public class GroupByFunctionQuery<TRecord, TKey1, TKey2, TGroupingKey> : GroupByFunctionQueryBase<TRecord, TGroupingKey>
     {
         private Expression<Func<TRecord, TKey1>> key1Expression;
         private Expression<Func<TRecord, TKey2>> key2Expression;
@@ -72,7 +72,7 @@ namespace RethinkDb.QueryTerm
         }
     }
 
-    public class GroupByFunctionQuery<TRecord, TKey1, TKey2, TKey3> : GroupByFunctionQueryBase<TRecord, Tuple<TKey1, TKey2, TKey3>>
+    public class GroupByFunctionQuery<TRecord, TKey1, TKey2, TKey3, TGroupingKey> : GroupByFunctionQueryBase<TRecord, TGroupingKey>
     {
         private Expression<Func<TRecord, TKey1>> key1Expression;
         private Expression<Func<TRecord, TKey2>> key2Expression;

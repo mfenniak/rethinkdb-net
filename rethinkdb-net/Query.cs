@@ -325,17 +325,32 @@ namespace RethinkDb
 
         public static ISequenceQuery<Tuple<TLeft, TRight>> InnerJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
         {
-            return new InnerJoinQuery<TLeft, TRight>(leftQuery, rightQuery, joinPredicate);
+            return new InnerJoinQuery<TLeft, TRight, Tuple<TLeft, TRight>>(leftQuery, rightQuery, joinPredicate);
+        }
+
+        public static ISequenceQuery<TResult> InnerJoin<TLeft, TRight, TResult>(this ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
+        {
+            return new InnerJoinQuery<TLeft, TRight, TResult>(leftQuery, rightQuery, joinPredicate);
         }
 
         public static ISequenceQuery<Tuple<TLeft, TRight>> OuterJoin<TLeft, TRight>(this ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
         {
-            return new OuterJoinQuery<TLeft, TRight>(leftQuery, rightQuery, joinPredicate);
+            return new OuterJoinQuery<TLeft, TRight, Tuple<TLeft, TRight>>(leftQuery, rightQuery, joinPredicate);
+        }
+
+        public static ISequenceQuery<TResult> OuterJoin<TLeft, TRight, TResult>(this ISequenceQuery<TLeft> leftQuery, ISequenceQuery<TRight> rightQuery, Expression<Func<TLeft, TRight, bool>> joinPredicate)
+        {
+            return new OuterJoinQuery<TLeft, TRight, TResult>(leftQuery, rightQuery, joinPredicate);
         }
 
         public static ISequenceQuery<TTarget> Zip<TLeft, TRight, TTarget>(this ISequenceQuery<Tuple<TLeft, TRight>> sequenceQuery)
         {
-            return new ZipQuery<TLeft, TRight, TTarget>(sequenceQuery);
+            return new ZipQuery<Tuple<TLeft, TRight>, TTarget>(sequenceQuery);
+        }
+
+        public static ISequenceQuery<TTarget> Zip<TJoinedType, TTarget>(this ISequenceQuery<TJoinedType> sequenceQuery)
+        {
+            return new ZipQuery<TJoinedType, TTarget>(sequenceQuery);
         }
 
         public static ISequenceQuery<Tuple<TLeft, TRight>> EqJoin<TLeft, TRight>(
@@ -344,7 +359,16 @@ namespace RethinkDb
             ISequenceQuery<TRight> rightQuery,
             string indexName = null)
         {
-            return new EqJoinQuery<TLeft, TRight>(leftQuery, leftMemberReferenceExpression, rightQuery, indexName);
+            return new EqJoinQuery<TLeft, TRight, Tuple<TLeft, TRight>>(leftQuery, leftMemberReferenceExpression, rightQuery, indexName);
+        }
+
+        public static ISequenceQuery<TResult> EqJoin<TLeft, TRight, TResult>(
+            this ISequenceQuery<TLeft> leftQuery,
+            Expression<Func<TLeft, object>> leftMemberReferenceExpression,
+            ISequenceQuery<TRight> rightQuery,
+            string indexName = null)
+        {
+            return new EqJoinQuery<TLeft, TRight, TResult>(leftQuery, leftMemberReferenceExpression, rightQuery, indexName);
         }
 
         public static ISequenceQuery<Tuple<TLeft, TRight>> EqJoin<TLeft, TRight, TIndexType>(
@@ -354,6 +378,15 @@ namespace RethinkDb
             IBaseIndex<TRight, TIndexType> index)
         {
             return leftQuery.EqJoin(leftMemberReferenceExpression, rightQuery, index.Name);
+        }
+
+        public static ISequenceQuery<TResult> EqJoin<TLeft, TRight, TResult, TIndexType>(
+            this ISequenceQuery<TLeft> leftQuery,
+            Expression<Func<TLeft, object>> leftMemberReferenceExpression,
+            ISequenceQuery<TRight> rightQuery,
+            IBaseIndex<TRight, TIndexType> index)
+        {
+            return leftQuery.EqJoin<TLeft, TRight, TResult>(leftMemberReferenceExpression, rightQuery, index.Name);
         }
 
         public static ISingleObjectQuery<T> Reduce<T>(this ISequenceQuery<T> sequenceQuery, Expression<Func<T, T, T>> reduceFunction)
@@ -383,7 +416,12 @@ namespace RethinkDb
 
         public static ISingleObjectQuery<DateTimeOffset> Now()
         {
-            return new NowQuery();
+            return new NowQuery<DateTimeOffset>();
+        }
+
+        public static ISingleObjectQuery<TResult> Now<TResult>()
+        {
+            return new NowQuery<TResult>();
         }
 
         public static ISequenceQuery<T> Sample<T>(this ISequenceQuery<T> target, int count)
@@ -435,7 +473,16 @@ namespace RethinkDb
             Expression<Func<TRecord, TKey2>> key2
             )
         {
-            return new GroupByFunctionQuery<TRecord, TKey1, TKey2>(sequenceQuery, key1, key2);
+            return new GroupByFunctionQuery<TRecord, TKey1, TKey2, Tuple<TKey1, TKey2>>(sequenceQuery, key1, key2);
+        }
+
+        public static IGroupingQuery<TGroupingKey, TRecord[]> Group<TRecord, TKey1, TKey2, TGroupingKey>(
+            this ISequenceQuery<TRecord> sequenceQuery,
+            Expression<Func<TRecord, TKey1>> key1,
+            Expression<Func<TRecord, TKey2>> key2
+            )
+        {
+            return new GroupByFunctionQuery<TRecord, TKey1, TKey2, TGroupingKey>(sequenceQuery, key1, key2);
         }
 
         public static IGroupingQuery<Tuple<TKey1, TKey2, TKey3>, TRecord[]> Group<TRecord, TKey1, TKey2, TKey3>(
@@ -445,12 +492,27 @@ namespace RethinkDb
             Expression<Func<TRecord, TKey3>> key3
             )
         {
-            return new GroupByFunctionQuery<TRecord, TKey1, TKey2, TKey3>(sequenceQuery, key1, key2, key3);
+            return new GroupByFunctionQuery<TRecord, TKey1, TKey2, TKey3, Tuple<TKey1, TKey2, TKey3>>(sequenceQuery, key1, key2, key3);
+        }
+
+        public static IGroupingQuery<TGroupingKey, TRecord[]> Group<TRecord, TKey1, TKey2, TKey3, TGroupingKey>(
+            this ISequenceQuery<TRecord> sequenceQuery,
+            Expression<Func<TRecord, TKey1>> key1,
+            Expression<Func<TRecord, TKey2>> key2,
+            Expression<Func<TRecord, TKey3>> key3
+            )
+        {
+            return new GroupByFunctionQuery<TRecord, TKey1, TKey2, TKey3, TGroupingKey>(sequenceQuery, key1, key2, key3);
         }
 
         public static ISequenceQuery<UngroupObject<TKey, TValue>> Ungroup<TKey, TValue>(this IGroupingQuery<TKey, TValue> groupingQuery)
         {
-            return new UngroupQuery<TKey, TValue>(groupingQuery);
+            return new UngroupQuery<TKey, TValue, UngroupObject<TKey, TValue>>(groupingQuery);
+        }
+
+        public static ISequenceQuery<TResult> Ungroup<TKey, TValue, TResult>(this IGroupingQuery<TKey, TValue> groupingQuery)
+        {
+            return new UngroupQuery<TKey, TValue, TResult>(groupingQuery);
         }
 
         public static IGroupingQuery<TKey, TTarget[]> Map<TKey, TOriginal, TTarget>(
@@ -504,7 +566,15 @@ namespace RethinkDb
             Expression<Func<TRecord, double>> field = null
             )
         {
-            return new AvgGroupAggregateQuery<TKey, TRecord>(groupingQuery, field);
+            return new AvgGroupAggregateQuery<TKey, TRecord, double>(groupingQuery, field);
+        }
+
+        public static IGroupingQuery<TKey, TAvgType> Avg<TKey, TRecord, TAvgType>(
+            this IGroupingQuery<TKey, TRecord[]> groupingQuery,
+            Expression<Func<TRecord, TAvgType>> field = null
+            )
+        {
+            return new AvgGroupAggregateQuery<TKey, TRecord, TAvgType>(groupingQuery, field);
         }
 
         public static ISingleObjectQuery<double> Avg<TRecord>(
@@ -512,7 +582,15 @@ namespace RethinkDb
             Expression<Func<TRecord, double>> field = null
             )
         {
-            return new AvgAggregateQuery<TRecord>(sequenceQuery, field);
+            return new AvgAggregateQuery<TRecord, double>(sequenceQuery, field);
+        }
+
+        public static ISingleObjectQuery<TAvgType> Avg<TRecord, TAvgType>(
+            this ISequenceQuery<TRecord> sequenceQuery,
+            Expression<Func<TRecord, TAvgType>> field = null
+            )
+        {
+            return new AvgAggregateQuery<TRecord, TAvgType>(sequenceQuery, field);
         }
 
         public static IGroupingQuery<TKey, double> Sum<TKey, TRecord>(
@@ -520,7 +598,15 @@ namespace RethinkDb
             Expression<Func<TRecord, double>> field = null
             )
         {
-            return new SumGroupAggregateQuery<TKey, TRecord>(groupingQuery, field);
+            return new SumGroupAggregateQuery<TKey, TRecord, double>(groupingQuery, field);
+        }
+
+        public static IGroupingQuery<TKey, TSumType> Sum<TKey, TRecord, TSumType>(
+            this IGroupingQuery<TKey, TRecord[]> groupingQuery,
+            Expression<Func<TRecord, TSumType>> field = null
+            )
+        {
+            return new SumGroupAggregateQuery<TKey, TRecord, TSumType>(groupingQuery, field);
         }
 
         public static ISingleObjectQuery<double> Sum<TRecord>(
@@ -528,7 +614,15 @@ namespace RethinkDb
             Expression<Func<TRecord, double>> field = null
             )
         {
-            return new SumAggregateQuery<TRecord>(sequenceQuery, field);
+            return new SumAggregateQuery<TRecord, double>(sequenceQuery, field);
+        }
+
+        public static ISingleObjectQuery<TSumType> Sum<TRecord, TSumType>(
+            this ISequenceQuery<TRecord> sequenceQuery,
+            Expression<Func<TRecord, TSumType>> field = null
+            )
+        {
+            return new SumAggregateQuery<TRecord, TSumType>(sequenceQuery, field);
         }
 
         public static IGroupingQuery<TKey, int> Count<TKey, TRecord>(
