@@ -23,7 +23,6 @@ namespace RethinkDb.Expressions
         #region Parameter-independent Mappings
 
         protected abstract Term RecursiveMap(Expression expression);
-        protected abstract Term RecursiveMapMemberInit<TInnerReturn>(Expression expression);
 
         private Term ConvertBinaryExpressionToTerm(BinaryExpression expr, Term.TermType termType)
         {

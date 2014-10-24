@@ -29,11 +29,6 @@ namespace RethinkDb.Expressions
             return SimpleMap(datumConverterFactory, expression);
         }
 
-        protected override Term RecursiveMapMemberInit<TInnerReturn>(Expression expression)
-        {
-            throw new NotSupportedException();
-        }
-
         #endregion
     }
 }
