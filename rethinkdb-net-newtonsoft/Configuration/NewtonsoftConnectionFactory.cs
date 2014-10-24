@@ -24,7 +24,7 @@ namespace RethinkDb.Newtonsoft.Configuration
         {
             var connection = new Connection();
 
-            connection.DatumConverterFactory = new NewtonSerializer();
+            connection.QueryConverter = new QueryConverter(new NewtonSerializer(), new RethinkDb.Expressions.DefaultExpressionConverterFactory());
 
             connection.EndPoints = EndPoints;
             if (Logger != null)

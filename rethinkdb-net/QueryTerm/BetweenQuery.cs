@@ -23,14 +23,14 @@ namespace RethinkDb.QueryTerm
             this.rightBound = rightBound;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
-            var datumConverter = datumConverterFactory.Get<TKey>();
+            var datumConverter = queryConverter.Get<TKey>();
             var betweenTerm = new Term()
             {
                 type = Term.TermType.BETWEEN,
             };
-            betweenTerm.args.Add(tableTerm.GenerateTerm(datumConverterFactory));
+            betweenTerm.args.Add(tableTerm.GenerateTerm(queryConverter));
             betweenTerm.args.Add(new Term() {
                 type = Term.TermType.DATUM,
                 datum = datumConverter.ConvertObject(leftKey)

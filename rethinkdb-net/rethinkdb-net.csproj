@@ -203,6 +203,15 @@
     <Compile Include="Protocols\IProtocol.cs" />
     <Compile Include="Protocols\Version_0_3.cs" />
     <Compile Include="Protocols\Extensions.cs" />
+    <Compile Include="Interfaces\IExpressionConverterFactory.cs" />
+    <Compile Include="Interfaces\IExpressionConverterOneParameter.cs" />
+    <Compile Include="Interfaces\IExpressionConverterTwoParameter.cs" />
+    <Compile Include="Interfaces\IExpressionConverterZeroParameter.cs" />
+    <Compile Include="Expressions\DefaultExpressionConverterFactory.cs" />
+    <Compile Include="Expressions\LinqExpressionConverters.cs" />
+    <Compile Include="Expressions\DateTimeExpressionConverters.cs" />
+    <Compile Include="Interfaces\IQueryConverter.cs" />
+    <Compile Include="QueryConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

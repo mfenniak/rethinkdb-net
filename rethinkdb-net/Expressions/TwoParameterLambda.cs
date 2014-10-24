@@ -1,14 +1,14 @@
-using RethinkDb.Spec;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using RethinkDb.DatumConverters;
+using RethinkDb.Spec;
 
 namespace RethinkDb.Expressions
 {
     // Note: Not thread-safe, do not share an instance across threads.
-    class TwoParameterLambda<TParameter1, TParameter2, TReturn> : BaseExpression
+    class TwoParameterLambda<TParameter1, TParameter2, TReturn> : BaseExpression, IExpressionConverterTwoParameter<TParameter1, TParameter2, TReturn>
     {
         #region Public interface
 
@@ -16,7 +16,8 @@ namespace RethinkDb.Expressions
         private string parameter1Name;
         private string parameter2Name;
 
-        public TwoParameterLambda(IDatumConverterFactory datumConverterFactory)
+        public TwoParameterLambda(IDatumConverterFactory datumConverterFactory, DefaultExpressionConverterFactory expressionConverterFactory)
+            : base(expressionConverterFactory)
         {
             this.datumConverterFactory = datumConverterFactory;
         }
@@ -139,6 +140,7 @@ namespace RethinkDb.Expressions
                 case ExpressionType.MemberAccess:
                 {
                     var memberExpr = (MemberExpression)expr;
+                    var member = memberExpr.Member;
                     ParameterExpression parameterExpr = null;
 
                     if (memberExpr.Expression == null)
@@ -167,6 +169,10 @@ namespace RethinkDb.Expressions
                     {
                         return SimpleMap(datumConverterFactory, expr);
                     }
+
+                    DefaultExpressionConverterFactory.ExpressionMappingDelegate<MemberExpression> memberAccessMapping;
+                    if (expressionConverterFactory.TryGetMemberAccessMapping(member, out memberAccessMapping))
+                        return memberAccessMapping(memberExpr, RecursiveMap, datumConverterFactory, expressionConverterFactory);
 
                     if (parameterExpr == null)
                         parameterExpr = (ParameterExpression)memberExpr.Expression;
@@ -247,12 +253,6 @@ namespace RethinkDb.Expressions
             return MapExpressionToTerm(expression);
         }
 
-        protected override Term RecursiveMapMemberInit<TInnerReturn>(Expression expression)
-        {
-            throw new NotSupportedException();
-        }
-
         #endregion
     }
 }
-

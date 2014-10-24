@@ -1,18 +1,17 @@
-using RethinkDb.Spec;
 using System;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
+using RethinkDb.Spec;
 
 namespace RethinkDb.Expressions
 {
-    class ZeroParameterLambda<TReturn> : BaseExpression
+    class ZeroParameterLambda<TReturn> : BaseExpression, IExpressionConverterZeroParameter<TReturn>
     {
         #region Public interface
 
         private readonly IDatumConverterFactory datumConverterFactory;
 
-        public ZeroParameterLambda(IDatumConverterFactory datumConverterFactory)
+        public ZeroParameterLambda(IDatumConverterFactory datumConverterFactory, DefaultExpressionConverterFactory expressionConverterFactory)
+            : base(expressionConverterFactory)
         {
             this.datumConverterFactory = datumConverterFactory;
         }
@@ -28,11 +27,6 @@ namespace RethinkDb.Expressions
         protected override Term RecursiveMap(Expression expression)
         {
             return SimpleMap(datumConverterFactory, expression);
-        }
-
-        protected override Term RecursiveMapMemberInit<TInnerReturn>(Expression expression)
-        {
-            throw new NotSupportedException();
         }
 
         #endregion

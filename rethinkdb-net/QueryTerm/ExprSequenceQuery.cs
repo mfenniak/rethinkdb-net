@@ -15,7 +15,7 @@ namespace RethinkDb.QueryTerm
             this.enumerable = enumerable;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var sequenceTerm = new Term()
             {
@@ -27,7 +27,7 @@ namespace RethinkDb.QueryTerm
                 var datumTerm = new Term()
                 {
                     type = Term.TermType.DATUM,
-                    datum = datumConverterFactory.Get<T>().ConvertObject(obj)
+                    datum = queryConverter.Get<T>().ConvertObject(obj)
                 };
                 sequenceTerm.args.Add(datumTerm);
             }
@@ -36,4 +36,3 @@ namespace RethinkDb.QueryTerm
         }
     }
 }
-

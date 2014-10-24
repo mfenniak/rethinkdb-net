@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class OuterJoinQuery<TLeft, TRight> : ISequenceQuery<Tuple<TLeft, TRight>>
+    public class OuterJoinQuery<TLeft, TRight, TResult> : ISequenceQuery<TResult>
     {
         private ISequenceQuery<TLeft> leftQuery;
         private ISequenceQuery<TRight> rightQuery;
@@ -17,15 +17,15 @@ namespace RethinkDb.QueryTerm
             this.joinPredicate = joinPredicate;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var filterTerm = new Term()
             {
                 type = Term.TermType.OUTER_JOIN,
             };
-            filterTerm.args.Add(leftQuery.GenerateTerm(datumConverterFactory));
-            filterTerm.args.Add(rightQuery.GenerateTerm(datumConverterFactory));
-            filterTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TLeft, TRight, bool>(datumConverterFactory, joinPredicate));
+            filterTerm.args.Add(leftQuery.GenerateTerm(queryConverter));
+            filterTerm.args.Add(rightQuery.GenerateTerm(queryConverter));
+            filterTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TLeft, TRight, bool>(queryConverter, joinPredicate));
             return filterTerm;
         }
     }

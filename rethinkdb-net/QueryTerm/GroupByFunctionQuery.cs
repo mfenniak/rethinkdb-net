@@ -16,16 +16,16 @@ namespace RethinkDb.QueryTerm
             this.sequenceQuery = sequenceQuery;
         }
 
-        protected abstract void GenerateFunctionTerms(Term term, IDatumConverterFactory datumConverterFactory);
+        protected abstract void GenerateFunctionTerms(Term term, IQueryConverter queryConverter);
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var term = new Term()
             {
                 type = Term.TermType.GROUP,
             };
-            term.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
-            GenerateFunctionTerms(term, datumConverterFactory);
+            term.args.Add(sequenceQuery.GenerateTerm(queryConverter));
+            GenerateFunctionTerms(term, queryConverter);
             return term;
         }
     }
@@ -40,15 +40,15 @@ namespace RethinkDb.QueryTerm
             this.keyExpression = keyExpression;
         }
 
-        protected override void GenerateFunctionTerms(Term term, IDatumConverterFactory datumConverterFactory)
+        protected override void GenerateFunctionTerms(Term term, IQueryConverter queryConverter)
         {
             if (keyExpression.NodeType != ExpressionType.Lambda)
                 throw new NotSupportedException("Unsupported expression type");
-            term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TKey>(datumConverterFactory, keyExpression));
+            term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TKey>(queryConverter, keyExpression));
         }
     }
 
-    public class GroupByFunctionQuery<TRecord, TKey1, TKey2> : GroupByFunctionQueryBase<TRecord, Tuple<TKey1, TKey2>>
+    public class GroupByFunctionQuery<TRecord, TKey1, TKey2, TGroupingKey> : GroupByFunctionQueryBase<TRecord, TGroupingKey>
     {
         private Expression<Func<TRecord, TKey1>> key1Expression;
         private Expression<Func<TRecord, TKey2>> key2Expression;
@@ -60,19 +60,19 @@ namespace RethinkDb.QueryTerm
             this.key2Expression = key2Expression;
         }
 
-        protected override void GenerateFunctionTerms(Term term, IDatumConverterFactory datumConverterFactory)
+        protected override void GenerateFunctionTerms(Term term, IQueryConverter queryConverter)
         {
             if (key1Expression.NodeType != ExpressionType.Lambda)
                 throw new NotSupportedException("Unsupported expression type");
-            term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TKey1>(datumConverterFactory, key1Expression));
+            term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TKey1>(queryConverter, key1Expression));
 
             if (key2Expression.NodeType != ExpressionType.Lambda)
                 throw new NotSupportedException("Unsupported expression type");
-            term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TKey2>(datumConverterFactory, key2Expression));
+            term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TKey2>(queryConverter, key2Expression));
         }
     }
 
-    public class GroupByFunctionQuery<TRecord, TKey1, TKey2, TKey3> : GroupByFunctionQueryBase<TRecord, Tuple<TKey1, TKey2, TKey3>>
+    public class GroupByFunctionQuery<TRecord, TKey1, TKey2, TKey3, TGroupingKey> : GroupByFunctionQueryBase<TRecord, TGroupingKey>
     {
         private Expression<Func<TRecord, TKey1>> key1Expression;
         private Expression<Func<TRecord, TKey2>> key2Expression;
@@ -86,19 +86,19 @@ namespace RethinkDb.QueryTerm
             this.key3Expression = key3Expression;
         }
 
-        protected override void GenerateFunctionTerms(Term term, IDatumConverterFactory datumConverterFactory)
+        protected override void GenerateFunctionTerms(Term term, IQueryConverter queryConverter)
         {
             if (key1Expression.NodeType != ExpressionType.Lambda)
                 throw new NotSupportedException("Unsupported expression type");
-            term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TKey1>(datumConverterFactory, key1Expression));
+            term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TKey1>(queryConverter, key1Expression));
 
             if (key2Expression.NodeType != ExpressionType.Lambda)
                 throw new NotSupportedException("Unsupported expression type");
-            term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TKey2>(datumConverterFactory, key2Expression));
+            term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TKey2>(queryConverter, key2Expression));
 
             if (key3Expression.NodeType != ExpressionType.Lambda)
                 throw new NotSupportedException("Unsupported expression type");
-            term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TKey3>(datumConverterFactory, key3Expression));
+            term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TKey3>(queryConverter, key3Expression));
         }
     }
 }

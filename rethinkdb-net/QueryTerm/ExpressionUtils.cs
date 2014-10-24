@@ -9,23 +9,22 @@ namespace RethinkDb.QueryTerm
 {
     public static class ExpressionUtils
     {
-        public static Term CreateValueTerm<TReturn>(IDatumConverterFactory datumConverterFactory, Expression<Func<TReturn>> expression)
+        public static Term CreateValueTerm<TReturn>(IQueryConverter queryConverter, Expression<Func<TReturn>> expression)
         {
-            var converter = new ZeroParameterLambda<TReturn>(datumConverterFactory);
-            return converter.CreateFunctionTerm(expression);
+            var termConverter = queryConverter.CreateExpressionConverter<TReturn>(queryConverter);
+            return termConverter.CreateFunctionTerm(expression);
         }
 
-        public static Term CreateFunctionTerm<TParameter1, TReturn>(IDatumConverterFactory datumConverterFactory, Expression<Func<TParameter1, TReturn>> expression)
+        public static Term CreateFunctionTerm<TParameter1, TReturn>(IQueryConverter queryConverter, Expression<Func<TParameter1, TReturn>> expression)
         {
-            var converter = new SingleParameterLambda<TParameter1, TReturn>(datumConverterFactory);
-            return converter.CreateFunctionTerm(expression);
+            var termConverter = queryConverter.CreateExpressionConverter<TParameter1, TReturn>(queryConverter);
+            return termConverter.CreateFunctionTerm(expression);
         }
 
-        public static Term CreateFunctionTerm<TParameter1, TParameter2, TReturn>(IDatumConverterFactory datumConverterFactory, Expression<Func<TParameter1, TParameter2, TReturn>> expression)
+        public static Term CreateFunctionTerm<TParameter1, TParameter2, TReturn>(IQueryConverter queryConverter, Expression<Func<TParameter1, TParameter2, TReturn>> expression)
         {
-            var converter = new TwoParameterLambda<TParameter1, TParameter2, TReturn>(datumConverterFactory);
-            return converter.CreateFunctionTerm(expression);
+            var termConverter = queryConverter.CreateExpressionConverter<TParameter1, TParameter2, TReturn>(queryConverter);
+            return termConverter.CreateFunctionTerm(expression);
         }
     }
 }
-

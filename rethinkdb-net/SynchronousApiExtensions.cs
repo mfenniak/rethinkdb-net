@@ -24,14 +24,14 @@ namespace RethinkDb
         #endregion
         #region IConnection
 
-        public static T Run<T>(this IConnection connection, IScalarQuery<T> queryObject, IDatumConverterFactory datumConverterFactory = null, CancellationToken? cancellationToken = null)
+        public static T Run<T>(this IConnection connection, IScalarQuery<T> queryObject, IQueryConverter queryConverter = null, CancellationToken? cancellationToken = null)
         {
-            return TaskUtilities.ExecuteSynchronously(() => connection.RunAsync<T>(queryObject, datumConverterFactory, cancellationToken));
+            return TaskUtilities.ExecuteSynchronously(() => connection.RunAsync<T>(queryObject, queryConverter, cancellationToken));
         }
 
-        public static IEnumerable<T> Run<T>(this IConnection connection, ISequenceQuery<T> queryObject, IDatumConverterFactory datumConverterFactory = null, CancellationToken? cancellationToken = null)
+        public static IEnumerable<T> Run<T>(this IConnection connection, ISequenceQuery<T> queryObject, IQueryConverter queryConverter = null, CancellationToken? cancellationToken = null)
         {
-            return new AsyncEnumerableSynchronizer<T>(() => connection.RunAsync<T>(queryObject, datumConverterFactory), cancellationToken);
+            return new AsyncEnumerableSynchronizer<T>(() => connection.RunAsync<T>(queryObject, queryConverter), cancellationToken);
         }
 
         #endregion

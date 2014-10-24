@@ -9,20 +9,20 @@ namespace RethinkDb
     {
         #region IConnection minimalism
 
-        public static Task<T> RunAsync<T>(this IConnection connection, IScalarQuery<T> queryObject, IDatumConverterFactory datumConverterFactory = null, CancellationToken? cancellationToken = null)
+        public static Task<T> RunAsync<T>(this IConnection connection, IScalarQuery<T> queryObject, IQueryConverter queryConverter = null, CancellationToken? cancellationToken = null)
         {
-            if (datumConverterFactory == null)
-                datumConverterFactory = connection.DatumConverterFactory;
+            if (queryConverter == null)
+                queryConverter = connection.QueryConverter;
             if (!cancellationToken.HasValue)
                 cancellationToken = new CancellationTokenSource(connection.QueryTimeout).Token;
-            return connection.RunAsync<T>(datumConverterFactory, queryObject, cancellationToken.Value);
+            return connection.RunAsync<T>(queryConverter, queryObject, cancellationToken.Value);
         }
 
-        public static IAsyncEnumerator<T> RunAsync<T>(this IConnection connection, ISequenceQuery<T> queryObject, IDatumConverterFactory datumConverterFactory = null)
+        public static IAsyncEnumerator<T> RunAsync<T>(this IConnection connection, ISequenceQuery<T> queryObject, IQueryConverter queryConverter = null)
         {
-            if (datumConverterFactory == null)
-                datumConverterFactory = connection.DatumConverterFactory;
-            return connection.RunAsync<T>(datumConverterFactory, queryObject);
+            if (queryConverter == null)
+                queryConverter = connection.QueryConverter;
+            return connection.RunAsync<T>(queryConverter, queryObject);
         }
 
         #endregion

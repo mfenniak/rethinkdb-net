@@ -15,13 +15,13 @@ namespace RethinkDb.QueryTerm
             this.skipCount = skipCount;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var term = new Term()
             {
                 type = Term.TermType.SKIP,
             };
-            term.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory));
+            term.args.Add(sequenceQuery.GenerateTerm(queryConverter));
             term.args.Add(new Term() {
                 type = Term.TermType.DATUM,
                 datum = new Datum()

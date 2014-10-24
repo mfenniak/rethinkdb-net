@@ -11,11 +11,14 @@ namespace RethinkDb.Test.QueryTests
     public class UpdateQueryTests
     {
         private IDatumConverterFactory datumConverterFactory;
+        private IExpressionConverterFactory expressionConverterFactory = new RethinkDb.Expressions.DefaultExpressionConverterFactory();
+        private IQueryConverter queryConverter;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
             datumConverterFactory = Substitute.For<IDatumConverterFactory>();
+            queryConverter = new QueryConverter(datumConverterFactory, expressionConverterFactory);
 
             var stringDatum = new Datum() {
                 type = Datum.DatumType.R_STR,
@@ -32,14 +35,14 @@ namespace RethinkDb.Test.QueryTests
 
             IDatumConverter<string> value;
             datumConverterFactory
-                .TryGet<string>(datumConverterFactory, out value)
+                .TryGet<string>(queryConverter, out value)
                 .Returns(args => {
                         args[1] = stringDatumConverter;
                         return true;
                     });
             IDatumConverter value2;
             datumConverterFactory
-                .TryGet(typeof(string), datumConverterFactory, out value2)
+                .TryGet(typeof(string), queryConverter, out value2)
                 .Returns(args => {
                         args[2] = stringDatumConverter;
                         return true;
@@ -56,7 +59,7 @@ namespace RethinkDb.Test.QueryTests
                 s => "woot",
                 true);
 
-            var term = query.GenerateTerm(datumConverterFactory);
+            var term = query.GenerateTerm(queryConverter);
 
             var nonAtomicArgs = term.optargs.Where(kv => kv.key == "non_atomic");
             Assert.That(nonAtomicArgs.Count(), Is.EqualTo(1));
@@ -80,7 +83,7 @@ namespace RethinkDb.Test.QueryTests
                 s => "woot",
                 false);
 
-            var term = query.GenerateTerm(datumConverterFactory);
+            var term = query.GenerateTerm(queryConverter);
 
             var nonAtomicArgs = term.optargs.Where(kv => kv.key == "non_atomic");
             Assert.That(nonAtomicArgs.Count(), Is.EqualTo(0));

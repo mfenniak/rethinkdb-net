@@ -7,13 +7,14 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.Expressions
 {
-    class SingleParameterLambda<TParameter1, TReturn> : BaseExpression
+    class SingleParameterLambda<TParameter1, TReturn> : BaseExpression, IExpressionConverterOneParameter<TParameter1, TReturn>
     {
         #region Public interface
 
         private readonly IDatumConverterFactory datumConverterFactory;
 
-        public SingleParameterLambda(IDatumConverterFactory datumConverterFactory)
+        public SingleParameterLambda(IDatumConverterFactory datumConverterFactory, DefaultExpressionConverterFactory expressionConverterFactory)
+            : base(expressionConverterFactory)
         {
             this.datumConverterFactory = datumConverterFactory;
         }
@@ -96,12 +97,6 @@ namespace RethinkDb.Expressions
             return MapExpressionToTerm(expression);
         }
 
-        protected override Term RecursiveMapMemberInit<TInnerReturn>(Expression expression)
-        {
-            var newConverter = new SingleParameterLambda<TParameter1, TInnerReturn>(datumConverterFactory);
-            return newConverter.MapMemberInitToTerm((MemberInitExpression)expression);
-        }
-
         private Term MapExpressionToTerm(Expression expr)
         {
             switch (expr.NodeType)
@@ -126,6 +121,7 @@ namespace RethinkDb.Expressions
                 case ExpressionType.MemberAccess:
                 {
                     var memberExpr = (MemberExpression)expr;
+                    var member = memberExpr.Member;
 
                     if (memberExpr.Expression == null)
                     {
@@ -153,6 +149,10 @@ namespace RethinkDb.Expressions
                     {
                         return SimpleMap(datumConverterFactory, expr);
                     }
+
+                    DefaultExpressionConverterFactory.ExpressionMappingDelegate<MemberExpression> memberAccessMapping;
+                    if (expressionConverterFactory.TryGetMemberAccessMapping(member, out memberAccessMapping))
+                        return memberAccessMapping(memberExpr, RecursiveMap, datumConverterFactory, expressionConverterFactory);
 
                     var getAttrTerm = new Term() {
                         type = Term.TermType.GET_FIELD

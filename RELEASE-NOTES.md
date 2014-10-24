@@ -6,6 +6,10 @@
 
 * The type-safe object model for secondary indexes has been expanded to incldude multi-indexes.  Calling table.IndexDefineMulti will return an IMultiIndex<TRecord, TIndexType> interface that can be used in multi-index operations, such as GetAll, Between, and EqJoin.  [PR #174](https://github.com/mfenniak/rethinkdb-net/issues/174)
 
+* It's now possible to customize and configure how rethinkdb-net converts expression trees to RethinkDB terms by creating a DefaultExpressionConverterFactory and calling Register...() methods on it to configure how operators, method calls, and member accesses are converted into RethinkDB terms.  The customized expression converter factory can then be used by setting the QueryConverter property of a Connection.  [PR #183](https://github.com/mfenniak/rethinkdb-net/issues/183)
+
+* Hard-coded types in query operators are optionally provided by rethinkdb-net, but can be input instead.  For example, we provide Query.Now() that returns a DateTimeOffset; if you'd prefer DateTime or some other type, you can use Query.Now<YourType>().  As long as the datum converter on your connection can convert the results from the server into YourType, the query will work as you'd expect.  [PR #183](https://github.com/mfenniak/rethinkdb-net/issues/183)
+
 ### Compatibility
 
 * Added support for RethinkDB's JSON-based client driver protocol.  The JSON protocol is now the default protocol, but the protocol to be used is configurable on the connection objects.  [PR #176](https://github.com/mfenniak/rethinkdb-net/issues/176)
@@ -13,6 +17,8 @@
 ### Breaking Change
 
 * Updated Insert command to reflect RethinkDB's deprecation of upsert and addition of the new conflict parameter. [PR #177](https://github.com/mfenniak/rethinkdb-net/issues/177)
+
+* IDatumConverterFactory has been replaced with IQueryConverter in APIs where the requirement is a tool to convert client-side queries into RethinkDB terms.  IQueryConverter is a composed interface containing IDatumConverterFactory and IExpressionConverterFactory.   [PR #183](https://github.com/mfenniak/rethinkdb-net/issues/183)
 
 
 ## 0.8.0.0 (2014-10-20)

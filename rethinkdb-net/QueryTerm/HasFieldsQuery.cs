@@ -33,20 +33,20 @@ namespace RethinkDb.QueryTerm
             this.fields = fields;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var hasFieldsTerm = new Term()
             {
                 type = Term.TermType.HAS_FIELDS,
             };
-            hasFieldsTerm.args.Add(query.GenerateTerm(datumConverterFactory));
-            hasFieldsTerm.args.AddRange(GetMembers(datumConverterFactory));
+            hasFieldsTerm.args.Add(query.GenerateTerm(queryConverter));
+            hasFieldsTerm.args.AddRange(GetMembers(queryConverter));
             return hasFieldsTerm;
         }
 
-        private IEnumerable<Term> GetMembers(IDatumConverterFactory datumConverterFactory)
+        private IEnumerable<Term> GetMembers(IQueryConverter queryConverter)
         {
-            var datumConverter = datumConverterFactory.Get<T>();
+            var datumConverter = queryConverter.Get<T>();
             var fieldConverter = datumConverter as IObjectDatumConverter;
             if (fieldConverter == null)
                 throw new NotSupportedException("Cannot map member access into ReQL without implementing IObjectDatumConverter");

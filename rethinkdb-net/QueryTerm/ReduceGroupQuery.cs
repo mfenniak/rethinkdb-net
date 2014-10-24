@@ -16,14 +16,14 @@ namespace RethinkDb.QueryTerm
             this.reduceFunction = reduceFunction;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var reduceTerm = new Term()
             {
                 type = Term.TermType.REDUCE,
             };
-            reduceTerm.args.Add(groupingQuery.GenerateTerm(datumConverterFactory));
-            reduceTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TRecord, TRecord>(datumConverterFactory, reduceFunction));
+            reduceTerm.args.Add(groupingQuery.GenerateTerm(queryConverter));
+            reduceTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, TRecord, TRecord>(queryConverter, reduceFunction));
             return reduceTerm;
         }
     }
