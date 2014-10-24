@@ -16,6 +16,7 @@ namespace RethinkDb.Expressions
         public DefaultExpressionConverterFactory()
         {
             LinqExpressionConverters.RegisterOnConverterFactory(this);
+            DateTimeExpressionConverters.RegisterOnConverterFactory(this);
         }
 
         public void RegisterMethodCallMapping(MethodInfo method, MethodCallMappingDelegate methodCallMapping)
