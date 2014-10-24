@@ -24,6 +24,19 @@ namespace RethinkDb.Expressions
 
             var countDelegate = (CountDelegate<int>)Enumerable.Count;
             expressionConverterFactory.RegisterMethodCallMapping(countDelegate.Method, ConvertEnumerableCountToTerm);
+
+            expressionConverterFactory.RegisterMemberAccessMapping(typeof(List<>), "Count", ConvertCountMemberToTerm);
+            expressionConverterFactory.RegisterMemberAccessMapping(typeof(ICollection<>), "Count", ConvertCountMemberToTerm);
+        }
+
+        public static Term ConvertCountMemberToTerm(MemberExpression memberExpression, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        {
+            var countTerm = new Term()
+            {
+                type = Term.TermType.COUNT,
+            };
+            countTerm.args.Add(recursiveMap(memberExpression.Expression));
+            return countTerm;
         }
 
         public static Term ConvertAppendToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)

@@ -9,13 +9,17 @@ namespace RethinkDb.Expressions
     public class DefaultExpressionConverterFactory : IExpressionConverterFactory
     {
         public delegate Term RecursiveMapDelegate(Expression expression);
-        public delegate Term MethodCallMappingDelegate(MethodCallExpression methodCall, RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory);
-        public delegate Term BinaryExpressionMappingDelegate(BinaryExpression expr, RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory);
-        public delegate Term UnaryExpressionMappingDelegate(UnaryExpression expr, RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory);
+        public delegate Term ExpressionMappingDelegate<T>(
+            T expression,
+            RecursiveMapDelegate recursiveMap,
+            IDatumConverterFactory datumConverterFactory,
+            IExpressionConverterFactory expressionConverterFactory)
+            where T : Expression;
 
-        private readonly IDictionary<MethodInfo, MethodCallMappingDelegate> methodCallMappingRegistry = new Dictionary<MethodInfo, MethodCallMappingDelegate>();
-        private readonly IDictionary<Tuple<Type, Type, ExpressionType>, BinaryExpressionMappingDelegate> binaryExpressionMappingRegistry = new Dictionary<Tuple<Type, Type, ExpressionType>, BinaryExpressionMappingDelegate>();
-        private readonly IDictionary<Tuple<Type, ExpressionType>, UnaryExpressionMappingDelegate> unaryExpressionMappingRegistry = new Dictionary<Tuple<Type, ExpressionType>, UnaryExpressionMappingDelegate>();
+        private readonly IDictionary<MethodInfo, ExpressionMappingDelegate<MethodCallExpression>> methodCallMappingRegistry = new Dictionary<MethodInfo, ExpressionMappingDelegate<MethodCallExpression>>();
+        private readonly IDictionary<Tuple<Type, Type, ExpressionType>, ExpressionMappingDelegate<BinaryExpression>> binaryExpressionMappingRegistry = new Dictionary<Tuple<Type, Type, ExpressionType>, ExpressionMappingDelegate<BinaryExpression>>();
+        private readonly IDictionary<Tuple<Type, ExpressionType>, ExpressionMappingDelegate<UnaryExpression>> unaryExpressionMappingRegistry = new Dictionary<Tuple<Type, ExpressionType>, ExpressionMappingDelegate<UnaryExpression>>();
+        private readonly IDictionary<Tuple<Type, string>, ExpressionMappingDelegate<MemberExpression>> memberAccessMappingRegistry = new Dictionary<Tuple<Type, string>, ExpressionMappingDelegate<MemberExpression>>();
 
         public DefaultExpressionConverterFactory()
         {
@@ -23,38 +27,57 @@ namespace RethinkDb.Expressions
             DateTimeExpressionConverters.RegisterOnConverterFactory(this);
         }
 
-        public void RegisterMethodCallMapping(MethodInfo method, MethodCallMappingDelegate methodCallMapping)
+        public void RegisterMethodCallMapping(MethodInfo method, ExpressionMappingDelegate<MethodCallExpression> methodCallMapping)
         {
             if (method.IsGenericMethod)
                 method = method.GetGenericMethodDefinition();
             methodCallMappingRegistry[method] = methodCallMapping;
         }
 
-        public void RegisterBinaryExpressionMapping<TLeft, TRight>(ExpressionType expressionType, BinaryExpressionMappingDelegate binaryExpressionMapping)
+        public void RegisterBinaryExpressionMapping<TLeft, TRight>(ExpressionType expressionType, ExpressionMappingDelegate<BinaryExpression> binaryExpressionMapping)
         {
             binaryExpressionMappingRegistry[Tuple.Create(typeof(TLeft), typeof(TRight), expressionType)] = binaryExpressionMapping;
         }
 
-        public void RegisterUnaryExpressionMapping<TExpression>(ExpressionType expressionType, UnaryExpressionMappingDelegate unaryExpressionMapping)
+        public void RegisterUnaryExpressionMapping<TExpression>(ExpressionType expressionType, ExpressionMappingDelegate<UnaryExpression> unaryExpressionMapping)
         {
             unaryExpressionMappingRegistry[Tuple.Create(typeof(TExpression), expressionType)] = unaryExpressionMapping;
         }
 
-        public bool TryGetMethodCallMapping(MethodInfo method, out MethodCallMappingDelegate methodCallMapping)
+        public void RegisterMemberAccessMapping(Type targetType, string memberName, ExpressionMappingDelegate<MemberExpression> memberAccessMapping)
+        {
+            memberAccessMappingRegistry[Tuple.Create(targetType, memberName)] = memberAccessMapping;
+        }
+
+        public bool TryGetMethodCallMapping(MethodInfo method, out ExpressionMappingDelegate<MethodCallExpression> methodCallMapping)
         {
             if (method.IsGenericMethod)
                 method = method.GetGenericMethodDefinition();
             return methodCallMappingRegistry.TryGetValue(method, out methodCallMapping);
         }
 
-        public bool TryGetBinaryExpressionMapping(Type leftType, Type rightType, ExpressionType expressionType, out BinaryExpressionMappingDelegate binaryExpressionMapping)
+        public bool TryGetBinaryExpressionMapping(Type leftType, Type rightType, ExpressionType expressionType, out ExpressionMappingDelegate<BinaryExpression> binaryExpressionMapping)
         {
             return binaryExpressionMappingRegistry.TryGetValue(Tuple.Create(leftType, rightType, expressionType), out binaryExpressionMapping);
         }
 
-        public bool TryGetUnaryExpressionMapping(Type expression, ExpressionType expressionType, out UnaryExpressionMappingDelegate unaryExpressionMapping)
+        public bool TryGetUnaryExpressionMapping(Type expression, ExpressionType expressionType, out ExpressionMappingDelegate<UnaryExpression> unaryExpressionMapping)
         {
             return unaryExpressionMappingRegistry.TryGetValue(Tuple.Create(expression, expressionType), out unaryExpressionMapping);
+        }
+
+        public bool TryGetMemberAccessMapping(MemberInfo member, out ExpressionMappingDelegate<MemberExpression> memberAccessMapping)
+        {
+            if (memberAccessMappingRegistry.TryGetValue(Tuple.Create(member.DeclaringType, member.Name), out memberAccessMapping))
+                return true;
+
+            if (member.DeclaringType.IsGenericType)
+            {
+                if (memberAccessMappingRegistry.TryGetValue(Tuple.Create(member.DeclaringType.GetGenericTypeDefinition(), member.Name), out memberAccessMapping))
+                    return true;
+            }
+
+            return false;
         }
 
         #region IExpressionConverterFactory implementation

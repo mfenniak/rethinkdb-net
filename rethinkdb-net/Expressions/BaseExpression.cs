@@ -45,7 +45,7 @@ namespace RethinkDb.Expressions
 
         private Term ConvertBinaryExpressionToTerm(BinaryExpression expr, IDatumConverterFactory datumConverterFactory)
         {
-            DefaultExpressionConverterFactory.BinaryExpressionMappingDelegate binaryExpressionMapping;
+            DefaultExpressionConverterFactory.ExpressionMappingDelegate<BinaryExpression> binaryExpressionMapping;
             Term.TermType defaultTermType;
 
             if (expressionConverterFactory.TryGetBinaryExpressionMapping(expr.Left.Type, expr.Right.Type, expr.NodeType, out binaryExpressionMapping))
@@ -67,7 +67,7 @@ namespace RethinkDb.Expressions
 
         private Term ConvertUnaryExpressionToTerm(UnaryExpression expr, IDatumConverterFactory datumConverterFactory)
         {
-            DefaultExpressionConverterFactory.UnaryExpressionMappingDelegate unaryExpressionMapping;
+            DefaultExpressionConverterFactory.ExpressionMappingDelegate<UnaryExpression> unaryExpressionMapping;
             Term.TermType defaultTermType;
 
             if (expressionConverterFactory.TryGetUnaryExpressionMapping(expr.Operand.Type, expr.NodeType, out unaryExpressionMapping))
@@ -144,7 +144,7 @@ namespace RethinkDb.Expressions
                     var callExpression = (MethodCallExpression)expr;
                     var method = callExpression.Method;
 
-                    DefaultExpressionConverterFactory.MethodCallMappingDelegate methodCallMapping;
+                    DefaultExpressionConverterFactory.ExpressionMappingDelegate<MethodCallExpression> methodCallMapping;
                     if (expressionConverterFactory.TryGetMethodCallMapping(method, out methodCallMapping))
                         return methodCallMapping(callExpression, RecursiveMap, datumConverterFactory, expressionConverterFactory);
                     else
@@ -156,24 +156,11 @@ namespace RethinkDb.Expressions
                     var memberExpression = (MemberExpression)expr;
                     var member = memberExpression.Member;
 
-                    if (member.DeclaringType.IsGenericType &&
-                        (
-                            member.DeclaringType.GetGenericTypeDefinition() == typeof(List<>) ||
-                            member.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>)
-                        ) &&
-                        member.Name == "Count")
-                    {
-                        var countTerm = new Term()
-                        {
-                            type = Term.TermType.COUNT,
-                        };
-                        countTerm.args.Add(RecursiveMap(memberExpression.Expression));
-                        return countTerm;
-                    }
+                    DefaultExpressionConverterFactory.ExpressionMappingDelegate<MemberExpression> memberAccessMapping;
+                    if (expressionConverterFactory.TryGetMemberAccessMapping(member, out memberAccessMapping))
+                        return memberAccessMapping(memberExpression, RecursiveMap, datumConverterFactory, expressionConverterFactory);
                     else
-                    {
                         return AttemptClientSideConversion(datumConverterFactory, expr);
-                    }
                 }
 
                 default:
