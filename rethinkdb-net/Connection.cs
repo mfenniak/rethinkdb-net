@@ -6,20 +6,17 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ProtoBuf;
 using RethinkDb.DatumConverters;
-using RethinkDb.Spec;
 using RethinkDb.Logging;
+using RethinkDb.Protocols;
+using RethinkDb.Spec;
 
 namespace RethinkDb
 {
     public sealed class Connection : IConnectableConnection, IDisposable
     {
-        private static byte[] connectHeader = null;
-       
         private TcpClient tcpClient;
         private NetworkStream stream;
         private long nextToken = 1;
@@ -45,6 +42,7 @@ namespace RethinkDb
                 GroupingDictionaryDatumConverterFactory.Instance
             );
             ConnectTimeout = QueryTimeout = TimeSpan.FromSeconds(30);
+            Protocol = Version_0_3_Json.Instance;
         }
 
         public Connection(params EndPoint[] endPoints)
@@ -75,7 +73,7 @@ namespace RethinkDb
         {
             get;
             set;
-        }       
+        }
 
         public TimeSpan QueryTimeout
         {
@@ -84,6 +82,12 @@ namespace RethinkDb
         }
 
         public string AuthorizationKey
+        {
+            get;
+            set;
+        }
+
+        public IProtocol Protocol
         {
             get;
             set;
@@ -192,40 +196,11 @@ namespace RethinkDb
 
                 Logger.Debug("Connected to {0}", endpoint);
 
-                if (connectHeader == null)
-                {
-                    var header = BitConverter.GetBytes((int)Spec.VersionDummy.Version.V0_2);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(header, 0, header.Length);
-                    connectHeader = header;
-                }
-
                 stream = tcpClient.GetStream();
                 this.tcpClient = tcpClient;
                 this.stream = stream;
 
-                await stream.WriteAsync(connectHeader, 0, connectHeader.Length, cancellationToken);
-                Logger.Debug("Sent ReQL header");
-
-                if (String.IsNullOrEmpty(AuthorizationKey))
-                {
-                    await stream.WriteAsync(new byte[] { 0, 0, 0, 0 }, 0, 4, cancellationToken);
-                }
-                else
-                {
-                    var keyInBytes = Encoding.UTF8.GetBytes(AuthorizationKey);
-                    var authKeyLength = BitConverter.GetBytes(keyInBytes.Length);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(authKeyLength, 0, authKeyLength.Length);
-                    await stream.WriteAsync(authKeyLength, 0, authKeyLength.Length);
-                    await stream.WriteAsync(keyInBytes, 0, keyInBytes.Length);
-                }
-
-                byte[] authReponseBuffer = new byte[1024];
-                var authResponseLength = await ReadUntilNullTerminator(authReponseBuffer, cancellationToken);
-                var authResponse = Encoding.UTF8.GetString(authReponseBuffer, 0, authResponseLength);
-                if (authResponse != "SUCCESS")
-                    throw new RethinkDbRuntimeException("Unexpected authentication response; expected SUCCESS but got: " + authResponse);
+                await Protocol.ConnectionHandshake(stream, Logger, AuthorizationKey, cancellationToken);
 
 #pragma warning disable 4014
                 ReadLoop();
@@ -278,35 +253,21 @@ namespace RethinkDb
             {
                 while (true)
                 {
-                    byte[] headerSize = new byte[4];
-                    await ReadMyBytes(headerSize);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(headerSize, 0, headerSize.Length);
-                    var respSize = BitConverter.ToInt32(headerSize, 0);
-                    Logger.Debug("Received packet header, packet is {0} bytes", respSize);
+                    var response = await Protocol.ReadResponseFromStream(stream, Logger);
 
-                    byte[] retVal = new byte[respSize];
-                    await ReadMyBytes(retVal);
-                    Logger.Debug("Received packet completely");
-                    using (var memoryBuffer = new MemoryStream(retVal))
+                    TaskCompletionSource<Response> tcs;
+                    if (tokenResponse.TryGetValue(response.token, out tcs))
                     {
-                        var response = Serializer.Deserialize<Response>(memoryBuffer);
-                        Logger.Debug("Received packet deserialized to response for query token {0}, type: {1}", response.token, response.type);
-
-                        TaskCompletionSource<Response> tcs;
-                        if (tokenResponse.TryGetValue(response.token, out tcs))
-                        {
-                            tokenResponse.Remove(response.token);
-                            // Send the result to the waiting thread via the thread-pool.  If we invoke
-                            // tcs.SetResult(response) synchronously, we actually block until the response handling
-                            // is completed, which could be an unknown quantity of user code.  It could also cause
-                            // a deadlock (see mfenniak/rethinkdb-net#112).
-                            ThreadPool.QueueUserWorkItem(_ => tcs.SetResult(response));
-                        }
-                        else
-                        {
-                            Logger.Warning("Received response to query token {0}, but no handler was waiting for that response.  This can occur if the query times out around the same time a response is received.", response.token);
-                        }
+                        tokenResponse.Remove(response.token);
+                        // Send the result to the waiting thread via the thread-pool.  If we invoke
+                        // tcs.SetResult(response) synchronously, we actually block until the response handling
+                        // is completed, which could be an unknown quantity of user code.  It could also cause
+                        // a deadlock (see mfenniak/rethinkdb-net#112).
+                        ThreadPool.QueueUserWorkItem(_ => tcs.SetResult(response));
+                    }
+                    else
+                    {
+                        Logger.Warning("Received response to query token {0}, but no handler was waiting for that response.  This can occur if the query times out around the same time a response is received.", response.token);
                     }
                 }
             }
@@ -340,40 +301,6 @@ namespace RethinkDb
                 Logger.Warning("Cleanup in ReadLoop termination didn't succeed, there are still tasks waiting for data from this connection that will never receive it");
         }
 
-        private async Task<int> ReadUntilNullTerminator(byte[] buffer, CancellationToken cancellationToken)
-        {
-            int totalBytesRead = 0;
-            while (true)
-            {
-                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length - totalBytesRead, cancellationToken);
-                totalBytesRead += bytesRead;
-                Logger.Debug("Received {0} / {1} bytes in NullTerminator buffer", bytesRead, buffer.Length);
-
-                if (bytesRead == 0)
-                    throw new RethinkDbNetworkException("Network stream closed while attempting to read");
-                else if (buffer[totalBytesRead - 1] == 0)
-                    return totalBytesRead - 1;
-                else if (totalBytesRead == buffer.Length)
-                    throw new RethinkDbNetworkException("Ran out of space in buffer while looking for a null-terminated string");
-            }
-        }
-
-        private async Task ReadMyBytes(byte[] buffer)
-        {
-            int totalBytesRead = 0;
-            while (true)
-            {
-                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length - totalBytesRead);
-                totalBytesRead += bytesRead;
-                Logger.Debug("Received {0} / {1} bytes of packet", bytesRead, buffer.Length);
-
-                if (bytesRead == 0)
-                    throw new RethinkDbNetworkException("Network stream closed while attempting to read");
-                else if (totalBytesRead == buffer.Length)
-                    break;
-            }
-        }
-
         internal long GetNextToken()
         {
             return Interlocked.Increment(ref nextToken);
@@ -391,31 +318,19 @@ namespace RethinkDb
             };
             using (cancellationToken.Register(abortToken))
             {
-                using (var memoryBuffer = new MemoryStream(1024))
+                // Put query.token into writeTokenLock if writeTokenLock is 0 (ie. unlocked).  If it's not 0,
+                // spin-lock on the compare exchange.
+                while (Interlocked.CompareExchange(ref writeTokenLock, query.token, 0) != 0)
+                    ;
+
+                try
                 {
-                    Serializer.Serialize(memoryBuffer, query);
-
-                    var data = memoryBuffer.ToArray();
-                    var header = BitConverter.GetBytes(data.Length);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(header, 0, header.Length);
-
-                    // Put query.token into writeTokenLock if writeTokenLock is 0 (ie. unlocked).  If it's not 0,
-                    // spin-lock on the compare exchange.
-                    while (Interlocked.CompareExchange(ref writeTokenLock, (long)query.token, 0) != 0)
-                        ;
-
-                    try
-                    {
-                        Logger.Debug("Writing packet, {0} bytes", data.Length);
-                        await stream.WriteAsync(header, 0, header.Length, cancellationToken);
-                        await stream.WriteAsync(data, 0, data.Length, cancellationToken);
-                    }
-                    finally
-                    {
-                        // Revert writeTokenLock to 0.
-                        writeTokenLock = 0;
-                    }
+                    await Protocol.WriteQueryToStream(stream, Logger, query, cancellationToken);
+                }
+                finally
+                {
+                    // Revert writeTokenLock to 0.
+                    writeTokenLock = 0;
                 }
 
                 return await tcs.Task;

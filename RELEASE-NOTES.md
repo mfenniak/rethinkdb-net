@@ -6,6 +6,10 @@
 
 * The type-safe object model for secondary indexes has been expanded to incldude multi-indexes.  Calling table.IndexDefineMulti will return an IMultiIndex<TRecord, TIndexType> interface that can be used in multi-index operations, such as GetAll, Between, and EqJoin.  [PR #174](https://github.com/mfenniak/rethinkdb-net/issues/174)
 
+### Compatibility
+
+* Added support for RethinkDB's JSON-based client driver protocol.  The JSON protocol is now the default protocol, but the protocol to be used is configurable on the connection objects.  [PR #176](https://github.com/mfenniak/rethinkdb-net/issues/176)
+
 ### Breaking Change
 
 * Updated Insert command to reflect RethinkDB's deprecation of upsert and addition of the new conflict parameter. [PR #177](https://github.com/mfenniak/rethinkdb-net/issues/177)
