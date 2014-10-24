@@ -95,14 +95,14 @@ namespace RethinkDb
             return index.Table.IndexDrop(index.Name);
         }
 
-        public static IWriteQuery<DmlResponse> Insert<T>(this ITableQuery<T> target, T @object, bool upsert = false)
+        public static IWriteQuery<DmlResponse> Insert<T>(this ITableQuery<T> target, T @object, Conflict conflict = Conflict.Error)
         {
-            return new InsertQuery<T>(target, new T[] { @object }, upsert);
+            return new InsertQuery<T>(target, new T[] { @object }, conflict);
         }
 
-        public static IWriteQuery<DmlResponse> Insert<T>(this ITableQuery<T> target, IEnumerable<T> @objects, bool upsert = false)
+        public static IWriteQuery<DmlResponse> Insert<T>(this ITableQuery<T> target, IEnumerable<T> @objects, Conflict conflict = Conflict.Error)
         {
-            return new InsertQuery<T>(target, @objects, upsert);
+            return new InsertQuery<T>(target, @objects, conflict);
         }
 
         #endregion
