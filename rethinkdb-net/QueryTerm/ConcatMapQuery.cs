@@ -16,14 +16,14 @@ namespace RethinkDb.QueryTerm
             this.mapExpression = mapExpression;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var mapTerm = new Term()
             {
                 type = Term.TermType.CONCAT_MAP,
             };
-            mapTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory, expressionConverterFactory));
-            mapTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TOriginal, IEnumerable<TTarget>>(datumConverterFactory, expressionConverterFactory, mapExpression));
+            mapTerm.args.Add(sequenceQuery.GenerateTerm(queryConverter));
+            mapTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TOriginal, IEnumerable<TTarget>>(queryConverter, mapExpression));
             return mapTerm;
         }
     }

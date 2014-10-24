@@ -9,24 +9,20 @@ namespace RethinkDb
     {
         #region IConnection minimalism
 
-        public static Task<T> RunAsync<T>(this IConnection connection, IScalarQuery<T> queryObject, IDatumConverterFactory datumConverterFactory = null, IExpressionConverterFactory expressionConverterFactory = null, CancellationToken? cancellationToken = null)
+        public static Task<T> RunAsync<T>(this IConnection connection, IScalarQuery<T> queryObject, IQueryConverter queryConverter = null, CancellationToken? cancellationToken = null)
         {
-            if (datumConverterFactory == null)
-                datumConverterFactory = connection.DatumConverterFactory;
-            if (expressionConverterFactory == null)
-                expressionConverterFactory = connection.ExpressionConverterFactory;
+            if (queryConverter == null)
+                queryConverter = connection.QueryConverter;
             if (!cancellationToken.HasValue)
                 cancellationToken = new CancellationTokenSource(connection.QueryTimeout).Token;
-            return connection.RunAsync<T>(datumConverterFactory, expressionConverterFactory, queryObject, cancellationToken.Value);
+            return connection.RunAsync<T>(queryConverter, queryObject, cancellationToken.Value);
         }
 
-        public static IAsyncEnumerator<T> RunAsync<T>(this IConnection connection, ISequenceQuery<T> queryObject, IDatumConverterFactory datumConverterFactory = null, IExpressionConverterFactory expressionConverterFactory = null)
+        public static IAsyncEnumerator<T> RunAsync<T>(this IConnection connection, ISequenceQuery<T> queryObject, IQueryConverter queryConverter = null)
         {
-            if (datumConverterFactory == null)
-                datumConverterFactory = connection.DatumConverterFactory;
-            if (expressionConverterFactory == null)
-                expressionConverterFactory = connection.ExpressionConverterFactory;
-            return connection.RunAsync<T>(datumConverterFactory, expressionConverterFactory, queryObject);
+            if (queryConverter == null)
+                queryConverter = connection.QueryConverter;
+            return connection.RunAsync<T>(queryConverter, queryObject);
         }
 
         #endregion

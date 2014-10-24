@@ -1,10 +1,10 @@
 using System;
-using RethinkDb.Spec;
-using System.Linq.Expressions;
-using System.Linq;
 using System.Collections.Generic;
-using RethinkDb.QueryTerm;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using RethinkDb.QueryTerm;
+using RethinkDb.Spec;
 
 namespace RethinkDb.Expressions
 {
@@ -75,7 +75,7 @@ namespace RethinkDb.Expressions
                     .Single(m => m.Name == "CreateFunctionTerm" && m.GetGenericArguments().Length == 2);
             createFunctionTermMethod = createFunctionTermMethod.MakeGenericMethod(enumerableElementType, typeof(bool));
 
-            var functionTerm = (Term)createFunctionTermMethod.Invoke(null, new object[] { datumConverterFactory, expressionConverterFactory, predicate });
+            var functionTerm = (Term)createFunctionTermMethod.Invoke(null, new object[] { new QueryConverter(datumConverterFactory, expressionConverterFactory), predicate });
             filterTerm.args.Add(functionTerm);
 
             return filterTerm;

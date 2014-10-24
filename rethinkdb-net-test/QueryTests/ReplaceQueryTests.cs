@@ -12,11 +12,13 @@ namespace RethinkDb.Test.QueryTests
     {
         private IDatumConverterFactory datumConverterFactory;
         private IExpressionConverterFactory expressionConverterFactory = new RethinkDb.Expressions.DefaultExpressionConverterFactory();
+        private IQueryConverter queryConverter;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
             datumConverterFactory = Substitute.For<IDatumConverterFactory>();
+            queryConverter = new QueryConverter(datumConverterFactory, expressionConverterFactory);
 
             var stringDatum = new Datum() {
                 type = Datum.DatumType.R_STR,
@@ -33,7 +35,7 @@ namespace RethinkDb.Test.QueryTests
 
             IDatumConverter<string> value;
             datumConverterFactory
-                .TryGet<string>(datumConverterFactory, out value)
+                .TryGet<string>(queryConverter, out value)
                 .Returns(args => {
                         args[1] = stringDatumConverter;
                         return true;
@@ -50,7 +52,7 @@ namespace RethinkDb.Test.QueryTests
                 "Jackpot!",
                 true);
 
-            var term = query.GenerateTerm(datumConverterFactory, expressionConverterFactory);
+            var term = query.GenerateTerm(queryConverter);
 
             var nonAtomicArgs = term.optargs.Where(kv => kv.key == "non_atomic");
             Assert.That(nonAtomicArgs.Count(), Is.EqualTo(1));
@@ -74,11 +76,10 @@ namespace RethinkDb.Test.QueryTests
                 "Jackpot!",
                 false);
 
-            var term = query.GenerateTerm(datumConverterFactory, expressionConverterFactory);
+            var term = query.GenerateTerm(queryConverter);
 
             var nonAtomicArgs = term.optargs.Where(kv => kv.key == "non_atomic");
             Assert.That(nonAtomicArgs.Count(), Is.EqualTo(0));
         }
     }
 }
-

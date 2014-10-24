@@ -67,34 +67,28 @@ namespace RethinkDb.ConnectionFactories
             #endregion
             #region IConnection implementation
 
-            public Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
+            public Task<T> RunAsync<T>(IQueryConverter queryConverter, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
             {
                 if (this.disposed)
                     throw new ObjectDisposedException("PooledConnectionWrapper");
-                return this.innerConnection.RunAsync<T>(datumConverterFactory, expressionConverterFactory, queryObject, cancellationToken);
+                return this.innerConnection.RunAsync<T>(queryConverter, queryObject, cancellationToken);
             }
 
-            public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory, ISequenceQuery<T> queryObject)
+            public IAsyncEnumerator<T> RunAsync<T>(IQueryConverter queryConverter, ISequenceQuery<T> queryObject)
             {
                 if (this.disposed)
                     throw new ObjectDisposedException("PooledConnectionWrapper");
-                return this.innerConnection.RunAsync<T>(datumConverterFactory, expressionConverterFactory, queryObject);
+                return this.innerConnection.RunAsync<T>(queryConverter, queryObject);
             }
 
             // Hm... doesn't really seem like you'd want to set these properties on a pooled connection.  Not sure
             // what the correct solution is to that, but to prevent possibly confusing behavior, we'll just throw
             // an error on set.
 
-            public IDatumConverterFactory DatumConverterFactory
+            public IQueryConverter QueryConverter
             {
-                get { return this.innerConnection.DatumConverterFactory; }
-                set { throw new NotSupportedException("set_DatumConverterFactory not supported on pooled connection"); }
-            }
-
-            public IExpressionConverterFactory ExpressionConverterFactory
-            {
-                get { return this.innerConnection.ExpressionConverterFactory; }
-                set { throw new NotSupportedException("set_LambdaTermConverterFactory not supported on pooled connection"); }
+                get { return this.innerConnection.QueryConverter; }
+                set { throw new NotSupportedException("set_QueryConverter not supported on pooled connection"); }
             }
 
             public ILogger Logger

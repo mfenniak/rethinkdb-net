@@ -28,7 +28,7 @@ namespace RethinkDb.QueryTerm
             get { return orderByMembers; }
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             Term indexOrderBy;
 
@@ -36,8 +36,8 @@ namespace RethinkDb.QueryTerm
             {
                 type = Term.TermType.ORDER_BY,
             };
-            orderByTerm.args.Add(sequenceQuery.GenerateTerm(datumConverterFactory, expressionConverterFactory));
-            orderByTerm.args.AddRange(GetMembers(datumConverterFactory, out indexOrderBy));
+            orderByTerm.args.Add(sequenceQuery.GenerateTerm(queryConverter));
+            orderByTerm.args.AddRange(GetMembers(queryConverter, out indexOrderBy));
 
             if (indexOrderBy != null)
             {
@@ -50,9 +50,9 @@ namespace RethinkDb.QueryTerm
             return orderByTerm;
         }
 
-        private IEnumerable<Term> GetMembers(IDatumConverterFactory datumConverterFactory, out Term indexOrderBy)
+        private IEnumerable<Term> GetMembers(IQueryConverter queryConverter, out Term indexOrderBy)
         {
-            var datumConverter = datumConverterFactory.Get<T>();
+            var datumConverter = queryConverter.Get<T>();
             var fieldConverter = datumConverter as IObjectDatumConverter;
             if (fieldConverter == null)
                 throw new NotSupportedException("Cannot map member access into ReQL without implementing IObjectDatumConverter");

@@ -9,7 +9,7 @@ namespace RethinkDb.QueryTerm
         {
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var term = new Term()
             {

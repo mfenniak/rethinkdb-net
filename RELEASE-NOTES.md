@@ -14,6 +14,8 @@
 
 * Updated Insert command to reflect RethinkDB's deprecation of upsert and addition of the new conflict parameter. [PR #177](https://github.com/mfenniak/rethinkdb-net/issues/177)
 
+* IDatumConverterFactory has been replaced with IQueryConverter in APIs where the requirement is a tool to convert client-side queries into RethinkDB terms.  IQueryConverter is a composed interface containing IDatumConverterFactory and IExpressionConverterFactory.   [PR #183](https://github.com/mfenniak/rethinkdb-net/issues/183)
+
 
 ## 0.8.0.0 (2014-10-20)
 

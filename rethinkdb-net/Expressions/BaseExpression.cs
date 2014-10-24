@@ -1,10 +1,9 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using RethinkDb.DatumConverters;
-using RethinkDb.QueryTerm;
 using RethinkDb.Spec;
 
 namespace RethinkDb.Expressions

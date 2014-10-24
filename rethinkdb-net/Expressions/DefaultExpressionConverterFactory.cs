@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Linq.Expressions;
+using System.Reflection;
 using RethinkDb.Spec;
 
 namespace RethinkDb.Expressions

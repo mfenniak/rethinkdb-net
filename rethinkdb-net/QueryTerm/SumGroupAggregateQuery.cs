@@ -15,18 +15,18 @@ namespace RethinkDb.QueryTerm
             this.field = field;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var term = new Term()
             {
                 type = Term.TermType.SUM,
             };
-            term.args.Add(groupingQuery.GenerateTerm(datumConverterFactory, expressionConverterFactory));
+            term.args.Add(groupingQuery.GenerateTerm(queryConverter));
             if (field != null)
             {
                 if (field.NodeType != ExpressionType.Lambda)
                     throw new NotSupportedException("Unsupported expression type");
-                term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, double>(datumConverterFactory, expressionConverterFactory, field));
+                term.args.Add(ExpressionUtils.CreateFunctionTerm<TRecord, double>(queryConverter, field));
             }
             return term;
         }

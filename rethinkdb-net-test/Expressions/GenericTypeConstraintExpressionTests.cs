@@ -21,6 +21,7 @@ namespace RethinkDb.Test.Expressions
     {
         IDatumConverterFactory datumConverterFactory;
         IExpressionConverterFactory expressionConverterFactory;
+        IQueryConverter queryConverter;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
@@ -30,6 +31,7 @@ namespace RethinkDb.Test.Expressions
                 DataContractDatumConverterFactory.Instance
             );
             expressionConverterFactory = new RethinkDb.Expressions.DefaultExpressionConverterFactory();
+            queryConverter = new QueryConverter(datumConverterFactory, expressionConverterFactory);
         }
 
         private static void AssertFunctionIsGetFieldSomeNumberSingleParameter(Term expr)
@@ -152,8 +154,7 @@ namespace RethinkDb.Test.Expressions
         public void DirectIntentionalCastToExactSameTypeSingleParameter()
         {
             var expr = ExpressionUtils.CreateFunctionTerm<TestObject, double>(
-                datumConverterFactory,
-                expressionConverterFactory,
+                queryConverter,
                 o => ((ITestInterface)o).SomeNumber);
             AssertFunctionIsGetFieldSomeNumberSingleParameter(expr);
         }
@@ -167,8 +168,7 @@ namespace RethinkDb.Test.Expressions
         private void DoIndirectCastByTypeConstraintSingleParameter<T>() where T : ITestInterface
         {
             var expr = ExpressionUtils.CreateFunctionTerm<T, double>(
-                datumConverterFactory,
-                expressionConverterFactory,
+                queryConverter,
                 o => o.SomeNumber);
             AssertFunctionIsGetFieldSomeNumberSingleParameter(expr);
         }
@@ -182,8 +182,7 @@ namespace RethinkDb.Test.Expressions
         private void DoDirectCastWithTypeConstraintSingleParameter<T>() where T : ITestInterface
         {
             var expr = ExpressionUtils.CreateFunctionTerm<T, double>(
-                datumConverterFactory,
-                expressionConverterFactory,
+                queryConverter,
                 o => ((ITestInterface)o).SomeNumber);
             AssertFunctionIsGetFieldSomeNumberSingleParameter(expr);
         }
@@ -192,8 +191,7 @@ namespace RethinkDb.Test.Expressions
         public void DirectIntentionalCastToExactSameTypeDoubleParameter()
         {
             var expr = ExpressionUtils.CreateFunctionTerm<TestObject, TestObject, double>(
-                datumConverterFactory,
-                expressionConverterFactory,
+                queryConverter,
                 (o1, o2) => ((ITestInterface)o1).SomeNumber);
             AssertFunctionIsGetFieldSomeNumberDoubleParameter(expr);
         }
@@ -207,8 +205,7 @@ namespace RethinkDb.Test.Expressions
         private void DoIndirectCastByTypeConstraintDoubleParameter<T>() where T : ITestInterface
         {
             var expr = ExpressionUtils.CreateFunctionTerm<T, T, double>(
-                datumConverterFactory,
-                expressionConverterFactory,
+                queryConverter,
                 (o1, o2) => o1.SomeNumber);
             AssertFunctionIsGetFieldSomeNumberDoubleParameter(expr);
         }
@@ -222,8 +219,7 @@ namespace RethinkDb.Test.Expressions
         private void DoDirectCastWithTypeConstraintDoubleParameter<T>() where T : ITestInterface
         {
             var expr = ExpressionUtils.CreateFunctionTerm<T, T, double>(
-                datumConverterFactory,
-                expressionConverterFactory,
+                queryConverter,
                 (o1, o2) => ((ITestInterface)o1).SomeNumber);
             AssertFunctionIsGetFieldSomeNumberDoubleParameter(expr);
         }

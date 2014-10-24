@@ -17,16 +17,16 @@ namespace RethinkDb.QueryTerm
             this.tableTerm = tableTerm;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var deleteTerm = new Term()
             {
                 type = Term.TermType.DELETE,
             };
             if (getTerm != null)
-                deleteTerm.args.Add(getTerm.GenerateTerm(datumConverterFactory, expressionConverterFactory));
+                deleteTerm.args.Add(getTerm.GenerateTerm(queryConverter));
             else if (tableTerm != null)
-                deleteTerm.args.Add(tableTerm.GenerateTerm(datumConverterFactory, expressionConverterFactory));
+                deleteTerm.args.Add(tableTerm.GenerateTerm(queryConverter));
             AddOptionalArguments(deleteTerm);
             return deleteTerm;
         }

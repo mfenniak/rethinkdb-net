@@ -6,13 +6,7 @@ namespace RethinkDb
 {
     public interface IConnection : IDisposable
     {
-        IDatumConverterFactory DatumConverterFactory
-        {
-            get;
-            set;
-        }
-
-        IExpressionConverterFactory ExpressionConverterFactory
+        IQueryConverter QueryConverter
         {
             get;
             set;
@@ -32,9 +26,9 @@ namespace RethinkDb
 
         #region Asynchronous API; synchronous API is provided by extension methods
 
-        Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory, IScalarQuery<T> queryObject, CancellationToken cancellationToken);
+        Task<T> RunAsync<T>(IQueryConverter queryConverter, IScalarQuery<T> queryObject, CancellationToken cancellationToken);
 
-        IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory, ISequenceQuery<T> queryObject);
+        IAsyncEnumerator<T> RunAsync<T>(IQueryConverter queryConverter, ISequenceQuery<T> queryObject);
 
         #endregion
     }

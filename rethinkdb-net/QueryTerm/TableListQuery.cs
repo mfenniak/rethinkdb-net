@@ -11,13 +11,13 @@ namespace RethinkDb.QueryTerm
             this.dbTerm = dbTerm;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var tableTerm = new Term()
             {
                 type = Term.TermType.TABLE_LIST,
             };
-            tableTerm.args.Add(dbTerm.GenerateTerm(datumConverterFactory, expressionConverterFactory));
+            tableTerm.args.Add(dbTerm.GenerateTerm(queryConverter));
             return tableTerm;
         }
     }

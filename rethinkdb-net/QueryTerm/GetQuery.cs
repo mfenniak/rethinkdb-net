@@ -25,13 +25,13 @@ namespace RethinkDb.QueryTerm
             this.primaryAttribute = primaryAttribute;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var getTerm = new Term()
             {
                 type = Term.TermType.GET,
             };
-            getTerm.args.Add(tableTerm.GenerateTerm(datumConverterFactory, expressionConverterFactory));
+            getTerm.args.Add(tableTerm.GenerateTerm(queryConverter));
             if (primaryKeyNumeric.HasValue)
             {
                 getTerm.args.Add(

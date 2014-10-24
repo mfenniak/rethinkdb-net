@@ -15,14 +15,14 @@ namespace RethinkDb.QueryTerm
             this.mapExpression = mapExpression;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        public Term GenerateTerm(IQueryConverter queryConverter)
         {
             var mapTerm = new Term()
             {
                 type = Term.TermType.MAP,
             };
-            mapTerm.args.Add(groupingQuery.GenerateTerm(datumConverterFactory, expressionConverterFactory));
-            mapTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TOriginal, TTarget>(datumConverterFactory, expressionConverterFactory, mapExpression));
+            mapTerm.args.Add(groupingQuery.GenerateTerm(queryConverter));
+            mapTerm.args.Add(ExpressionUtils.CreateFunctionTerm<TOriginal, TTarget>(queryConverter, mapExpression));
             return mapTerm;
         }
     }

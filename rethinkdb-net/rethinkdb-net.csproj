@@ -210,6 +210,8 @@
     <Compile Include="Expressions\DefaultExpressionConverterFactory.cs" />
     <Compile Include="Expressions\LinqExpressionConverters.cs" />
     <Compile Include="Expressions\DateTimeExpressionConverters.cs" />
+    <Compile Include="Interfaces\IQueryConverter.cs" />
+    <Compile Include="QueryConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

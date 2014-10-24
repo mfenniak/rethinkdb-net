@@ -25,23 +25,25 @@ namespace RethinkDb
 
         public Connection()
         {
-            DatumConverterFactory = new AggregateDatumConverterFactory(
-                PrimitiveDatumConverterFactory.Instance,
-                DataContractDatumConverterFactory.Instance,
-                DateTimeDatumConverterFactory.Instance,
-                DateTimeOffsetDatumConverterFactory.Instance,
-                GuidDatumConverterFactory.Instance,
-                UriDatumConverterFactory.Instance,
-                TupleDatumConverterFactory.Instance,
-                ArrayDatumConverterFactory.Instance,
-                AnonymousTypeDatumConverterFactory.Instance,
-                EnumDatumConverterFactory.Instance,
-                NullableDatumConverterFactory.Instance,
-                ListDatumConverterFactory.Instance,
-                TimeSpanDatumConverterFactory.Instance,
-                GroupingDictionaryDatumConverterFactory.Instance
+            QueryConverter = new QueryConverter(
+                new AggregateDatumConverterFactory(
+                    PrimitiveDatumConverterFactory.Instance,
+                    DataContractDatumConverterFactory.Instance,
+                    DateTimeDatumConverterFactory.Instance,
+                    DateTimeOffsetDatumConverterFactory.Instance,
+                    GuidDatumConverterFactory.Instance,
+                    UriDatumConverterFactory.Instance,
+                    TupleDatumConverterFactory.Instance,
+                    ArrayDatumConverterFactory.Instance,
+                    AnonymousTypeDatumConverterFactory.Instance,
+                    EnumDatumConverterFactory.Instance,
+                    NullableDatumConverterFactory.Instance,
+                    ListDatumConverterFactory.Instance,
+                    TimeSpanDatumConverterFactory.Instance,
+                    GroupingDictionaryDatumConverterFactory.Instance
+                ),
+                new Expressions.DefaultExpressionConverterFactory()
             );
-            ExpressionConverterFactory = new Expressions.DefaultExpressionConverterFactory();
             ConnectTimeout = QueryTimeout = TimeSpan.FromSeconds(30);
             Protocol = Version_0_3_Json.Instance;
         }
@@ -58,13 +60,7 @@ namespace RethinkDb
             set;
         }
 
-        public IDatumConverterFactory DatumConverterFactory
-        {
-            get;
-            set;
-        }
-
-        public IExpressionConverterFactory ExpressionConverterFactory
+        public IQueryConverter QueryConverter
         {
             get;
             set;
@@ -344,12 +340,12 @@ namespace RethinkDb
             }
         }
 
-        public async Task<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
+        public async Task<T> RunAsync<T>(IQueryConverter queryConverter, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
             query.type = Spec.Query.QueryType.START;
-            query.query = queryObject.GenerateTerm(datumConverterFactory, expressionConverterFactory);
+            query.query = queryObject.GenerateTerm(queryConverter);
 
             var response = await InternalRunQuery(query, cancellationToken);
 
@@ -359,7 +355,7 @@ namespace RethinkDb
                 case Response.ResponseType.SUCCESS_ATOM:
                     if (response.response.Count != 1)
                         throw new RethinkDbRuntimeException(String.Format("Expected 1 object, received {0}", response.response.Count));
-                    return datumConverterFactory.Get<T>().ConvertDatum(response.response[0]);
+                    return queryConverter.Get<T>().ConvertDatum(response.response[0]);
                 case Response.ResponseType.CLIENT_ERROR:
                 case Response.ResponseType.COMPILE_ERROR:
                     throw new RethinkDbInternalErrorException("Client error: " + response.response[0].r_str);
@@ -370,16 +366,15 @@ namespace RethinkDb
             }
         }
 
-        public IAsyncEnumerator<T> RunAsync<T>(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory, ISequenceQuery<T> queryObject)
+        public IAsyncEnumerator<T> RunAsync<T>(IQueryConverter queryConverter, ISequenceQuery<T> queryObject)
         {
-            return new QueryEnumerator<T>(this, datumConverterFactory, expressionConverterFactory, queryObject);
+            return new QueryEnumerator<T>(this, queryConverter, queryObject);
         }
 
         private class QueryEnumerator<T> : IAsyncEnumerator<T>
         {
             private readonly Connection connection;
-            private readonly IDatumConverterFactory datumConverterFactory;
-            private readonly IExpressionConverterFactory expressionConverterFactory;
+            private readonly IQueryConverter queryConverter;
             private readonly IDatumConverter<T> datumConverter;
             private readonly ISequenceQuery<T> queryObject;
             private readonly StackTrace stackTrace;
@@ -389,12 +384,11 @@ namespace RethinkDb
             private int lastResponseIndex = 0;
             private bool disposed = false;
 
-            public QueryEnumerator(Connection connection, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory, ISequenceQuery<T> queryObject)
+            public QueryEnumerator(Connection connection, IQueryConverter queryConverter, ISequenceQuery<T> queryObject)
             {
                 this.connection = connection;
-                this.datumConverterFactory = datumConverterFactory;
-                this.expressionConverterFactory = expressionConverterFactory;
-                this.datumConverter = datumConverterFactory.Get<T>();
+                this.queryConverter = queryConverter;
+                this.datumConverter = queryConverter.Get<T>();
                 this.queryObject = queryObject;
                 this.stackTrace = new StackTrace(true);
             }
@@ -513,7 +507,7 @@ namespace RethinkDb
                     query = new Spec.Query();
                     query.token = connection.GetNextToken();
                     query.type = Spec.Query.QueryType.START;
-                    query.query = this.queryObject.GenerateTerm(datumConverterFactory, expressionConverterFactory);
+                    query.query = this.queryObject.GenerateTerm(queryConverter);
                     await ReissueQuery(cancellationToken);
                 }
 
