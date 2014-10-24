@@ -257,17 +257,17 @@ namespace RethinkDb.Protocols
             {
                 case JsonToken.Null:
                     return new Datum() { type = Datum.DatumType.R_NULL };
-                    case JsonToken.Boolean:
+                case JsonToken.Boolean:
                     return new Datum() { type = Datum.DatumType.R_BOOL, r_bool = (bool)json.CurrentTokenValue };
-                    case JsonToken.Double:
+                case JsonToken.Double:
                     return new Datum() { type = Datum.DatumType.R_NUM, r_num = (double)json.CurrentTokenValue };
-                    case JsonToken.Int:
+                case JsonToken.Int:
                     return new Datum() { type = Datum.DatumType.R_NUM, r_num = (int)json.CurrentTokenValue };
-                    case JsonToken.Long:
+                case JsonToken.Long:
                     return new Datum() { type = Datum.DatumType.R_NUM, r_num = (long)json.CurrentTokenValue };
-                    case JsonToken.String:
+                case JsonToken.String:
                     return new Datum() { type = Datum.DatumType.R_STR, r_str = (string)json.CurrentTokenValue };
-                    case JsonToken.ArrayStart:
+                case JsonToken.ArrayStart:
                 {
                     var retval = new Datum() { type = Datum.DatumType.R_ARRAY };
                     while (true)
@@ -279,7 +279,7 @@ namespace RethinkDb.Protocols
                     }
                     return retval;
                 }
-                    case JsonToken.ObjectStart:
+                case JsonToken.ObjectStart:
                 {
                     var retval = new Datum() { type = Datum.DatumType.R_OBJECT };
                     while (true)
@@ -299,11 +299,11 @@ namespace RethinkDb.Protocols
                     }
                     return retval;
                 }
-                    case JsonToken.ArrayEnd:
+                case JsonToken.ArrayEnd:
                     // This wouldn't be expected at a datum, but instead signals the end of the array or object
                     // being read by the caller.
                     return null;
-                    default:
+                default:
                     throw new RethinkDbInternalErrorException(String.Format("Unexpected token {0} in datum", json.CurrentToken));
             }
         }
@@ -314,15 +314,16 @@ namespace RethinkDb.Protocols
                 throw new RethinkDbInternalErrorException("Unexpected end-of-frame reading JSON response");
             if (json.CurrentToken != JsonToken.ArrayStart)
                 throw new RethinkDbInternalErrorException("Unexpected value in 'r' key in response");
-            var retval = new Backtrace();
+
+            // We don't currently use the backtrace on Response, so we don't bother reading it here currently.  Just
+            // skip everything until we hit the array end.
             while (true)
             {
-                // FIXME: read backtraces...
                 json.Read();
                 if (json.CurrentToken == JsonToken.ArrayEnd)
                     break;
             }
-            return retval;
+            return null;
         }
 
     }

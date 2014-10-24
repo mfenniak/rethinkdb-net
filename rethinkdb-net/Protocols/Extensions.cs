@@ -42,4 +42,3 @@ namespace RethinkDb.Protocols
         }
     }
 }
-
