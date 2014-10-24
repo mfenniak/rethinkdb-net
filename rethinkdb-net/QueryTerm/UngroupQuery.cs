@@ -13,13 +13,13 @@ namespace RethinkDb.QueryTerm
             this.groupingQuery = groupingQuery;
         }
 
-        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory)
+        public Term GenerateTerm(IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
         {
             var term = new Term()
             {
                 type = Term.TermType.UNGROUP,
             };
-            term.args.Add(groupingQuery.GenerateTerm(datumConverterFactory));
+            term.args.Add(groupingQuery.GenerateTerm(datumConverterFactory, expressionConverterFactory));
             return term;
         }
     }

@@ -20,6 +20,7 @@ namespace RethinkDb.Test.Expressions
     public class GenericTypeConstraintExpressionTests
     {
         IDatumConverterFactory datumConverterFactory;
+        IExpressionConverterFactory expressionConverterFactory;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
@@ -28,6 +29,7 @@ namespace RethinkDb.Test.Expressions
                 PrimitiveDatumConverterFactory.Instance,
                 DataContractDatumConverterFactory.Instance
             );
+            expressionConverterFactory = new RethinkDb.Expressions.DefaultExpressionConverterFactory();
         }
 
         private static void AssertFunctionIsGetFieldSomeNumberSingleParameter(Term expr)
@@ -149,7 +151,10 @@ namespace RethinkDb.Test.Expressions
         [Test]
         public void DirectIntentionalCastToExactSameTypeSingleParameter()
         {
-            var expr = ExpressionUtils.CreateFunctionTerm<TestObject, double>(datumConverterFactory, o => ((ITestInterface)o).SomeNumber);
+            var expr = ExpressionUtils.CreateFunctionTerm<TestObject, double>(
+                datumConverterFactory,
+                expressionConverterFactory,
+                o => ((ITestInterface)o).SomeNumber);
             AssertFunctionIsGetFieldSomeNumberSingleParameter(expr);
         }
 
@@ -161,7 +166,10 @@ namespace RethinkDb.Test.Expressions
 
         private void DoIndirectCastByTypeConstraintSingleParameter<T>() where T : ITestInterface
         {
-            var expr = ExpressionUtils.CreateFunctionTerm<T, double>(datumConverterFactory, o => o.SomeNumber);
+            var expr = ExpressionUtils.CreateFunctionTerm<T, double>(
+                datumConverterFactory,
+                expressionConverterFactory,
+                o => o.SomeNumber);
             AssertFunctionIsGetFieldSomeNumberSingleParameter(expr);
         }
 
@@ -173,14 +181,20 @@ namespace RethinkDb.Test.Expressions
 
         private void DoDirectCastWithTypeConstraintSingleParameter<T>() where T : ITestInterface
         {
-            var expr = ExpressionUtils.CreateFunctionTerm<T, double>(datumConverterFactory, o => ((ITestInterface)o).SomeNumber);
+            var expr = ExpressionUtils.CreateFunctionTerm<T, double>(
+                datumConverterFactory,
+                expressionConverterFactory,
+                o => ((ITestInterface)o).SomeNumber);
             AssertFunctionIsGetFieldSomeNumberSingleParameter(expr);
         }
 
         [Test]
         public void DirectIntentionalCastToExactSameTypeDoubleParameter()
         {
-            var expr = ExpressionUtils.CreateFunctionTerm<TestObject, TestObject, double>(datumConverterFactory, (o1, o2) => ((ITestInterface)o1).SomeNumber);
+            var expr = ExpressionUtils.CreateFunctionTerm<TestObject, TestObject, double>(
+                datumConverterFactory,
+                expressionConverterFactory,
+                (o1, o2) => ((ITestInterface)o1).SomeNumber);
             AssertFunctionIsGetFieldSomeNumberDoubleParameter(expr);
         }
 
@@ -192,7 +206,10 @@ namespace RethinkDb.Test.Expressions
 
         private void DoIndirectCastByTypeConstraintDoubleParameter<T>() where T : ITestInterface
         {
-            var expr = ExpressionUtils.CreateFunctionTerm<T, T, double>(datumConverterFactory, (o1, o2) => o1.SomeNumber);
+            var expr = ExpressionUtils.CreateFunctionTerm<T, T, double>(
+                datumConverterFactory,
+                expressionConverterFactory,
+                (o1, o2) => o1.SomeNumber);
             AssertFunctionIsGetFieldSomeNumberDoubleParameter(expr);
         }
 
@@ -204,7 +221,10 @@ namespace RethinkDb.Test.Expressions
 
         private void DoDirectCastWithTypeConstraintDoubleParameter<T>() where T : ITestInterface
         {
-            var expr = ExpressionUtils.CreateFunctionTerm<T, T, double>(datumConverterFactory, (o1, o2) => ((ITestInterface)o1).SomeNumber);
+            var expr = ExpressionUtils.CreateFunctionTerm<T, T, double>(
+                datumConverterFactory,
+                expressionConverterFactory,
+                (o1, o2) => ((ITestInterface)o1).SomeNumber);
             AssertFunctionIsGetFieldSomeNumberDoubleParameter(expr);
         }
     }
