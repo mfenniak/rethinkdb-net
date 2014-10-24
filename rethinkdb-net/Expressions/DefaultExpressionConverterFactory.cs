@@ -27,6 +27,14 @@ namespace RethinkDb.Expressions
             DateTimeExpressionConverters.RegisterOnConverterFactory(this);
         }
 
+        public void Reset()
+        {
+            methodCallMappingRegistry.Clear();
+            binaryExpressionMappingRegistry.Clear();
+            unaryExpressionMappingRegistry.Clear();
+            memberAccessMappingRegistry.Clear();
+        }
+
         public void RegisterMethodCallMapping(MethodInfo method, ExpressionMappingDelegate<MethodCallExpression> methodCallMapping)
         {
             if (method.IsGenericMethod)

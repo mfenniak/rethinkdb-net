@@ -80,7 +80,7 @@ namespace RethinkDb.Expressions
             return addTerm;
         }
 
-        private static Term ConvertDateTimeAddFunctionToTerm(MethodCallExpression callExpression, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, double conversionToSeconds)
+        public static Term ConvertDateTimeAddFunctionToTerm(MethodCallExpression callExpression, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, double conversionToSeconds)
         {
             return new Term() {
                 type = Term.TermType.ADD,
