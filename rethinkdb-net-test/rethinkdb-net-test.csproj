@@ -115,6 +115,7 @@
     <Compile Include="DatumConverters\TimeSpanDatumConverterTests.cs" />
     <Compile Include="Expressions\DateTimeExpressionTests.cs" />
     <Compile Include="Expressions\GenericTypeConstraintExpressionTests.cs" />
+    <Compile Include="Expressions\DefaultExpressionConverterFactoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

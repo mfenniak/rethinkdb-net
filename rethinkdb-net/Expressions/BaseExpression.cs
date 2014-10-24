@@ -10,6 +10,25 @@ namespace RethinkDb.Expressions
 {
     abstract class BaseExpression
     {
+        private static IDictionary<ExpressionType, Term.TermType> DefaultTermTypes = new Dictionary<ExpressionType, Term.TermType>
+        {
+            { ExpressionType.Add, Term.TermType.ADD },
+            { ExpressionType.Modulo, Term.TermType.MOD },
+            { ExpressionType.Divide, Term.TermType.DIV },
+            { ExpressionType.Multiply, Term.TermType.MUL },
+            { ExpressionType.Subtract, Term.TermType.SUB },
+            { ExpressionType.Equal, Term.TermType.EQ },
+            { ExpressionType.LessThan, Term.TermType.LT },
+            { ExpressionType.LessThanOrEqual, Term.TermType.LE },
+            { ExpressionType.GreaterThan, Term.TermType.GT },
+            { ExpressionType.GreaterThanOrEqual, Term.TermType.GE },
+            { ExpressionType.AndAlso, Term.TermType.ALL },
+            { ExpressionType.OrElse, Term.TermType.ANY },
+            { ExpressionType.NotEqual, Term.TermType.NE },
+            { ExpressionType.Not, Term.TermType.NOT },
+            { ExpressionType.ArrayLength, Term.TermType.COUNT },
+        };
+
         #region Constructor
 
         protected readonly DefaultExpressionConverterFactory expressionConverterFactory;
@@ -24,46 +43,47 @@ namespace RethinkDb.Expressions
 
         protected abstract Term RecursiveMap(Expression expression);
 
-        private Term ConvertBinaryExpressionToTerm(BinaryExpression expr, Term.TermType termType)
+        private Term ConvertBinaryExpressionToTerm(BinaryExpression expr, IDatumConverterFactory datumConverterFactory)
         {
-            var term = new Term() {
-                type = termType
-            };
-            term.args.Add(RecursiveMap(expr.Left));
-            term.args.Add(RecursiveMap(expr.Right));
-            return term;
+            DefaultExpressionConverterFactory.BinaryExpressionMappingDelegate binaryExpressionMapping;
+            Term.TermType defaultTermType;
+
+            if (expressionConverterFactory.TryGetBinaryExpressionMapping(expr.Left.Type, expr.Right.Type, expr.NodeType, out binaryExpressionMapping))
+            {
+                return binaryExpressionMapping(expr, RecursiveMap, datumConverterFactory, expressionConverterFactory);
+            }
+            else if (DefaultTermTypes.TryGetValue(expr.NodeType, out defaultTermType))
+            {
+                var term = new Term() {
+                    type = defaultTermType
+                };
+                term.args.Add(RecursiveMap(expr.Left));
+                term.args.Add(RecursiveMap(expr.Right));
+                return term;
+            }
+            else
+                return AttemptClientSideConversion(datumConverterFactory, expr);
         }
 
-        private Term ConvertUnaryExpressionToTerm(UnaryExpression expr, Term.TermType termType)
+        private Term ConvertUnaryExpressionToTerm(UnaryExpression expr, IDatumConverterFactory datumConverterFactory)
         {
-            var term = new Term() {
-                type = termType
-            };
-            term.args.Add(RecursiveMap(expr.Operand));
-            return term;
-        }
+            DefaultExpressionConverterFactory.UnaryExpressionMappingDelegate unaryExpressionMapping;
+            Term.TermType defaultTermType;
 
-        private Term ConvertDateTimeAddFunctionToTerm(MethodCallExpression callExpression, double conversionToSeconds)
-        {
-            return new Term() {
-                type = Term.TermType.ADD,
-                args = {
-                    RecursiveMap(callExpression.Object),
-                    new Term() {
-                        type = Term.TermType.MUL,
-                        args = {
-                            RecursiveMap(callExpression.Arguments[0]),
-                            new Term() {
-                                type = Term.TermType.DATUM,
-                                datum = new Datum() {
-                                    type = Datum.DatumType.R_NUM,
-                                    r_num = conversionToSeconds
-                                }
-                            }
-                        }
-                    }
-                }
-            };
+            if (expressionConverterFactory.TryGetUnaryExpressionMapping(expr.Operand.Type, expr.NodeType, out unaryExpressionMapping))
+            {
+                return unaryExpressionMapping(expr, RecursiveMap, datumConverterFactory, expressionConverterFactory);
+            }
+            else if (DefaultTermTypes.TryGetValue(expr.NodeType, out defaultTermType))
+            {
+                var term = new Term() {
+                    type = defaultTermType
+                };
+                term.args.Add(RecursiveMap(expr.Operand));
+                return term;
+            }
+            else
+                return AttemptClientSideConversion(datumConverterFactory, expr);
         }
 
         protected Term SimpleMap(IDatumConverterFactory datumConverterFactory, Expression expr)
@@ -82,35 +102,22 @@ namespace RethinkDb.Expressions
                 }
 
                 case ExpressionType.Add:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.ADD);
                 case ExpressionType.Modulo:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.MOD);
                 case ExpressionType.Divide:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.DIV);
                 case ExpressionType.Multiply:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.MUL);
                 case ExpressionType.Subtract:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.SUB);
                 case ExpressionType.Equal:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.EQ);
                 case ExpressionType.LessThan:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.LT);
                 case ExpressionType.LessThanOrEqual:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.LE);
                 case ExpressionType.GreaterThan:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.GT);
                 case ExpressionType.GreaterThanOrEqual:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.GE);
                 case ExpressionType.AndAlso:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.ALL);
                 case ExpressionType.OrElse:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.ANY);
                 case ExpressionType.NotEqual:
-                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, Term.TermType.NE);
+                    return ConvertBinaryExpressionToTerm((BinaryExpression)expr, datumConverterFactory);
                 case ExpressionType.Not:
-                    return ConvertUnaryExpressionToTerm((UnaryExpression)expr, Term.TermType.NOT);
                 case ExpressionType.ArrayLength:
-                    return ConvertUnaryExpressionToTerm((UnaryExpression)expr, Term.TermType.COUNT);
+                    return ConvertUnaryExpressionToTerm((UnaryExpression)expr, datumConverterFactory);
 
                 case ExpressionType.New:
                 {
