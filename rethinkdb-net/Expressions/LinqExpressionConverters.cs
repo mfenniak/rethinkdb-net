@@ -46,10 +46,7 @@ namespace RethinkDb.Expressions
                 if (datumExpression.NodeType == ExpressionType.MemberInit)
                 {
                     var memberInit = (MemberInitExpression)datumExpression;
-
-                    var recursiveMapMethod = typeof(BaseExpression).GetMethod("RecursiveMapMemberInit", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    recursiveMapMethod = recursiveMapMethod.MakeGenericMethod(new Type[] { memberInit.Type });
-                    newTerm.args.Add((Term)recursiveMapMethod.Invoke(null, new object[] { memberInit }));
+                    newTerm.args.Add(recursiveMap(memberInit));
                 }
                 else
                     throw new NotSupportedException(String.Format("Expected ReQLExpression.Append to contain MemberInit additions, but was: {0}", datumExpression.NodeType));
