@@ -1,3 +1,25 @@
+// Copyright 2010 Dale Ragan (@dragan)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Modifications, Copyright 2014 Mathieu Fenniak (@mfenniak), also licensed
+// for use, reproduction, or distribution under the Apache License,
+// Version 2.0.
+//   - Removed "internalStringBuilder" and instead takes a TextWriter as a
+//     constructor parameter.
+//   - Added WriteNull method.
+//   - Removed Reset and ToString methods.
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,7 +32,6 @@ namespace SineSignal.Ottoman.Serialization
 	{
 		private static NumberFormatInfo numberFormatInfo;
 		
-		//private StringBuilder internalStringBuilder;
 		private TextWriter writer;
 		private Stack<Scope> scopes;
 		
