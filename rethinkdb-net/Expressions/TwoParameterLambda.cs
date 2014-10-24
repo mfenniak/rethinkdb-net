@@ -140,6 +140,7 @@ namespace RethinkDb.Expressions
                 case ExpressionType.MemberAccess:
                 {
                     var memberExpr = (MemberExpression)expr;
+                    var member = memberExpr.Member;
                     ParameterExpression parameterExpr = null;
 
                     if (memberExpr.Expression == null)
@@ -168,6 +169,10 @@ namespace RethinkDb.Expressions
                     {
                         return SimpleMap(datumConverterFactory, expr);
                     }
+
+                    DefaultExpressionConverterFactory.ExpressionMappingDelegate<MemberExpression> memberAccessMapping;
+                    if (expressionConverterFactory.TryGetMemberAccessMapping(member, out memberAccessMapping))
+                        return memberAccessMapping(memberExpr, RecursiveMap, datumConverterFactory, expressionConverterFactory);
 
                     if (parameterExpr == null)
                         parameterExpr = (ParameterExpression)memberExpr.Expression;
@@ -251,4 +256,3 @@ namespace RethinkDb.Expressions
         #endregion
     }
 }
-

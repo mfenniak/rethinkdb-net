@@ -121,6 +121,7 @@ namespace RethinkDb.Expressions
                 case ExpressionType.MemberAccess:
                 {
                     var memberExpr = (MemberExpression)expr;
+                    var member = memberExpr.Member;
 
                     if (memberExpr.Expression == null)
                     {
@@ -148,6 +149,10 @@ namespace RethinkDb.Expressions
                     {
                         return SimpleMap(datumConverterFactory, expr);
                     }
+
+                    DefaultExpressionConverterFactory.ExpressionMappingDelegate<MemberExpression> memberAccessMapping;
+                    if (expressionConverterFactory.TryGetMemberAccessMapping(member, out memberAccessMapping))
+                        return memberAccessMapping(memberExpr, RecursiveMap, datumConverterFactory, expressionConverterFactory);
 
                     var getAttrTerm = new Term() {
                         type = Term.TermType.GET_FIELD
