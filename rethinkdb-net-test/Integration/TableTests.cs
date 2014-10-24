@@ -115,6 +115,84 @@ namespace RethinkDb.Test.Integration
             Assert.That(resp.GeneratedKeys, Has.Length.EqualTo(7));
         }
 
+
+
+        [Test]
+        public void InsertWithConflictError()
+        {
+            DoInsertWithConflictError().Wait();
+        }
+
+        private async Task DoInsertWithConflictError()
+        {
+            var guid = new Guid().ToString();
+
+            var resp = await connection.RunAsync(testTable.Insert(
+                new TestObject() { Id = guid, Name = "1" }
+            ));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.Inserted, Is.EqualTo(1));
+
+            resp = await connection.RunAsync(testTable.Insert(
+                new TestObject() { Id = guid, Name = "1" }
+            ));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.FirstError, Is.Not.Null.Or.Empty);
+            Assert.That(resp.Errors, Is.EqualTo(1));
+            Assert.That(resp.GeneratedKeys, Is.Null);
+        }
+
+        [Test]
+        public void InsertWithConflictReplace()
+        {
+            DoInsertWithConflictReplace().Wait();
+        }
+
+        private async Task DoInsertWithConflictReplace()
+        {
+            var guid = new Guid().ToString();
+
+            var resp = await connection.RunAsync(testTable.Insert(
+                new TestObject() { Id = guid, Name = "1" }
+            ));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.Inserted, Is.EqualTo(1));
+
+            resp = await connection.RunAsync(testTable.Insert(
+                new TestObject() { Id = guid, Name = "2" }
+            , Conflict.Replace));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.Replaced, Is.EqualTo(1));
+            Assert.That(resp.GeneratedKeys, Is.Null);
+        }
+
+
+        [Test]
+        public void InsertWithConflictUpdate()
+        {
+            DoInsertWithConflictUpdate().Wait();
+        }
+
+        private async Task DoInsertWithConflictUpdate()
+        {
+            var guid = new Guid().ToString();
+
+            var resp = await connection.RunAsync(testTable.Insert(
+                new TestObject() { Id = guid, Name = "1" }
+            ));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.Inserted, Is.EqualTo(1));
+
+            resp = await connection.RunAsync(testTable.Insert(
+                new TestObject() { Id = guid, Name = "2" }
+            , Conflict.Update));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.Replaced, Is.EqualTo(1));
+            Assert.That(resp.GeneratedKeys, Is.Null);
+        }
+
+
+
         [Test]
         public void MultiInsertWithIds()
         {

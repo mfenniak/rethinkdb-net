@@ -6,6 +6,12 @@
 
 * The type-safe object model for secondary indexes has been expanded to incldude multi-indexes.  Calling table.IndexDefineMulti will return an IMultiIndex<TRecord, TIndexType> interface that can be used in multi-index operations, such as GetAll, Between, and EqJoin.  [PR #174](https://github.com/mfenniak/rethinkdb-net/issues/174)
 
+## 0.8.1.0 (2014-10-24)
+
+### Breaking Change
+
+Updated to reflect RethinkDbs deprectation of upsert and the new conflict parameter. https://github.com/mfenniak/rethinkdb-net/pull/177#issuecomment-60340969
+
 
 ## 0.8.0.0 (2014-10-20)
 
