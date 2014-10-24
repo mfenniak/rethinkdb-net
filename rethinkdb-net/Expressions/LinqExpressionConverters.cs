@@ -12,6 +12,7 @@ namespace RethinkDb.Expressions
     {
         private delegate T[] AppendDelegate<T>(T[] array, params T[] additionalObjects);
         private delegate IEnumerable<T> WhereDelegate<T>(IEnumerable<T> source,Func<T, bool> predicate);
+        private delegate int CountDelegate<T>(IEnumerable<T> source);
 
         public static void RegisterOnConverterFactory(DefaultExpressionConverterFactory expressionConverterFactory)
         {
@@ -20,6 +21,9 @@ namespace RethinkDb.Expressions
 
             var whereDelegate = (WhereDelegate<int>)Enumerable.Where;
             expressionConverterFactory.RegisterMethodCallMapping(whereDelegate.Method, ConvertEnumerableWhereToTerm);
+
+            var countDelegate = (CountDelegate<int>)Enumerable.Count;
+            expressionConverterFactory.RegisterMethodCallMapping(countDelegate.Method, ConvertEnumerableCountToTerm);
         }
 
         public static Term ConvertAppendToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
@@ -78,6 +82,18 @@ namespace RethinkDb.Expressions
             filterTerm.args.Add(functionTerm);
 
             return filterTerm;
+        }
+
+        public static Term ConvertEnumerableCountToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        {
+            var target = methodCall.Arguments[0];
+
+            var countTerm = new Term()
+            {
+                type = Term.TermType.COUNT,
+            };
+            countTerm.args.Add(recursiveMap(target));
+            return countTerm;
         }
     }
 }
