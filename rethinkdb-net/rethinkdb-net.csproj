@@ -50,6 +50,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Conflict.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="DatumConverters\EnumDatumConverterFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
