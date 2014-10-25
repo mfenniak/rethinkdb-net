@@ -58,7 +58,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
             var newtonDatum2 = DatumConvert.SerializeObject(objOut);
 
             newtonDatum.ShouldBeEquivalentTo(newtonDatum2);
-            newtonDatum.r_object.Count.Should().Be(7); // sanity check
+            newtonDatum.r_object.Count.Should().Be(8); // sanity check
         }
 
         public TestObject TestObjectWithTestData()

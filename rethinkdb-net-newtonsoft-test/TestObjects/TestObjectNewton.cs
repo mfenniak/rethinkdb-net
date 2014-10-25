@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using RethinkDb.Test.Integration;
@@ -30,5 +31,8 @@ namespace RethinkDb.Newtonsoft.Test.TestObjects
 
         //[DataMember( Name = "tags" )]
         public string[] Tags { get; set; }
+
+        //[DataMember(Name = "guid")]
+        public Guid Guid { get; set; }
     }
 }
