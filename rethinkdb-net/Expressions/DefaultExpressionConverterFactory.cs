@@ -17,6 +17,7 @@ namespace RethinkDb.Expressions
             where T : Expression;
 
         private readonly IDictionary<MethodInfo, ExpressionMappingDelegate<MethodCallExpression>> methodCallMappingRegistry = new Dictionary<MethodInfo, ExpressionMappingDelegate<MethodCallExpression>>();
+        private readonly IDictionary<ConstructorInfo, ExpressionMappingDelegate<NewExpression>> newExpressionMappingRegistry = new Dictionary<ConstructorInfo, ExpressionMappingDelegate<NewExpression>>();
         private readonly IDictionary<Tuple<Type, Type, ExpressionType>, ExpressionMappingDelegate<BinaryExpression>> binaryExpressionMappingRegistry = new Dictionary<Tuple<Type, Type, ExpressionType>, ExpressionMappingDelegate<BinaryExpression>>();
         private readonly IDictionary<Tuple<Type, ExpressionType>, ExpressionMappingDelegate<UnaryExpression>> unaryExpressionMappingRegistry = new Dictionary<Tuple<Type, ExpressionType>, ExpressionMappingDelegate<UnaryExpression>>();
         private readonly IDictionary<Tuple<Type, string>, ExpressionMappingDelegate<MemberExpression>> memberAccessMappingRegistry = new Dictionary<Tuple<Type, string>, ExpressionMappingDelegate<MemberExpression>>();
@@ -30,6 +31,7 @@ namespace RethinkDb.Expressions
         public void Reset()
         {
             methodCallMappingRegistry.Clear();
+            newExpressionMappingRegistry.Clear();
             binaryExpressionMappingRegistry.Clear();
             unaryExpressionMappingRegistry.Clear();
             memberAccessMappingRegistry.Clear();
@@ -40,6 +42,11 @@ namespace RethinkDb.Expressions
             if (method.IsGenericMethod)
                 method = method.GetGenericMethodDefinition();
             methodCallMappingRegistry[method] = methodCallMapping;
+        }
+
+        public void RegisterNewExpressionMapping(ConstructorInfo constructor, ExpressionMappingDelegate<NewExpression> newExpressionMapping)
+        {
+            newExpressionMappingRegistry[constructor] = newExpressionMapping;
         }
 
         public void RegisterBinaryExpressionMapping<TLeft, TRight>(ExpressionType expressionType, ExpressionMappingDelegate<BinaryExpression> binaryExpressionMapping)
@@ -62,6 +69,11 @@ namespace RethinkDb.Expressions
             if (method.IsGenericMethod)
                 method = method.GetGenericMethodDefinition();
             return methodCallMappingRegistry.TryGetValue(method, out methodCallMapping);
+        }
+
+        public bool TryGetNewExpressionMapping(ConstructorInfo constructor, out ExpressionMappingDelegate<NewExpression> newExpressionMapping)
+        {
+            return newExpressionMappingRegistry.TryGetValue(constructor, out newExpressionMapping);
         }
 
         public bool TryGetBinaryExpressionMapping(Type leftType, Type rightType, ExpressionType expressionType, out ExpressionMappingDelegate<BinaryExpression> binaryExpressionMapping)

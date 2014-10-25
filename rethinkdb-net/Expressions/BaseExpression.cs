@@ -122,21 +122,27 @@ namespace RethinkDb.Expressions
                 case ExpressionType.New:
                 {
                     var newExpression = (NewExpression)expr;
-                    if (!AnonymousTypeDatumConverterFactory.Instance.IsTypeSupported(newExpression.Type))
-                        return AttemptClientSideConversion(datumConverterFactory, expr);
-
-                    var retval = new Term() {
-                        type = Term.TermType.MAKE_OBJ,
-                    };
-                    foreach (var property in newExpression.Type.GetProperties().Select((p, i) => new { Property = p, Index = i }))
+                    if (AnonymousTypeDatumConverterFactory.Instance.IsTypeSupported(newExpression.Type))
                     {
-                        var key = property.Property.Name;
-                        var value = RecursiveMap(newExpression.Arguments[property.Index]);
-                        retval.optargs.Add(new Term.AssocPair() {
-                            key = key, val = value
-                        });
+                        var retval = new Term() {
+                            type = Term.TermType.MAKE_OBJ,
+                        };
+                        foreach (var property in newExpression.Type.GetProperties().Select((p, i) => new { Property = p, Index = i }))
+                        {
+                            var key = property.Property.Name;
+                            var value = RecursiveMap(newExpression.Arguments[property.Index]);
+                            retval.optargs.Add(new Term.AssocPair() {
+                                key = key, val = value
+                            });
+                        }
+                        return retval;
                     }
-                    return retval;
+
+                    DefaultExpressionConverterFactory.ExpressionMappingDelegate<NewExpression> newExpressionMapping;
+                    if (expressionConverterFactory.TryGetNewExpressionMapping(newExpression.Constructor, out newExpressionMapping))
+                        return newExpressionMapping(newExpression, RecursiveMap, datumConverterFactory, expressionConverterFactory);
+
+                    return AttemptClientSideConversion(datumConverterFactory, expr);
                 }
 
                 case ExpressionType.Call:

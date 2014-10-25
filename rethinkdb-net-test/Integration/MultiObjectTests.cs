@@ -947,5 +947,15 @@ namespace RethinkDb.Test.Integration
                 Assert.That(rec.dt, Is.EqualTo(new DateTime(2010, 1, 2, 3, 4, 5).AddTicks(5000000L)));
             }
         }
+
+        [Test]
+        public void DateTimeAddConstructedTimeSpan()
+        {
+            var q = testTable.Select(t => new { n = t.SomeNumber, dt = new DateTime(2010, 1, 2, 3, 4, 5) + TimeSpan.FromDays(t.SomeNumber) });
+            foreach (var rec in connection.Run(q))
+            {
+                Assert.That(rec.dt, Is.EqualTo(new DateTime(2010, 1, 2, 3, 4, 5).AddDays(rec.n)));
+            }
+        }
     }
 }
