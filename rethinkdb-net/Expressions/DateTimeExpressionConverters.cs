@@ -9,6 +9,7 @@ namespace RethinkDb.Expressions
         public static void RegisterOnConverterFactory(DefaultExpressionConverterFactory expressionConverterFactory)
         {
             RegisterDateTimeAddMethods(expressionConverterFactory);
+            RegisterDateTimeAccessors(expressionConverterFactory);
             RegisterTimeSpanConstructors(expressionConverterFactory);
         }
 
@@ -62,6 +63,81 @@ namespace RethinkDb.Expressions
             expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, double, DateTimeOffset>(
                 (dt, days) => dt.AddDays(days),
                 (dt, days) => Add(dt, DaysToSeconds(days)));
+        }
+
+        public static void RegisterDateTimeAccessors(DefaultExpressionConverterFactory expressionConverterFactory)
+        {
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, int>(
+                dt => dt.Year,
+                dt => new Term() { type = Term.TermType.YEAR, args = { dt } }
+            );
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, int>(
+                dt => dt.Year,
+                dt => new Term() { type = Term.TermType.YEAR, args = { dt } }
+            );
+
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, int>(
+                dt => dt.Month,
+                dt => new Term() { type = Term.TermType.MONTH, args = { dt } }
+            );
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, int>(
+                dt => dt.Month,
+                dt => new Term() { type = Term.TermType.MONTH, args = { dt } }
+            );
+
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, int>(
+                dt => dt.Day,
+                dt => new Term() { type = Term.TermType.DAY, args = { dt } }
+            );
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, int>(
+                dt => dt.Day,
+                dt => new Term() { type = Term.TermType.DAY, args = { dt } }
+            );
+
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, int>(
+                dt => dt.Hour,
+                dt => new Term() { type = Term.TermType.HOURS, args = { dt } }
+            );
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, int>(
+                dt => dt.Hour,
+                dt => new Term() { type = Term.TermType.HOURS, args = { dt } }
+            );
+
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, int>(
+                dt => dt.Minute,
+                dt => new Term() { type = Term.TermType.MINUTES, args = { dt } }
+            );
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, int>(
+                dt => dt.Minute,
+                dt => new Term() { type = Term.TermType.MINUTES, args = { dt } }
+            );
+
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, int>(
+                dt => dt.Second,
+                dt => new Term() { type = Term.TermType.SECONDS, args = { dt } }
+            );
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, int>(
+                dt => dt.Second,
+                dt => new Term() { type = Term.TermType.SECONDS, args = { dt } }
+            );
+
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, DayOfWeek>(
+                dt => dt.DayOfWeek,
+                dt => new Term() { type = Term.TermType.DAY_OF_WEEK, args = { dt } }
+            );
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, DayOfWeek>(
+                dt => dt.DayOfWeek,
+                dt => new Term() { type = Term.TermType.DAY_OF_WEEK, args = { dt } }
+            );
+
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, int>(
+                dt => dt.DayOfYear,
+                dt => new Term() { type = Term.TermType.DAY_OF_YEAR, args = { dt } }
+            );
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, int>(
+                dt => dt.DayOfYear,
+                dt => new Term() { type = Term.TermType.DAY_OF_YEAR, args = { dt } }
+            );
         }
 
         public static void RegisterTimeSpanConstructors(DefaultExpressionConverterFactory expressionConverterFactory)

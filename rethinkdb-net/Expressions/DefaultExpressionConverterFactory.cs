@@ -162,6 +162,9 @@ namespace RethinkDb.Expressions
                 case ExpressionType.New:
                     RegisterNewTemplateMapping((NewExpression)templateBody, terms => termConstructor(terms[0]));
                     break;
+                case ExpressionType.MemberAccess:
+                    RegisterMemberTemplateMapping((MemberExpression)templateBody, termConstructor);
+                    break;
                 default:
                     {
                         var unaryExpression = templateBody as UnaryExpression;
@@ -383,6 +386,24 @@ namespace RethinkDb.Expressions
 
             RegisterUnaryExpressionMapping(innerType, expressionType, del);
         }
+
+        private void RegisterMemberTemplateMapping(MemberExpression templateMember, Func<Term, Term> termConstructor)
+        {
+            var targetType = templateMember.Expression.Type;
+            var memberName = templateMember.Member.Name;
+
+            DefaultExpressionConverterFactory.ExpressionMappingDelegate<MemberExpression> del = delegate(
+                MemberExpression queryExpression,
+                DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap,
+                IDatumConverterFactory datumConverterFactory,
+                IExpressionConverterFactory internalExpressionConverterFactory)
+            {
+                return termConstructor(recursiveMap(queryExpression.Expression));
+            };
+
+            RegisterMemberAccessMapping(targetType, memberName, del);
+        }
+
         #region IExpressionConverterFactory implementation
 
         public IExpressionConverterZeroParameter<TReturn> CreateExpressionConverter<TReturn>(IDatumConverterFactory datumConverterFactory)
