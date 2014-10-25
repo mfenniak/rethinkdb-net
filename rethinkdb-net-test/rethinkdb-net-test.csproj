@@ -117,6 +117,7 @@
     <Compile Include="Expressions\GenericTypeConstraintExpressionTests.cs" />
     <Compile Include="Expressions\DefaultExpressionConverterFactoryTests.cs" />
     <Compile Include="Expressions\TimeSpanExpressionTests.cs" />
+    <Compile Include="Expressions\GuidExpressionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

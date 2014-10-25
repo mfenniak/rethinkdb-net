@@ -212,6 +212,7 @@
     <Compile Include="Expressions\DateTimeExpressionConverters.cs" />
     <Compile Include="Interfaces\IQueryConverter.cs" />
     <Compile Include="QueryConverter.cs" />
+    <Compile Include="Expressions\GuidExpressionConverters.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

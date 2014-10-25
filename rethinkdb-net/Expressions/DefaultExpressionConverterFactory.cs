@@ -27,6 +27,7 @@ namespace RethinkDb.Expressions
         {
             LinqExpressionConverters.RegisterOnConverterFactory(this);
             DateTimeExpressionConverters.RegisterOnConverterFactory(this);
+            GuidExpressionConverters.RegisterOnConverterFactory(this);
         }
 
         public void Reset()
@@ -129,6 +130,24 @@ namespace RethinkDb.Expressions
         // termConstructor, first all the arguments will need to be RecursiveMap'd, then the termConstructor needs to
         // be invoked.  Will only support the same expression mappings that we otherwise support with Register; eg.
         // method calls, constructors, binary expressions, and unary expressions.
+
+        public void RegisterTemplateMapping<TReturn>(
+            Expression<Func<TReturn>> template,
+            Func<Term> termConstructor)
+        {
+            var templateBody = template.Body;
+            switch (templateBody.NodeType)
+            {
+                case ExpressionType.Call:
+                    RegisterMethodCallTemplateMapping((MethodCallExpression)templateBody, terms => termConstructor());
+                    break;
+                case ExpressionType.New:
+                    RegisterNewTemplateMapping((NewExpression)templateBody, terms => termConstructor());
+                    break;
+                default:
+                    throw new NotImplementedException("Template did not match supported pattern");
+            }
+        }
 
         public void RegisterTemplateMapping<TParameter1, TReturn>(
             Expression<Func<TParameter1, TReturn>> template,

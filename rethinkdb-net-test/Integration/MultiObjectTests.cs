@@ -957,5 +957,22 @@ namespace RethinkDb.Test.Integration
                 Assert.That(rec.dt, Is.EqualTo(new DateTime(2010, 1, 2, 3, 4, 5).AddDays(rec.n)));
             }
         }
+
+        [Test]
+        public void ServerSideGuidGeneration()
+        {
+            var resp = connection.Run(testTable.Update(o => new TestObject() { Guid = Guid.NewGuid() }, nonAtomic: true));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.FirstError, Is.Null);
+            Assert.That(resp.Replaced, Is.EqualTo(7));
+
+            HashSet<Guid> guids = new HashSet<Guid>();
+            foreach (var record in connection.Run(testTable))
+            {
+                Assert.That(guids.Contains(record.Guid), Is.False, "duplicate guids found; is server-side guid generation not working?");
+                guids.Add(record.Guid);
+            }
+            Assert.That(guids.Count, Is.EqualTo(7));
+        }
     }
 }

@@ -16,6 +16,8 @@
   table.Filter(r => r.CreatedAt + TimeSpan.FromDays(r.ExpireInDays) < Query.Now())
   ```
 
+* Server-side GUID generation is now supported; eg. ```table.Update(record => new Record() { Id = Guid.NewGuid() })``` will actually generate unique guids for all updated records in table, rather than evaluating client-side to a single value.
+
 ### Compatibility
 
 * Added support for RethinkDB's JSON-based client driver protocol.  The JSON protocol is now the default protocol, but the protocol to be used is configurable on the connection objects.  [PR #176](https://github.com/mfenniak/rethinkdb-net/issues/176)
