@@ -10,7 +10,7 @@
 
 * Hard-coded types in query operators are optionally provided by rethinkdb-net, but can be input instead.  For example, we provide Query.Now() that returns a DateTimeOffset; if you'd prefer DateTime or some other type, you can use Query.Now<YourType>().  As long as the datum converter on your connection can convert the results from the server into YourType, the query will work as you'd expect.  [PR #183](https://github.com/mfenniak/rethinkdb-net/issues/183)
 
-* TimeSpan constructors are now supported in expressions (new TimeSpan(...), and TimeSpan.From[Days/Hours/Minutes/Seconds/Milliseconds/Ticks]) allowing for queries like:
+* TimeSpan constructors are now supported in expressions (new TimeSpan(...), and TimeSpan.From[Days/Hours/Minutes/Seconds/Milliseconds/Ticks]) allowing for queries like the below.  [Issue #153](https://github.com/mfenniak/rethinkdb-net/issues/153)
 
   ```C#
   table.Filter(r => r.CreatedAt + TimeSpan.FromDays(r.ExpireInDays) < Query.Now())
