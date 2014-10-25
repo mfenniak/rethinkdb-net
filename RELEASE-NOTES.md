@@ -16,7 +16,7 @@
   table.Filter(r => r.CreatedAt + TimeSpan.FromDays(r.ExpireInDays) < Query.Now())
   ```
 
-* Server-side GUID generation is now supported; eg. ```table.Update(record => new Record() { Id = Guid.NewGuid() })``` will actually generate unique guids for all updated records in table, rather than evaluating client-side to a single value.
+* Server-side GUID generation is now supported; eg. ```table.Update(record => new Record() { Id = Guid.NewGuid() })``` will actually generate unique guids for all updated records in table, rather than evaluating client-side to a single value.  [Issue #182](https://github.com/mfenniak/rethinkdb-net/issues/182)
 
 ### Compatibility
 
