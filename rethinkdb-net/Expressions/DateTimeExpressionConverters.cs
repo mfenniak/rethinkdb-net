@@ -8,9 +8,20 @@ namespace RethinkDb.Expressions
     {
         public static void RegisterOnConverterFactory(DefaultExpressionConverterFactory expressionConverterFactory)
         {
+            RegisterDateTimeConstructors(expressionConverterFactory);
             RegisterDateTimeAddMethods(expressionConverterFactory);
             RegisterDateTimeAccessors(expressionConverterFactory);
             RegisterTimeSpanConstructors(expressionConverterFactory);
+        }
+
+        public static void RegisterDateTimeConstructors(DefaultExpressionConverterFactory expressionConverterFactory)
+        {
+            expressionConverterFactory.RegisterTemplateMapping<DateTime>(
+                () => DateTime.UtcNow,
+                () => new Term() { type = Term.TermType.NOW });
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset>(
+                () => DateTimeOffset.UtcNow,
+                () => new Term() { type = Term.TermType.NOW });
         }
 
         public static void RegisterDateTimeAddMethods(DefaultExpressionConverterFactory expressionConverterFactory)

@@ -20,6 +20,8 @@
 
 * Accessors to common properties on DateTime and DateTimeOffset can now be performed server-side.  For example, the query ```table.Filter(record => record.CreatedAt.Year == 2014)``` is now possible.  [Issue #120](https://github.com/mfenniak/rethinkdb-net/issues/120)
 
+* DateTime.UtcNow and DateTimeOffset.UtcNow are executed server-side when accessed inside an expression tree. [Issue #120](https://github.com/mfenniak/rethinkdb-net/issues/120)
+
 ### Compatibility
 
 * Added support for RethinkDB's JSON-based client driver protocol.  The JSON protocol is now the default protocol, but the protocol to be used is configurable on the connection objects.  [PR #176](https://github.com/mfenniak/rethinkdb-net/issues/176)

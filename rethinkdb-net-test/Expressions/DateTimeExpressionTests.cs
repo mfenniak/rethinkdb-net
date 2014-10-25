@@ -401,5 +401,27 @@ namespace RethinkDb.Test.Expressions
             var expr = ExpressionUtils.CreateFunctionTerm<DateTimeOffset, int>(queryConverter, dt => dt.DayOfYear);
             AssertDateTimeAccessor(expr, Term.TermType.DAY_OF_YEAR);
         }
+
+        [Test]
+        public void DateTimeUtcNow()
+        {
+            var expr = ExpressionUtils.CreateValueTerm<DateTime>(queryConverter, () => DateTime.UtcNow);
+            expr.ShouldBeEquivalentTo(
+                new Term() {
+                    type = Term.TermType.NOW,
+                }
+            );
+        }
+
+        [Test]
+        public void DateTimeOffsetUtcNow()
+        {
+            var expr = ExpressionUtils.CreateValueTerm<DateTimeOffset>(queryConverter, () => DateTimeOffset.UtcNow);
+            expr.ShouldBeEquivalentTo(
+                new Term() {
+                    type = Term.TermType.NOW,
+                }
+            );
+        }
     }
 }

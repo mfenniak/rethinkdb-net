@@ -144,6 +144,10 @@ namespace RethinkDb.Expressions
                 case ExpressionType.New:
                     RegisterNewTemplateMapping((NewExpression)templateBody, terms => termConstructor());
                     break;
+                case ExpressionType.MemberAccess:
+                    // no-arg static member access that we still want server-side, eg. DateTime.UtcNow
+                    RegisterMemberTemplateMapping((MemberExpression)templateBody, terms => termConstructor());
+                    break;
                 default:
                     throw new NotImplementedException("Template did not match supported pattern");
             }
@@ -163,7 +167,7 @@ namespace RethinkDb.Expressions
                     RegisterNewTemplateMapping((NewExpression)templateBody, terms => termConstructor(terms[0]));
                     break;
                 case ExpressionType.MemberAccess:
-                    RegisterMemberTemplateMapping((MemberExpression)templateBody, termConstructor);
+                    RegisterMemberTemplateMapping((MemberExpression)templateBody, terms => termConstructor(terms[0]));
                     break;
                 default:
                     {
@@ -387,10 +391,11 @@ namespace RethinkDb.Expressions
             RegisterUnaryExpressionMapping(innerType, expressionType, del);
         }
 
-        private void RegisterMemberTemplateMapping(MemberExpression templateMember, Func<Term, Term> termConstructor)
+        private void RegisterMemberTemplateMapping(MemberExpression templateMember, Func<Term[], Term> termConstructor)
         {
-            var targetType = templateMember.Expression.Type;
-            var memberName = templateMember.Member.Name;
+            var member = templateMember.Member;
+            var declaringType = member.DeclaringType;
+            var memberName = member.Name;
 
             DefaultExpressionConverterFactory.ExpressionMappingDelegate<MemberExpression> del = delegate(
                 MemberExpression queryExpression,
@@ -398,10 +403,14 @@ namespace RethinkDb.Expressions
                 IDatumConverterFactory datumConverterFactory,
                 IExpressionConverterFactory internalExpressionConverterFactory)
             {
-                return termConstructor(recursiveMap(queryExpression.Expression));
+                if (templateMember.Expression == null)
+                    // static member
+                    return termConstructor(new Term[0]);
+                else
+                    return termConstructor(new Term[] { recursiveMap(queryExpression.Expression) });
             };
 
-            RegisterMemberAccessMapping(targetType, memberName, del);
+            RegisterMemberAccessMapping(declaringType, memberName, del);
         }
 
         #region IExpressionConverterFactory implementation

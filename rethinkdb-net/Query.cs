@@ -414,6 +414,7 @@ namespace RethinkDb
             return new UnionQuery<T>(query1, query2);
         }
 
+        [Obsolete("Use DateTimeOffset.UtcNow instead")]
         public static ISingleObjectQuery<DateTimeOffset> Now()
         {
             return new NowQuery<DateTimeOffset>();

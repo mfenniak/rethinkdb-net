@@ -240,6 +240,8 @@ namespace RethinkDb.Test.Integration
             connection.Run(Query.Expr(false));
         }
 
+        // testing of obsolete Query.Now
+        #pragma warning disable 0618
         [Test]
         public void Now()
         {
@@ -247,6 +249,14 @@ namespace RethinkDb.Test.Integration
             Assert.That(now, Is.GreaterThan(DateTimeOffset.UtcNow.AddSeconds(-10)));
             Assert.That(now, Is.LessThan(DateTimeOffset.UtcNow.AddSeconds(10)));
         }
+        #pragma warning restore 0618
+
+        [Test]
+        public void ExpressionNow()
+        {
+            var now = connection.Run(Query.Expr(() => DateTimeOffset.UtcNow));
+            Assert.That(now, Is.GreaterThan(DateTimeOffset.UtcNow.AddSeconds(-10)));
+            Assert.That(now, Is.LessThan(DateTimeOffset.UtcNow.AddSeconds(10)));
+        }
     }
 }
-
