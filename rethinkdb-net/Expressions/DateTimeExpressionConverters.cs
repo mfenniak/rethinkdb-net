@@ -1,107 +1,130 @@
 using System;
 using System.Linq;
-using System.Linq.Expressions;
-using RethinkDb.QueryTerm;
 using RethinkDb.Spec;
 
 namespace RethinkDb.Expressions
 {
     public static class DateTimeExpressionConverters
     {
-        private delegate DateTime AddTimeSpanDelegate(TimeSpan value);
-        private delegate DateTime AddDoubleDelegate(double value);
-        private delegate DateTime AddLongDelegate(long value);
-        private delegate DateTimeOffset AddTimeSpanOffsetDelegate(TimeSpan value);
-        private delegate DateTimeOffset AddDoubleOffsetDelegate(double value);
-        private delegate DateTimeOffset AddLongOffsetDelegate(long value);
-        private delegate TimeSpan FromLongDelegate(long value);
-        private delegate TimeSpan FromDoubleDelegate(double value);
-
         public static void RegisterOnConverterFactory(DefaultExpressionConverterFactory expressionConverterFactory)
         {
-            DateTime dt;
-            DateTimeOffset dto;
+            RegisterDateTimeAddMethods(expressionConverterFactory);
+            RegisterTimeSpanConstructors(expressionConverterFactory);
+        }
 
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddTimeSpanDelegate)(dt.Add)).Method,
-                ConvertAddTimeSpanToTerm);
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddTimeSpanOffsetDelegate)(dto.Add)).Method,
-                ConvertAddTimeSpanToTerm);
+        public static void RegisterDateTimeAddMethods(DefaultExpressionConverterFactory expressionConverterFactory)
+        {
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, TimeSpan, DateTime>(
+                (dt, timespan) => dt.Add(timespan),
+                (dt, timespan) => Add(dt, timespan));
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, TimeSpan, DateTimeOffset>(
+                (dt, timespan) => dt.Add(timespan),
+                (dt, timespan) => Add(dt, timespan));
 
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddDoubleDelegate)(dt.AddMinutes)).Method,
-                ConvertAddMinutesToTerm);
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddDoubleOffsetDelegate)(dto.AddMinutes)).Method,
-                ConvertAddMinutesToTerm);
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, double, DateTime>(
+                (dt, minutes) => dt.AddMinutes(minutes),
+                (dt, minutes) => Add(dt, MinutesToSeconds(minutes)));
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, double, DateTimeOffset>(
+                (dt, minutes) => dt.AddMinutes(minutes),
+                (dt, minutes) => Add(dt, MinutesToSeconds(minutes)));
 
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddDoubleDelegate)(dt.AddSeconds)).Method,
-                ConvertAddSecondsToTerm);
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddDoubleOffsetDelegate)(dto.AddSeconds)).Method,
-                ConvertAddSecondsToTerm);
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, double, DateTime>(
+                (dt, seconds) => dt.AddSeconds(seconds),
+                (dt, seconds) => Add(dt, seconds));
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, double, DateTimeOffset>(
+                (dt, seconds) => dt.AddSeconds(seconds),
+                (dt, seconds) => Add(dt, seconds));
 
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddDoubleDelegate)(dt.AddHours)).Method,
-                ConvertAddHoursToTerm);
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddDoubleOffsetDelegate)(dto.AddHours)).Method,
-                ConvertAddHoursToTerm);
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, double, DateTime>(
+                (dt, hours) => dt.AddHours(hours),
+                (dt, hours) => Add(dt, HoursToSeconds(hours)));
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, double, DateTimeOffset>(
+                (dt, hours) => dt.AddHours(hours),
+                (dt, hours) => Add(dt, HoursToSeconds(hours)));
 
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddDoubleDelegate)(dt.AddMilliseconds)).Method,
-                ConvertAddMillisecondsToTerm);
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddDoubleOffsetDelegate)(dto.AddMilliseconds)).Method,
-                ConvertAddMillisecondsToTerm);
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, double, DateTime>(
+                (dt, ms) => dt.AddMilliseconds(ms),
+                (dt, ms) => Add(dt, MillisecondsToSeconds(ms)));
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, double, DateTimeOffset>(
+                (dt, ms) => dt.AddMilliseconds(ms),
+                (dt, ms) => Add(dt, MillisecondsToSeconds(ms)));
 
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddLongDelegate)(dt.AddTicks)).Method,
-                ConvertAddTicksSpanToTerm);
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddLongOffsetDelegate)(dto.AddTicks)).Method,
-                ConvertAddTicksSpanToTerm);
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, long, DateTime>(
+                (dt, ticks) => dt.AddTicks(ticks),
+                (dt, ticks) => Add(dt, TicksToSeconds(ticks)));
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, long, DateTimeOffset>(
+                (dt, ticks) => dt.AddTicks(ticks),
+                (dt, ticks) => Add(dt, TicksToSeconds(ticks)));
 
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddDoubleDelegate)(dt.AddDays)).Method,
-                ConvertAddDaysToTerm);
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((AddDoubleOffsetDelegate)(dto.AddDays)).Method,
-                ConvertAddDaysToTerm);
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, double, DateTime>(
+                (dt, days) => dt.AddDays(days),
+                (dt, days) => Add(dt, DaysToSeconds(days)));
+            expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset, double, DateTimeOffset>(
+                (dt, days) => dt.AddDays(days),
+                (dt, days) => Add(dt, DaysToSeconds(days)));
+        }
 
-            expressionConverterFactory.RegisterNewExpressionMapping(
-                typeof(TimeSpan).GetConstructor(new Type[] { typeof(long) }),
-                ConvertTimeSpanTicksConstructorToTerm);
-            expressionConverterFactory.RegisterNewExpressionMapping(
-                typeof(TimeSpan).GetConstructor(new Type[] { typeof(int), typeof(int), typeof(int) }),
-                ConvertTimeSpanHoursMinutesSecondsConstructorToTerm);
-            expressionConverterFactory.RegisterNewExpressionMapping(
-                typeof(TimeSpan).GetConstructor(new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }),
-                ConvertTimeSpanDaysHoursMinutesSecondsConstructorToTerm);
-            expressionConverterFactory.RegisterNewExpressionMapping(
-                typeof(TimeSpan).GetConstructor(new Type[] { typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) }),
-                ConvertTimeSpanDaysHoursMinutesSecondsMillisecondsConstructorToTerm);
+        public static void RegisterTimeSpanConstructors(DefaultExpressionConverterFactory expressionConverterFactory)
+        {
+            expressionConverterFactory.RegisterTemplateMapping<long, TimeSpan>(
+                (ticks) => new TimeSpan(ticks),
+                (ticks) => TicksToSeconds(ticks)
+            );
+            expressionConverterFactory.RegisterTemplateMapping<int, int, int, TimeSpan>(
+                (hours, minutes, seconds) => new TimeSpan(hours, minutes, seconds),
+                (hours, minutes, seconds) =>
+                    Add(
+                        HoursToSeconds(hours),
+                        MinutesToSeconds(minutes),
+                        seconds
+                    )
+                );
+            expressionConverterFactory.RegisterTemplateMapping<int, int, int, int, TimeSpan>(
+                (days, hours, minutes, seconds) => new TimeSpan(days, hours, minutes, seconds),
+                (days, hours, minutes, seconds) =>
+                    Add(
+                        DaysToSeconds(days),
+                        HoursToSeconds(hours),
+                        MinutesToSeconds(minutes),
+                        seconds
+                    )
+                );
+            expressionConverterFactory.RegisterTemplateMapping<int, int, int, int, int, TimeSpan>(
+                (days, hours, minutes, seconds, milliseconds) => new TimeSpan(days, hours, minutes, seconds, milliseconds),
+                (days, hours, minutes, seconds, milliseconds) =>
+                    Add(
+                        DaysToSeconds(days),
+                        HoursToSeconds(hours),
+                        MinutesToSeconds(minutes),
+                        seconds,
+                        MillisecondsToSeconds(milliseconds)
+                    )
+                );
 
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((FromDoubleDelegate)(TimeSpan.FromDays)).Method,
-                ConvertFromDaysToTerm);
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((FromDoubleDelegate)(TimeSpan.FromHours)).Method,
-                ConvertFromHoursToTerm);
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((FromDoubleDelegate)(TimeSpan.FromMilliseconds)).Method,
-                ConvertFromMillisecondsToTerm);
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((FromDoubleDelegate)(TimeSpan.FromMinutes)).Method,
-                ConvertFromMinutesToTerm);
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((FromDoubleDelegate)(TimeSpan.FromSeconds)).Method,
-                ConvertFromSecondsToTerm);
-            expressionConverterFactory.RegisterMethodCallMapping(
-                ((FromLongDelegate)(TimeSpan.FromTicks)).Method,
-                ConvertFromTicksToTerm);
+            expressionConverterFactory.RegisterTemplateMapping<double, TimeSpan>(
+                (days) => TimeSpan.FromDays(days),
+                DaysToSeconds
+            );
+            expressionConverterFactory.RegisterTemplateMapping<double, TimeSpan>(
+                (hours) => TimeSpan.FromHours(hours),
+                HoursToSeconds
+            );
+            expressionConverterFactory.RegisterTemplateMapping<double, TimeSpan>(
+                (milliseconds) => TimeSpan.FromMilliseconds(milliseconds),
+                MillisecondsToSeconds
+            );
+            expressionConverterFactory.RegisterTemplateMapping<double, TimeSpan>(
+                (minutes) => TimeSpan.FromMinutes(minutes),
+                MinutesToSeconds
+            );
+            expressionConverterFactory.RegisterTemplateMapping<double, TimeSpan>(
+                (seconds) => TimeSpan.FromSeconds(seconds),
+                term => term
+            );
+            expressionConverterFactory.RegisterTemplateMapping<long, TimeSpan>(
+                (ticks) => TimeSpan.FromTicks(ticks),
+                TicksToSeconds
+            );
         }
 
         private static Term Binary(Term leftTerm, Term.TermType type, double rightTerm)
@@ -166,111 +189,6 @@ namespace RethinkDb.Expressions
                     }
                 );
             }
-        }
-
-        public static Term ConvertAddTimeSpanToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return Add(recursiveMap(methodCall.Object), recursiveMap(methodCall.Arguments[0]));
-        }
-
-        public static Term ConvertDateTimeAddFunctionToTerm(MethodCallExpression callExpression, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, double conversionToSeconds)
-        {
-            return Add(recursiveMap(callExpression.Object), Binary(recursiveMap(callExpression.Arguments[0]), Term.TermType.MUL, conversionToSeconds));
-        }
-
-        public static Term ConvertAddMinutesToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return ConvertDateTimeAddFunctionToTerm(methodCall, recursiveMap, TimeSpan.TicksPerMinute / TimeSpan.TicksPerSecond);
-        }
-
-        public static Term ConvertAddHoursToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return ConvertDateTimeAddFunctionToTerm(methodCall, recursiveMap, TimeSpan.TicksPerHour / TimeSpan.TicksPerSecond);
-        }
-
-        public static Term ConvertAddMillisecondsToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return ConvertDateTimeAddFunctionToTerm(methodCall, recursiveMap, (double)TimeSpan.TicksPerMillisecond / TimeSpan.TicksPerSecond);
-        }
-
-        public static Term ConvertAddSecondsToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return ConvertDateTimeAddFunctionToTerm(methodCall, recursiveMap, 1);
-        }
-
-        public static Term ConvertAddTicksSpanToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return ConvertDateTimeAddFunctionToTerm(methodCall, recursiveMap, 1.0 / TimeSpan.TicksPerSecond);
-        }
-
-        public static Term ConvertAddDaysToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return ConvertDateTimeAddFunctionToTerm(methodCall, recursiveMap, TimeSpan.TicksPerDay / TimeSpan.TicksPerSecond);
-        }
-
-        public static Term ConvertTimeSpanTicksConstructorToTerm(NewExpression newExpression, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return TicksToSeconds(recursiveMap(newExpression.Arguments[0]));
-        }
-
-        public static Term ConvertTimeSpanHoursMinutesSecondsConstructorToTerm(NewExpression newExpression, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return Add(
-                HoursToSeconds(recursiveMap(newExpression.Arguments[0])),
-                MinutesToSeconds(recursiveMap(newExpression.Arguments[1])),
-                recursiveMap(newExpression.Arguments[2])
-            );
-        }
-
-        public static Term ConvertTimeSpanDaysHoursMinutesSecondsConstructorToTerm(NewExpression newExpression, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return Add(
-                DaysToSeconds(recursiveMap(newExpression.Arguments[0])),
-                HoursToSeconds(recursiveMap(newExpression.Arguments[1])),
-                MinutesToSeconds(recursiveMap(newExpression.Arguments[2])),
-                recursiveMap(newExpression.Arguments[3])
-            );
-        }
-
-        public static Term ConvertTimeSpanDaysHoursMinutesSecondsMillisecondsConstructorToTerm(NewExpression newExpression, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return Add(
-                DaysToSeconds(recursiveMap(newExpression.Arguments[0])),
-                HoursToSeconds(recursiveMap(newExpression.Arguments[1])),
-                MinutesToSeconds(recursiveMap(newExpression.Arguments[2])),
-                recursiveMap(newExpression.Arguments[3]),
-                MillisecondsToSeconds(recursiveMap(newExpression.Arguments[4]))
-            );
-        }
-
-        public static Term ConvertFromDaysToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return DaysToSeconds(recursiveMap(methodCall.Arguments[0]));
-        }
-
-        public static Term ConvertFromHoursToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return HoursToSeconds(recursiveMap(methodCall.Arguments[0]));
-        }
-
-        public static Term ConvertFromMinutesToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return MinutesToSeconds(recursiveMap(methodCall.Arguments[0]));
-        }
-
-        public static Term ConvertFromMillisecondsToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return MillisecondsToSeconds(recursiveMap(methodCall.Arguments[0]));
-        }
-
-        public static Term ConvertFromSecondsToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return recursiveMap(methodCall.Arguments[0]);
-        }
-
-        public static Term ConvertFromTicksToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            return TicksToSeconds(recursiveMap(methodCall.Arguments[0]));
         }
     }
 }
