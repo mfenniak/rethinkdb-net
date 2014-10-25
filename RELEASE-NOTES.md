@@ -12,9 +12,9 @@
 
 * TimeSpan constructors are now supported in expressions (new TimeSpan(...), and TimeSpan.From[Days/Hours/Minutes/Seconds/Milliseconds/Ticks]) allowing for queries like:
 
-```c#
+  ```C#
   table.Filter(r => r.CreatedAt + TimeSpan.FromDays(r.ExpireInDays) < Query.Now())
-```
+  ```
 
 ### Compatibility
 
