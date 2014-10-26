@@ -423,5 +423,59 @@ namespace RethinkDb.Test.Expressions
                 }
             );
         }
+
+        [Test]
+        public void DateTimeYearMonthDayConstructor()
+        {
+            var expr = ExpressionUtils.CreateFunctionTerm<int, DateTime>(queryConverter, (i) => new DateTime(i, i, i));
+            var variableRefenceTerm = new Term() {
+                type = Term.TermType.VAR,
+                args = {
+                    new Term() {
+                        type = Term.TermType.DATUM,
+                        datum = new Datum() {
+                            type = Datum.DatumType.R_NUM,
+                            r_num = 2,
+                        }
+                    }
+                }
+            };
+
+            expr.ShouldBeEquivalentTo(
+                new Term()
+                {
+                    type = Term.TermType.FUNC,
+                    args = {
+                        new Term() {
+                            type = Term.TermType.MAKE_ARRAY,
+                            args = {
+                                new Term() {
+                                    type = Term.TermType.DATUM,
+                                    datum = new Datum() {
+                                        type = Datum.DatumType.R_NUM,
+                                        r_num = 2,
+                                    }
+                                }
+                            }
+                        },
+                        new Term() {
+                            type = Term.TermType.TIME,
+                            args = {
+                                variableRefenceTerm,
+                                variableRefenceTerm,
+                                variableRefenceTerm,
+                                new Term() {
+                                    type = Term.TermType.DATUM,
+                                    datum = new Datum() {
+                                        type = Datum.DatumType.R_STR,
+                                        r_str = "Z",
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+        }
     }
 }

@@ -22,6 +22,25 @@ namespace RethinkDb.Expressions
             expressionConverterFactory.RegisterTemplateMapping<DateTimeOffset>(
                 () => DateTimeOffset.UtcNow,
                 () => new Term() { type = Term.TermType.NOW });
+
+            expressionConverterFactory.RegisterTemplateMapping<int, int, int, DateTime>(
+                (year, month, day) => new DateTime(year, month, day),
+                (year, month, day) => new Term() { type = Term.TermType.TIME, args = { year, month, day, String("Z") } });
+            expressionConverterFactory.RegisterTemplateMapping<int, int, int, int, int, int, DateTime>(
+                (year, month, day, hour, minute, second) => new DateTime(year, month, day, hour, minute, second),
+                (year, month, day, hour, minute, second) => new Term() {
+                    type = Term.TermType.TIME,
+                    args = { year, month, day, hour, minute, second, String("Z") } });
+            expressionConverterFactory.RegisterTemplateMapping<int, int, int, int, int, int, int, DateTime>(
+                (year, month, day, hour, minute, second, millisecond) => new DateTime(year, month, day, hour, minute, second, millisecond),
+                (year, month, day, hour, minute, second, millisecond) => new Term() {
+                    type = Term.TermType.TIME,
+                    args = { year, month, day, hour, minute, Add(second, Binary(millisecond, Term.TermType.DIV, 1000)), String("Z") }
+                });
+
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, DateTimeOffset>(
+                (datetime) => new DateTimeOffset(datetime),
+                (datetime) => datetime);
         }
 
         public static void RegisterDateTimeAddMethods(DefaultExpressionConverterFactory expressionConverterFactory)
@@ -212,6 +231,18 @@ namespace RethinkDb.Expressions
                 (ticks) => TimeSpan.FromTicks(ticks),
                 TicksToSeconds
             );
+        }
+
+        private static Term String(string str)
+        {
+            return new Term()
+            {
+                type = Term.TermType.DATUM,
+                datum = new Datum() {
+                    type = Datum.DatumType.R_STR,
+                    r_str = str,
+                }
+            };
         }
 
         private static Term Binary(Term leftTerm, Term.TermType type, double rightTerm)

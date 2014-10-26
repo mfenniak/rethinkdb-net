@@ -274,5 +274,33 @@ namespace RethinkDb.Test.Integration
 
 #pragma warning restore 0429
         }
+
+        [Test]
+        public void ExpressionDate()
+        {
+            var date = connection.Run(Query.Expr(() => new DateTime(2014, 2, 3)));
+            Assert.That(date, Is.EqualTo(new DateTime(2014, 2, 3)));
+        }
+
+        [Test]
+        public void ExpressionDateTime()
+        {
+            var datetime = connection.Run(Query.Expr(() => new DateTime(2014, 2, 3, 7, 30, 15)));
+            Assert.That(datetime, Is.EqualTo(new DateTime(2014, 2, 3, 7, 30, 15)));
+        }
+
+        [Test]
+        public void ExpressionDateTimeOffset()
+        {
+            var datetime = connection.Run(Query.Expr(() => new DateTimeOffset(new DateTime(2014, 2, 3, 7, 30, 15))));
+            Assert.That(datetime, Is.EqualTo(new DateTimeOffset(new DateTime(2014, 2, 3, 7, 30, 15))));
+        }
+
+        [Test]
+        public void ExpressionDateTimeWithMilliseconds()
+        {
+            var datetimems = connection.Run(Query.Expr(() => new DateTime(2014, 2, 3, 7, 30, 15, 500)));
+            Assert.That(datetimems, Is.EqualTo(new DateTime(2014, 2, 3, 7, 30, 15, 500)));
+        }
     }
 }
