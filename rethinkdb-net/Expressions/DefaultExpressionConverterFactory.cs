@@ -73,6 +73,9 @@ namespace RethinkDb.Expressions
 
         public void RegisterMemberAccessMapping(Type targetType, string memberName, ExpressionMappingDelegate<MemberExpression> memberAccessMapping)
         {
+            if (targetType.IsGenericType)
+                targetType = targetType.GetGenericTypeDefinition();
+
             memberAccessMappingRegistry[Tuple.Create(targetType, memberName)] = memberAccessMapping;
         }
 

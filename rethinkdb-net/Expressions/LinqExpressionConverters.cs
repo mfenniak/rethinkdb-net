@@ -22,21 +22,23 @@ namespace RethinkDb.Expressions
             var whereDelegate = (WhereDelegate<int>)Enumerable.Where;
             expressionConverterFactory.RegisterMethodCallMapping(whereDelegate.Method, ConvertEnumerableWhereToTerm);
 
-            var countDelegate = (CountDelegate<int>)Enumerable.Count;
-            expressionConverterFactory.RegisterMethodCallMapping(countDelegate.Method, ConvertEnumerableCountToTerm);
-
-            expressionConverterFactory.RegisterMemberAccessMapping(typeof(List<>), "Count", ConvertCountMemberToTerm);
-            expressionConverterFactory.RegisterMemberAccessMapping(typeof(ICollection<>), "Count", ConvertCountMemberToTerm);
+            expressionConverterFactory.RegisterTemplateMapping<IEnumerable<int>, int>(
+                list => list.Count(),
+                list => Count(list)
+            );
+            expressionConverterFactory.RegisterTemplateMapping<List<int>, int>(
+                list => list.Count,
+                list => Count(list)
+            );
+            expressionConverterFactory.RegisterTemplateMapping<ICollection<int>, int>(
+                list => list.Count,
+                list => Count(list)
+            );
         }
 
-        public static Term ConvertCountMemberToTerm(MemberExpression memberExpression, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        private static Term Count(Term term)
         {
-            var countTerm = new Term()
-            {
-                type = Term.TermType.COUNT,
-            };
-            countTerm.args.Add(recursiveMap(memberExpression.Expression));
-            return countTerm;
+            return new Term() { type = Term.TermType.COUNT, args = { term } };
         }
 
         public static Term ConvertAppendToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
@@ -92,18 +94,6 @@ namespace RethinkDb.Expressions
             filterTerm.args.Add(functionTerm);
 
             return filterTerm;
-        }
-
-        public static Term ConvertEnumerableCountToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
-        {
-            var target = methodCall.Arguments[0];
-
-            var countTerm = new Term()
-            {
-                type = Term.TermType.COUNT,
-            };
-            countTerm.args.Add(recursiveMap(target));
-            return countTerm;
         }
     }
 }
