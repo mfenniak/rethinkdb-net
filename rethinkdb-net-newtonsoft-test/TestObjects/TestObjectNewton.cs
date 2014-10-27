@@ -34,5 +34,7 @@ namespace RethinkDb.Newtonsoft.Test.TestObjects
 
         //[DataMember(Name = "guid")]
         public Guid Guid { get; set; }
+
+        public byte[] Data { get; set; }
     }
 }

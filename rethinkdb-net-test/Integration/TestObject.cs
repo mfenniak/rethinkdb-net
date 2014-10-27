@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Runtime.Serialization;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace RethinkDb.Test.Integration
 {
@@ -30,6 +30,9 @@ namespace RethinkDb.Test.Integration
 
         [DataMember(Name = "guid")]
         public Guid Guid;
+
+        [DataMember(Name = "data")]
+        public byte[] Data;
 
         public override bool Equals(object obj)
         {

@@ -118,6 +118,8 @@
     <Compile Include="Expressions\DefaultExpressionConverterFactoryTests.cs" />
     <Compile Include="Expressions\TimeSpanExpressionTests.cs" />
     <Compile Include="Expressions\GuidExpressionTests.cs" />
+    <Compile Include="DatumConverters\BinaryDatumConverterTests.cs" />
+    <Compile Include="DatumConverters\DefaultDatumConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

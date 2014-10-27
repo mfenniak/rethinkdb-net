@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
-using System.Collections.Generic;
 
 namespace RethinkDb
 {
@@ -10,6 +8,20 @@ namespace RethinkDb
         {
             throw new NotSupportedException("This method cannot be invoked directly, it can only be used as part of an expression tree.");
         }
+
+        public static T[] Slice<T>(this T[] sequenceQuery, int startIndex)
+        {
+            throw new NotSupportedException("This method cannot be invoked directly, it can only be used as part of an expression tree.");
+        }
+
+        public static T[] Slice<T>(this T[] sequenceQuery, int startIndex, int endIndex)
+        {
+            throw new NotSupportedException("This method cannot be invoked directly, it can only be used as part of an expression tree.");
+        }
+
+        public static T[] Slice<T>(this T[] sequenceQuery, int startIndex, int endIndex, Bound leftBound, Bound rightBound)
+        {
+            throw new NotSupportedException("This method cannot be invoked directly, it can only be used as part of an expression tree.");
+        }
     }
 }
-

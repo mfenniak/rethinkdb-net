@@ -34,6 +34,40 @@ namespace RethinkDb.Expressions
                 list => list.Count,
                 list => Count(list)
             );
+
+            expressionConverterFactory.RegisterTemplateMapping<int[], int, int[]>(
+                (list, startIndex) => ReQLExpression.Slice(list, startIndex),
+                (list, startIndex) => new Term()
+                {
+                    type = Term.TermType.SLICE,
+                    args = { list, startIndex }
+                });
+            expressionConverterFactory.RegisterTemplateMapping<int[], int, int, int[]>(
+                (list, startIndex, endIndex) => ReQLExpression.Slice(list, startIndex, endIndex),
+                (list, startIndex, endIndex) => new Term()
+                {
+                    type = Term.TermType.SLICE,
+                    args = { list, startIndex, endIndex }
+                });
+            expressionConverterFactory.RegisterTemplateMapping<int[], int, int, Bound, Bound, int[]>(
+                (list, startIndex, endIndex, leftBound, rightBound) => ReQLExpression.Slice(list, startIndex, endIndex, leftBound, rightBound),
+                (list, startIndex, endIndex, leftBound, rightBound) => new Term()
+                {
+                    type = Term.TermType.SLICE,
+                    args = { list, startIndex, endIndex },
+                    optargs = {
+                        new Term.AssocPair()
+                        {
+                            key = "left_bound",
+                            val = leftBound,
+                        },
+                        new Term.AssocPair()
+                        {
+                            key = "right_bound",
+                            val = rightBound,
+                        }
+                    }
+                });
         }
 
         private static Term Count(Term term)

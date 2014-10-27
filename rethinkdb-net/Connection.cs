@@ -34,8 +34,10 @@ namespace RethinkDb
                     GuidDatumConverterFactory.Instance,
                     UriDatumConverterFactory.Instance,
                     TupleDatumConverterFactory.Instance,
+                    BinaryDatumConverterFactory.Instance, // Binary higher precedent than Array for special byte[] handling
                     ArrayDatumConverterFactory.Instance,
                     AnonymousTypeDatumConverterFactory.Instance,
+                    BoundEnumDatumConverterFactory.Instance,
                     EnumDatumConverterFactory.Instance,
                     NullableDatumConverterFactory.Instance,
                     ListDatumConverterFactory.Instance,

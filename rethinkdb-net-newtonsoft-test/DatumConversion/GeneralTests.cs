@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
+using NUnit.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using NUnit.Framework;
 using RethinkDb.DatumConverters;
-using RethinkDb.Newtonsoft.Test.TestObjects;
 using RethinkDb.Test.Integration;
+using RethinkDb.Newtonsoft.Test.TestObjects;
 
 namespace RethinkDb.Newtonsoft.Test.DatumConversion
 {
@@ -58,7 +58,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
             var newtonDatum2 = DatumConvert.SerializeObject(objOut);
 
             newtonDatum.ShouldBeEquivalentTo(newtonDatum2);
-            newtonDatum.r_object.Count.Should().Be(8); // sanity check
+            newtonDatum.r_object.Count.Should().Be(9); // sanity check
         }
 
         public TestObject TestObjectWithTestData()
@@ -116,6 +116,8 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             Name = "childrenIList3"
                         }
                 };
+
+            obj.Data = new byte[] { 1, 2, 3, 4, 5 };
 
             return obj;
         }
@@ -175,6 +177,8 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             Name = "childrenIList3"
                         }
                 };
+
+            obj.Data = new byte[] { 1, 2, 3, 4, 5 };
 
             return obj;
         }

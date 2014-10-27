@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using RethinkDb;
-using System.Net;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Linq.Expressions;
-using System.Collections.Generic;
 
 namespace RethinkDb.Test.Integration
 {
@@ -43,7 +42,8 @@ namespace RethinkDb.Test.Integration
                 ChildrenIList = new List<TestObject> {
                     new TestObject() { Name = "Scan" }
                 },
-                SomeNumber = 1234
+                SomeNumber = 1234,
+                Data = new byte[] { 1, 2, 3, 4, 5 }
             };
             var resp = await connection.RunAsync(testTable.Insert(insertedObject));
             insertedObject.Id = resp.GeneratedKeys[0];
@@ -211,6 +211,29 @@ namespace RethinkDb.Test.Integration
             var resp = await connection.RunAsync(testTable.Map(o => o.SomeNumber).Reduce((acc, val) => acc + val));
             Assert.That(resp, Is.EqualTo(1234));
         }
+
+        [Test]
+        public void SliceOneArg()
+        {
+            // 1-arg slice
+            var slice = connection.Run(testTable.Map(testObject => testObject.Data.Slice(3))).Single();
+            Assert.That(slice, Is.EquivalentTo(new byte[] { 4, 5 }));
+        }
+
+        [Test]
+        public void SliceTwoArg()
+        {
+            // 2-arg slice
+            var slice = connection.Run(testTable.Map(testObject => testObject.Data.Slice(0, 1))).Single();
+            Assert.That(slice, Is.EquivalentTo(new byte[] { 1 }));
+        }
+
+        [Test]
+        public void SliceFourArg()
+        {
+            // 4-arg slice
+            var slice = connection.Run(testTable.Map(testObject => testObject.Data.Slice(0, 2, Bound.Open, Bound.Closed))).Single();
+            Assert.That(slice, Is.EquivalentTo(new byte[] { 2, 3 }));
+        }
     }
 }
-
