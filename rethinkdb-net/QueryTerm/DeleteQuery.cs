@@ -1,4 +1,4 @@
-using RethinkDb.Spec;
+﻿using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {

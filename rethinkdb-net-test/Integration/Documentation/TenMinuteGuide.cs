@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using RethinkDb.Test.Integration;
 using NUnit.Framework;
 

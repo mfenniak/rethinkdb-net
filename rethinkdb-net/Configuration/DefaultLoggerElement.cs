@@ -1,4 +1,4 @@
-using System.Configuration;
+﻿using System.Configuration;
 using RethinkDb.Logging;
 
 namespace RethinkDb.Configuration

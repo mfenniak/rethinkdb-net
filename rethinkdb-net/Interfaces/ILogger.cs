@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using RethinkDb.Logging;
 
 namespace RethinkDb

@@ -1,4 +1,4 @@
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using NUnit.Framework;
 using FluentAssertions;
 using RethinkDb.DatumConverters;

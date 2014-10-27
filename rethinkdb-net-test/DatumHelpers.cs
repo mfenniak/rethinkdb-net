@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using RethinkDb.Spec;
 using System.Collections.Generic;
 using System.Linq;

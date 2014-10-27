@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using RethinkDb.Spec;
 using System;
 using RethinkDb;
