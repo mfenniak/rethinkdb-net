@@ -1,6 +1,6 @@
 # rethinkdb-net Release Notes
 
-## Next Release
+## 0.9.0.0 (2014-10-26)
 
 ### Features
 
@@ -26,7 +26,7 @@
 
 * Added support for RethinkDB's JSON-based client driver protocol.  The JSON protocol is now the default protocol, but the protocol to be used is configurable on the connection objects.  [PR #176](https://github.com/mfenniak/rethinkdb-net/issues/176)
 
-### Breaking Change
+### Breaking Changes
 
 * Updated Insert command to reflect RethinkDB's deprecation of upsert and addition of the new conflict parameter. [PR #177](https://github.com/mfenniak/rethinkdb-net/issues/177)
 
