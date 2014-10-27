@@ -78,8 +78,11 @@ mono ~/bin/NuGet.exe pack rethinkdb-net.nuspec
 mono ~/bin/NuGet.exe pack rethinkdb-net-newtonsoft.nuspec
 git commit -a -m"Update version to $NEW_VERSION"
 git push
-git tag v${NEW_VERSION}
+git tag -a -m"Version ${NEW_VERSION}" v${NEW_VERSION}
 git push --tags
+git branch -d latest-release
+git branch latest-release v${NEW_VERSION}
+git push -f origin latest-release
 
 echo
 echo "Manual steps remaining:"
