@@ -23,5 +23,10 @@ namespace RethinkDb
         {
             throw new NotSupportedException("This method cannot be invoked directly, it can only be used as part of an expression tree.");
         }
+
+        public static T Error<T>(string errorText)
+        {
+            throw new NotSupportedException("This method cannot be invoked directly, it can only be used as part of an expression tree.");
+        }
     }
 }

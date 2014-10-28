@@ -68,6 +68,14 @@ namespace RethinkDb.Expressions
                         }
                     }
                 });
+
+            expressionConverterFactory.RegisterTemplateMapping<string, int>(
+                (errorMessage) => ReQLExpression.Error<int>(errorMessage),
+                (errorMessage) => new Term()
+                {
+                    type = Term.TermType.ERROR,
+                    args = { errorMessage }
+                });
         }
 
         private static Term Count(Term term)

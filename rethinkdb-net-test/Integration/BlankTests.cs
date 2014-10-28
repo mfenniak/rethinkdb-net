@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Collections.Generic;
+using FluentAssertions;
 
 namespace RethinkDb.Test.Integration
 {
@@ -257,6 +258,21 @@ namespace RethinkDb.Test.Integration
             var now = connection.Run(Query.Expr(() => DateTimeOffset.UtcNow));
             Assert.That(now, Is.GreaterThan(DateTimeOffset.UtcNow.AddSeconds(-10)));
             Assert.That(now, Is.LessThan(DateTimeOffset.UtcNow.AddSeconds(10)));
+        }
+
+        [Test]
+        public void ConstructedError()
+        {
+#pragma warning disable 0429
+
+            connection.Run(Query.Expr(() => 100 > 50 ? 1000 : ReQLExpression.Error<int>("unexpected error")));
+
+            Action action = () => {
+                connection.Run(Query.Expr(() => 50 > 100 ? 1000 : ReQLExpression.Error<int>("expected error"))); };
+            action.ShouldThrow<RethinkDbRuntimeException>()
+                .WithMessage("Runtime error: expected error");
+
+#pragma warning restore 0429
         }
     }
 }
