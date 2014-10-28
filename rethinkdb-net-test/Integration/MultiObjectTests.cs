@@ -974,5 +974,15 @@ namespace RethinkDb.Test.Integration
             }
             Assert.That(guids.Count, Is.EqualTo(7));
         }
+
+        [Test]
+        public void BranchConditional()
+        {
+            var q = testTable.Select(t => new { n = t.SomeNumber, c = t.SomeNumber > 3 ? 100 : -100 });
+            foreach (var rec in connection.Run(q))
+            {
+                Assert.That(rec.c, Is.EqualTo(rec.n > 3 ? 100 : -100));
+            }
+        }
     }
 }

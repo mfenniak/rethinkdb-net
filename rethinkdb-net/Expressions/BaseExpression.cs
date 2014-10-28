@@ -169,6 +169,20 @@ namespace RethinkDb.Expressions
                         return AttemptClientSideConversion(datumConverterFactory, expr);
                 }
 
+                case ExpressionType.Conditional:
+                {
+                    var conditionalExpression = (ConditionalExpression)expr;
+                    return new Term()
+                    {
+                        type = Term.TermType.BRANCH,
+                        args = {
+                            RecursiveMap(conditionalExpression.Test),
+                            RecursiveMap(conditionalExpression.IfTrue),
+                            RecursiveMap(conditionalExpression.IfFalse)
+                        }
+                    };
+                }
+
                 default:
                 {
                     return AttemptClientSideConversion(datumConverterFactory, expr);
