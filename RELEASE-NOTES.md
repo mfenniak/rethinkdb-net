@@ -2,6 +2,10 @@
 
 ## Next Release
 
+### Features
+
+* Added support for the ternary conditional operator in expressions.  [Issue #47](https://github.com/mfenniak/rethinkdb-net/issues/47)
+
 ### Breaking Changes
 
 * Added support for RethinkDB's binary format for byte[] conversion.  If byte[] was previously used by a client application, reading and writing it will begin using a different and incompatible data format.  Either migrate your data to the new format, or construct a datum converter that doesn't include the new BinaryDatumConverterFactory in it. [Issue #178](https://github.com/mfenniak/rethinkdb-net/issues/178)
