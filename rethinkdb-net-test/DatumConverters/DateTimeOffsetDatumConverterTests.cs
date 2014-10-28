@@ -38,7 +38,7 @@ namespace RethinkDb.Test.DatumConverters
             });
 
             var result = DateTimeOffsetDatumConverterFactory.Instance.Get<DateTimeOffset>().ConvertDatum(datum);
-            Assert.That(result, Is.EqualTo(new DateTimeOffset(new DateTime(2013, 8, 17, 1, 49, 16, 123), -(new TimeSpan(3, 30, 0)))));
+            Assert.That(result, Is.EqualTo(new DateTimeOffset(new DateTime(2013, 8, 16, 10, 19, 16, 123), -(new TimeSpan(3, 30, 0)))));
         }
 
         [Test]

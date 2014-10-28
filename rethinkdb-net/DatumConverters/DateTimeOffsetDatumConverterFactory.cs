@@ -91,7 +91,7 @@ namespace RethinkDb.DatumConverters
             else if (sign != '+')
                 throw new FormatException(String.Format("Unexpected timezone format: {0}; sign couldn't be parsed", timezone.r_str));
 
-            return new DateTimeOffset((long)(epoch_time.r_num * 10000000) + 621355968000000000, offset);
+            return new DateTimeOffset((long)(epoch_time.r_num * 10000000) + 621355968000000000, TimeSpan.Zero).ToOffset(offset);
         }
 
         public override Datum ConvertObject(DateTimeOffset dateTimeOffset)
@@ -134,4 +134,3 @@ namespace RethinkDb.DatumConverters
         }
     }
 }
-

@@ -38,9 +38,32 @@ namespace RethinkDb.Expressions
                     args = { year, month, day, hour, minute, Add(second, Binary(millisecond, Term.TermType.DIV, 1000)), String("Z") }
                 });
 
+            // new DateTimeOffset in .NET creates a DateTimeOffset with either local time offset, or UTC offset,
+            // depending upon the DateTime's Kind property.  We can't really support that because we're not actually
+            // working with DateTime objects on the RethinkDB side; we're working with ReQL times that already have
+            // offsets associated with them.  So... this is basically a NOOP.
             expressionConverterFactory.RegisterTemplateMapping<DateTime, DateTimeOffset>(
-                (datetime) => new DateTimeOffset(datetime),
-                (datetime) => datetime);
+                (dt) => new DateTimeOffset(dt),
+                (dt) => dt);
+
+            // But creating a DateTimeOffset with a specific timezone isn't a NOOP.  This is re-interpreting the given
+            // time at the given timezone (not converting it).
+            expressionConverterFactory.RegisterTemplateMapping<DateTime, TimeSpan, DateTimeOffset>(
+                (dt, offset) => new DateTimeOffset(dt, offset),
+                (dt, offset) => new Term() {
+                    type = Term.TermType.TIME,
+                    // Well, this is awkward, but... break the time up and construct it again with the specified
+                    // TZ offset.
+                    args = {
+                        new Term() { type = Term.TermType.YEAR, args = { dt } },
+                        new Term() { type = Term.TermType.MONTH, args = { dt } },
+                        new Term() { type = Term.TermType.DAY, args = { dt } },
+                        new Term() { type = Term.TermType.HOURS, args = { dt } },
+                        new Term() { type = Term.TermType.MINUTES, args = { dt } },
+                        new Term() { type = Term.TermType.SECONDS, args = { dt } },
+                        TimeSpanToOffset(offset),
+                    }
+                });
         }
 
         public static void RegisterDateTimeAddMethods(DefaultExpressionConverterFactory expressionConverterFactory)
@@ -245,22 +268,53 @@ namespace RethinkDb.Expressions
             };
         }
 
-        private static Term Binary(Term leftTerm, Term.TermType type, double rightTerm)
+        private static Term CoerceTo(Term term, string type)
+        {
+            return new Term()
+            {
+                type = Term.TermType.COERCE_TO,
+                args = {
+                    term,
+                    String(type)
+                }
+            };
+        }
+
+        private static Term Branch(Term test, Term ifTrue, Term ifFalse)
+        {
+            return new Term()
+            {
+                type = Term.TermType.BRANCH,
+                args = {
+                    test,
+                    ifTrue,
+                    ifFalse
+                }
+            };
+        }
+
+        private static Term Binary(Term leftTerm, Term.TermType type, Term rightTerm)
         {
             return new Term()
             {
                 type = type,
                 args = {
                     leftTerm,
-                    new Term() {
-                        type = Term.TermType.DATUM,
-                        datum = new Datum() {
-                            type = Datum.DatumType.R_NUM,
-                            r_num = rightTerm
-                        }
-                    }
+                    rightTerm
                 }
             };
+        }
+
+        private static Term Binary(Term leftTerm, Term.TermType type, double rightTerm)
+        {
+            return Binary(leftTerm, type, new Term()
+            {
+                type = Term.TermType.DATUM,
+                datum = new Datum() {
+                    type = Datum.DatumType.R_NUM,
+                    r_num = rightTerm
+                }
+            });
         }
 
         private static Term DaysToSeconds(Term term)
@@ -307,6 +361,76 @@ namespace RethinkDb.Expressions
                     }
                 );
             }
+        }
+
+        public static Term TimeSpanToOffset(Term offset)
+        {
+            // offset will be a number of seconds on the server-side since that's how we've mapped
+            // TimeSpans to ReQL.  This is basically:  str(floor(offset / 60)) + ":" + (offset % 60),
+            // but, ReQL doesn't support floor, and requires the timezone to be in the exact format
+            // [+-][0-9]{2}:[0-9]{2}.
+            return Add(
+                TimeSpanToPlusMinus(offset),
+                TimeSpanToOffsetHouts(offset),
+                String(":"),
+                TimeSpanToOffsetMinutes(offset)
+            );
+        }
+
+        private static Term TimeSpanToPlusMinus(Term offset)
+        {
+            return new Term()
+            {
+                type = Term.TermType.BRANCH,
+                args = {
+                    Binary(offset, Term.TermType.LT, 0),
+                    String("-"),
+                    String("+")
+                }
+            };
+        }
+
+        private static Term TimeSpanToOffsetHouts(Term offset)
+        {
+            // (offset - (offset % 3600)) / 3600
+            var hours = Binary(
+                Binary(offset, Term.TermType.SUB, Binary(offset, Term.TermType.MOD, 3600)),
+                Term.TermType.DIV,
+                3600);
+            // then ensure hours is positive; TimeSpanToPlusMinus takes care of the minus sign if needed
+            // to make the padding simpler here
+            hours = Branch(
+                Binary(hours, Term.TermType.LT, 0),
+                Binary(hours, Term.TermType.MUL, -1),
+                hours);
+            return
+                Branch(
+                    Binary(hours, Term.TermType.LT, 10),
+                    Add(String("0"), CoerceTo(hours, "string")),
+                    CoerceTo(hours, "string")
+                );
+        }
+
+        private static Term TimeSpanToOffsetMinutes(Term offset)
+        {
+            // minutes is now the total number of minutes, any second precision has been removed
+            var minutes = Binary(
+                Binary(offset, Term.TermType.SUB, Binary(offset, Term.TermType.MOD, 60)),
+                Term.TermType.DIV,
+                60);
+            // then take out the hours accounted for in TimeSpanToOffsetHours
+            minutes = Binary(minutes, Term.TermType.MOD, 60);
+            // then ensure minutes is positive; ReSQL -30 % 60 -> -30
+            minutes = Branch(
+                Binary(minutes, Term.TermType.LT, 0),
+                Binary(minutes, Term.TermType.MUL, -1),
+                minutes);
+            return
+                Branch(
+                    Binary(minutes, Term.TermType.LE, 10),
+                    Add(String("0"), CoerceTo(minutes, "string")), // leading zero
+                    CoerceTo(minutes, "string")
+                );
         }
     }
 }

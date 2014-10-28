@@ -293,7 +293,14 @@ namespace RethinkDb.Test.Integration
         public void ExpressionDateTimeOffset()
         {
             var datetime = connection.Run(Query.Expr(() => new DateTimeOffset(new DateTime(2014, 2, 3, 7, 30, 15))));
-            Assert.That(datetime, Is.EqualTo(new DateTimeOffset(new DateTime(2014, 2, 3, 7, 30, 15))));
+            Assert.That(datetime, Is.EqualTo(new DateTimeOffset(new DateTime(2014, 2, 3, 7, 30, 15, DateTimeKind.Utc))));
+        }
+
+        [Test]
+        public void ExpressionDateTimeOffsetReinterpret()
+        {
+            var datetime = connection.Run(Query.Expr(() => new DateTimeOffset(new DateTime(2014, 2, 3, 7, 30, 15), new TimeSpan(-7, 30, 0))));
+            Assert.That(datetime, Is.EqualTo(new DateTimeOffset(new DateTime(2014, 2, 3, 7, 30, 15), new TimeSpan(-7, 30, 0))));
         }
 
         [Test]
