@@ -105,6 +105,11 @@ namespace RethinkDb
             return new InsertQuery<T>(target, @objects, conflict);
         }
 
+        public static ISequenceQuery<DmlResponseChange<TRecord>> Changes<TRecord>(this ITableQuery<TRecord> target)
+        {
+            return new ChangesQuery<TRecord>(target);
+        }
+
         #endregion
         #region Query Operations
 

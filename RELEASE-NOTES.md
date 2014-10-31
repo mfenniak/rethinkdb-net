@@ -1,5 +1,12 @@
 # rethinkdb-net Release Notes
 
+## Next Release
+
+### Features
+
+* Added support for RethinkDB changefeeds via ```table.Changes()```.  This allows a client application to monitor and receive changes to a RethinkDB table as they happen.  [Issue #180](https://github.com/mfenniak/rethinkdb-net/issues/180)
+
+
 ## 0.9.1.0 (2014-10-31)
 
 ### Features

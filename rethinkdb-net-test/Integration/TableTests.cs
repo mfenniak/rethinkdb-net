@@ -465,5 +465,36 @@ namespace RethinkDb.Test.Integration
             })).Single();
             Assert.That(result.DTO, Is.EqualTo(new DateTimeOffset(2014, 1, 2, 3, 4, 5, 9, TimeSpan.FromHours(-2.5))));
         }
+
+        [Test]
+        public void Changes()
+        {
+            DoChanges().Wait();
+        }
+
+        private async Task DoChanges()
+        {
+            var enumerator = connection.RunAsync(testTable.Changes());
+            try
+            {
+                var moveNext = enumerator.MoveNext();
+                using (var secondConnection = ConnectionFactory.Get())
+                {
+                    await secondConnection.RunAsync(testTable.Insert(new TestObject() { Name = "Jim Brown" }));
+                }
+
+                Assert.That(await moveNext, Is.True);
+                var change = enumerator.Current;
+                Assert.That(change.OldValue, Is.Null);
+                Assert.That(change.NewValue, Is.Not.Null);
+                Assert.That(change.NewValue.Name, Is.EqualTo("Jim Brown"));
+            }
+            finally
+            {
+                Console.WriteLine("Disposing iterator...");
+                enumerator.Dispose().Wait();
+                Console.WriteLine("Disposed!");
+            }
+        }
     }
 }

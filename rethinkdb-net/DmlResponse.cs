@@ -53,4 +53,3 @@ namespace RethinkDb
         public T NewValue;
     }
 }
-

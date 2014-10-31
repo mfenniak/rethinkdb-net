@@ -484,6 +484,7 @@ namespace RethinkDb
                 {
                     case Response.ResponseType.SUCCESS_SEQUENCE:
                     case Response.ResponseType.SUCCESS_PARTIAL:
+                    case Response.ResponseType.SUCCESS_FEED:
                         break;
                     case Response.ResponseType.SUCCESS_ATOM:
                         if (lastResponse.response[0].type != Datum.DatumType.R_ARRAY)
@@ -524,7 +525,8 @@ namespace RethinkDb
                 {
                     return false;
                 }
-                else if (lastResponse.type == Response.ResponseType.SUCCESS_PARTIAL)
+                else if (lastResponse.type == Response.ResponseType.SUCCESS_PARTIAL ||
+                         lastResponse.type == Response.ResponseType.SUCCESS_FEED)
                 {
                     query.type = RethinkDb.Spec.Query.QueryType.CONTINUE;
                     query.query = null;

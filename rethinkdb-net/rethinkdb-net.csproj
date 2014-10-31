@@ -215,6 +215,7 @@
     <Compile Include="Expressions\GuidExpressionConverters.cs" />
     <Compile Include="DatumConverters\BinaryDatumConverterFactory.cs" />
     <Compile Include="DatumConverters\BoundEnumDatumConverterFactory.cs" />
+    <Compile Include="QueryTerm\ChangesQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
