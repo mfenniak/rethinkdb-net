@@ -64,6 +64,41 @@ namespace RethinkDb.Expressions
                         TimeSpanToOffset(offset),
                     }
                 });
+
+            // epoch = (UtcTicks - 621355968000000000) / 10000000.0
+            expressionConverterFactory.RegisterTemplateMapping<long, TimeSpan, DateTimeOffset>(
+                (ticks, offset) => new DateTimeOffset(ticks, offset),
+                (ticks, offset) => new Term() {
+                    type = Term.TermType.IN_TIMEZONE,
+                    args = {
+                        new Term() {
+                            type = Term.TermType.EPOCH_TIME,
+                            args = {
+                                Binary(
+                                    Binary(
+                                        Binary(ticks, Term.TermType.SUB, 621355968000000000),
+                                        Term.TermType.DIV,
+                                        10000000
+                                    ),
+                                    Term.TermType.SUB,
+                                    offset
+                                )
+                            }
+                        },
+                        TimeSpanToOffset(offset)
+                    }
+                });
+            expressionConverterFactory.RegisterTemplateMapping<int, int, int, int, int, int, TimeSpan, DateTimeOffset>(
+                (year, month, day, hour, minute, second, offset) => new DateTimeOffset(year, month, day, hour, minute, second, offset),
+                (year, month, day, hour, minute, second, offset) => new Term() {
+                    type = Term.TermType.TIME,
+                    args = { year, month, day, hour, minute, second, TimeSpanToOffset(offset) } });
+            expressionConverterFactory.RegisterTemplateMapping<int, int, int, int, int, int, int, TimeSpan, DateTimeOffset>(
+                (year, month, day, hour, minute, second, millisecond, offset) => new DateTimeOffset(year, month, day, hour, minute, second, millisecond, offset),
+                (year, month, day, hour, minute, second, millisecond, offset) => new Term() {
+                    type = Term.TermType.TIME,
+                    args = { year, month, day, hour, minute, Add(second, Binary(millisecond, Term.TermType.DIV, 1000)), TimeSpanToOffset(offset) }
+                });
         }
 
         public static void RegisterDateTimeAddMethods(DefaultExpressionConverterFactory expressionConverterFactory)
