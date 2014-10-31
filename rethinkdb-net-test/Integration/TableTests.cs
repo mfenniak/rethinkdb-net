@@ -377,5 +377,93 @@ namespace RethinkDb.Test.Integration
             var resp = connection.Run(testTable.IndexDrop("index1"));
             Assert.That(resp.Dropped, Is.EqualTo(1));
         }
+
+        [Test]
+        public void DateTimeOffsetDateTimeConstructor()
+        {
+            var testObj = new TestObject3()
+            {
+                Value_Int = 8,
+                Value_Long = 2,
+            };
+            var resp = connection.Run(testTable3.Insert(testObj));
+            Assert.That(resp.Inserted, Is.EqualTo(1));
+
+            var result = connection.Run(testTable3.Map(testObject => new {
+                DTO = new DateTimeOffset(new DateTime(2014, 6, 6, 6, 6, testObject.Value_Int)),
+            })).Single();
+            // this test is questionable because DateTimeOffset would normally be local in .NET, but we can't support
+            // that server-side because we don't know the client-side's timezone in the expression tree.
+            Assert.That(result.DTO, Is.EqualTo(new DateTimeOffset(new DateTime(2014, 6, 6, 6, 6, 8), TimeSpan.Zero)));
+        }
+
+        [Test]
+        public void DateTimeOffsetDateTimeTimeSpanConstructor()
+        {
+            var testObj = new TestObject3()
+            {
+                Value_Int = 8,
+                Value_Long = 2,
+            };
+            var resp = connection.Run(testTable3.Insert(testObj));
+            Assert.That(resp.Inserted, Is.EqualTo(1));
+
+            var result = connection.Run(testTable3.Map(testObject => new {
+                DTO = new DateTimeOffset(new DateTime(2014, 6, 6, 6, 6, 6), TimeSpan.FromHours(testObj.Value_Int)),
+            })).Single();
+            Assert.That(result.DTO, Is.EqualTo(new DateTimeOffset(new DateTime(2014, 6, 6, 6, 6, 6), TimeSpan.FromHours(8))));
+        }
+
+        [Test]
+        public void DateTimeOffsetTicksTimeSpanConstructor()
+        {
+            var value = new DateTimeOffset(2014, 1, 2, 3, 4, 5, 6, TimeSpan.Zero);
+            var testObj = new TestObject3()
+            {
+                Value_Int = 8,
+                Value_Long = value.UtcTicks,
+            };
+            var resp = connection.Run(testTable3.Insert(testObj));
+            Assert.That(resp.Inserted, Is.EqualTo(1));
+
+            var result = connection.Run(testTable3.Map(testObject => new {
+                DTO = new DateTimeOffset(testObject.Value_Long, TimeSpan.FromHours(-2.5))
+            })).Single();
+            Assert.That(result.DTO, Is.EqualTo(new DateTimeOffset(testObj.Value_Long, TimeSpan.FromHours(-2.5))));
+        }
+
+        [Test]
+        public void DateTimeOffsetYMDHMSTimeSpanConstructor()
+        {
+            var testObj = new TestObject3()
+            {
+                Value_Int = 8,
+                Value_Long = 2,
+            };
+            var resp = connection.Run(testTable3.Insert(testObj));
+            Assert.That(resp.Inserted, Is.EqualTo(1));
+
+            var result = connection.Run(testTable3.Map(testObject => new {
+                DTO = new DateTimeOffset(2014, 1, 2, testObject.Value_Int, 4, 5, TimeSpan.FromHours(-2.5)),
+            })).Single();
+            Assert.That(result.DTO, Is.EqualTo(new DateTimeOffset(2014, 1, 2, 8, 4, 5, TimeSpan.FromHours(-2.5))));
+        }
+
+        [Test]
+        public void DateTimeOffsetYMDHMSmsTimeSpanConstructor()
+        {
+            var testObj = new TestObject3()
+            {
+                Value_Int = 9,
+                Value_Long = 2,
+            };
+            var resp = connection.Run(testTable3.Insert(testObj));
+            Assert.That(resp.Inserted, Is.EqualTo(1));
+
+            var result = connection.Run(testTable3.Map(testObject => new {
+                DTO = new DateTimeOffset(2014, 1, 2, 3, 4, 5, testObject.Value_Int, TimeSpan.FromHours(-2.5)),
+            })).Single();
+            Assert.That(result.DTO, Is.EqualTo(new DateTimeOffset(2014, 1, 2, 3, 4, 5, 9, TimeSpan.FromHours(-2.5))));
+        }
     }
 }

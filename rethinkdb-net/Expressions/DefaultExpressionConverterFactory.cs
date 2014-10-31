@@ -286,7 +286,51 @@ namespace RethinkDb.Expressions
                     case ExpressionType.New:
                         RegisterNewTemplateMapping(
                             (NewExpression)templateBody,
-                            terms => termConstructor(terms[0], terms[1], terms[2], terms[3], terms[4], terms[6]));
+                            terms => termConstructor(terms[0], terms[1], terms[2], terms[3], terms[4], terms[5]));
+                        break;
+                    default:
+                        throw new NotImplementedException("Template did not match supported pattern");
+            }
+        }
+
+        public void RegisterTemplateMapping<TParameter1, TParameter2, TParameter3, TParameter4, TParameter5, TParameter6, TParameter7, TReturn>(
+            Expression<Func<TParameter1, TParameter2, TParameter3, TParameter4, TParameter5, TParameter6, TParameter7, TReturn>> template,
+            Func<Term, Term, Term, Term, Term, Term, Term, Term> termConstructor)
+        {
+            var templateBody = template.Body;
+            switch (templateBody.NodeType)
+            {
+                case ExpressionType.Call:
+                        RegisterMethodCallTemplateMapping(
+                            (MethodCallExpression)templateBody,
+                            terms => termConstructor(terms[0], terms[1], terms[2], terms[3], terms[4], terms[5], terms[6]));
+                        break;
+                    case ExpressionType.New:
+                        RegisterNewTemplateMapping(
+                            (NewExpression)templateBody,
+                            terms => termConstructor(terms[0], terms[1], terms[2], terms[3], terms[4], terms[5], terms[6]));
+                        break;
+                    default:
+                        throw new NotImplementedException("Template did not match supported pattern");
+            }
+        }
+
+        public void RegisterTemplateMapping<TParameter1, TParameter2, TParameter3, TParameter4, TParameter5, TParameter6, TParameter7, TParameter8, TReturn>(
+            Expression<Func<TParameter1, TParameter2, TParameter3, TParameter4, TParameter5, TParameter6, TParameter7, TParameter8, TReturn>> template,
+            Func<Term, Term, Term, Term, Term, Term, Term, Term, Term> termConstructor)
+        {
+            var templateBody = template.Body;
+            switch (templateBody.NodeType)
+            {
+                case ExpressionType.Call:
+                        RegisterMethodCallTemplateMapping(
+                            (MethodCallExpression)templateBody,
+                            terms => termConstructor(terms[0], terms[1], terms[2], terms[3], terms[4], terms[5], terms[6], terms[7]));
+                        break;
+                    case ExpressionType.New:
+                        RegisterNewTemplateMapping(
+                            (NewExpression)templateBody,
+                            terms => termConstructor(terms[0], terms[1], terms[2], terms[3], terms[4], terms[5], terms[6], terms[7]));
                         break;
                     default:
                         throw new NotImplementedException("Template did not match supported pattern");
