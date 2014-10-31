@@ -72,7 +72,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                     val = new Datum()
                         {
                             type = Datum.DatumType.R_NUM,
-                            r_num = 1376704156.123
+                            r_num = 1376716756.123
                         }
                 });
             datum.r_object.Add(new Datum.AssocPair()
@@ -199,7 +199,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             r_object =
                                 {
                                     new Datum.AssocPair {key = "$reql_type$", val = new Datum {type = Datum.DatumType.R_STR, r_str = "TIME"}},
-                                    new Datum.AssocPair {key = "epoch_time", val = new Datum {type = Datum.DatumType.R_NUM, r_num = 1382819222}},
+                                    new Datum.AssocPair {key = "epoch_time", val = new Datum {type = Datum.DatumType.R_NUM, r_num = 1382844422}},
                                     new Datum.AssocPair {key = "timezone", val = new Datum {type = Datum.DatumType.R_STR, r_str = "-07:00"}},
                                 }
                         }
@@ -221,7 +221,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             r_object =
                                 {
                                     new Datum.AssocPair {key = "$reql_type$", val = new Datum {type = Datum.DatumType.R_STR, r_str = "TIME"}},
-                                    new Datum.AssocPair {key = "epoch_time", val = new Datum {type = Datum.DatumType.R_NUM, r_num = 1382819222}},
+                                    new Datum.AssocPair {key = "epoch_time", val = new Datum {type = Datum.DatumType.R_NUM, r_num = 1382844422}},
                                     new Datum.AssocPair {key = "timezone", val = new Datum {type = Datum.DatumType.R_STR, r_str = "-07:00"}},
                                 }
                         }

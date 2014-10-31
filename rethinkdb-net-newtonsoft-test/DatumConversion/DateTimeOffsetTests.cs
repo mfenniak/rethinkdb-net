@@ -40,7 +40,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             r_object =
                                 {
                                     new Datum.AssocPair {key = "$reql_type$", val = new Datum {type = Datum.DatumType.R_STR, r_str = "TIME"}},
-                                    new Datum.AssocPair {key = "epoch_time", val = new Datum {type = Datum.DatumType.R_NUM, r_num = 1383149522}},
+                                    new Datum.AssocPair {key = "epoch_time", val = new Datum {type = Datum.DatumType.R_NUM, r_num = 1383174722}},
                                     new Datum.AssocPair {key = "timezone", val = new Datum {type = Datum.DatumType.R_STR, r_str = "-07:00"}},
                                 }
                         }
@@ -126,7 +126,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                             r_object =
                                 {
                                     new Datum.AssocPair {key = "$reql_type$", val = new Datum {type = Datum.DatumType.R_STR, r_str = "TIME"}},
-                                    new Datum.AssocPair {key = "epoch_time", val = new Datum {type = Datum.DatumType.R_NUM, r_num = 1383149522}},
+                                    new Datum.AssocPair {key = "epoch_time", val = new Datum {type = Datum.DatumType.R_NUM, r_num = 1383174722}},
                                     new Datum.AssocPair {key = "timezone", val = new Datum {type = Datum.DatumType.R_STR, r_str = "-07:00"}},
                                 }
                         }
