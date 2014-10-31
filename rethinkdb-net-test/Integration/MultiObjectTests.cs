@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using FluentAssertions;
 
 namespace RethinkDb.Test.Integration
 {
@@ -983,6 +984,25 @@ namespace RethinkDb.Test.Integration
             {
                 Assert.That(rec.c, Is.EqualTo(rec.n > 3 ? 100 : -100));
             }
+        }
+
+        [Test]
+        public void ArrayAccessor()
+        {
+            var firstTags = connection.Run(testTable.Map(t => new { FirstTag = t.Tags[0] }));
+            foreach (var result in firstTags)
+            {
+                result.FirstTag.Should().Match(t => t == "even" || t == "odd");
+            }
+        }
+
+        [Test]
+        public void ArrayAccessorOutOfRange()
+        {
+            Action act = () => {
+                connection.Run(testTable.Map(t => new { FirstChild = t.Children[0] })).First();
+            };
+            act.ShouldThrow<RethinkDbRuntimeException>().WithMessage("Runtime error: Index out of bounds: 0");
         }
     }
 }

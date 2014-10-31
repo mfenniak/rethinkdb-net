@@ -10,6 +10,8 @@
 
 * Now supports most DateTime and DateTimeOffset constructors server-side to create ReQL time objects.  This allows for an operation like ```table.Group(obj => new DateTime(obj.CreatedAt.Year, obj.CreatedAt.Month, obj.CreatedAt.Day))```; this would group all the records in a table by the date they were created. [PR #184](https://github.com/mfenniak/rethinkdb-net/issues/184) & [Issue #154](https://github.com/mfenniak/rethinkdb-net/issues/154)
 
+* Support indexing into a server-side array with [...]; eg. ```table.Map(obj => obj.Array[obj.Array.Length - 1])```.  [Issue #108](https://github.com/mfenniak/rethinkdb-net/issues/108)
+
 ### Breaking Changes
 
 * Added support for RethinkDB's binary format for byte[] conversion.  If byte[] was previously used by a client application, reading and writing it will begin using a different and incompatible data format.  Either migrate your data to the new format, or construct a datum converter that doesn't include the new BinaryDatumConverterFactory in it. [Issue #178](https://github.com/mfenniak/rethinkdb-net/issues/178)

@@ -27,6 +27,7 @@ namespace RethinkDb.Expressions
             { ExpressionType.NotEqual, Term.TermType.NE },
             { ExpressionType.Not, Term.TermType.NOT },
             { ExpressionType.ArrayLength, Term.TermType.COUNT },
+            { ExpressionType.ArrayIndex, Term.TermType.NTH },
         };
 
         #region Constructor
@@ -114,6 +115,7 @@ namespace RethinkDb.Expressions
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
                 case ExpressionType.NotEqual:
+                case ExpressionType.ArrayIndex:
                     return ConvertBinaryExpressionToTerm((BinaryExpression)expr, datumConverterFactory);
                 case ExpressionType.Not:
                 case ExpressionType.ArrayLength:
