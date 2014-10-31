@@ -110,7 +110,7 @@ namespace RethinkDb.DatumConverters
                 key = "epoch_time",
                 val = new Datum() {
                     type = Datum.DatumType.R_NUM,
-                    r_num = (dateTimeOffset.DateTime.Ticks - 621355968000000000) / 10000000.0
+                    r_num = (dateTimeOffset.UtcTicks - 621355968000000000) / 10000000.0
                 }
             });
 
