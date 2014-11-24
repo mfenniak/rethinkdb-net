@@ -61,7 +61,8 @@ namespace RethinkDb.Newtonsoft.Test.Integration
                     Notify = null,
                     BinaryBools = new[] {true, false, true},
                     NullBinaryBools = new bool?[] {true, null, true},
-                    SomeNumber = 1234
+                    SomeNumber = 1234,
+                    FirstLogin = DateTime.Now
                 };
 
             var resp = await connection.RunAsync(testTable.Insert(insertedObject));
@@ -72,6 +73,24 @@ namespace RethinkDb.Newtonsoft.Test.Integration
         public virtual void TearDown()
         {
             connection.RunAsync(testTable.Delete()).Wait();
+        }
+
+        [Test]
+        public virtual void FilterForMessage()
+        {
+            ComplexObject returnComplexObject = null;
+            var enumarable =
+                    connection.RunAsync(
+                        testTable.Filter(
+                            complexObject => complexObject.FirstLogin != null && complexObject.FirstLogin > new DateTime(2010,1,1)));
+
+            while (enumarable.MoveNext().Result)
+            {
+                returnComplexObject = (enumarable.Current);
+            }
+
+            Assert.IsNotNull(returnComplexObject);
+
         }
 
         [Test]
