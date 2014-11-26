@@ -13,10 +13,17 @@ namespace RethinkDb.ConnectionFactories
     {
         private IConnectionFactory innerConnectionFactory;
         private LinkedList<IConnection> pool = new LinkedList<IConnection>();
+        private TimeSpan _queryTimeout = new TimeSpan(0, 0, 30) ;
 
         public ConnectionPoolingConnectionFactory(IConnectionFactory innerConnectionFactory)
         {
             this.innerConnectionFactory = innerConnectionFactory;
+        }
+
+        public ConnectionPoolingConnectionFactory(IConnectionFactory innerConnectionFactory, TimeSpan queryTimeout)
+        {
+            this.innerConnectionFactory = innerConnectionFactory;
+            this._queryTimeout = queryTimeout;
         }
 
         public async Task<IConnection> GetAsync()
@@ -27,12 +34,15 @@ namespace RethinkDb.ConnectionFactories
                 if (node != null)
                 {
                     pool.Remove(node);
+                    node.Value.QueryTimeout = _queryTimeout;
                     return new PooledConnectionWrapper(this, node.Value);
                 }
             }
 
             // Couldn't get a connection from the pool, so create a new one.
-            return new PooledConnectionWrapper(this, await innerConnectionFactory.GetAsync());
+            var connection = await innerConnectionFactory.GetAsync();
+            connection.QueryTimeout = _queryTimeout;
+            return new PooledConnectionWrapper(this, connection);
         }
 
         private void Unget(IConnection connection)
