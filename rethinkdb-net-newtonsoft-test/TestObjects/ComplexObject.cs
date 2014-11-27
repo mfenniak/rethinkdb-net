@@ -29,7 +29,5 @@ namespace RethinkDb.Newtonsoft.Test.TestObjects
         public bool?[] NullBinaryBools { get; set; }
 
         public double SomeNumber { get; set; }
-        public DateTime? FirstLogin { get; set; }
-
     }
 }
