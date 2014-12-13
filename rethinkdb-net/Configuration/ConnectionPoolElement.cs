@@ -16,5 +16,20 @@ namespace RethinkDb.Configuration
                 this["enabled"] = value;
             }
         }
+
+        [ConfigurationProperty("queryTimeout", IsRequired = false)]
+        public int QueryTimeout
+        {
+            get
+            {
+                var returnValue = 0;
+                int.TryParse(this["queryTimeout"].ToString(), out returnValue);
+                return returnValue;
+            }
+            set
+            {
+                this["queryTimeout"] = value;
+            }
+        }
     }
 }

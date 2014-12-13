@@ -46,6 +46,9 @@ namespace RethinkDb.Newtonsoft.Configuration
 
                     if (cluster.ConnectionPool != null && cluster.ConnectionPool.Enabled)
                         connectionFactory = new ConnectionPoolingConnectionFactory(connectionFactory);
+                    else if (cluster.ConnectionPool != null && cluster.ConnectionPool.Enabled && cluster.ConnectionPool.QueryTimeout != 0)
+                        connectionFactory = new ConnectionPoolingConnectionFactory(connectionFactory,
+                                new TimeSpan(0, 0, cluster.ConnectionPool.QueryTimeout));
 
                     return connectionFactory;
                 }
@@ -67,7 +70,7 @@ namespace RethinkDb.Newtonsoft.Configuration
             }
 
             var connectionFactory = new NewtonsoftConnectionFactory(endpoints);
-
+            
             if (!String.IsNullOrEmpty(cluster.AuthorizationKey))
                 connectionFactory.AuthorizationKey = cluster.AuthorizationKey;
 
