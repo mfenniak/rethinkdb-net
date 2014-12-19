@@ -1,7 +1,6 @@
 rethinkdb-net is a RethinkDB client driver written in C# for the .NET platform.  This driver utilizes .NET 4.5 and C# 5.0.
 
-<a href="http://teamcity.codebetter.com/viewType.html?buildTypeId=bt991&guest=1"><img src="http://teamcity.codebetter.com/app/rest/builds/buildType:(id:bt991)/statusIcon" alt="RethinkDB-Net Build Status"/></a>
-
+[![Circle CI](https://circleci.com/gh/mfenniak/rethinkdb-net.svg?style=svg)](https://circleci.com/gh/mfenniak/rethinkdb-net)
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/mfenniak/rethinkdb-net?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Tiny Example
