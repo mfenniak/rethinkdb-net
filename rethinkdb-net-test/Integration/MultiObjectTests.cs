@@ -24,6 +24,7 @@ namespace RethinkDb.Test.Integration
             testTable = Query.Db("test").Table<TestObject>("table");
             nameIndex = testTable.IndexDefine("index1", o => o.Name);
             connection.Run(nameIndex.IndexCreate());
+            connection.Run(nameIndex.IndexWait());
         }
 
         [SetUp]

@@ -16,6 +16,7 @@ namespace RethinkDb.Test.Integration
             connection.RunAsync(Query.Db("test").TableCreate("table")).Wait();
             testTable = Query.Db("test").Table<TestObject>("table");
             connection.Run(testTable.IndexCreate("index1", o => o.Name));
+            connection.Run(testTable.IndexWait("index1"));
         }
 
         [SetUp]

@@ -278,6 +278,15 @@ namespace RethinkDb.Test.Integration
         {
             var resp = connection.Run(testTable.IndexCreate("index1", o => o.Name));
             Assert.That(resp.Created, Is.EqualTo(1));
+
+            var waitResp = connection.Run(testTable.IndexWait("index1")).Single();
+            Assert.That(waitResp.Ready, Is.True);
+            Assert.That(waitResp.IndexName, Is.EqualTo("index1"));
+            Assert.That(waitResp.Geographic, Is.False);
+            Assert.That(waitResp.MultiIndex, Is.False);
+            Assert.That(waitResp.Outdated, Is.False);
+            Assert.That(waitResp.BlocksProcessed.HasValue, Is.False);
+            Assert.That(waitResp.BlocksTotal.HasValue, Is.False);
         }
 
         [Test]
@@ -285,6 +294,8 @@ namespace RethinkDb.Test.Integration
         {
             var resp = connection.Run(testTable.IndexCreate("index1", o => o.SomeNumber + o.SomeNumber));
             Assert.That(resp.Created, Is.EqualTo(1));
+
+            connection.Run(testTable.IndexWait("index1"));
         }
 
         [Test]
@@ -314,6 +325,8 @@ namespace RethinkDb.Test.Integration
 
             resp = connection.Run(testTable.IndexCreate("index_tags", x => x.Tags, multiIndex: true));
             Assert.That(resp.Created, Is.EqualTo(1));
+
+            connection.Run(testTable.IndexWait("index_tags"));
 
             //and query
             var stronglyTyped = connection.Run(testTable.GetAll("strongly-typed", "index_tags"))
@@ -352,6 +365,8 @@ namespace RethinkDb.Test.Integration
             var index = testTable.IndexDefineMulti("index_tags", x => x.Tags);
             resp = connection.Run(index.IndexCreate());
             Assert.That(resp.Created, Is.EqualTo(1));
+
+            connection.Run(index.IndexWait());
 
             //and query
             var stronglyTyped = connection.Run(index.GetAll("strongly-typed")).ToArray();

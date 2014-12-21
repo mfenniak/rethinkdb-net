@@ -30,9 +30,11 @@ namespace RethinkDb.Test.Integration
 
             firstNameIndex = anotherTestTable.IndexDefine("index1", o => o.FirstName);
             connection.Run(firstNameIndex.IndexCreate());
+            connection.Run(firstNameIndex.IndexWait());
 
             tagsIndex = testTable.IndexDefineMulti("indexTags", o => o.Tags);
             connection.Run(tagsIndex.IndexCreate());
+            connection.Run(tagsIndex.IndexWait());
         }
 
         [SetUp]

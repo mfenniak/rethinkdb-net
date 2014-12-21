@@ -216,6 +216,9 @@
     <Compile Include="DatumConverters\BinaryDatumConverterFactory.cs" />
     <Compile Include="DatumConverters\BoundEnumDatumConverterFactory.cs" />
     <Compile Include="QueryTerm\ChangesQuery.cs" />
+    <Compile Include="IndexStatus.cs" />
+    <Compile Include="QueryTerm\IndexStatusQuery.cs" />
+    <Compile Include="QueryTerm\IndexWaitQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

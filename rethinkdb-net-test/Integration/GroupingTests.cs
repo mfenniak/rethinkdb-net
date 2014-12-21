@@ -37,6 +37,7 @@ namespace RethinkDb.Test.Integration
 
             nameIndex = testTable.IndexDefine("name", to => to.Name);
             connection.Run(nameIndex.IndexCreate());
+            connection.Run(nameIndex.IndexWait());
         }
 
         [Test]

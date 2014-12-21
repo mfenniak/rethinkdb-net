@@ -60,6 +60,16 @@ namespace RethinkDb
             return new IndexCreateQuery<T, TIndexExpression>(target, indexName, indexExpression, multiIndex);
         }
 
+        public static ISequenceQuery<IndexStatus> IndexWait<T>(this ITableQuery<T> target, params string[] indexNames)
+        {
+            return new IndexWaitQuery<T>(target, indexNames);
+        }
+
+        public static ISequenceQuery<IndexStatus> IndexStatus<T>(this ITableQuery<T> target, params string[] indexNames)
+        {
+            return new IndexStatusQuery<T>(target, indexNames);
+        }
+
         public static ISequenceQuery<string> IndexList<T>(this ITableQuery<T> target)
         {
             return new IndexListQuery<T>(target);
@@ -88,6 +98,22 @@ namespace RethinkDb
         public static IWriteQuery<DmlResponse> IndexCreate<TRecord, TIndex>(this IMultiIndex<TRecord, TIndex> index)
         {
             return index.Table.IndexCreate(index.Name, index.IndexAccessor, true);
+        }
+
+        public static ISequenceQuery<IndexStatus> IndexStatus<TRecord, TIndex>(this IBaseIndex<TRecord, TIndex> index)
+        {
+            // FIXME: Since this overload only takes a single index name, it'd be nice if we could return an
+            // IScalarQuery... but we don't currently have a query op that takes a sequence and returns a
+            // single item.
+            return index.Table.IndexStatus(index.Name);
+        }
+
+        public static ISequenceQuery<IndexStatus> IndexWait<TRecord, TIndex>(this IBaseIndex<TRecord, TIndex> index)
+        {
+            // FIXME: Since this overload only takes a single index name, it'd be nice if we could return an
+            // IScalarQuery... but we don't currently have a query op that takes a sequence and returns a
+            // single item.
+            return index.Table.IndexWait(index.Name);
         }
 
         public static IWriteQuery<DmlResponse> IndexDrop<TRecord, TIndex>(this IBaseIndex<TRecord, TIndex> index)
