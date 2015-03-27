@@ -10,6 +10,10 @@
 
 * Add support for Enumerable.Any() and Enumerable.Contains() methods to be mapped into a RethinkDB "contains" query term.  [Issue #196](https://github.com/mfenniak/rethinkdb-net/issues/196)
 
+* Add a new "StreamChanges" and "StreamChangesAsync" extension methods to IConnection, which do not use the connection's query timeout when executing server-side commands.  [Issue #193](https://github.com/mfenniak/rethinkdb-net/issues/193)
+
+* Allow the Changes query command to be run against any query that returns a sequence of objects, rather than just a table.  This is supported as-of RethinkDB 1.16.  [Issue #190](https://github.com/mfenniak/rethinkdb-net/issues/190)
+
 
 ## 0.9.1.0 (2014-10-31)
 

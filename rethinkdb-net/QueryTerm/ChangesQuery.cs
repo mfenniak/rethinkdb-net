@@ -4,13 +4,13 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class ChangesQuery<TRecord> : ISequenceQuery<DmlResponseChange<TRecord>>
+    public class ChangesQuery<TRecord> : IStreamingSequenceQuery<DmlResponseChange<TRecord>>
     {
-        private readonly ITableQuery<TRecord> tableQuery;
+        private readonly ISequenceQuery<TRecord> sequenceQuery;
 
-        public ChangesQuery(ITableQuery<TRecord> tableQuery)
+        public ChangesQuery(ISequenceQuery<TRecord> sequenceQuery)
         {
-            this.tableQuery = tableQuery;
+            this.sequenceQuery = sequenceQuery;
         }
 
         public Term GenerateTerm(IQueryConverter queryConverter)
@@ -19,7 +19,7 @@ namespace RethinkDb.QueryTerm
             {
                 type = Term.TermType.CHANGES,
             };
-            term.args.Add(tableQuery.GenerateTerm(queryConverter));
+            term.args.Add(sequenceQuery.GenerateTerm(queryConverter));
             return term;
         }
     }
