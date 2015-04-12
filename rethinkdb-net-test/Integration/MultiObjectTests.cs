@@ -1005,5 +1005,18 @@ namespace RethinkDb.Test.Integration
             };
             act.ShouldThrow<RethinkDbRuntimeException>().WithMessage("Runtime error: Index out of bounds: 0");
         }
+
+        [Test]
+        public void EnumerableAny()
+        {
+            var enumerable = connection.Run(testTable.Filter(o => o.Children.Any(c => c.Name == "C3")));
+            int count = 0;
+            foreach (var row in enumerable)
+            {
+                Assert.That(row.Id, Is.EqualTo("3"));
+                count += 1;
+            }
+            Assert.That(count, Is.EqualTo(1));
+        }
     }
 }

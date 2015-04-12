@@ -8,6 +8,8 @@
 
 * Added a "queryTimeout" option to the connectionPool configuration element, which is the time in seconds that each query is allowed to execute before it is timed out from the client.  Thanks to Lucas Jans for the contribution.  [PR #188](https://github.com/mfenniak/rethinkdb-net/pull/188)
 
+* Add support for Enumerable.Any() method to be mapped into a RethinkDB "contains" query term with a function predicate.  [Issue #196](https://github.com/mfenniak/rethinkdb-net/issues/196)
+
 
 ## 0.9.1.0 (2014-10-31)
 

@@ -11,7 +11,8 @@ namespace RethinkDb.Expressions
     public static class LinqExpressionConverters
     {
         private delegate T[] AppendDelegate<T>(T[] array, params T[] additionalObjects);
-        private delegate IEnumerable<T> WhereDelegate<T>(IEnumerable<T> source,Func<T, bool> predicate);
+        private delegate IEnumerable<T> WhereDelegate<T>(IEnumerable<T> source, Func<T, bool> predicate);
+        private delegate bool AnyDelegate<T>(IEnumerable<T> source, Func<T, bool> predicate);
         private delegate int CountDelegate<T>(IEnumerable<T> source);
 
         public static void RegisterOnConverterFactory(DefaultExpressionConverterFactory expressionConverterFactory)
@@ -21,6 +22,9 @@ namespace RethinkDb.Expressions
 
             var whereDelegate = (WhereDelegate<int>)Enumerable.Where;
             expressionConverterFactory.RegisterMethodCallMapping(whereDelegate.Method, ConvertEnumerableWhereToTerm);
+
+            var anyDelegate = (AnyDelegate<int>)Enumerable.Any;
+            expressionConverterFactory.RegisterMethodCallMapping(anyDelegate.Method, ConvertEnumerableAnyToTerm);
 
             expressionConverterFactory.RegisterTemplateMapping<IEnumerable<int>, int>(
                 list => list.Count(),
@@ -130,6 +134,29 @@ namespace RethinkDb.Expressions
             var createFunctionTermMethod = typeof(ExpressionUtils)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)
                     .Single(m => m.Name == "CreateFunctionTerm" && m.GetGenericArguments().Length == 2);
+            createFunctionTermMethod = createFunctionTermMethod.MakeGenericMethod(enumerableElementType, typeof(bool));
+
+            var functionTerm = (Term)createFunctionTermMethod.Invoke(null, new object[] { new QueryConverter(datumConverterFactory, expressionConverterFactory), predicate });
+            filterTerm.args.Add(functionTerm);
+
+            return filterTerm;
+        }
+
+        public static Term ConvertEnumerableAnyToTerm(MethodCallExpression methodCall, DefaultExpressionConverterFactory.RecursiveMapDelegate recursiveMap, IDatumConverterFactory datumConverterFactory, IExpressionConverterFactory expressionConverterFactory)
+        {
+            var target = methodCall.Arguments[0];
+            var predicate = methodCall.Arguments[1];
+
+            var filterTerm = new Term()
+            {
+                type = Term.TermType.CONTAINS
+            };
+            filterTerm.args.Add(recursiveMap(target));
+
+            var enumerableElementType = methodCall.Method.GetGenericArguments()[0];
+            var createFunctionTermMethod = typeof(ExpressionUtils)
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Single(m => m.Name == "CreateFunctionTerm" && m.GetGenericArguments().Length == 2);
             createFunctionTermMethod = createFunctionTermMethod.MakeGenericMethod(enumerableElementType, typeof(bool));
 
             var functionTerm = (Term)createFunctionTermMethod.Invoke(null, new object[] { new QueryConverter(datumConverterFactory, expressionConverterFactory), predicate });
