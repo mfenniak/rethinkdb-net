@@ -1018,5 +1018,18 @@ namespace RethinkDb.Test.Integration
             }
             Assert.That(count, Is.EqualTo(1));
         }
+
+        [Test]
+        public void EnumerableContains()
+        {
+            var enumerable = connection.Run(testTable.Filter(o => o.Tags.Contains("odd")));
+            int count = 0;
+            foreach (var row in enumerable)
+            {
+                Assert.That(row.SomeNumber % 2.0, Is.EqualTo(1.0));
+                count += 1;
+            }
+            Assert.That(count, Is.EqualTo(4));
+        }
     }
 }

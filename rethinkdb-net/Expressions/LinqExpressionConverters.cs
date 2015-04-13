@@ -26,6 +26,14 @@ namespace RethinkDb.Expressions
             var anyDelegate = (AnyDelegate<int>)Enumerable.Any;
             expressionConverterFactory.RegisterMethodCallMapping(anyDelegate.Method, ConvertEnumerableAnyToTerm);
 
+            expressionConverterFactory.RegisterTemplateMapping<IEnumerable<int>, int, bool>(
+                (list, arg) => list.Contains(arg),
+                (list, arg) => new Term()
+                    {
+                    type = Term.TermType.CONTAINS,
+                    args = { list, arg }
+                });
+
             expressionConverterFactory.RegisterTemplateMapping<IEnumerable<int>, int>(
                 list => list.Count(),
                 list => Count(list)
