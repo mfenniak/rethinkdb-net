@@ -1031,5 +1031,47 @@ namespace RethinkDb.Test.Integration
             }
             Assert.That(count, Is.EqualTo(4));
         }
+
+        [Test]
+        public void EnumerableClientSideArrayContains()
+        {
+            var array = new string[] { "2" };
+            var enumerable = connection.Run(testTable.Filter(o => array.Contains(o.Id)));
+            int count = 0;
+            foreach (var row in enumerable)
+            {
+                Assert.That(row.Id, Is.EqualTo("2"));
+                count += 1;
+            }
+            Assert.That(count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void EnumerableClientSideListContains()
+        {
+            var array = new List<string>() { "2" };
+            var enumerable = connection.Run(testTable.Filter(o => array.Contains(o.Id)));
+            int count = 0;
+            foreach (var row in enumerable)
+            {
+                Assert.That(row.Id, Is.EqualTo("2"));
+                count += 1;
+            }
+            Assert.That(count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void EnumerableClientSideIListContains()
+        {
+            IList<string> array = new List<string>() { "2" };
+            var enumerable = connection.Run(testTable.Filter(o => array.Contains(o.Id)));
+            int count = 0;
+            foreach (var row in enumerable)
+            {
+                Assert.That(row.Id, Is.EqualTo("2"));
+                count += 1;
+            }
+            Assert.That(count, Is.EqualTo(1));
+        }
     }
 }

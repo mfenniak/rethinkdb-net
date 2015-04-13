@@ -34,6 +34,22 @@ namespace RethinkDb.Expressions
                     args = { list, arg }
                 });
 
+            expressionConverterFactory.RegisterTemplateMapping<IList<int>, int, bool>(
+                (list, arg) => list.Contains(arg),
+                (list, arg) => new Term()
+                    {
+                        type = Term.TermType.CONTAINS,
+                        args = { list, arg }
+                    });
+
+            expressionConverterFactory.RegisterTemplateMapping<List<int>, int, bool>(
+                (list, arg) => list.Contains(arg),
+                (list, arg) => new Term()
+                    {
+                        type = Term.TermType.CONTAINS,
+                        args = { list, arg }
+                    });
+
             expressionConverterFactory.RegisterTemplateMapping<IEnumerable<int>, int>(
                 list => list.Count(),
                 list => Count(list)

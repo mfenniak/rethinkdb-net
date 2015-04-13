@@ -39,10 +39,35 @@ namespace RethinkDb.Expressions
             memberAccessMappingRegistry.Clear();
         }
 
+        private MethodInfo GetMostGenericVersionOfMethod(MethodInfo method)
+        {
+            if (method.DeclaringType.IsGenericType)
+            {
+                Type declaringType = method.DeclaringType;
+                Type genericTypeDefinition = declaringType.GetGenericTypeDefinition();
+                MethodInfo[] possibleGenericMethods =
+                    genericTypeDefinition.GetMethods()
+                        .Where(m => m.Name == method.Name)
+                        .Where(m => m.GetParameters().Length == method.GetParameters().Length)
+                        .ToArray();
+
+                if (possibleGenericMethods.Length == 0)
+                    throw new InvalidOperationException("Failed to find any generic version of method");
+                else if (possibleGenericMethods.Length > 1)
+                    throw new InvalidOperationException("Ambiguous method found in GetMostGenericVersionOfMethod");
+
+                method = possibleGenericMethods[0];
+            }
+            else if (method.IsGenericMethod)
+            {
+                method = method.GetGenericMethodDefinition();
+            }
+            return method;
+        }
+
         public void RegisterMethodCallMapping(MethodInfo method, ExpressionMappingDelegate<MethodCallExpression> methodCallMapping)
         {
-            if (method.IsGenericMethod)
-                method = method.GetGenericMethodDefinition();
+            method = GetMostGenericVersionOfMethod(method);
             methodCallMappingRegistry[method] = methodCallMapping;
         }
 
@@ -81,8 +106,7 @@ namespace RethinkDb.Expressions
 
         public bool TryGetMethodCallMapping(MethodInfo method, out ExpressionMappingDelegate<MethodCallExpression> methodCallMapping)
         {
-            if (method.IsGenericMethod)
-                method = method.GetGenericMethodDefinition();
+            method = GetMostGenericVersionOfMethod(method);
             return methodCallMappingRegistry.TryGetValue(method, out methodCallMapping);
         }
 
