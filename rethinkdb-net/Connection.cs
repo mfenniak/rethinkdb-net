@@ -308,9 +308,7 @@ namespace RethinkDb
 
         internal long GetNextToken()
         {
-            long token = Interlocked.Increment(ref nextToken);
-            Logger.Debug("Assigning new token {0}", token);
-            return token;
+            return Interlocked.Increment(ref nextToken);
         }
 
         internal async Task<Response> InternalRunQuery(Spec.Query query, CancellationToken cancellationToken)
@@ -323,7 +321,7 @@ namespace RethinkDb
 
             Action abortToken = () => {
                 if (!pastSpinLock)
-                    Logger.Warning("Query token {0} timed out after {1}; never acquired write lock on the connection in before timing out, write lock is currently held by query token {3}", query.token, this.QueryTimeout, writeTokenLock);
+                    Logger.Warning("Query token {0} timed out after {1}; never acquired write lock on the connection in before timing out, write lock is currently held by query token {2}", query.token, this.QueryTimeout, writeTokenLock);
                 else
                     Logger.Warning("Query token {0} timed out after {1}", query.token, this.QueryTimeout);
                 if (tokenResponse.Remove(query.token))
@@ -333,7 +331,6 @@ namespace RethinkDb
             {
                 // Put query.token into writeTokenLock if writeTokenLock is 0 (ie. unlocked).  If it's not 0,
                 // spin-lock on the compare exchange.
-                Logger.Debug("InternalRunQuery: acquiring write lock for query token {0}", query.token);
                 while (Interlocked.CompareExchange(ref writeTokenLock, query.token, 0) != 0)
                     ;
 
@@ -343,30 +340,23 @@ namespace RethinkDb
                     pastSpinLock = true;
                     Logger.Debug("InternalRunQuery: writing query token {0}", query.token);
                     await Protocol.WriteQueryToStream(stream, Logger, query, cancellationToken);
-                    Logger.Debug("InternalRunQuery: write complete for query token {0}", query.token);
                 }
                 finally
                 {
                     // Revert writeTokenLock to 0.
-                    Logger.Debug("InternalRunQuery: releasing write lock for query token {0}", query.token);
                     writeTokenLock = 0;
-                    Logger.Debug("InternalRunQuery: released write lock for query token {0}", query.token);
                 }
 
-                Logger.Debug("InternalRunQuery: beginning wait for response for query token {0}", query.token);
-                var retval = await tcs.Task;
-                Logger.Debug("InternalRunQuery: received response for query token {0}", query.token);
-                return retval;
+                Logger.Debug("InternalRunQuery: waiting for response for query token {0}", query.token);
+                return await tcs.Task;
             }
         }
 
         public async Task<T> RunAsync<T>(IQueryConverter queryConverter, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
         {
             var query = new Spec.Query();
-            Logger.Debug("RunAsync: acquiring query token");
             query.token = GetNextToken();
-            Logger.Debug("RunAsync: Token {0} is assigned to query of type {1} for immediate execution", query.token, queryObject.GetType());
-            Logger.Debug("RunAsync: Token {0} is assigned to query {1} for immediate execution", query.token, queryObject);
+            Logger.Debug("RunAsync: Token {0} is assigned to query {1}", query.token, queryObject);
             query.type = Spec.Query.QueryType.START;
             query.query = queryObject.GenerateTerm(queryConverter);
 
@@ -529,10 +519,8 @@ namespace RethinkDb
                 if (lastResponse == null)
                 {
                     query = new Spec.Query();
-                    connection.Logger.Debug("MoveNext: acquiring query token");
                     query.token = connection.GetNextToken();
-                    connection.Logger.Debug("MoveNext: Token {0} is assigned to query of type {1}, MoveNext called on enumerator", query.token, queryObject.GetType());
-                    connection.Logger.Debug("MoveNext: Token {0} is assigned to query {1}, MoveNext called on enumerator", query.token, queryObject);
+                    connection.Logger.Debug("QueryEnumerator: Token {0} is assigned to query {1}", query.token, queryObject);
                     query.type = Spec.Query.QueryType.START;
                     query.query = this.queryObject.GenerateTerm(queryConverter);
                     await ReissueQuery(cancellationToken);
