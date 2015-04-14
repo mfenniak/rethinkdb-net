@@ -5,6 +5,7 @@ using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using FluentAssertions;
 
 namespace RethinkDb.Test.Integration
 {
@@ -479,6 +480,66 @@ namespace RethinkDb.Test.Integration
                 DTO = new DateTimeOffset(2014, 1, 2, 3, 4, 5, testObject.Value_Int, TimeSpan.FromHours(-2.5)),
             })).Single();
             Assert.That(result.DTO, Is.EqualTo(new DateTimeOffset(2014, 1, 2, 3, 4, 5, 9, TimeSpan.FromHours(-2.5))));
+        }
+
+        [Test]
+        public void NullableNullFilter()
+        {
+            connection.Run(testTable3.Insert(new TestObject3() { Id = 1, Value_Int_Nullable = 100}));
+            connection.Run(testTable3.Insert(new TestObject3() { Id = 2, Value_Int_Nullable = null }));
+
+            int count = 0;
+            foreach (var row in connection.Run(testTable3.Filter(o => o.Value_Int_Nullable == null)))
+            {
+                row.Id.Should().Be(2);
+                count += 1;
+            }
+            count.Should().Be(1);
+        }
+
+        [Test]
+        public void NullableNotNullFilter()
+        {
+            connection.Run(testTable3.Insert(new TestObject3() { Id = 1, Value_Int_Nullable = 100}));
+            connection.Run(testTable3.Insert(new TestObject3() { Id = 2, Value_Int_Nullable = null }));
+
+            int count = 0;
+            foreach (var row in connection.Run(testTable3.Filter(o => o.Value_Int_Nullable != null)))
+            {
+                row.Id.Should().Be(1);
+                count += 1;
+            }
+            count.Should().Be(1);
+        }
+
+        [Test]
+        public void NullableNotHasValueFilter()
+        {
+            connection.Run(testTable3.Insert(new TestObject3() { Id = 1, Value_Int_Nullable = 100}));
+            connection.Run(testTable3.Insert(new TestObject3() { Id = 2, Value_Int_Nullable = null }));
+
+            int count = 0;
+            foreach (var row in connection.Run(testTable3.Filter(o => !o.Value_Int_Nullable.HasValue)))
+            {
+                row.Id.Should().Be(2);
+                count += 1;
+            }
+            count.Should().Be(1);
+        }
+
+        [Test]
+        public void NullableHasValueFilter()
+        {
+            connection.Run(testTable3.Insert(new TestObject3() { Id = 1, Value_Int_Nullable = 100}));
+            connection.Run(testTable3.Insert(new TestObject3() { Id = 2, Value_Int_Nullable = null }));
+
+            int count = 0;
+            foreach (var row in connection.Run(testTable3.Filter(o => o.Value_Int_Nullable.HasValue)))
+            {
+                row.Id.Should().Be(1);
+                count += 1;
+            }
+            count.Should().Be(1);
         }
     }
 }

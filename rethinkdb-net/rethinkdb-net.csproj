@@ -220,6 +220,8 @@
     <Compile Include="QueryTerm\IndexStatusQuery.cs" />
     <Compile Include="QueryTerm\IndexWaitQuery.cs" />
     <Compile Include="Interfaces\IStreamingSequenceQuery.cs" />
+    <Compile Include="Expressions\NullableExpressionConverters.cs" />
+    <Compile Include="DatumConverters\ObjectDatumConverterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

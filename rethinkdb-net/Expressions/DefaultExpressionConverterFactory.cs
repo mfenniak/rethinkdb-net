@@ -25,6 +25,7 @@ namespace RethinkDb.Expressions
 
         public DefaultExpressionConverterFactory()
         {
+            NullableExpressionConverters.RegisterOnConverterFactory(this);
             LinqExpressionConverters.RegisterOnConverterFactory(this);
             DateTimeExpressionConverters.RegisterOnConverterFactory(this);
             GuidExpressionConverters.RegisterOnConverterFactory(this);

@@ -1073,5 +1073,37 @@ namespace RethinkDb.Test.Integration
             }
             Assert.That(count, Is.EqualTo(1));
         }
+
+        [Test]
+        public void NullFilter()
+        {
+            connection.Run(testTable.Delete());
+            connection.Run(testTable.Insert(new TestObject() { Id = "1", Name = "Has a Name" }));
+            connection.Run(testTable.Insert(new TestObject() { Id = "2", Name = null }));
+
+            int count = 0;
+            foreach (var row in connection.Run(testTable.Filter(o => o.Name == null)))
+            {
+                row.Id.Should().Be("2");
+                count += 1;
+            }
+            count.Should().Be(1);
+        }
+
+        [Test]
+        public void NotNullFilter()
+        {
+            connection.Run(testTable.Delete());
+            connection.Run(testTable.Insert(new TestObject() { Id = "1", Name = "Has a Name" }));
+            connection.Run(testTable.Insert(new TestObject() { Id = "2", Name = null }));
+
+            int count = 0;
+            foreach (var row in connection.Run(testTable.Filter(o => o.Name != null)))
+            {
+                row.Id.Should().Be("1");
+                count += 1;
+            }
+            count.Should().Be(1);
+        }
     }
 }
