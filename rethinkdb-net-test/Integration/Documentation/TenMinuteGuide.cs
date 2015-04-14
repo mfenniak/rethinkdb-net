@@ -13,13 +13,13 @@ namespace RethinkDb.Test.Integration.Documentation
         {
             {
                 var res = connection.Run(Query.DbCreate("test"));
-                Assert.That(res.Created, Is.EqualTo(1));
+                Assert.That(res.DbsCreated, Is.EqualTo(1));
             }
 
             // Create a new table
             {
                 var res = connection.Run(Query.Db("test").TableCreate("authors"));
-                Assert.That(res.Created, Is.EqualTo(1));
+                Assert.That(res.TablesCreated, Is.EqualTo(1));
             }
 
             var table = Query.Db("test").Table<Author>("authors");

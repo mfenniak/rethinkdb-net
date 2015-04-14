@@ -316,8 +316,27 @@ namespace RethinkDb
             var tcs = new TaskCompletionSource<Response>();
             tokenResponse[query.token] = tcs;
 
+            DateTime start = DateTime.UtcNow;
+            Logger.Debug("InternalRunQuery: beginning process of transmitting query w/ token {0}", query.token);
+            bool pastSpinLock = false;
+
             Action abortToken = () => {
-                Logger.Warning("Query token {0} timed out after {1}", query.token, this.QueryTimeout);
+                DateTime timeout = DateTime.UtcNow;
+                if (!pastSpinLock)
+                {
+                    Logger.Warning(
+                        "Query token {0} timed out after {1}; usually this happens because of a query timeout, but, query never acquired write lock on the connection in before timing out.  Write lock is currently held by query token {2}.",
+                        query.token,
+                        timeout - start,
+                        writeTokenLock);
+                }
+                else
+                {
+                    Logger.Warning(
+                        "Query token {0} timed out after {1} because CancellationToken was triggered; usually this happens because of a query timeout.",
+                        query.token,
+                        timeout - start);
+                }
                 if (tokenResponse.Remove(query.token))
                     tcs.SetCanceled();
             };
@@ -330,6 +349,9 @@ namespace RethinkDb
 
                 try
                 {
+                    Logger.Debug("InternalRunQuery: acquired write lock for query token {0}", query.token);
+                    pastSpinLock = true;
+                    Logger.Debug("InternalRunQuery: writing query token {0}", query.token);
                     await Protocol.WriteQueryToStream(stream, Logger, query, cancellationToken);
                 }
                 finally
@@ -338,6 +360,7 @@ namespace RethinkDb
                     writeTokenLock = 0;
                 }
 
+                Logger.Debug("InternalRunQuery: waiting for response for query token {0}", query.token);
                 return await tcs.Task;
             }
         }
@@ -346,6 +369,7 @@ namespace RethinkDb
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
+            Logger.Debug("RunAsync: Token {0} is assigned to query {1}", query.token, queryObject);
             query.type = Spec.Query.QueryType.START;
             query.query = queryObject.GenerateTerm(queryConverter);
 
@@ -509,6 +533,7 @@ namespace RethinkDb
                 {
                     query = new Spec.Query();
                     query.token = connection.GetNextToken();
+                    connection.Logger.Debug("QueryEnumerator: Token {0} is assigned to query {1}", query.token, queryObject);
                     query.type = Spec.Query.QueryType.START;
                     query.query = this.queryObject.GenerateTerm(queryConverter);
                     await ReissueQuery(cancellationToken);

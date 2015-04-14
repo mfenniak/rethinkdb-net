@@ -26,10 +26,12 @@ namespace RethinkDb.Configuration
                         connectionFactory = new ReliableConnectionFactory(connectionFactory);
 
                     if (cluster.ConnectionPool != null && cluster.ConnectionPool.Enabled)
-                        connectionFactory = new ConnectionPoolingConnectionFactory(connectionFactory);
-                    else if (cluster.ConnectionPool != null && cluster.ConnectionPool.Enabled && cluster.ConnectionPool.QueryTimeout != 0)
-                        connectionFactory = new ConnectionPoolingConnectionFactory(connectionFactory,
-                                new TimeSpan(0, 0, cluster.ConnectionPool.QueryTimeout));
+                    {
+                        if (cluster.ConnectionPool.QueryTimeout != 0)
+                            connectionFactory = new ConnectionPoolingConnectionFactory(connectionFactory, TimeSpan.FromSeconds(cluster.ConnectionPool.QueryTimeout));
+                        else
+                            connectionFactory = new ConnectionPoolingConnectionFactory(connectionFactory);
+                    }
 
                     return connectionFactory;
                 }

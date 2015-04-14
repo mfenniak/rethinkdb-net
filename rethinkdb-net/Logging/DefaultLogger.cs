@@ -22,8 +22,7 @@ namespace RethinkDb.Logging
         public void Log (LoggingCategory category, string text)
         {
             if (IsLoggingEnabled(category))
-                output.WriteLine(text);
+                output.WriteLine("{0}: {1}", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"), text);
         }
     }
 }
-

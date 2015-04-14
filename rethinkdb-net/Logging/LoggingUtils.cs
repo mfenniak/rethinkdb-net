@@ -12,9 +12,17 @@ namespace RethinkDb.Logging
             {
                 return logger != null && logger.IsLoggingEnabled(category);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // Nothing to do here; normally it'd be nice to log an exception, but not if our logger is misbehavin'.
+                // Try to log a warning about our logger not working, but, this could be a lost cause.
+                try
+                {
+                    logger.Log(LoggingCategory.Warning, String.Format("Error occurred while checking is logging enabled: {0}", e));
+                }
+                catch
+                {
+                    // Well, we tried.
+                }
                 return false;
             }
         }
@@ -28,9 +36,17 @@ namespace RethinkDb.Logging
             {
                 logger.Log(category, String.Format(format, formatArgs));
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // Nothing to do here; normally it'd be nice to log an exception, but not if our logger is misbehavin'.
+                // Try to log a warning about our logger not working, but, this could be a lost cause.
+                try
+                {
+                    logger.Log(LoggingCategory.Warning, String.Format("Error occurred while logging: {0}", e));
+                }
+                catch
+                {
+                    // Well, we tried.
+                }
             }
         }
 
@@ -90,4 +106,3 @@ namespace RethinkDb.Logging
         }
     }
 }
-

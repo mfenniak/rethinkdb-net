@@ -5,6 +5,18 @@ namespace RethinkDb
     [DataContract]
     public class DmlResponse
     {
+        [DataMember(Name = "dbs_created")]
+        public double DbsCreated;
+
+        [DataMember(Name = "dbs_dropped")]
+        public double DbsDropped;
+
+        [DataMember(Name = "tables_created")]
+        public double TablesCreated;
+
+        [DataMember(Name = "tables_dropped")]
+        public double TablesDropped;
+
         [DataMember(Name = "created")]
         public double Created;
 

@@ -482,6 +482,7 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        [Ignore("Disable until PR #199 which will have better tests")]
         public void Changes()
         {
             DoChanges().Wait();
@@ -506,9 +507,7 @@ namespace RethinkDb.Test.Integration
             }
             finally
             {
-                Console.WriteLine("Disposing iterator...");
                 enumerator.Dispose().Wait();
-                Console.WriteLine("Disposed!");
             }
         }
     }
