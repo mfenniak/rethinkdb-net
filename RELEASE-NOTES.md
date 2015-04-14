@@ -20,6 +20,8 @@
 
 * RethinkDB 1.16 changed the DML response to use the fields "dbs_created", "dbs_dropped", "tables_created", and "tables_dropped" in preference over the "created" and "dropped" fields.  To support this, RethinkDb.DmlREsponse now has four additional fields that map to these values.  The old fields, Created and Dropped, are still used to report on index operations.  [PR #200](https://github.com/mfenniak/rethinkdb-net/pull/200)
 
+* Fields in DmlResponse class have been changed from type ```double``` to type ```uint``` where they represent the count of things. [PR #205](https://github.com/mfenniak/rethinkdb-net/issues/205)
+
 ### Bugfixes
 
 * Fix errors that occur when writing obvious filters like ```... == null`` and ```field.HasValue```.  [Issue #203](https://github.com/mfenniak/rethinkdb-net/issues/203) & [PR #204](https://github.com/mfenniak/rethinkdb-net/issues/204)

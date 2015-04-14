@@ -92,4 +92,13 @@ namespace RethinkDb.Newtonsoft.Test.Integration
             ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
         }
     }
+
+    [TestFixture]
+    public class NRealtimePushTests : RealtimePushTests
+    {
+        static NRealtimePushTests()
+        {
+            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
+        }
+    }
 }

@@ -6,40 +6,40 @@ namespace RethinkDb
     public class DmlResponse
     {
         [DataMember(Name = "dbs_created")]
-        public double DbsCreated;
+        public uint DbsCreated;
 
         [DataMember(Name = "dbs_dropped")]
-        public double DbsDropped;
+        public uint DbsDropped;
 
         [DataMember(Name = "tables_created")]
-        public double TablesCreated;
+        public uint TablesCreated;
 
         [DataMember(Name = "tables_dropped")]
-        public double TablesDropped;
+        public uint TablesDropped;
 
         [DataMember(Name = "created")]
-        public double Created;
+        public uint Created;
 
         [DataMember(Name = "dropped")]
-        public double Dropped;
+        public uint Dropped;
 
         [DataMember(Name = "inserted")]
-        public double Inserted;
+        public uint Inserted;
 
         [DataMember(Name = "updated")]
-        public double Updated;
+        public uint Updated;
 
         [DataMember(Name = "replaced")]
-        public double Replaced;
+        public uint Replaced;
 
         [DataMember(Name = "deleted")]
-        public double Deleted;
+        public uint Deleted;
 
         [DataMember(Name = "skipped")]
-        public double Skipped;
+        public uint Skipped;
 
         [DataMember(Name = "errors")]
-        public double Errors;
+        public uint Errors;
 
         [DataMember(Name = "first_error")]
         public string FirstError;

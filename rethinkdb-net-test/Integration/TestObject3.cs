@@ -7,7 +7,7 @@ namespace RethinkDb.Test.Integration
     public class TestObject3
     {
         [DataMember(Name = "id", EmitDefaultValue = false)]
-        public double Id;
+        public uint Id;
 
         [DataMember]
         public int Value_Int;
