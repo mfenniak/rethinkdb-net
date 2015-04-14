@@ -44,6 +44,7 @@ namespace RethinkDb.Test.Integration
             connection.Run(testTable.Delete());
         }
 
+        // Changes on a single record not currently supported by rethinkdb-net, but should be.
         //[Test]
         //public void ChangesOnPrimaryKey()
         //{
@@ -52,10 +53,10 @@ namespace RethinkDb.Test.Integration
         //    }
         //}
 
-        private void RealtimePushTestSingleResponse(
-            Func<IStreamingSequenceQuery<DmlResponseChange<TestObject>>> createStreamingQuery,
+        private void RealtimePushTestSingleResponse<T>(
+            Func<IStreamingSequenceQuery<DmlResponseChange<T>>> createStreamingQuery,
             Action doModifications,
-            Action<DmlResponseChange<TestObject>> verifyStreamingResults)
+            Action<DmlResponseChange<T>> verifyStreamingResults)
         {
             Exception e1 = null;
             Exception e2 = null;
@@ -123,5 +124,116 @@ namespace RethinkDb.Test.Integration
                 }
             );
         }
+
+        [Test]
+        [Timeout(1000)]
+        public void ChangesWithFilter()
+        {
+            RealtimePushTestSingleResponse(
+                () => testTable.Filter(o => o.Id == "3").Changes(),
+                () =>
+                {
+                    var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { Name = "Updated!" }));
+                    result.Should().NotBeNull();
+                    result.Replaced.Should().Be(1.0);
+                },
+                response =>
+                {
+                    response.OldValue.Name.Should().Be("3");
+                    response.NewValue.Name.Should().Be("Updated!");
+                }
+            );
+        }
+
+        [Test]
+        [Timeout(1000)]
+        public void ChangesWithMap()
+        {
+            RealtimePushTestSingleResponse(
+                () => testTable.Map(o => o.Name).Changes(),
+                () =>
+                {
+                    var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { Name = "Updated!" }));
+                    result.Should().NotBeNull();
+                    result.Replaced.Should().Be(1.0);
+                },
+                response =>
+                {
+                    response.OldValue.Should().Be("3");
+                    response.NewValue.Should().Be("Updated!");
+                }
+            );
+        }
+
+        [Test]
+        [Timeout(1000)]
+        [Ignore("Fails due to RethinkDB error 'cannot call changes on an eager stream' despite RethinkdB 1.16 documentation claiming this should work")]
+        public void ChangesWithOrderByLimit()
+        {
+            RealtimePushTestSingleResponse(
+                () => testTable.OrderBy(o => o.SomeNumber, OrderByDirection.Descending).Limit(1).Changes(),
+                () =>
+                {
+                    var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { SomeNumber = 100 }));
+                    result.Should().NotBeNull();
+                    result.Replaced.Should().Be(1.0);
+                },
+                response =>
+                {
+                    response.OldValue.Id.Should().Be("7");
+                    response.OldValue.SomeNumber.Should().Be(7);
+                    response.NewValue.Id.Should().Be("3");
+                    response.NewValue.SomeNumber.Should().Be(100);
+                }
+            );
+        }
+
+        /*
+         * Min / Max operations on indexes not currently supported, but should be.
+
+        [Test]
+        [Timeout(1000)]
+        public void ChangesWithMin()
+        {
+            RealtimePushTestSingleResponse(
+                () => testTable.Min(someNumberIndex).Changes(),
+                () =>
+                {
+                    var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { SomeNumber = -100 }));
+                    result.Should().NotBeNull();
+                    result.Replaced.Should().Be(1.0);
+                },
+                response =>
+                {
+                    response.OldValue.Id.Should().Be("1");
+                    response.OldValue.SomeNumber.Should().Be(1);
+                    response.NewValue.Id.Should().Be("3");
+                    response.NewValue.SomeNumber.Should().Be(-100);
+                }
+            );
+        }
+
+        [Test]
+        [Timeout(1000)]
+        public void ChangesWithMax()
+        {
+            RealtimePushTestSingleResponse(
+                () => testTable.Max(someNumberIndex).Changes(),
+                () =>
+                {
+                    var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { SomeNumber = 100 }));
+                    result.Should().NotBeNull();
+                    result.Replaced.Should().Be(1.0);
+                },
+                response =>
+                {
+                    response.OldValue.Id.Should().Be("7");
+                    response.OldValue.SomeNumber.Should().Be(7);
+                    response.NewValue.Id.Should().Be("3");
+                    response.NewValue.SomeNumber.Should().Be(100);
+                }
+            );
+        }
+        */
     }
 }
