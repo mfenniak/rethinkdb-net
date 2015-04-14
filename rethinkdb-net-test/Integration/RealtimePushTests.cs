@@ -120,7 +120,7 @@ namespace RethinkDb.Test.Integration
                 {
                     var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { Name = "Updated!" }));
                     result.Should().NotBeNull();
-                    result.Replaced.Should().Be(1.0);
+                    result.Replaced.Should().Be(1);
                 },
                 response =>
                 {
@@ -140,7 +140,7 @@ namespace RethinkDb.Test.Integration
                 {
                     var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { Name = "Updated!" }));
                     result.Should().NotBeNull();
-                    result.Replaced.Should().Be(1.0);
+                    result.Replaced.Should().Be(1);
                 },
                 response =>
                 {
@@ -160,7 +160,7 @@ namespace RethinkDb.Test.Integration
                 {
                     var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { Name = "Updated!" }));
                     result.Should().NotBeNull();
-                    result.Replaced.Should().Be(1.0);
+                    result.Replaced.Should().Be(1);
                 },
                 response =>
                 {
@@ -180,7 +180,7 @@ namespace RethinkDb.Test.Integration
                 {
                     var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { Name = "Updated!" }));
                     result.Should().NotBeNull();
-                    result.Replaced.Should().Be(1.0);
+                    result.Replaced.Should().Be(1);
                 },
                 response =>
                 {
@@ -201,7 +201,7 @@ namespace RethinkDb.Test.Integration
                 {
                     var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { SomeNumber = 100 }));
                     result.Should().NotBeNull();
-                    result.Replaced.Should().Be(1.0);
+                    result.Replaced.Should().Be(1);
                 },
                 response =>
                 {
