@@ -120,6 +120,7 @@
     <Compile Include="Expressions\GuidExpressionTests.cs" />
     <Compile Include="DatumConverters\BinaryDatumConverterTests.cs" />
     <Compile Include="DatumConverters\DefaultDatumConverterTests.cs" />
+    <Compile Include="Integration\RealtimePushTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

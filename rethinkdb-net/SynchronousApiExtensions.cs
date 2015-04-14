@@ -34,6 +34,11 @@ namespace RethinkDb
             return new AsyncEnumerableSynchronizer<T>(() => connection.RunAsync<T>(queryObject, queryConverter), cancellationToken);
         }
 
+        public static IEnumerable<T> StreamChanges<T>(this IConnection connection, IStreamingSequenceQuery<T> queryObject, IQueryConverter queryConverter = null, CancellationToken? cancellationToken = null)
+        {
+            return new AsyncEnumerableSynchronizer<T>(() => connection.StreamChangesAsync<T>(queryObject, queryConverter), cancellationToken);
+        }
+
         #endregion
         #region AsyncEnumerable synchronous wrappers
 

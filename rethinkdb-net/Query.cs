@@ -131,7 +131,7 @@ namespace RethinkDb
             return new InsertQuery<T>(target, @objects, conflict);
         }
 
-        public static ISequenceQuery<DmlResponseChange<TRecord>> Changes<TRecord>(this ITableQuery<TRecord> target)
+        public static IStreamingSequenceQuery<DmlResponseChange<TRecord>> Changes<TRecord>(this ISequenceQuery<TRecord> target)
         {
             return new ChangesQuery<TRecord>(target);
         }
