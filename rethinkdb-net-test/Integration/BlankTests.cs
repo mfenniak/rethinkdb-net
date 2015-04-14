@@ -24,7 +24,7 @@ namespace RethinkDb.Test.Integration
             var resp = await connection.RunAsync(Query.DbCreate("test"));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
-            Assert.That(resp.Created, Is.EqualTo(1));
+            Assert.That(resp.DbsCreated, Is.EqualTo(1));
 
             var dbList = await connection.RunAsync(Query.DbList());
             Assert.That(dbList, Is.Not.Null);
@@ -33,7 +33,7 @@ namespace RethinkDb.Test.Integration
             resp = await connection.RunAsync(Query.DbDrop("test"));
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
-            Assert.That(resp.Dropped, Is.EqualTo(1));
+            Assert.That(resp.DbsDropped, Is.EqualTo(1));
         }
 
         [Test]
