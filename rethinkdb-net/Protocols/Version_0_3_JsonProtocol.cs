@@ -206,7 +206,7 @@ namespace RethinkDb.Protocols
                 if (json.CurrentToken == JsonToken.ObjectEnd)
                     break;
                 if (json.CurrentToken != JsonToken.MemberName)
-                    throw new RethinkDbInternalErrorException("Unexpected JSON state");
+                    throw new RethinkDbInternalErrorException(String.Format("Unexpected JSON state; expected MemberName, but was {0}", json.CurrentToken));
 
                 string property = (string)json.CurrentTokenValue;
                 if (property == "t")
@@ -216,12 +216,23 @@ namespace RethinkDb.Protocols
                 else if (property == "b")
                     retval.backtrace = ReadBacktrace(json);
                 else if (property == "p")
+                {
                     logger.Warning("Profiling is not currently supported by rethinkdb-net; profiling data will be discarded");
+                    DiscardNextJsonValue(json);  // read the value so that the reader isn't sitting at the unexpected property's vaue
+                }
                 else
+                {
                     logger.Information("Unexpected property {0} in JSON response; ignoring", property);
+                    DiscardNextJsonValue(json); // read the value so that the reader isn't sitting at the unexpected property's vaue
+                }
             }
 
             return retval;
+        }
+
+        private void DiscardNextJsonValue(JsonReader json)
+        {
+            ReadDatum(json);
         }
 
         private static Response.ResponseType ReadResponseType(JsonReader json)

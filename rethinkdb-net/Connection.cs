@@ -463,6 +463,12 @@ namespace RethinkDb
 
                 switch (response.type)
                 {
+                    case Response.ResponseType.SUCCESS_SEQUENCE:
+                        // We're getting SUCCESS_SEQUENCE on the STOP since RethinkDB 2.0 of changes queries.  Last
+                        // records of the change stream that were pending to be sent to us, perhaps?  Since this
+                        // enumerator is being disposed, we're not going to return them.  But this suggests we might
+                        // need a "StopStreaming" method, after which we could read the last values, and then dispose
+                        // the enumerator.
                     case Response.ResponseType.SUCCESS_ATOM:
                         break;
                     case Response.ResponseType.CLIENT_ERROR:
