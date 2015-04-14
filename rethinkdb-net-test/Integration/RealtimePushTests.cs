@@ -51,7 +51,7 @@ namespace RethinkDb.Test.Integration
 
             ManualResetEvent sync1 = new ManualResetEvent(false);
 
-            var thread1 = new Thread(async () =>
+            var thread1 = new Thread(() =>
             {
                 try
                 {
@@ -62,14 +62,14 @@ namespace RethinkDb.Test.Integration
                         enumerator = connection.StreamChangesAsync(query);
                         var task = enumerator.MoveNext();
                         sync1.Set(); // inform other thread that we're ready for it to make changes
-                        var result = await task;
-                        result.Should().BeTrue();
+                        task.Wait();
+                        task.Result.Should().BeTrue();
 
                         verifyStreamingResults(enumerator.Current);
                     }
                     finally
                     {
-                        await enumerator.Dispose();
+                        enumerator.Dispose().Wait();
                     }
                 }
                 catch (Exception e)
