@@ -506,9 +506,7 @@ namespace RethinkDb.Test.Integration
             }
             finally
             {
-                Console.WriteLine("Disposing iterator...");
                 enumerator.Dispose().Wait();
-                Console.WriteLine("Disposed!");
             }
         }
     }
