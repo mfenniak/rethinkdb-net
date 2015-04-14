@@ -14,6 +14,12 @@
 
 * Allow the Changes query command to be run against any query that returns a sequence of objects, rather than just a table.  This is supported as-of RethinkDB 1.16.  [Issue #190](https://github.com/mfenniak/rethinkdb-net/issues/190)
 
+* Tested and verified against RethinkDB 1.16.  [PR #200](https://github.com/mfenniak/rethinkdb-net/pull/200)
+
+### Breaking Changes
+
+* RethinkDB 1.16 changed the DML response to use the fields "dbs_created", "dbs_dropped", "tables_created", and "tables_dropped" in preference over the "created" and "dropped" fields.  To support this, RethinkDb.DmlREsponse now has four additional fields that map to these values.  The old fields, Created and Dropped, are still used to report on index operations.  [PR #200](https://github.com/mfenniak/rethinkdb-net/pull/200)
+
 
 ## 0.9.1.0 (2014-10-31)
 
