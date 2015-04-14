@@ -308,7 +308,9 @@ namespace RethinkDb
 
         internal long GetNextToken()
         {
-            return Interlocked.Increment(ref nextToken);
+            long token = Interlocked.Increment(ref nextToken);
+            Logger.Debug("Assigning new token {0}", token);
+            return token;
         }
 
         internal async Task<Response> InternalRunQuery(Spec.Query query, CancellationToken cancellationToken)
@@ -316,8 +318,13 @@ namespace RethinkDb
             var tcs = new TaskCompletionSource<Response>();
             tokenResponse[query.token] = tcs;
 
+            bool pastSpinLock = false;
+
             Action abortToken = () => {
-                Logger.Warning("Query token {0} timed out after {1}", query.token, this.QueryTimeout);
+                if (!pastSpinLock)
+                    Logger.Warning("Query token {0} timed out after {1}; never acquired write lock on the connection in before timing out, write lock is currently held by query token {3}", query.token, this.QueryTimeout, writeTokenLock);
+                else
+                    Logger.Warning("Query token {0} timed out after {1}", query.token, this.QueryTimeout);
                 if (tokenResponse.Remove(query.token))
                     tcs.SetCanceled();
             };
@@ -327,6 +334,8 @@ namespace RethinkDb
                 // spin-lock on the compare exchange.
                 while (Interlocked.CompareExchange(ref writeTokenLock, query.token, 0) != 0)
                     ;
+
+                pastSpinLock = true;
 
                 try
                 {
@@ -346,6 +355,7 @@ namespace RethinkDb
         {
             var query = new Spec.Query();
             query.token = GetNextToken();
+            Logger.Debug("Token {0} is assigned to query {1} for immediate execution", queryObject);
             query.type = Spec.Query.QueryType.START;
             query.query = queryObject.GenerateTerm(queryConverter);
 
@@ -509,6 +519,7 @@ namespace RethinkDb
                 {
                     query = new Spec.Query();
                     query.token = connection.GetNextToken();
+                    connection.Logger.Debug("Token {0} is assigned to query {1}, MoveNext called on enumerator", query.token, queryObject);
                     query.type = Spec.Query.QueryType.START;
                     query.query = this.queryObject.GenerateTerm(queryConverter);
                     await ReissueQuery(cancellationToken);
