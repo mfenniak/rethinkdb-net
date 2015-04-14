@@ -44,15 +44,6 @@ namespace RethinkDb.Test.Integration
             connection.Run(testTable.Delete());
         }
 
-        // Changes on a single record not currently supported by rethinkdb-net, but should be.
-        //[Test]
-        //public void ChangesOnPrimaryKey()
-        //{
-        //    foreach (var row in testTable.Get("Id").Changes())
-        //    {
-        //    }
-        //}
-
         private void RealtimePushTestSingleResponse<T>(
             Func<IStreamingSequenceQuery<DmlResponseChange<T>>> createStreamingQuery,
             Action doModifications,
@@ -63,18 +54,26 @@ namespace RethinkDb.Test.Integration
 
             ManualResetEvent sync1 = new ManualResetEvent(false);
 
-            var thread1 = new Thread(() =>
+            var thread1 = new Thread(async () =>
             {
                 try
                 {
                     var query = createStreamingQuery();
-                    var enumerator = connection.StreamChangesAsync(query);
-                    var task = enumerator.MoveNext();
-                    sync1.Set(); // inform other thread that we're ready for it to make changes
-                    task.Wait();
-                    task.Result.Should().BeTrue();
+                    IAsyncEnumerator<DmlResponseChange<T>> enumerator = null;
+                    try
+                    {
+                        enumerator = connection.StreamChangesAsync(query);
+                        var task = enumerator.MoveNext();
+                        sync1.Set(); // inform other thread that we're ready for it to make changes
+                        var result = await task;
+                        result.Should().BeTrue();
 
-                    verifyStreamingResults(enumerator.Current);
+                        verifyStreamingResults(enumerator.Current);
+                    }
+                    finally
+                    {
+                        await enumerator.Dispose();
+                    }
                 }
                 catch (Exception e)
                 {
@@ -103,6 +102,35 @@ namespace RethinkDb.Test.Integration
 
             e1.Should().BeNull();
             e2.Should().BeNull();
+        }
+
+        // Changes on a single record not currently supported by rethinkdb-net, but should be.
+        //[Test]
+        //public void ChangesOnPrimaryKey()
+        //{
+        //    foreach (var row in testTable.Get("Id").Changes())
+        //    {
+        //    }
+        //}
+
+        [Test]
+        [Timeout(1000)]
+        public void ChangesWithTable()
+        {
+            RealtimePushTestSingleResponse(
+                () => testTable.Changes(),
+                () =>
+                {
+                    var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { Name = "Updated!" }));
+                    result.Should().NotBeNull();
+                    result.Replaced.Should().Be(1.0);
+                },
+                response =>
+                {
+                    response.OldValue.Name.Should().Be("3");
+                    response.NewValue.Name.Should().Be("Updated!");
+                }
+            );
         }
 
         [Test]
