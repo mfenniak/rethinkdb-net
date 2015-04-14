@@ -50,7 +50,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
             var obj = new ADateTime
                 {
                     Id = "my_id_value",
-                    TheDate = DateTime.Parse("10/30/2013 4:55 PM")
+                    TheDate = DateTime.Parse("30 Oct 2013 4:55 PM")
                 };
 
             var truth = new Datum
@@ -137,7 +137,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
             var obj = new DateTimeNullable()
                 {
                     Id = "my_id",
-                    NullableDateTime = DateTime.Parse("10/30/2013 4:55 PM")
+                    NullableDateTime = DateTime.Parse("30 Oct 2013 4:55 PM")
                 };
 
             var truth = new Datum
