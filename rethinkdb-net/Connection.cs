@@ -316,14 +316,27 @@ namespace RethinkDb
             var tcs = new TaskCompletionSource<Response>();
             tokenResponse[query.token] = tcs;
 
+            DateTime start = DateTime.UtcNow;
             Logger.Debug("InternalRunQuery: beginning process of transmitting query w/ token {0}", query.token);
             bool pastSpinLock = false;
 
             Action abortToken = () => {
+                DateTime timeout = DateTime.UtcNow;
                 if (!pastSpinLock)
-                    Logger.Warning("Query token {0} timed out after {1}; never acquired write lock on the connection in before timing out, write lock is currently held by query token {2}", query.token, this.QueryTimeout, writeTokenLock);
+                {
+                    Logger.Warning(
+                        "Query token {0} timed out after {1}; usually this happens because of a query timeout, but, query never acquired write lock on the connection in before timing out.  Write lock is currently held by query token {2}.",
+                        query.token,
+                        timeout - start,
+                        writeTokenLock);
+                }
                 else
-                    Logger.Warning("Query token {0} timed out after {1}", query.token, this.QueryTimeout);
+                {
+                    Logger.Warning(
+                        "Query token {0} timed out after {1} because CancellationToken was triggered; usually this happens because of a query timeout.",
+                        query.token,
+                        timeout - start);
+                }
                 if (tokenResponse.Remove(query.token))
                     tcs.SetCanceled();
             };
