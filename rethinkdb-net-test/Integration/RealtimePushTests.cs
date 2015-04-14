@@ -1,13 +1,10 @@
 ﻿using System;
-using NUnit.Framework;
-using RethinkDb;
-using System.Net;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq.Expressions;
 using FluentAssertions;
+using NUnit.Framework;
+using RethinkDb;
 
 namespace RethinkDb.Test.Integration
 {
@@ -104,7 +101,7 @@ namespace RethinkDb.Test.Integration
             e2.Should().BeNull();
         }
 
-        // Changes on a single record not currently supported by rethinkdb-net, but should be.
+        // Changes on a single record not currently supported by rethinkdb-net, but should be; issue #197.
         //[Test]
         //public void ChangesOnPrimaryKey()
         //{
@@ -217,7 +214,7 @@ namespace RethinkDb.Test.Integration
         }
 
         /*
-         * Min / Max operations on indexes not currently supported, but should be.
+         * Min / Max operations on indexes not currently supported, but should be; issue #198
 
         [Test]
         [Timeout(1000)]
