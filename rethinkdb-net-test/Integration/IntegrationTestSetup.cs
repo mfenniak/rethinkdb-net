@@ -37,7 +37,7 @@ namespace RethinkDb.Test.Integration
             var locations = path.Split(Path.PathSeparator).ToList();
 
             // Something is modifying PATH when running via xamarin studio, making it exclude several things
-            // including /usr/local/bin. EnvironmentVariableTarget.User returns null. 
+            // including /usr/local/bin. EnvironmentVariableTarget.User returns null.
             // So this uglyness has to stay for now?
             locations.Add("/usr/local/bin");
 
@@ -102,20 +102,20 @@ namespace RethinkDb.Test.Integration
             var processInfo = new ProcessStartInfo()
             {
                 FileName = GetRethinkPath(),
-                Arguments = "-d " + dbPath + " --cluster-port 55557 --driver-port " + rethinkEndpoint.Port,
+                Arguments = string.Format("-d {0} --cluster-port 55557 --driver-port {1} --no-http-admin", dbPath, rethinkEndpoint.Port),
                 UseShellExecute = false
             };
             rethinkProcess = Process.Start(processInfo);
 
             // wait for it to start up, but not forever
             int waited = 0;
-            while (!IsEndpointAvailable(rethinkEndpoint) && waited < 30)
+            while (!IsEndpointAvailable(rethinkEndpoint) && waited < 60)
             {
                 Thread.Sleep(250);
                 waited++;
             }
 
-            if (waited >= 30)
+            if (waited >= 60)
                 throw new Exception("Could not start rethinkdb.");
         }
     }
