@@ -14,7 +14,9 @@
 
 * Allow the Changes query command to be run against any query that returns a sequence of objects, rather than just a table.  This is supported as-of RethinkDB 1.16.  [Issue #190](https://github.com/mfenniak/rethinkdb-net/issues/190)
 
-* Tested and verified against RethinkDB 1.16.  [PR #200](https://github.com/mfenniak/rethinkdb-net/pull/200)
+* Compatibility with RethinkDB 1.16.  [PR #200](https://github.com/mfenniak/rethinkdb-net/pull/200)
+
+* Compatibility with RethinkDB 2.0.  [PR #207](https://github.com/mfenniak/rethinkdb-net/pull/207)
 
 ### Breaking Changes
 
