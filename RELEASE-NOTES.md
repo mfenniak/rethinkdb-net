@@ -26,7 +26,7 @@
 
 ### Bugfixes
 
-* Fix errors that occur when writing obvious filters like ```... == null`` and ```field.HasValue```.  [Issue #203](https://github.com/mfenniak/rethinkdb-net/issues/203) & [PR #204](https://github.com/mfenniak/rethinkdb-net/issues/204)
+* Fix errors that occur when writing obvious filters like ```... == null``` and ```field.HasValue```.  [Issue #203](https://github.com/mfenniak/rethinkdb-net/issues/203) & [PR #204](https://github.com/mfenniak/rethinkdb-net/issues/204)
 
 
 ## 0.9.1.0 (2014-10-31)
