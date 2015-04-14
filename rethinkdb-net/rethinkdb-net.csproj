@@ -222,6 +222,7 @@
     <Compile Include="Interfaces\IStreamingSequenceQuery.cs" />
     <Compile Include="Expressions\NullableExpressionConverters.cs" />
     <Compile Include="DatumConverters\ObjectDatumConverterFactory.cs" />
+    <Compile Include="Expressions\StringExpressionConverters.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

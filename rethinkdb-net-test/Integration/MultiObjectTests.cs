@@ -1105,5 +1105,21 @@ namespace RethinkDb.Test.Integration
             }
             count.Should().Be(1);
         }
+
+        [Test]
+        public void ToLowerInvariant()
+        {
+            connection.Run(testTable.Delete());
+            connection.Run(testTable.Insert(new TestObject() { Id = "1", Name = "Has a Name" }));
+            connection.Run(testTable.Select(o => o.Name.ToLowerInvariant())).Single().Should().Be("has a name");
+        }
+
+        [Test]
+        public void ToUpperInvariant()
+        {
+            connection.Run(testTable.Delete());
+            connection.Run(testTable.Insert(new TestObject() { Id = "1", Name = "Has a Name" }));
+            connection.Run(testTable.Select(o => o.Name.ToUpperInvariant())).Single().Should().Be("HAS A NAME");
+        }
     }
 }

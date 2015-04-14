@@ -29,6 +29,7 @@ namespace RethinkDb.Expressions
             LinqExpressionConverters.RegisterOnConverterFactory(this);
             DateTimeExpressionConverters.RegisterOnConverterFactory(this);
             GuidExpressionConverters.RegisterOnConverterFactory(this);
+            StringExpressionConverters.RegisterOnConverterFactory(this);
         }
 
         public void Reset()
