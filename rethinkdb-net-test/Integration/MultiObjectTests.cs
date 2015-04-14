@@ -1077,6 +1077,7 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void NullFilter()
         {
+            connection.Run(testTable.Delete());
             connection.Run(testTable.Insert(new TestObject() { Id = "1", Name = "Has a Name" }));
             connection.Run(testTable.Insert(new TestObject() { Id = "2", Name = null }));
 
@@ -1092,6 +1093,7 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void NotNullFilter()
         {
+            connection.Run(testTable.Delete());
             connection.Run(testTable.Insert(new TestObject() { Id = "1", Name = "Has a Name" }));
             connection.Run(testTable.Insert(new TestObject() { Id = "2", Name = null }));
 

@@ -42,7 +42,8 @@ namespace RethinkDb
                     NullableDatumConverterFactory.Instance,
                     ListDatumConverterFactory.Instance,
                     TimeSpanDatumConverterFactory.Instance,
-                    GroupingDictionaryDatumConverterFactory.Instance
+                    GroupingDictionaryDatumConverterFactory.Instance,
+                    ObjectDatumConverterFactory.Instance
                 ),
                 new Expressions.DefaultExpressionConverterFactory()
             );
