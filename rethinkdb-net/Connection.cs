@@ -365,8 +365,8 @@ namespace RethinkDb
             var query = new Spec.Query();
             Logger.Debug("RunAsync: acquiring query token");
             query.token = GetNextToken();
-            Logger.Debug("RunAsync: Token {0} is assigned to query of type {1} for immediate execution", queryObject.GetType());
-            Logger.Debug("RunAsync: Token {0} is assigned to query {1} for immediate execution", queryObject);
+            Logger.Debug("RunAsync: Token {0} is assigned to query of type {1} for immediate execution", query.token, queryObject.GetType());
+            Logger.Debug("RunAsync: Token {0} is assigned to query {1} for immediate execution", query.token, queryObject);
             query.type = Spec.Query.QueryType.START;
             query.query = queryObject.GenerateTerm(queryConverter);
 
