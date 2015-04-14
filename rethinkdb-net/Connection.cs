@@ -354,8 +354,10 @@ namespace RethinkDb
         public async Task<T> RunAsync<T>(IQueryConverter queryConverter, IScalarQuery<T> queryObject, CancellationToken cancellationToken)
         {
             var query = new Spec.Query();
+            Logger.Debug("RunAsync: acquiring query token");
             query.token = GetNextToken();
-            Logger.Debug("Token {0} is assigned to query {1} for immediate execution", queryObject);
+            Logger.Debug("RunAsync: Token {0} is assigned to query of type {1} for immediate execution", queryObject.GetType());
+            Logger.Debug("RunAsync: Token {0} is assigned to query {1} for immediate execution", queryObject);
             query.type = Spec.Query.QueryType.START;
             query.query = queryObject.GenerateTerm(queryConverter);
 
@@ -518,8 +520,10 @@ namespace RethinkDb
                 if (lastResponse == null)
                 {
                     query = new Spec.Query();
+                    connection.Logger.Debug("MoveNext: acquiring query token");
                     query.token = connection.GetNextToken();
-                    connection.Logger.Debug("Token {0} is assigned to query {1}, MoveNext called on enumerator", query.token, queryObject);
+                    connection.Logger.Debug("MoveNext: Token {0} is assigned to query of type {1}, MoveNext called on enumerator", query.token, queryObject.GetType());
+                    connection.Logger.Debug("MoveNext: Token {0} is assigned to query {1}, MoveNext called on enumerator", query.token, queryObject);
                     query.type = Spec.Query.QueryType.START;
                     query.query = this.queryObject.GenerateTerm(queryConverter);
                     await ReissueQuery(cancellationToken);
