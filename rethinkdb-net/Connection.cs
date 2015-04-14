@@ -318,6 +318,7 @@ namespace RethinkDb
             var tcs = new TaskCompletionSource<Response>();
             tokenResponse[query.token] = tcs;
 
+            Logger.Debug("InternalRunQuery: beginning process of transmitting query w/ token {0}", query.token);
             bool pastSpinLock = false;
 
             Action abortToken = () => {
@@ -332,22 +333,30 @@ namespace RethinkDb
             {
                 // Put query.token into writeTokenLock if writeTokenLock is 0 (ie. unlocked).  If it's not 0,
                 // spin-lock on the compare exchange.
+                Logger.Debug("InternalRunQuery: acquiring write lock for query token {0}", query.token);
                 while (Interlocked.CompareExchange(ref writeTokenLock, query.token, 0) != 0)
                     ;
 
-                pastSpinLock = true;
-
                 try
                 {
+                    Logger.Debug("InternalRunQuery: acquired write lock for query token {0}", query.token);
+                    pastSpinLock = true;
+                    Logger.Debug("InternalRunQuery: writing query token {0}", query.token);
                     await Protocol.WriteQueryToStream(stream, Logger, query, cancellationToken);
+                    Logger.Debug("InternalRunQuery: write complete for query token {0}", query.token);
                 }
                 finally
                 {
                     // Revert writeTokenLock to 0.
+                    Logger.Debug("InternalRunQuery: releasing write lock for query token {0}", query.token);
                     writeTokenLock = 0;
+                    Logger.Debug("InternalRunQuery: released write lock for query token {0}", query.token);
                 }
 
-                return await tcs.Task;
+                Logger.Debug("InternalRunQuery: beginning wait for response for query token {0}", query.token);
+                var retval = await tcs.Task;
+                Logger.Debug("InternalRunQuery: received response for query token {0}", query.token);
+                return retval;
             }
         }
 
