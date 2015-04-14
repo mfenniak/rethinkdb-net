@@ -1,6 +1,6 @@
 # rethinkdb-net Release Notes
 
-## Next Release
+## 0.10.0.0 (2015-04-14)
 
 ### Features
 

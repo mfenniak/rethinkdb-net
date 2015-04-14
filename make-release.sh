@@ -5,8 +5,8 @@ set -e
 
 NEW_VERSION=$1
 
-if ! [[ $NEW_VERSION =~ ^[0-9]\.[0-9]\.[0-9]\.[0-9]$ ]] ; then
-    echo "Argument must match [0-9].[0-9].[0-9].[0-9]"
+if ! [[ $NEW_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] ; then
+    echo "Argument must match [0-9]+.[0-9]+.[0-9]+.[0-9]+"
     exit
 fi
 
