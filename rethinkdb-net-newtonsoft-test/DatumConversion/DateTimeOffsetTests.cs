@@ -15,7 +15,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
             var obj = new ADateTimeOffset()
                 {
                     Id = "my_id",
-                    TheDateTimeOffset = DateTimeOffset.Parse("10/30/2013 4:12:02 PM -07:00")
+                    TheDateTimeOffset = DateTimeOffset.Parse("30 Oct 2013 4:12:02 PM -07:00")
                 };
 
             var truth = new Datum
@@ -101,7 +101,7 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
             var obj = new DateTimeOffsetNullable()
                 {
                     Id = "my_id",
-                    TheDateTimeOffset = DateTimeOffset.Parse("10/30/2013 4:12:02 PM -07:00")
+                    TheDateTimeOffset = DateTimeOffset.Parse("30 Oct 2013 4:12:02 PM -07:00")
                 };
 
             var truth = new Datum

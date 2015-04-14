@@ -117,12 +117,12 @@ namespace RethinkDb.Newtonsoft.Test.DatumConversion
                 {
                     Id = Guid.Parse("{32753EDC-E5EF-46E0-ABCD-CE5413B30797}"),
                     Name = "Brian Chavez",
-                    TheDateTime = DateTime.Parse("10/26/2013 3:45 PM"),
+                    TheDateTime = DateTime.Parse("26 Oct 2013 3:45 PM"),
                     NullDateTime = null,
-                    NotNullDateTime = DateTime.Parse("10/26/2013 3:45 PM"),
-                    TheDateTimeOffset = DateTimeOffset.Parse("10/26/2013 8:27:02 PM -07:00"),
+                    NotNullDateTime = DateTime.Parse("26 Oct 2013 3:45 PM"),
+                    TheDateTimeOffset = DateTimeOffset.Parse("26 Oct 2013 8:27:02 PM -07:00"),
                     NullDateTimeOffset = null,
-                    NotNullDateTimeOffset = DateTimeOffset.Parse("10/26/2013 8:27:02 PM -07:00")
+                    NotNullDateTimeOffset = DateTimeOffset.Parse("26 Oct 2013 8:27:02 PM -07:00")
                 };
 
             return obj;
