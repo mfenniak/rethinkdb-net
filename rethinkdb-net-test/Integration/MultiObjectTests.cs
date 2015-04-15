@@ -1133,5 +1133,20 @@ namespace RethinkDb.Test.Integration
             }
             count.Should().Be(1);
         }
+
+        [Test]
+        public void FilterByRegexpGroup()
+        {
+            int count = 0;
+            foreach (var row in connection.Run(testTable.Filter(o => 
+                o.Name.Match("^([3])$") != null &&
+                o.Name.Match("^([3])$").Groups[0].MatchedString == "3"
+            )))
+            {
+                row.Name.Should().Be("3");
+                count += 1;
+            }
+            count.Should().Be(1);
+        }
     }
 }

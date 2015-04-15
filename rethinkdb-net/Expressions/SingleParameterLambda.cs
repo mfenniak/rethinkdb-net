@@ -118,79 +118,29 @@ namespace RethinkDb.Expressions
                     };
                 }
 
-                case ExpressionType.MemberAccess:
+                case ExpressionType.Convert:
                 {
-                    var memberExpr = (MemberExpression)expr;
-                    var member = memberExpr.Member;
+                    // In some cases the CLR can insert a type-cast when a generic type constrant is present on a
+                    // generic type that's a parameter.  We pretty much just ignore those casts.  It might be
+                    // valid to use the cast to switch to a different datum converter?, but the use-case isn't
+                    // really clear right now.  We do check that the type-cast makes sense for the parameter type,
+                    // but it's just to feel safer; it seems like the compiler should've made sure about that.
 
-                    if (memberExpr.Expression == null)
-                    {
+                    var convertExpression = (UnaryExpression)expr;
+                    if (convertExpression.Operand.NodeType != ExpressionType.Parameter)
+                        // If this isn't a cast on a Parameter, just drop it through to do continue processing.
                         return SimpleMap(datumConverterFactory, expr);
-                    }
-                    else if (memberExpr.Expression.NodeType == ExpressionType.Convert)
-                    {
-                        // In some cases the CLR can insert a type-cast when a generic type constrant is present on a
-                        // generic type that's a parameter.  We pretty much just ignore those casts.  It might be
-                        // valid to use the cast to switch to a different datum converter?, but the use-case isn't
-                        // really clear right now.  We do check that the type-cast makes sense for the parameter type,
-                        // but it's just to feel safer; it seems like the compiler should've made sure about that.
 
-                        var convertExpression = (UnaryExpression)memberExpr.Expression;
-                        if (convertExpression.Operand.NodeType != ExpressionType.Parameter)
-                            return SimpleMap(datumConverterFactory, expr);
+                    // Otherwise; type-check it, and then just strip the Convert node out and recursivemap the inside.
+                    var parameterExpr = (ParameterExpression)convertExpression.Operand;
+                    if (!convertExpression.Type.IsAssignableFrom(parameterExpr.Type))
+                        throw new NotSupportedException(String.Format(
+                            "Cast on parameter expression not currently supported (from type {0} to type {1})",
+                            parameterExpr.Type, convertExpression.Type));
 
-                        var parameterExpression = (ParameterExpression)convertExpression.Operand;
-                        if (!convertExpression.Type.IsAssignableFrom(parameterExpression.Type))
-                            throw new NotSupportedException(String.Format(
-                                "Cast on parameter expression not currently supported (from type {0} to type {1})",
-                                parameterExpression.Type, convertExpression.Type));
-                    }
-                    else if (memberExpr.Expression.NodeType != ExpressionType.Parameter)
-                    {
-                        return SimpleMap(datumConverterFactory, expr);
-                    }
-
-                    DefaultExpressionConverterFactory.ExpressionMappingDelegate<MemberExpression> memberAccessMapping;
-                    if (expressionConverterFactory.TryGetMemberAccessMapping(member, out memberAccessMapping))
-                        return memberAccessMapping(memberExpr, RecursiveMap, datumConverterFactory, expressionConverterFactory);
-
-                    var getAttrTerm = new Term() {
-                        type = Term.TermType.GET_FIELD
-                    };
-
-                    getAttrTerm.args.Add(new Term() {
-                        type = Term.TermType.VAR,
-                        args = {
-                            new Term() {
-                                type = Term.TermType.DATUM,
-                                datum = new Datum() {
-                                    type = Datum.DatumType.R_NUM,
-                                    r_num = 2
-                                },
-                            }
-                        }
-                    });
-
-                    var datumConverter = datumConverterFactory.Get<TParameter1>();
-                    var fieldConverter = datumConverter as IObjectDatumConverter;
-                    if (fieldConverter == null)
-                        throw new NotSupportedException("Cannot map member access into ReQL without implementing IObjectDatumConverter");
-
-                    var datumFieldName = fieldConverter.GetDatumFieldName(memberExpr.Member);
-                    if (string.IsNullOrEmpty(datumFieldName))
-                        throw new NotSupportedException(String.Format("Member {0} on type {1} could not be mapped to a datum field", memberExpr.Member.Name, memberExpr.Type));
-
-                    getAttrTerm.args.Add(new Term() {
-                        type = Term.TermType.DATUM,
-                        datum = new Datum() {
-                            type = Datum.DatumType.R_STR,
-                            r_str = datumFieldName
-                        }
-                    });
-
-                    return getAttrTerm;
+                    return RecursiveMap(parameterExpr);
                 }
-
+                
                 default:
                     return SimpleMap(datumConverterFactory, expr);
             }
@@ -199,4 +149,3 @@ namespace RethinkDb.Expressions
         #endregion
     }
 }
-
