@@ -1121,5 +1121,17 @@ namespace RethinkDb.Test.Integration
             connection.Run(testTable.Insert(new TestObject() { Id = "1", Name = "Has a Name" }));
             connection.Run(testTable.Select(o => o.Name.ToUpperInvariant())).Single().Should().Be("HAS A NAME");
         }
+
+        [Test]
+        public void FilterByRegexpMatches()
+        {
+            int count = 0;
+            foreach (var row in connection.Run(testTable.Filter(o => o.Name.Match("^3$") != null)))
+            {
+                row.Name.Should().Be("3");
+                count += 1;
+            }
+            count.Should().Be(1);
+        }
     }
 }

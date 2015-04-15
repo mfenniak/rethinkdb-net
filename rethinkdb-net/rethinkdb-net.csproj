@@ -223,6 +223,8 @@
     <Compile Include="Expressions\NullableExpressionConverters.cs" />
     <Compile Include="DatumConverters\ObjectDatumConverterFactory.cs" />
     <Compile Include="Expressions\StringExpressionConverters.cs" />
+    <Compile Include="MatchResponse.cs" />
+    <Compile Include="MatchGroupResponse.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
