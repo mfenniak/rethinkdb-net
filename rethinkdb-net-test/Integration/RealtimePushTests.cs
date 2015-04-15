@@ -111,7 +111,7 @@ namespace RethinkDb.Test.Integration
         //}
 
         [Test]
-        [Timeout(1000)]
+        [Timeout(30000)]
         public void ChangesWithTable()
         {
             RealtimePushTestSingleResponse(
@@ -131,7 +131,7 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
-        [Timeout(1000)]
+        [Timeout(30000)]
         public void ChangesWithBetween()
         {
             RealtimePushTestSingleResponse(
@@ -151,7 +151,7 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
-        [Timeout(1000)]
+        [Timeout(30000)]
         public void ChangesWithFilter()
         {
             RealtimePushTestSingleResponse(
@@ -171,7 +171,7 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
-        [Timeout(1000)]
+        [Timeout(30000)]
         public void ChangesWithMap()
         {
             RealtimePushTestSingleResponse(
@@ -191,7 +191,7 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
-        [Timeout(1000)]
+        [Timeout(30000)]
         [Ignore("Fails due to RethinkDB error 'cannot call changes on an eager stream' despite RethinkdB 1.16 documentation claiming this should work")]
         public void ChangesWithOrderByLimit()
         {
@@ -217,7 +217,7 @@ namespace RethinkDb.Test.Integration
          * Min / Max operations on indexes not currently supported, but should be; issue #198
 
         [Test]
-        [Timeout(1000)]
+        [Timeout(30000)]
         public void ChangesWithMin()
         {
             RealtimePushTestSingleResponse(
@@ -239,7 +239,7 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
-        [Timeout(1000)]
+        [Timeout(30000)]
         public void ChangesWithMax()
         {
             RealtimePushTestSingleResponse(
