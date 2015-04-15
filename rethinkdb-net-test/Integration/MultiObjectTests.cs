@@ -1148,5 +1148,21 @@ namespace RethinkDb.Test.Integration
             }
             count.Should().Be(1);
         }
+
+        [Test]
+        public void MinIndexAggregate()
+        {
+            var minName = connection.Run(testTable.Min(nameIndex));
+            minName.Should().NotBeNull();
+            minName.Name.Should().Be("1");
+        }
+
+        [Test]
+        public void MaxIndexAggregate()
+        {
+            var maxName = connection.Run(testTable.Max(nameIndex));
+            maxName.Should().NotBeNull();
+            maxName.Name.Should().Be("7");
+        }
     }
 }

@@ -574,12 +574,44 @@ namespace RethinkDb
             return new MinGroupAggregateQuery<TKey, TRecord, TExpressionValue>(groupingQuery, field);
         }
 
+        public static MinAggregateIndexQuery<TRecord, TIndexType> Min<TRecord, TIndexType>(
+            this ITableQuery<TRecord> tableQuery,
+            string indexName
+        )
+        {
+            return new MinAggregateIndexQuery<TRecord, TIndexType>(tableQuery, indexName);
+        }
+
+        public static MinAggregateIndexQuery<TRecord, TIndexType> Min<TRecord, TIndexType>(
+            this ITableQuery<TRecord> tableQuery,
+            IIndex<TRecord, TIndexType> index
+        )
+        {
+            return new MinAggregateIndexQuery<TRecord, TIndexType>(tableQuery, index.Name);
+        }
+
         public static MinAggregateQuery<TRecord, TExpressionValue> Min<TRecord, TExpressionValue>(
             this ISequenceQuery<TRecord> sequenceQuery,
             Expression<Func<TRecord, TExpressionValue>> field = null
             )
         {
             return new MinAggregateQuery<TRecord, TExpressionValue>(sequenceQuery, field);
+        }
+
+        public static MaxAggregateIndexQuery<TRecord, TIndexType> Max<TRecord, TIndexType>(
+            this ITableQuery<TRecord> tableQuery,
+            string indexName
+        )
+        {
+            return new MaxAggregateIndexQuery<TRecord, TIndexType>(tableQuery, indexName);
+        }
+
+        public static MaxAggregateIndexQuery<TRecord, TIndexType> Max<TRecord, TIndexType>(
+            this ITableQuery<TRecord> tableQuery,
+            IIndex<TRecord, TIndexType> index
+        )
+        {
+            return new MaxAggregateIndexQuery<TRecord, TIndexType>(tableQuery, index.Name);
         }
 
         public static MaxGroupAggregateQuery<TKey, TRecord, TExpressionValue> Max<TKey, TRecord, TExpressionValue>(

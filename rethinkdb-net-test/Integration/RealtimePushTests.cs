@@ -331,20 +331,24 @@ namespace RethinkDb.Test.Integration
             );
         }
 
-        /*
-         * Min / Max operations on indexes not currently supported, but should be; issue #198
-
         [Test]
         [Timeout(30000)]
         public void ChangesWithMin()
         {
-            RealtimePushTestSingleResponse(
-                () => testTable.Min(someNumberIndex).Changes(),
+            RealtimePushTestTwoResponses(
+                () => testTable.Min(testSomeNumberIndex).Changes(),
                 () =>
                 {
                     var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { SomeNumber = -100 }));
                     result.Should().NotBeNull();
-                    result.Replaced.Should().Be(1.0);
+                    result.Replaced.Should().Be(1);
+                },
+                response =>
+                {
+                    // .Min().Changes() sends the initial value as the first streaming result
+                    response.OldValue.Should().BeNull();
+                    response.NewValue.Id.Should().Be("1");
+                    response.NewValue.SomeNumber.Should().Be(1);
                 },
                 response =>
                 {
@@ -360,13 +364,20 @@ namespace RethinkDb.Test.Integration
         [Timeout(30000)]
         public void ChangesWithMax()
         {
-            RealtimePushTestSingleResponse(
-                () => testTable.Max(someNumberIndex).Changes(),
+            RealtimePushTestTwoResponses(
+                () => testTable.Max(testSomeNumberIndex).Changes(),
                 () =>
                 {
                     var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { SomeNumber = 100 }));
                     result.Should().NotBeNull();
-                    result.Replaced.Should().Be(1.0);
+                    result.Replaced.Should().Be(1);
+                },
+                response =>
+                {
+                // .Max().Changes() sends the initial value as the first streaming result
+                    response.OldValue.Should().BeNull();
+                    response.NewValue.Id.Should().Be("7");
+                    response.NewValue.SomeNumber.Should().Be(7);
                 },
                 response =>
                 {
@@ -377,6 +388,5 @@ namespace RethinkDb.Test.Integration
                 }
             );
         }
-        */
     }
 }

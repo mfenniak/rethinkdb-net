@@ -14,6 +14,8 @@
 
 * Added changefeed support for union queries.  [PR #210](https://github.com/mfenniak/rethinkdb-net/pull/210)
 
+* Added changefeed support for min and max queries against an index.  [PR #210](https://github.com/mfenniak/rethinkdb-net/pull/210)
+
 
 ## 0.10.0.0 (2015-04-14)
 
