@@ -167,8 +167,45 @@ namespace RethinkDb.Expressions
                     DefaultExpressionConverterFactory.ExpressionMappingDelegate<MemberExpression> memberAccessMapping;
                     if (expressionConverterFactory.TryGetMemberAccessMapping(member, out memberAccessMapping))
                         return memberAccessMapping(memberExpression, RecursiveMap, datumConverterFactory, expressionConverterFactory);
-                    else
-                        return AttemptClientSideConversion(datumConverterFactory, expr);
+
+                    // Check if this is a member access on an object, rather than a static member access.  If so,
+                    // see if we can use the IObjectDatumConverter interface to access a field on it.
+                    if (memberExpression.Expression != null)
+                    {
+                        // If we even can get a datum converter for this type...
+                        IDatumConverter datumConverter;
+                        if (datumConverterFactory.TryGet(memberExpression.Expression.Type, out datumConverter))
+                        {
+                            // And if it implements IObjectDatumConverter
+                            var fieldConverter = datumConverter as IObjectDatumConverter;
+                            if (fieldConverter != null)
+                            {
+                                var datumFieldName = fieldConverter.GetDatumFieldName(memberExpression.Member);
+                                if (string.IsNullOrEmpty(datumFieldName))
+                                    throw new NotSupportedException(String.Format("Member {0} on type {1} could not be mapped to a datum field", memberExpression.Member.Name, memberExpression.Type));
+                                
+                                    Console.WriteLine("Expr being mapped to object access: {0}", expr);
+
+                                var getAttrTerm = new Term()
+                                {
+                                    type = Term.TermType.GET_FIELD
+                                };
+                                getAttrTerm.args.Add(RecursiveMap(memberExpression.Expression));
+                                getAttrTerm.args.Add(new Term()
+                                {
+                                    type = Term.TermType.DATUM,
+                                    datum = new Datum()
+                                    {
+                                        type = Datum.DatumType.R_STR,
+                                        r_str = datumFieldName
+                                    }
+                                });
+                                return getAttrTerm;
+                            }
+                        }
+                    }
+
+                    return AttemptClientSideConversion(datumConverterFactory, expr);
                 }
 
                 case ExpressionType.Conditional:
@@ -205,7 +242,11 @@ namespace RethinkDb.Expressions
             }
             catch (InvalidOperationException ex)
             {
-                throw new InvalidOperationException("Failed to perform client-side evaluation of expression tree node; often this is caused by refering to a server-side variable in a node that is only supported w/ client-side evaluation", ex);
+                throw new InvalidOperationException(
+                    String.Format(
+                        "Failed to perform client-side evaluation of expression tree node '{0}'; this is caused by refering to a server-side variable in an expression tree that isn't convertible to ReQL logic",
+                        expr),
+                    ex);
             }
         }
 
