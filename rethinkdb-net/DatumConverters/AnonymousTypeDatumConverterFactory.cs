@@ -30,7 +30,7 @@ namespace RethinkDb.DatumConverters
 
         public bool IsTypeSupported(Type t)
         {
-            if (t.IsClass && t.Name.Contains("Anon") && t.Name.StartsWith("<>") && t.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length == 1)
+            if (t.IsClass && t.Name.Contains("Anon") && t.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length == 1)
                 return true;
             return false;
         }

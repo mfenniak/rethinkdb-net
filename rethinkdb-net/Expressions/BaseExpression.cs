@@ -168,9 +168,12 @@ namespace RethinkDb.Expressions
                     if (expressionConverterFactory.TryGetMemberAccessMapping(member, out memberAccessMapping))
                         return memberAccessMapping(memberExpression, RecursiveMap, datumConverterFactory, expressionConverterFactory);
 
-                    // Check if this is a member access on an object, rather than a static member access.  If so,
-                    // see if we can use the IObjectDatumConverter interface to access a field on it.
-                    if (memberExpression.Expression != null)
+                    // Check if this is a member access on an object, rather than a static member access.  It also has to be
+                    // a member access on something other than a constant; if it's accessing a member on a constant, than client-side
+                    // evaluation is actually more efficient since we won't need to transfer it to the server to evaluate something
+                    // that we can do locally.
+                    // If it matches those conditions, see if we can use the IObjectDatumConverter interface to access a field on it.
+                    if (memberExpression.Expression != null && memberExpression.Expression.NodeType != ExpressionType.Constant)
                     {
                         // If we even can get a datum converter for this type...
                         IDatumConverter datumConverter;
@@ -183,8 +186,6 @@ namespace RethinkDb.Expressions
                                 var datumFieldName = fieldConverter.GetDatumFieldName(memberExpression.Member);
                                 if (string.IsNullOrEmpty(datumFieldName))
                                     throw new NotSupportedException(String.Format("Member {0} on type {1} could not be mapped to a datum field", memberExpression.Member.Name, memberExpression.Type));
-                                
-                                    Console.WriteLine("Expr being mapped to object access: {0}", expr);
 
                                 var getAttrTerm = new Term()
                                 {
