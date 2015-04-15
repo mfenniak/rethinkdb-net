@@ -267,23 +267,23 @@ namespace RethinkDb
             });
         }
 
-        public static OrderByQuery<T> OrderBy<T>(
+        public static OrderByIndexQuery<T> OrderBy<T>(
             this ISequenceQuery<T> sequenceQuery,
             string indexName,
             OrderByDirection direction = OrderByDirection.Ascending)
         {
-            return new OrderByQuery<T>(sequenceQuery, new OrderByTerm<T> {
+            return new OrderByIndexQuery<T>(sequenceQuery, new OrderByTerm<T> {
                 Direction = direction,
                 IndexName = indexName,
             });
         }
 
-        public static OrderByQuery<T> OrderBy<T, TIndexType>(
+        public static OrderByIndexQuery<T> OrderBy<T, TIndexType>(
             this ISequenceQuery<T> sequenceQuery,
             IIndex<T, TIndexType> index,
             OrderByDirection direction = OrderByDirection.Ascending)
         {
-            return new OrderByQuery<T>(sequenceQuery, new OrderByTerm<T> {
+            return new OrderByIndexQuery<T>(sequenceQuery, new OrderByTerm<T> {
                 Direction = direction,
                 IndexName = index.Name,
             });
@@ -296,13 +296,13 @@ namespace RethinkDb
         {
             return sequenceQuery.OrderBy(memberReferenceExpression, OrderByDirection.Descending);
         }
-        public static OrderByQuery<T> OrderByDescending<T>(
+        public static OrderByIndexQuery<T> OrderByDescending<T>(
             this ISequenceQuery<T> sequenceQuery,
             string indexName)
         {
             return sequenceQuery.OrderBy(indexName, OrderByDirection.Descending);
         }
-        public static OrderByQuery<T> OrderByDescending<T, TIndexType>(
+        public static OrderByIndexQuery<T> OrderByDescending<T, TIndexType>(
             this ISequenceQuery<T> sequenceQuery,
             IIndex<T, TIndexType> index)
         {
@@ -336,6 +336,11 @@ namespace RethinkDb
         public static SkipQuery<T> Skip<T>(this ISequenceQuery<T> sequenceQuery, int count)
         {
             return new SkipQuery<T>(sequenceQuery, count);
+        }
+
+        public static LimitQueryChangefeedCompatible<T> Limit<T>(this IOrderByIndexQuery<T> orderByIndexQuery, int count)
+        {
+            return new LimitQueryChangefeedCompatible<T>(orderByIndexQuery, count);
         }
 
         public static LimitQuery<T> Limit<T>(this ISequenceQuery<T> sequenceQuery, int count)

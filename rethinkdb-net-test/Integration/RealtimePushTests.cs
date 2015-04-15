@@ -13,6 +13,7 @@ namespace RethinkDb.Test.Integration
     public class RealtimePushTests : TestBase
     {
         private TableQuery<TestObject> testTable;
+        private IIndex<TestObject, double> testSomeNumberIndex;
 
         public override void TestFixtureSetUp()
         {
@@ -20,6 +21,10 @@ namespace RethinkDb.Test.Integration
             connection.Run(Query.DbCreate("test"));
             connection.Run(Query.Db("test").TableCreate("table"));
             testTable = Query.Db("test").Table<TestObject>("table");
+
+            testSomeNumberIndex = testTable.IndexDefine("test_number", o => o.SomeNumber);
+            connection.Run(testSomeNumberIndex.IndexCreate());
+            connection.Run(testSomeNumberIndex.IndexWait());
         }
 
         [SetUp]
@@ -168,15 +173,6 @@ namespace RethinkDb.Test.Integration
             e2.Should().BeNull();
         }
 
-        // Changes on a single record not currently supported by rethinkdb-net, but should be; issue #197.
-        //[Test]
-        //public void ChangesOnPrimaryKey()
-        //{
-        //    foreach (var row in testTable.Get("Id").Changes())
-        //    {
-        //    }
-        //}
-
         [Test]
         [Timeout(30000)]
         public void ChangesWithPrimaryKey()
@@ -286,19 +282,24 @@ namespace RethinkDb.Test.Integration
             );
         }
 
-        /*
         [Test]
         [Timeout(30000)]
-        [Ignore("Fails due to RethinkDB error 'cannot call changes on an eager stream' despite RethinkdB 1.16 documentation claiming this should work")]
         public void ChangesWithOrderByLimit()
         {
-            RealtimePushTestSingleResponse(
-                () => testTable.OrderBy(o => o.SomeNumber, OrderByDirection.Descending).Limit(1).Changes(),
+            RealtimePushTestTwoResponses(
+                () => testTable.OrderBy(testSomeNumberIndex, OrderByDirection.Descending).Limit(1).Changes(),
                 () =>
                 {
                     var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { SomeNumber = 100 }));
                     result.Should().NotBeNull();
                     result.Replaced.Should().Be(1);
+                },
+                response =>
+                {
+                    // .OrderBy().Limit().Changes() sends the initial value as the first streaming result
+                    response.OldValue.Should().BeNull();
+                    response.NewValue.Id.Should().Be("7");
+                    response.NewValue.SomeNumber.Should().Be(7);
                 },
                 response =>
                 {
@@ -309,7 +310,6 @@ namespace RethinkDb.Test.Integration
                 }
             );
         }
-        */
 
         /*
          * Min / Max operations on indexes not currently supported, but should be; issue #198

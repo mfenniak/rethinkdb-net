@@ -226,6 +226,9 @@
     <Compile Include="MatchResponse.cs" />
     <Compile Include="MatchGroupResponse.cs" />
     <Compile Include="Interfaces\IChangefeedCompatibleQuery.cs" />
+    <Compile Include="QueryTerm\OrderByIndexQuery.cs" />
+    <Compile Include="Interfaces\IOrderByIndexQuery.cs" />
+    <Compile Include="QueryTerm\LimitQueryChangefeedCompatible.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
