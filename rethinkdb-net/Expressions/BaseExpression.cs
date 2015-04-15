@@ -168,43 +168,9 @@ namespace RethinkDb.Expressions
                     if (expressionConverterFactory.TryGetMemberAccessMapping(member, out memberAccessMapping))
                         return memberAccessMapping(memberExpression, RecursiveMap, datumConverterFactory, expressionConverterFactory);
 
-                    // Check if this is a member access on an object, rather than a static member access.  It also has to be
-                    // a member access on something other than a constant; if it's accessing a member on a constant, than client-side
-                    // evaluation is actually more efficient since we won't need to transfer it to the server to evaluate something
-                    // that we can do locally.
-                    // If it matches those conditions, see if we can use the IObjectDatumConverter interface to access a field on it.
-                    if (memberExpression.Expression != null && memberExpression.Expression.NodeType != ExpressionType.Constant)
-                    {
-                        // If we even can get a datum converter for this type...
-                        IDatumConverter datumConverter;
-                        if (datumConverterFactory.TryGet(memberExpression.Expression.Type, out datumConverter))
-                        {
-                            // And if it implements IObjectDatumConverter
-                            var fieldConverter = datumConverter as IObjectDatumConverter;
-                            if (fieldConverter != null)
-                            {
-                                var datumFieldName = fieldConverter.GetDatumFieldName(memberExpression.Member);
-                                if (string.IsNullOrEmpty(datumFieldName))
-                                    throw new NotSupportedException(String.Format("Member {0} on type {1} could not be mapped to a datum field", memberExpression.Member.Name, memberExpression.Type));
-
-                                var getAttrTerm = new Term()
-                                {
-                                    type = Term.TermType.GET_FIELD
-                                };
-                                getAttrTerm.args.Add(RecursiveMap(memberExpression.Expression));
-                                getAttrTerm.args.Add(new Term()
-                                {
-                                    type = Term.TermType.DATUM,
-                                    datum = new Datum()
-                                    {
-                                        type = Datum.DatumType.R_STR,
-                                        r_str = datumFieldName
-                                    }
-                                });
-                                return getAttrTerm;
-                            }
-                        }
-                    }
+                    Term serverSideTerm;
+                    if (ServerSideMemberAccess(datumConverterFactory, memberExpression, out serverSideTerm))
+                        return serverSideTerm;
 
                     return AttemptClientSideConversion(datumConverterFactory, expr);
                 }
@@ -228,6 +194,52 @@ namespace RethinkDb.Expressions
                     return AttemptClientSideConversion(datumConverterFactory, expr);
                 }
             }
+        }
+
+        private bool ServerSideMemberAccess(IDatumConverterFactory datumConverterFactory, MemberExpression memberExpression, out Term term)
+        {
+            term = null;
+
+            if (memberExpression.Expression == null)
+                // static member access; can't do that server-side, wouldn't want to either.
+                return false;
+
+            if (memberExpression.Expression.NodeType == ExpressionType.Constant)
+                // Accessing a constant; client-side conversion will be more efficient since we won't be round-tripping the object
+                return false;
+            
+            IDatumConverter datumConverter;
+            if (!datumConverterFactory.TryGet(memberExpression.Expression.Type, out datumConverter))
+                // No datum converter for this type.
+                return false;
+
+            var fieldConverter = datumConverter as IObjectDatumConverter;
+            if (fieldConverter == null)
+                // doesn't implement IObjectDatumConverter, so we don't know how to map the MemberInfo to the field name
+                return false;
+
+            var datumFieldName = fieldConverter.GetDatumFieldName(memberExpression.Member);
+            if (string.IsNullOrEmpty(datumFieldName))
+                // At this point we're not returning false because we're expecting this should work; throwing an error instead.
+                throw new NotSupportedException(String.Format("Member {0} on type {1} could not be mapped to a datum field", memberExpression.Member.Name, memberExpression.Type));
+
+            var getAttrTerm = new Term()
+            {
+                type = Term.TermType.GET_FIELD
+            };
+            getAttrTerm.args.Add(RecursiveMap(memberExpression.Expression));
+            getAttrTerm.args.Add(new Term()
+            {
+                type = Term.TermType.DATUM,
+                datum = new Datum()
+                {
+                    type = Datum.DatumType.R_STR,
+                    r_str = datumFieldName
+                }
+            });
+
+            term = getAttrTerm;
+            return true;
         }
 
         private Term AttemptClientSideConversion(IDatumConverterFactory datumConverterFactory, Expression expr)

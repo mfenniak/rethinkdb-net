@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using NUnit.Framework;
 using FluentAssertions;
 using RethinkDb.DatumConverters;
@@ -28,10 +29,45 @@ namespace RethinkDb.Test.Expressions
         {
             datumConverterFactory = new AggregateDatumConverterFactory(
                 PrimitiveDatumConverterFactory.Instance,
-                DataContractDatumConverterFactory.Instance
+                DataContractDatumConverterFactory.Instance,
+                new TestInterfaceDatumConverterFactory()
             );
             expressionConverterFactory = new RethinkDb.Expressions.DefaultExpressionConverterFactory();
             queryConverter = new QueryConverter(datumConverterFactory, expressionConverterFactory);
+        }
+
+        private class TestInterfaceDatumConverterFactory : AbstractDatumConverterFactory
+        {
+            public override bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter)
+            {
+                datumConverter = null;
+                if (rootDatumConverterFactory == null)
+                    throw new ArgumentNullException("rootDatumConverterFactory");
+
+                if (typeof(T) != typeof(ITestInterface))
+                    return false;
+
+                datumConverter = (IDatumConverter<T>)new TestInterfaceDatumConverter();
+                return true;
+            }
+        }
+
+        private class TestInterfaceDatumConverter : AbstractReferenceTypeDatumConverter<ITestInterface>, IObjectDatumConverter
+        {
+            public override ITestInterface ConvertDatum(Datum datum)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public override Datum ConvertObject(ITestInterface value)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public string GetDatumFieldName(System.Reflection.MemberInfo memberInfo)
+            {
+                return "number";
+            }
         }
 
         private static void AssertFunctionIsGetFieldSomeNumberSingleParameter(Term expr)
