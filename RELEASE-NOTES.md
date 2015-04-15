@@ -12,6 +12,8 @@
 
 * Added changefeed support for ordering by an index and limiting the result set, eg. ```table.OrderBy(...index...).Limit(1)``` will return all changes to the smallest record in the index.  [PR #210](https://github.com/mfenniak/rethinkdb-net/pull/210)
 
+* Added changefeed support for union queries.  [PR #210](https://github.com/mfenniak/rethinkdb-net/pull/210)
+
 
 ## 0.10.0.0 (2015-04-14)
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RethinkDb.QueryTerm
 {
-    public class UnionQuery<T> : ISequenceQuery<T>
+    public class UnionQuery<T> : ISequenceQuery<T>, IChangefeedCompatibleQuery<T>
     {
         private readonly ISequenceQuery<T> query1;
         private readonly ISequenceQuery<T> query2;

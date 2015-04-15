@@ -311,6 +311,26 @@ namespace RethinkDb.Test.Integration
             );
         }
 
+        [Test]
+        [Timeout(30000)]
+        public void ChangesWithUnion()
+        {
+            RealtimePushTestSingleResponse(
+                () => testTable.Filter(o => o.Name == "2").Union(testTable.Filter(o => o.Name == "3")).Changes(),
+                () =>
+                {
+                    var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { Name = "Updated!" }));
+                    result.Should().NotBeNull();
+                    result.Replaced.Should().Be(1);
+                },
+                response =>
+                {
+                    response.OldValue.Name.Should().Be("3");
+                    response.NewValue.Should().BeNull(); // because the old record doesn't match the filter condition anymore
+                }
+            );
+        }
+
         /*
          * Min / Max operations on indexes not currently supported, but should be; issue #198
 
