@@ -1,16 +1,14 @@
 ﻿using RethinkDb.Spec;
-using System;
-using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
     public class ChangesQuery<TRecord> : IStreamingSequenceQuery<DmlResponseChange<TRecord>>
     {
-        private readonly ISequenceQuery<TRecord> sequenceQuery;
+        private readonly IChangefeedCompatibleQuery<TRecord> changefeedCompatibleQuery;
 
-        public ChangesQuery(ISequenceQuery<TRecord> sequenceQuery)
+        public ChangesQuery(IChangefeedCompatibleQuery<TRecord> changefeedCompatibleQuery)
         {
-            this.sequenceQuery = sequenceQuery;
+            this.changefeedCompatibleQuery = changefeedCompatibleQuery;
         }
 
         public Term GenerateTerm(IQueryConverter queryConverter)
@@ -19,7 +17,7 @@ namespace RethinkDb.QueryTerm
             {
                 type = Term.TermType.CHANGES,
             };
-            term.args.Add(sequenceQuery.GenerateTerm(queryConverter));
+            term.args.Add(changefeedCompatibleQuery.GenerateTerm(queryConverter));
             return term;
         }
     }

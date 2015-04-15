@@ -4,7 +4,7 @@ using RethinkDb.Spec;
 
 namespace RethinkDb.QueryTerm
 {
-    public class BetweenQuery<TSequence, TKey> : ISequenceQuery<TSequence>
+    public class BetweenQuery<TSequence, TKey> : ISequenceQuery<TSequence>, IChangefeedCompatibleQuery<TSequence>
     {
         private readonly ISequenceQuery<TSequence> tableTerm;
         private readonly TKey leftKey;

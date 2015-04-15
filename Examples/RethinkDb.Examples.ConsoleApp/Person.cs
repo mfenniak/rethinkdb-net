@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using RethinkDb.QueryTerm;
 
 namespace RethinkDb.Examples.ConsoleApp
 {
@@ -7,7 +8,7 @@ namespace RethinkDb.Examples.ConsoleApp
     public class Person
     {
         public static IDatabaseQuery Db = Query.Db("test");
-        public static ITableQuery<Person> Table = Db.Table<Person>("people");
+        public static TableQuery<Person> Table = Db.Table<Person>("people");
 
         [DataMember(Name = "id", EmitDefaultValue = false)]
         public Guid Id;
@@ -16,4 +17,3 @@ namespace RethinkDb.Examples.ConsoleApp
         public string Name;
     }
 }
-

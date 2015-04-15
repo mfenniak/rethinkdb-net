@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 using RethinkDb;
+using RethinkDb.QueryTerm;
 
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
     public class RealtimePushTests : TestBase
     {
-        private ITableQuery<TestObject> testTable;
+        private TableQuery<TestObject> testTable;
+        private IIndex<TestObject, double> testSomeNumberIndex;
 
         public override void TestFixtureSetUp()
         {
@@ -19,6 +21,10 @@ namespace RethinkDb.Test.Integration
             connection.Run(Query.DbCreate("test"));
             connection.Run(Query.Db("test").TableCreate("table"));
             testTable = Query.Db("test").Table<TestObject>("table");
+
+            testSomeNumberIndex = testTable.IndexDefine("test_number", o => o.SomeNumber);
+            connection.Run(testSomeNumberIndex.IndexCreate());
+            connection.Run(testSomeNumberIndex.IndexWait());
         }
 
         [SetUp]
@@ -101,14 +107,100 @@ namespace RethinkDb.Test.Integration
             e2.Should().BeNull();
         }
 
-        // Changes on a single record not currently supported by rethinkdb-net, but should be; issue #197.
-        //[Test]
-        //public void ChangesOnPrimaryKey()
-        //{
-        //    foreach (var row in testTable.Get("Id").Changes())
-        //    {
-        //    }
-        //}
+        private void RealtimePushTestTwoResponses<T>(
+            Func<IStreamingSequenceQuery<DmlResponseChange<T>>> createStreamingQuery,
+            Action doModifications,
+            Action<DmlResponseChange<T>> verifyFirstStreamingResult,
+            Action<DmlResponseChange<T>> verifySecondStreamingResult)
+        {
+            Exception e1 = null;
+            Exception e2 = null;
+
+            ManualResetEvent sync1 = new ManualResetEvent(false);
+
+            var thread1 = new Thread(() =>
+            {
+                try
+                {
+                    var query = createStreamingQuery();
+                    IAsyncEnumerator<DmlResponseChange<T>> enumerator = null;
+                    try
+                    {
+                        enumerator = connection.StreamChangesAsync(query);
+                        var task = enumerator.MoveNext();
+                        sync1.Set(); // inform other thread that we're ready for it to make changes
+
+                        task.Wait();
+                        task.Result.Should().BeTrue();
+                        verifyFirstStreamingResult(enumerator.Current);
+
+                        task = enumerator.MoveNext();
+                        task.Wait();
+                        task.Result.Should().BeTrue();
+                        verifySecondStreamingResult(enumerator.Current);
+                    }
+                    finally
+                    {
+                        enumerator.Dispose().Wait();
+                    }
+                }
+                catch (Exception e)
+                {
+                    e1 = e;
+                }
+            });
+
+            var thread2 = new Thread(() =>
+            {
+                try
+                {
+                    sync1.WaitOne();
+                    doModifications();
+                }
+                catch (Exception e)
+                {
+                    e2 = e;
+                }
+            });
+
+            thread1.Start();
+            thread2.Start();
+
+            thread1.Join();
+            thread2.Join();
+
+            e1.Should().BeNull();
+            e2.Should().BeNull();
+        }
+
+        [Test]
+        [Timeout(30000)]
+        public void ChangesWithPrimaryKey()
+        {
+            RealtimePushTestTwoResponses(
+                () => testTable.Get("3").Changes(),
+                () =>
+                {
+                    var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { Name = "Updated!" }));
+                    result.Should().NotBeNull();
+                    result.Replaced.Should().Be(1);
+                },
+                response =>
+                {
+                    // .Get().Changes() sends the initial value as the first streaming result
+                    response.OldValue.Should().BeNull();
+                    response.NewValue.Should().NotBeNull();
+                    response.NewValue.Name.Should().Be("3");
+                },
+                response =>
+                {
+                    response.OldValue.Should().NotBeNull();
+                    response.OldValue.Name.Should().Be("3");
+                    response.NewValue.Should().NotBeNull();
+                    response.NewValue.Name.Should().Be("Updated!");
+                }
+            );
+        }
 
         [Test]
         [Timeout(30000)]
@@ -192,16 +284,22 @@ namespace RethinkDb.Test.Integration
 
         [Test]
         [Timeout(30000)]
-        [Ignore("Fails due to RethinkDB error 'cannot call changes on an eager stream' despite RethinkdB 1.16 documentation claiming this should work")]
         public void ChangesWithOrderByLimit()
         {
-            RealtimePushTestSingleResponse(
-                () => testTable.OrderBy(o => o.SomeNumber, OrderByDirection.Descending).Limit(1).Changes(),
+            RealtimePushTestTwoResponses(
+                () => testTable.OrderBy(testSomeNumberIndex, OrderByDirection.Descending).Limit(1).Changes(),
                 () =>
                 {
                     var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { SomeNumber = 100 }));
                     result.Should().NotBeNull();
                     result.Replaced.Should().Be(1);
+                },
+                response =>
+                {
+                    // .OrderBy().Limit().Changes() sends the initial value as the first streaming result
+                    response.OldValue.Should().BeNull();
+                    response.NewValue.Id.Should().Be("7");
+                    response.NewValue.SomeNumber.Should().Be(7);
                 },
                 response =>
                 {
@@ -213,20 +311,44 @@ namespace RethinkDb.Test.Integration
             );
         }
 
-        /*
-         * Min / Max operations on indexes not currently supported, but should be; issue #198
+        [Test]
+        [Timeout(30000)]
+        public void ChangesWithUnion()
+        {
+            RealtimePushTestSingleResponse(
+                () => testTable.Filter(o => o.Name == "2").Union(testTable.Filter(o => o.Name == "3")).Changes(),
+                () =>
+                {
+                    var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { Name = "Updated!" }));
+                    result.Should().NotBeNull();
+                    result.Replaced.Should().Be(1);
+                },
+                response =>
+                {
+                    response.OldValue.Name.Should().Be("3");
+                    response.NewValue.Should().BeNull(); // because the old record doesn't match the filter condition anymore
+                }
+            );
+        }
 
         [Test]
         [Timeout(30000)]
         public void ChangesWithMin()
         {
-            RealtimePushTestSingleResponse(
-                () => testTable.Min(someNumberIndex).Changes(),
+            RealtimePushTestTwoResponses(
+                () => testTable.Min(testSomeNumberIndex).Changes(),
                 () =>
                 {
                     var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { SomeNumber = -100 }));
                     result.Should().NotBeNull();
-                    result.Replaced.Should().Be(1.0);
+                    result.Replaced.Should().Be(1);
+                },
+                response =>
+                {
+                    // .Min().Changes() sends the initial value as the first streaming result
+                    response.OldValue.Should().BeNull();
+                    response.NewValue.Id.Should().Be("1");
+                    response.NewValue.SomeNumber.Should().Be(1);
                 },
                 response =>
                 {
@@ -242,13 +364,20 @@ namespace RethinkDb.Test.Integration
         [Timeout(30000)]
         public void ChangesWithMax()
         {
-            RealtimePushTestSingleResponse(
-                () => testTable.Max(someNumberIndex).Changes(),
+            RealtimePushTestTwoResponses(
+                () => testTable.Max(testSomeNumberIndex).Changes(),
                 () =>
                 {
                     var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { SomeNumber = 100 }));
                     result.Should().NotBeNull();
-                    result.Replaced.Should().Be(1.0);
+                    result.Replaced.Should().Be(1);
+                },
+                response =>
+                {
+                // .Max().Changes() sends the initial value as the first streaming result
+                    response.OldValue.Should().BeNull();
+                    response.NewValue.Id.Should().Be("7");
+                    response.NewValue.SomeNumber.Should().Be(7);
                 },
                 response =>
                 {
@@ -259,6 +388,5 @@ namespace RethinkDb.Test.Integration
                 }
             );
         }
-        */
     }
 }

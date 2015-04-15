@@ -8,6 +8,14 @@
 
 * Expressions can now reference member variables of server-side calculated data, eg. ```table.Filter(o => o.Email.Match(".*@(.*)").Groups[0].MatchedString == "google.com")``` would filter for all records with an e-mail address that has a domain of "google.com".  [PR #209](https://github.com/mfenniak/rethinkdb-net/pull/209)
 
+* Added changefeed support for point / single-document changefeed, eg. ```table.Get(...key...).Changes()```.  [Issue #197](https://github.com/mfenniak/rethinkdb-net/issues/197) & [PR #210](https://github.com/mfenniak/rethinkdb-net/pull/210)
+
+* Added changefeed support for ordering by an index and limiting the result set, eg. ```table.OrderBy(...index...).Limit(1)``` will return all changes to the smallest record in the index.  [PR #210](https://github.com/mfenniak/rethinkdb-net/pull/210)
+
+* Added changefeed support for union queries.  [PR #210](https://github.com/mfenniak/rethinkdb-net/pull/210)
+
+* Added changefeed support for min and max queries against an index.  [PR #210](https://github.com/mfenniak/rethinkdb-net/pull/210)
+
 
 ## 0.10.0.0 (2015-04-14)
 
