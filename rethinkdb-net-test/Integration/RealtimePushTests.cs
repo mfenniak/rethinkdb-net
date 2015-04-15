@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 using RethinkDb;
+using RethinkDb.QueryTerm;
 
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
     public class RealtimePushTests : TestBase
     {
-        private ITableQuery<TestObject> testTable;
+        private TableQuery<TestObject> testTable;
 
         public override void TestFixtureSetUp()
         {
@@ -101,6 +102,72 @@ namespace RethinkDb.Test.Integration
             e2.Should().BeNull();
         }
 
+        private void RealtimePushTestTwoResponses<T>(
+            Func<IStreamingSequenceQuery<DmlResponseChange<T>>> createStreamingQuery,
+            Action doModifications,
+            Action<DmlResponseChange<T>> verifyFirstStreamingResult,
+            Action<DmlResponseChange<T>> verifySecondStreamingResult)
+        {
+            Exception e1 = null;
+            Exception e2 = null;
+
+            ManualResetEvent sync1 = new ManualResetEvent(false);
+
+            var thread1 = new Thread(() =>
+            {
+                try
+                {
+                    var query = createStreamingQuery();
+                    IAsyncEnumerator<DmlResponseChange<T>> enumerator = null;
+                    try
+                    {
+                        enumerator = connection.StreamChangesAsync(query);
+                        var task = enumerator.MoveNext();
+                        sync1.Set(); // inform other thread that we're ready for it to make changes
+
+                        task.Wait();
+                        task.Result.Should().BeTrue();
+                        verifyFirstStreamingResult(enumerator.Current);
+
+                        task = enumerator.MoveNext();
+                        task.Wait();
+                        task.Result.Should().BeTrue();
+                        verifySecondStreamingResult(enumerator.Current);
+                    }
+                    finally
+                    {
+                        enumerator.Dispose().Wait();
+                    }
+                }
+                catch (Exception e)
+                {
+                    e1 = e;
+                }
+            });
+
+            var thread2 = new Thread(() =>
+            {
+                try
+                {
+                    sync1.WaitOne();
+                    doModifications();
+                }
+                catch (Exception e)
+                {
+                    e2 = e;
+                }
+            });
+
+            thread1.Start();
+            thread2.Start();
+
+            thread1.Join();
+            thread2.Join();
+
+            e1.Should().BeNull();
+            e2.Should().BeNull();
+        }
+
         // Changes on a single record not currently supported by rethinkdb-net, but should be; issue #197.
         //[Test]
         //public void ChangesOnPrimaryKey()
@@ -109,6 +176,35 @@ namespace RethinkDb.Test.Integration
         //    {
         //    }
         //}
+
+        [Test]
+        [Timeout(30000)]
+        public void ChangesWithPrimaryKey()
+        {
+            RealtimePushTestTwoResponses(
+                () => testTable.Get("3").Changes(),
+                () =>
+                {
+                    var result = connection.Run(testTable.Get("3").Update(o => new TestObject() { Name = "Updated!" }));
+                    result.Should().NotBeNull();
+                    result.Replaced.Should().Be(1);
+                },
+                response =>
+                {
+                    // .Get().Changes() sends the initial value as the first streaming result
+                    response.OldValue.Should().BeNull();
+                    response.NewValue.Should().NotBeNull();
+                    response.NewValue.Name.Should().Be("3");
+                },
+                response =>
+                {
+                    response.OldValue.Should().NotBeNull();
+                    response.OldValue.Name.Should().Be("3");
+                    response.NewValue.Should().NotBeNull();
+                    response.NewValue.Name.Should().Be("Updated!");
+                }
+            );
+        }
 
         [Test]
         [Timeout(30000)]
@@ -190,6 +286,7 @@ namespace RethinkDb.Test.Integration
             );
         }
 
+        /*
         [Test]
         [Timeout(30000)]
         [Ignore("Fails due to RethinkDB error 'cannot call changes on an eager stream' despite RethinkdB 1.16 documentation claiming this should work")]
@@ -212,6 +309,7 @@ namespace RethinkDb.Test.Integration
                 }
             );
         }
+        */
 
         /*
          * Min / Max operations on indexes not currently supported, but should be; issue #198

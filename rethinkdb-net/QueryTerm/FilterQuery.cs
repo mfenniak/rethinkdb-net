@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class FilterQuery<T> : ISequenceQuery<T>
+    public class FilterQuery<T> : ISequenceQuery<T>, IChangefeedCompatibleQuery<T>
     {
         private readonly ISequenceQuery<T> sequenceQuery;
         private readonly Expression<Func<T, bool>> filterExpression;

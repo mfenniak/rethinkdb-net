@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class MapQuery<TOriginal, TTarget> : ISequenceQuery<TTarget>
+    public class MapQuery<TOriginal, TTarget> : ISequenceQuery<TTarget>, IChangefeedCompatibleQuery<TTarget>
     {
         private readonly ISequenceQuery<TOriginal> sequenceQuery;
         private readonly Expression<Func<TOriginal, TTarget>> mapExpression;

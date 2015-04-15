@@ -225,6 +225,7 @@
     <Compile Include="Expressions\StringExpressionConverters.cs" />
     <Compile Include="MatchResponse.cs" />
     <Compile Include="MatchGroupResponse.cs" />
+    <Compile Include="Interfaces\IChangefeedCompatibleQuery.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

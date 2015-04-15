@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace RethinkDb.QueryTerm
 {
-    public class TableQuery<T> : ITableQuery<T>
+    public class TableQuery<T> : ITableQuery<T>, IChangefeedCompatibleQuery<T>
     {
         private readonly IDatabaseQuery dbTerm;
         private readonly string table;
