@@ -6,6 +6,8 @@
 
 * Supports RethinkDB's regular expression matching of strings, eg. ```table.Filter(o => o.Email != null && o.Email.Match(".*@(.*)") != null)```.  [Issue #107](https://github.com/mfenniak/rethinkdb-net/issues/107) & [PR #208](https://github.com/mfenniak/rethinkdb-net/pull/208)
 
+* Expressions can now reference member variables of server-side calculated data, eg. ```table.Filter(o => o.Email.Match(".*@(.*)").Groups[0].MatchedString == "google.com")``` would filter for all records with an e-mail address that has a domain of "google.com".  [PR #209](https://github.com/mfenniak/rethinkdb-net/pull/209)
+
 
 ## 0.10.0.0 (2015-04-14)
 
