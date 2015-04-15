@@ -1,5 +1,12 @@
 # rethinkdb-net Release Notes
 
+## Next Release
+
+### Features
+
+* Supports RethinkDB's regular expression matching of strings, eg. ```table.Filter(o => o.Email != null && o.Email.Match(".*@(.*)") != null)```.  [Issue #107](https://github.com/mfenniak/rethinkdb-net/issues/107) & [PR #208](https://github.com/mfenniak/rethinkdb-net/pull/208)
+
+
 ## 0.10.0.0 (2015-04-14)
 
 ### Features
