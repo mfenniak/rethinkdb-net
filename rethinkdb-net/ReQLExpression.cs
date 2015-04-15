@@ -28,5 +28,10 @@ namespace RethinkDb
         {
             throw new NotSupportedException("This method cannot be invoked directly, it can only be used as part of an expression tree.");
         }
+
+        public static MatchResponse Match(this string @string, string regexp)
+        {
+            throw new NotSupportedException("This method cannot be invoked directly, it can only be used as part of an expression tree.");
+        }
     }
 }

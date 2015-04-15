@@ -309,5 +309,14 @@ namespace RethinkDb.Test.Integration
             var datetimems = connection.Run(Query.Expr(() => new DateTime(2014, 2, 3, 7, 30, 15, 500)));
             Assert.That(datetimems, Is.EqualTo(new DateTime(2014, 2, 3, 7, 30, 15, 500)));
         }
+
+        [Test]
+        public void RegexpMatch()
+        {
+            var match = connection.Run(Query.Expr(() => "hello".Match("l+")));
+            match.MatchedString.Should().Be("ll");
+            match.Start.Should().Be(2);
+            match.End.Should().Be(4);
+        }
     }
 }
