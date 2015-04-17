@@ -43,6 +43,11 @@ namespace RethinkDb
             return delegatedDatumConverterFactory.TryGet<T>(rootDatumConverterFactory, out datumConverter);
         }
 
+        public Type GetBestNativeTypeForDatum(Spec.Datum datum)
+        {
+            return delegatedDatumConverterFactory.GetBestNativeTypeForDatum(datum);
+        }
+
         #endregion
     }
 }

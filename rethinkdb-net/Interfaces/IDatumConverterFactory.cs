@@ -6,5 +6,6 @@ namespace RethinkDb
     {
         bool TryGet(Type datumType, IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter datumConverter);
         bool TryGet<T>(IDatumConverterFactory rootDatumConverterFactory, out IDatumConverter<T> datumConverter);
+        Type GetBestNativeTypeForDatum(Spec.Datum datum);
     }
 }

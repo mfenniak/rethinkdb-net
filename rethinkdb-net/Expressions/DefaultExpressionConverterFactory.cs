@@ -30,6 +30,7 @@ namespace RethinkDb.Expressions
             DateTimeExpressionConverters.RegisterOnConverterFactory(this);
             GuidExpressionConverters.RegisterOnConverterFactory(this);
             StringExpressionConverters.RegisterOnConverterFactory(this);
+            DictionaryExpressionConverters.RegisterOnConverterFactory(this);
         }
 
         public void Reset()

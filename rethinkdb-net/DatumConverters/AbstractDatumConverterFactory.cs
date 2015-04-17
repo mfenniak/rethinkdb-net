@@ -30,6 +30,26 @@ namespace RethinkDb.DatumConverters
                 return new Tuple<bool, IDatumConverter>(success, datumConverter);
             }
         }
+
+        public Type GetBestNativeTypeForDatum(Spec.Datum datum)
+        {
+            // Attempt to auto-detect the best native type for a given Datum.
+
+            switch (datum.type)
+            {
+                case Datum.DatumType.R_ARRAY:
+                case Datum.DatumType.R_BOOL:
+                case Datum.DatumType.R_JSON:
+                case Datum.DatumType.R_NULL:
+                case Datum.DatumType.R_NUM:
+                    throw new RethinkDbRuntimeException("I don't know what the best native type for this RethinkDB type is.");
+                case Datum.DatumType.R_OBJECT:
+                    return typeof(object);
+                case Datum.DatumType.R_STR:
+                    return typeof(string);
+                default:
+                    throw new RethinkDbInternalErrorException("Unrecognized datum type");
+            }
+        }
     }
 }
-
