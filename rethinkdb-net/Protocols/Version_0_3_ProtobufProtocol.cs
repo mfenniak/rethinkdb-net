@@ -15,7 +15,7 @@ namespace RethinkDb.Protocols
 
         private byte[] protocolHeader;
 
-        private Version_0_3_Protobuf()
+        protected Version_0_3_Protobuf()
         {
             var header = BitConverter.GetBytes((int)Spec.VersionDummy.Protocol.PROTOBUF);
             if (!BitConverter.IsLittleEndian)

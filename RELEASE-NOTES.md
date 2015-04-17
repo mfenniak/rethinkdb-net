@@ -16,6 +16,10 @@
 
 * Added changefeed support for min and max queries against an index.  [PR #210](https://github.com/mfenniak/rethinkdb-net/pull/210)
 
+### Breaking Changes
+
+* Upgraded default RethinkDB protocol to version 0.4, which is only supported on RethinkDB 2.0 and above.  To use rethinkdb-net with an earlier version of RethinkDB, change the connection's Protocol property to ```RethinkDb.Protocols.Version_0_3_Json.Instance```.  [PR #211](https://github.com/mfenniak/rethinkdb-net/pull/211)
+
 
 ## 0.10.0.0 (2015-04-14)
 

@@ -9,22 +9,24 @@ namespace RethinkDb.Protocols
 {
     public abstract class Version_0_3 : IProtocol
     {
-        private byte[] connectHeader;
+        private readonly byte[] v03connectHeader;
 
         protected Version_0_3()
         {
             var header = BitConverter.GetBytes((int)Spec.VersionDummy.Version.V0_3);
             if (!BitConverter.IsLittleEndian)
                 Array.Reverse(header, 0, header.Length);
-            connectHeader = header;
+            v03connectHeader = header;
         }
 
+        public virtual byte[] ConnectHeader { get { return v03connectHeader; } }
         protected abstract byte[] ProtocolHeader { get; }
         public abstract Task WriteQueryToStream(Stream stream, ILogger logger, Spec.Query query, CancellationToken cancellationToken);
         public abstract Task<Spec.Response> ReadResponseFromStream(Stream stream, ILogger logger);
 
         public async Task ConnectionHandshake(Stream stream, ILogger logger, string authorizationKey, CancellationToken cancellationToken)
         {
+            var connectHeader = ConnectHeader;
             await stream.WriteAsync(connectHeader, 0, connectHeader.Length, cancellationToken);
             logger.Debug("Sent ReQL header");
 

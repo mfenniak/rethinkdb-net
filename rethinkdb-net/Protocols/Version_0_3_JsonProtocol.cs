@@ -20,7 +20,7 @@ namespace RethinkDb.Protocols
         private byte[] protocolHeader;
         private Encoding utf8Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
-        private Version_0_3_Json()
+        protected Version_0_3_Json()
         {
             var header = BitConverter.GetBytes((int)Spec.VersionDummy.Protocol.JSON);
             if (!BitConverter.IsLittleEndian)
