@@ -10,6 +10,7 @@ namespace RethinkDb.Newtonsoft.Configuration
             AnonymousTypeDatumConverterFactory.Instance,
             BoundEnumDatumConverterFactory.Instance,
             NullableDatumConverterFactory.Instance,
+            NamedValueDictionaryDatumConverterFactory.Instance,
             NewtonsoftDatumConverterFactory.Instance
         )
         {
