@@ -515,7 +515,7 @@ namespace RethinkDb
                 {
                     case Response.ResponseType.SUCCESS_SEQUENCE:
                     case Response.ResponseType.SUCCESS_PARTIAL:
-                    case Response.ResponseType.SUCCESS_FEED:
+                    case (Response.ResponseType)5: // deprecated; SUCCESS_FEED from pre-RethinkDB 2.0
                         break;
                     case Response.ResponseType.SUCCESS_ATOM:
                         if (lastResponse.response[0].type != Datum.DatumType.R_ARRAY)
@@ -558,7 +558,7 @@ namespace RethinkDb
                     return false;
                 }
                 else if (lastResponse.type == Response.ResponseType.SUCCESS_PARTIAL ||
-                         lastResponse.type == Response.ResponseType.SUCCESS_FEED)
+                         lastResponse.type == (Response.ResponseType)5)
                 {
                     query.type = RethinkDb.Spec.Query.QueryType.CONTINUE;
                     query.query = null;

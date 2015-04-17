@@ -28,7 +28,7 @@ namespace RethinkDb.QueryTerm
             var datumConverter = queryConverter.Get<TKey>();
             var betweenTerm = new Term()
             {
-                type = Term.TermType.BETWEEN,
+                type = Term.TermType.BETWEEN_DEPRECATED, // Using deprecated between to maintain support with RethinkDB 1.16 for now
             };
             betweenTerm.args.Add(tableTerm.GenerateTerm(queryConverter));
             betweenTerm.args.Add(new Term() {

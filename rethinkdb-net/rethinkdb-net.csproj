@@ -231,6 +231,8 @@
     <Compile Include="QueryTerm\LimitQueryChangefeedCompatible.cs" />
     <Compile Include="QueryTerm\MinAggregateIndexQuery.cs" />
     <Compile Include="QueryTerm\MaxAggregateIndexQuery.cs" />
+    <Compile Include="Protocols\Version_0_4_JsonProtocol.cs" />
+    <Compile Include="Protocols\Version_0_4_ProtobufProtocol.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
