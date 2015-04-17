@@ -16,6 +16,8 @@
 
 * Added changefeed support for min and max queries against an index.  [PR #210](https://github.com/mfenniak/rethinkdb-net/pull/210)
 
+* Added UpdateAndReturnChanges and DeleteAndReturnChanges overloads that take an ISequenceQuery to operate over multiple rows. [PR #212](https://github.com/mfenniak/rethinkdb-net/pull/212)
+
 ### Breaking Changes
 
 * Upgraded default RethinkDB protocol to version 0.4, which is only supported on RethinkDB 2.0 and above.  To use rethinkdb-net with an earlier version of RethinkDB, change the connection's Protocol property to ```RethinkDb.Protocols.Version_0_3_Json.Instance```.  [PR #211](https://github.com/mfenniak/rethinkdb-net/pull/211)
