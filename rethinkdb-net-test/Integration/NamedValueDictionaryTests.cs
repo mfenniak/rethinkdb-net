@@ -76,5 +76,15 @@ namespace RethinkDb.Test.Integration
             numTrue.Should().Be(1);
             numFalse.Should().Be(2);
         }
+
+        [Test]
+        public void Keys()
+        {
+            var keys = connection.Run(testTable.Filter(o => o.Name == "Madame Curie").Map(o => o.FreeformProperties.Keys)).Single();
+            keys.Should().Contain("awesome level");
+            keys.Should().Contain("cool level");
+            keys.Should().Contain("impressive");
+            keys.Should().HaveCount(3);
+        }
     }
 }
