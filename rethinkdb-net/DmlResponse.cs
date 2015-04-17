@@ -51,6 +51,11 @@ namespace RethinkDb
     [DataContract]
     public class DmlResponse<T> : DmlResponse
     {
+        public DmlResponse()
+        {
+            Changes = new DmlResponseChange<T>[0];
+        }
+
         [DataMember(Name = "changes")]
         public DmlResponseChange<T>[] Changes;
     }
