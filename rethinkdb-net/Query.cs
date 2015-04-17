@@ -190,6 +190,11 @@ namespace RethinkDb
             return new UpdateQuery<T>(target, updateExpression, nonAtomic);
         }
 
+        public static UpdateAndReturnValueQuery<T> UpdateAndReturnChanges<T>(this ISequenceQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
+        {
+            return new UpdateAndReturnValueQuery<T>(target, updateExpression, nonAtomic);
+        }
+
         public static UpdateAndReturnValueQuery<T> UpdateAndReturnChanges<T>(this IMutableSingleObjectQuery<T> target, Expression<Func<T, T>> updateExpression, bool nonAtomic = false)
         {
             return new UpdateAndReturnValueQuery<T>(target, updateExpression, nonAtomic);
@@ -203,6 +208,11 @@ namespace RethinkDb
         public static DeleteQuery<T> Delete<T>(this IMutableSingleObjectQuery<T> target)
         {
             return new DeleteQuery<T>(target);
+        }
+
+        public static DeleteAndReturnValueQuery<T> DeleteAndReturnChanges<T>(this ISequenceQuery<T> target)
+        {
+            return new DeleteAndReturnValueQuery<T>(target);
         }
 
         public static DeleteAndReturnValueQuery<T> DeleteAndReturnChanges<T>(this IMutableSingleObjectQuery<T> target)

@@ -116,6 +116,22 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void UpdateAndReturnValueSequence()
+        {
+            var resp = connection.Run(testTable.UpdateAndReturnChanges(o => new TestObject() { Name = "Hello " + o.Id + "!" }));
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.FirstError, Is.Null);
+            Assert.That(resp.Replaced, Is.EqualTo(1));
+
+            Assert.That(resp.Changes, Is.Not.Null);
+            Assert.That(resp.Changes, Has.Length.EqualTo(1));
+            Assert.That(resp.Changes[0].NewValue, Is.Not.Null);
+            Assert.That(resp.Changes[0].OldValue, Is.Not.Null);
+            Assert.That(resp.Changes[0].OldValue.Name, Is.EqualTo("Jim Brown"));
+            Assert.That(resp.Changes[0].NewValue.Name, Is.EqualTo("Hello " + resp.Changes[0].OldValue.Id + "!"));
+        }
+
+        [Test]
         public void Delete()
         {
             DoDelete().Wait();
@@ -134,6 +150,21 @@ namespace RethinkDb.Test.Integration
         public void DeleteAndReturnValues()
         {
             var resp = connection.Run(testTable.Get(insertedObject.Id).DeleteAndReturnChanges());
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.FirstError, Is.Null);
+            Assert.That(resp.Deleted, Is.EqualTo(1));
+            Assert.That(resp.GeneratedKeys, Is.Null);
+            Assert.That(resp.Changes, Is.Not.Null);
+            Assert.That(resp.Changes, Has.Length.EqualTo(1));
+            Assert.That(resp.Changes[0].OldValue, Is.Not.Null);
+            Assert.That(resp.Changes[0].OldValue.Id, Is.EqualTo(insertedObject.Id));
+            Assert.That(resp.Changes[0].NewValue, Is.Null);
+        }
+
+        [Test]
+        public void DeleteAndReturnValuesSequence()
+        {
+            var resp = connection.Run(testTable.DeleteAndReturnChanges());
             Assert.That(resp, Is.Not.Null);
             Assert.That(resp.FirstError, Is.Null);
             Assert.That(resp.Deleted, Is.EqualTo(1));
