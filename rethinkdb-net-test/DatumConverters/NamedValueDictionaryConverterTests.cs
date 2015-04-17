@@ -20,6 +20,12 @@ namespace RethinkDb.Test.DatumConverters
             datumConverterFactory = Substitute.For<IDatumConverterFactory>();
 
             var intDatumConverter = Substitute.For<IDatumConverter>();
+            intDatumConverter.ConvertDatum(Arg.Any<Datum>()).Returns(args => (int)((Datum)args[0]).r_num);
+            intDatumConverter.ConvertObject(Arg.Any<object>()).Returns(args => new Datum()
+            {
+                type = Datum.DatumType.R_NUM,
+                r_num = (int)args [0]
+            });
 
             IDatumConverter value;
             datumConverterFactory
@@ -29,6 +35,8 @@ namespace RethinkDb.Test.DatumConverters
                     args[2] = intDatumConverter;
                     return true;
                 });
+
+            datumConverterFactory.GetBestNativeTypeForDatum(Arg.Any<Datum>()).Returns(typeof(int));
         }
 
         [Test]
@@ -40,6 +48,42 @@ namespace RethinkDb.Test.DatumConverters
 
             value.Should().NotBeNull();
             value.Count.Should().Be(0);
+        }
+
+        [Test]
+        public void ConvertDatum()
+        {
+            var datum = new Datum
+            {
+                type = Datum.DatumType.R_OBJECT,
+                r_object =
+                {
+                    new Datum.AssocPair()
+                    {
+                        key = "key1",
+                        val = new Datum()
+                        {
+                            type = Datum.DatumType.R_NUM,
+                            r_num = 1
+                        }
+                    },
+                    new Datum.AssocPair()
+                    {
+                        key = "key2",
+                        val = new Datum()
+                        {
+                            type = Datum.DatumType.R_NUM,
+                            r_num = 2
+                        }
+                    },
+                }
+            };
+
+            var value = NamedValueDictionaryDatumConverterFactory.Instance.Get<Dictionary<string, object>>(datumConverterFactory).ConvertDatum(datum);
+
+            value.Should().NotBeNull();
+            value.Should().Contain("key1", 1);
+            value.Should().Contain("key2", 2);
         }
 
         [Test]
@@ -55,6 +99,44 @@ namespace RethinkDb.Test.DatumConverters
             datum.r_object.Should().HaveCount(0);
         }
 
+        [Test]
+        public void ConvertDictionary()
+        {
+            var dict = new Dictionary<string, object>()
+            {
+                { "key1", 1 },
+                { "key2", 2 },
+            };
 
+            var datum = NamedValueDictionaryDatumConverterFactory.Instance.Get<Dictionary<string, object>>(datumConverterFactory).ConvertObject(dict);
+
+            datum.ShouldBeEquivalentTo(
+                new Datum
+                {
+                    type = Datum.DatumType.R_OBJECT,
+                    r_object =
+                    {
+                        new Datum.AssocPair()
+                        {
+                            key = "key1",
+                            val = new Datum()
+                            {
+                                type = Datum.DatumType.R_NUM,
+                                r_num = 1
+                            }
+                        },
+                        new Datum.AssocPair()
+                        {
+                            key = "key2",
+                            val = new Datum()
+                            {
+                                type = Datum.DatumType.R_NUM,
+                                r_num = 2
+                            }
+                        },
+                    }
+                }
+            );
+        }
     }
 }
