@@ -177,6 +177,18 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void DeleteAndReturnValuesSequenceNoChanges()
+        {
+            var resp = connection.Run(testTable.Filter(o => o.Name == "foo").DeleteAndReturnChanges());
+            Assert.That(resp, Is.Not.Null);
+            Assert.That(resp.FirstError, Is.Null);
+            Assert.That(resp.Deleted, Is.EqualTo(0));
+            Assert.That(resp.GeneratedKeys, Is.Null);
+            Assert.That(resp.Changes, Is.Not.Null);
+            Assert.That(resp.Changes, Has.Length.EqualTo(0));
+        }
+
+        [Test]
         public void GetUpdateNumericAdd()
         {
             DoGetUpdateNumeric(o => new TestObject() { SomeNumber = o.SomeNumber + 1 }, 1235).Wait();
