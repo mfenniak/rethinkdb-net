@@ -101,4 +101,13 @@ namespace RethinkDb.Newtonsoft.Test.Integration
             ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
         }
     }
+
+    [TestFixture]
+    public class NNamedValueDictionaryTests : NamedValueDictionaryTests
+    {
+        static NNamedValueDictionaryTests()
+        {
+            ConnectionFactory = ConfigurationAssembler.CreateConnectionFactory("testCluster");
+        }
+    }
 }

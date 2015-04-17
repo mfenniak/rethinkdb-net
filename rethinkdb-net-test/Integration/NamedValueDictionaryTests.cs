@@ -8,7 +8,7 @@ using FluentAssertions;
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
-    public class DictionaryTests : TestBase
+    public class NamedValueDictionaryTests : TestBase
     {
         private ITableQuery<TestObjectWithDictionary> testTable;
 
@@ -31,9 +31,9 @@ namespace RethinkDb.Test.Integration
                             Name = "Jack Black",
                             FreeformProperties = new Dictionary<string, object>()
                             {
-                                { "Awesome-Level", 100 },
-                                { "Cool-Level", 15 },
-                                { "Best Movie", "School of Rock" }
+                                { "awesome level", 100 },
+                                { "cool level", 15 },
+                                { "best movie", "School of Rock" }
                             }
                         },
                         new TestObjectWithDictionary()
@@ -41,9 +41,9 @@ namespace RethinkDb.Test.Integration
                             Name = "Gil Grissom",
                             FreeformProperties = new Dictionary<string, object>()
                             {
-                                { "Awesome-Level", 101 },
-                                { "Cool-Level", 0 },
-                                { "Best Known For", "CSI: Las Vegas" }
+                                { "awesome level", 101 },
+                                { "cool level", 0 },
+                                { "best known for", "CSI: Las Vegas" }
                             }
                         },
                         new TestObjectWithDictionary()
@@ -51,9 +51,9 @@ namespace RethinkDb.Test.Integration
                             Name = "Madame Curie",
                             FreeformProperties = new Dictionary<string, object>()
                             {
-                                { "Awesome-Level", 15 },
-                                { "Cool-Level", -1 },
-                                { "Impressive", true }
+                                { "awesome level", 15 },
+                                { "cool level", -1 },
+                                { "impressive", true }
                             }
                         }
                     }
@@ -70,7 +70,7 @@ namespace RethinkDb.Test.Integration
         [Test]
         public void ContainsKey()
         {
-            var enumerable = connection.Run(testTable.Map(o => o.FreeformProperties.ContainsKey("Best Movie")));
+            var enumerable = connection.Run(testTable.Map(o => o.FreeformProperties.ContainsKey("best movie")));
             var numTrue = enumerable.Count(r => r == true);
             var numFalse = enumerable.Count(r => r == false);
             numTrue.Should().Be(1);
