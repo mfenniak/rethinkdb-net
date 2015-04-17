@@ -96,5 +96,13 @@ namespace RethinkDb.Test.Integration
             values.Should().Contain(true);
             values.Should().HaveCount(3);
         }
+
+        [Test]
+        public void ItemGetter()
+        {
+            var gilGrissomBestKnownFor =
+                connection.Run(testTable.Filter(o => o.Name == "Gil Grissom").Map(o => o.FreeformProperties["best known for"])).Single();
+            gilGrissomBestKnownFor.Should().Be("CSI: Las Vegas");
+        }
     }
 }

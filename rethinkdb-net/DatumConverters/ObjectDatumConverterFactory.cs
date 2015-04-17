@@ -16,7 +16,7 @@ namespace RethinkDb.DatumConverters
             datumConverter = null;
 
             if (typeof(T) == typeof(Object))
-                datumConverter = (IDatumConverter<T>)ObjectDatumConverter.Instance.Value;
+                datumConverter = (IDatumConverter<T>)new ObjectDatumConverter(rootDatumConverterFactory);
 
             return datumConverter != null;
         }
@@ -24,7 +24,12 @@ namespace RethinkDb.DatumConverters
 
     public class ObjectDatumConverter : AbstractReferenceTypeDatumConverter<Object>
     {
-        public static readonly Lazy<ObjectDatumConverter> Instance = new Lazy<ObjectDatumConverter>(() => new ObjectDatumConverter());
+        private IDatumConverterFactory rootDatumConverterFactory;
+
+        public ObjectDatumConverter(IDatumConverterFactory rootDatumConverterFactory)
+        {
+            this.rootDatumConverterFactory = rootDatumConverterFactory;
+        }
 
         #region IDatumConverter<Uri> Members
 
@@ -33,10 +38,9 @@ namespace RethinkDb.DatumConverters
             if (datum.type == Datum.DatumType.R_NULL)
                 return null;
 
-            // What to do here... I don't know why someone would be doing this in the first place, we really only expected
-            // to return null here.  Maybe it should be polymorphic behavior; return the best matching type for the
-            // datum?
-            throw new Exception("Not able to convert non-null Datum to an Object");
+            Type valueType = rootDatumConverterFactory.GetBestNativeTypeForDatum(datum);
+            var valueConverter = rootDatumConverterFactory.Get(valueType);
+            return valueConverter.ConvertDatum(datum);
         }
 
         public override Spec.Datum ConvertObject(Object obj)
@@ -44,7 +48,8 @@ namespace RethinkDb.DatumConverters
             if (obj == null)
                 return new Datum() { type = Datum.DatumType.R_NULL };
 
-            // Again, maybe this should be some polymorphic behavior?
+            // What to do here... I don't know why someone would be doing this in the first place, we really only expected
+            // to return null here.  Once we find the use-case that this works for, we'll worry about it.
             throw new Exception("Not able to convert non-null Object to a ReQL datum");
         }
 
