@@ -16,6 +16,12 @@ namespace RethinkDb.Expressions
             expressionConverterFactory.RegisterTemplateMapping<Dictionary<string, object>, Dictionary<string, object>.KeyCollection>(
                 (d) => d.Keys,
                 (d) => new Term() { type = Term.TermType.KEYS, args = { d } });
+
+            // There's no RethinkDB command to get the "values" of an object; so, return the actual dictionary when
+            // accessing .Values and assume the datum converter will do the right thing for this type.
+            expressionConverterFactory.RegisterTemplateMapping<Dictionary<string, object>, Dictionary<string, object>.ValueCollection>(
+                (d) => d.Values,
+                (d) => d);
         }
     }
 }

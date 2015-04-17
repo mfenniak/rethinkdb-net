@@ -30,6 +30,12 @@ namespace RethinkDb.DatumConverters
                 return true;
             }
 
+            if (typeof(T) == typeof(Dictionary<string, object>.ValueCollection))
+            {
+                datumConverter = (IDatumConverter<T>)new NamedValueDictionaryValuesDatumConverter(new NamedValueDictionaryDatumConverter(rootDatumConverterFactory));
+                return true;
+            }
+
             return false;
         }
     }
@@ -125,7 +131,37 @@ namespace RethinkDb.DatumConverters
         {
             if (keyCollection == null)
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
-            throw new NotSupportedException("huh?");
+            throw new NotSupportedException("Converting a KeyCollection to a Datum not currently supported");
+        }
+
+        #endregion
+    }
+
+    // There's no RethinkDB command to get the "values" of an object; so, this datum converter will function on the actual
+    // object (both keys and values) and extract the values collection client-side.
+    public class NamedValueDictionaryValuesDatumConverter : AbstractReferenceTypeDatumConverter<Dictionary<string, object>.ValueCollection>
+    {
+        private NamedValueDictionaryDatumConverter dictionaryConverter;
+
+        public NamedValueDictionaryValuesDatumConverter(NamedValueDictionaryDatumConverter dictionaryConverter)
+        {
+            this.dictionaryConverter = dictionaryConverter;
+        }
+
+        #region IDatumConverter<T> Members
+
+        public override Dictionary<string, object>.ValueCollection ConvertDatum(Spec.Datum datum)
+        {
+            if (datum.type == Spec.Datum.DatumType.R_NULL)
+                return null;
+            return dictionaryConverter.ConvertDatum(datum).Values;
+        }
+
+        public override Spec.Datum ConvertObject(Dictionary<string, object>.ValueCollection valueCollection)
+        {
+            if (valueCollection == null)
+                return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
+            throw new NotSupportedException("Converting a ValueCollection to a Datum not currently supported");
         }
 
         #endregion
