@@ -48,7 +48,7 @@ namespace RethinkDb
                 new Expressions.DefaultExpressionConverterFactory()
             );
             ConnectTimeout = QueryTimeout = TimeSpan.FromSeconds(30);
-            Protocol = Version_0_3_Json.Instance;
+            Protocol = Version_0_4_Json.Instance;
         }
 
         public Connection(params EndPoint[] endPoints)
