@@ -31,7 +31,7 @@ namespace RethinkDb.QueryTerm
             return deleteTerm;
         }
 
-        protected virtual void AddOptionalArguments(Term updateTerm)
+        protected virtual void AddOptionalArguments(Term deleteTerm)
         {
         }
     }
