@@ -9,9 +9,14 @@ namespace RethinkDb.QueryTerm
         {
         }
 
-        protected override void AddOptionalArguments(Term updateTerm)
+        public DeleteAndReturnValueQuery(ISequenceQuery<T> tableTerm)
+            : base(tableTerm)
         {
-            updateTerm.optargs.Add(new Term.AssocPair() {
+        }
+
+        protected override void AddOptionalArguments(Term deleteTerm)
+        {
+            deleteTerm.optargs.Add(new Term.AssocPair() {
                 key = "return_changes",
                 val = new Term() {
                     type = Term.TermType.DATUM,

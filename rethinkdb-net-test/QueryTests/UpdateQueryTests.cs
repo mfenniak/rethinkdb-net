@@ -88,6 +88,30 @@ namespace RethinkDb.Test.QueryTests
             var nonAtomicArgs = term.optargs.Where(kv => kv.key == "non_atomic");
             Assert.That(nonAtomicArgs.Count(), Is.EqualTo(0));
         }
+
+        [Test]
+        public void UpdateAndReturnChanges()
+        {
+            var sequenceQuery = Substitute.For<ISequenceQuery<string>>();
+
+            var query = new UpdateAndReturnValueQuery<string>(
+                sequenceQuery,
+                s => "woot",
+                false);
+
+            var term = query.GenerateTerm(queryConverter);
+
+            var returnChangesArgs = term.optargs.Where(kv => kv.key == "return_changes");
+            Assert.That(returnChangesArgs.Count(), Is.EqualTo(1));
+
+            var returnChangesArg = returnChangesArgs.Single();
+
+            Assert.That(returnChangesArg.val, Is.Not.Null);
+            Assert.That(returnChangesArg.val.type, Is.EqualTo(Term.TermType.DATUM));
+            Assert.That(returnChangesArg.val.datum, Is.Not.Null);
+            Assert.That(returnChangesArg.val.datum.type, Is.EqualTo(Datum.DatumType.R_BOOL));
+            Assert.That(returnChangesArg.val.datum.r_bool, Is.True);
+        }
     }
 }
 

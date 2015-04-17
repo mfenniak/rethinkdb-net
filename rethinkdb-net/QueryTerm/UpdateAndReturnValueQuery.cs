@@ -6,6 +6,11 @@ namespace RethinkDb.QueryTerm
 {
     public class UpdateAndReturnValueQuery<T> : UpdateQueryBase<T>, IWriteQuery<DmlResponse<T>>
     {
+        public UpdateAndReturnValueQuery(ISequenceQuery<T> tableTerm, Expression<Func<T, T>> updateExpression, bool nonAtomic)
+            : base(tableTerm, updateExpression, nonAtomic)
+        {
+        }
+
         public UpdateAndReturnValueQuery(IMutableSingleObjectQuery<T> singleObjectTerm, Expression<Func<T, T>> updateExpression, bool nonAtomic)
             : base(singleObjectTerm, updateExpression, nonAtomic)
         {
