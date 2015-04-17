@@ -22,6 +22,8 @@
 
 * Upgraded default RethinkDB protocol to version 0.4, which is only supported on RethinkDB 2.0 and above.  To use rethinkdb-net with an earlier version of RethinkDB, change the connection's Protocol property to ```RethinkDb.Protocols.Version_0_3_Json.Instance```.  [PR #211](https://github.com/mfenniak/rethinkdb-net/pull/211)
 
+* Changed DmlResponse<T>.Changes to return an empty array rather than null if no changes were made. [PR #213](https://github.com/mfenniak/rethinkdb-net/pull/213)
+
 
 ## 0.10.0.0 (2015-04-14)
 
