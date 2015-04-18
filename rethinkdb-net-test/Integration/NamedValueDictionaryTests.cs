@@ -162,5 +162,21 @@ namespace RethinkDb.Test.Integration
             dict.Should().ContainKey("impressive");
             dict.Should().HaveCount(2);
         }
+
+        [Test]
+        public void FilterByPropertyValue()
+        {
+            var impressivePeople = connection.Run(testTable.Filter(o => (bool)o.FreeformProperties["impressive"])).ToArray();
+            impressivePeople.Should().HaveCount(1);
+            impressivePeople [0].Name.Should().Be("Madame Curie");
+        }
+
+        [Test]
+        public void FilterByPropertyValueWithOperator()
+        {
+            var impressivePeople = connection.Run(testTable.Filter(o => (int)o.FreeformProperties["awesome level"] > 100)).ToArray();
+            impressivePeople.Should().HaveCount(1);
+            impressivePeople [0].Name.Should().Be("Gil Grissom");
+        }
     }
 }
