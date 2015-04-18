@@ -121,6 +121,9 @@
     <Compile Include="DatumConverters\BinaryDatumConverterTests.cs" />
     <Compile Include="DatumConverters\DefaultDatumConverterTests.cs" />
     <Compile Include="Integration\RealtimePushTests.cs" />
+    <Compile Include="Integration\TestObjectWithDictionary.cs" />
+    <Compile Include="Integration\NamedValueDictionaryTests.cs" />
+    <Compile Include="DatumConverters\NamedValueDictionaryConverterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

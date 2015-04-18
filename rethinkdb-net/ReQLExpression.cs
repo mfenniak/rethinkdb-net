@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace RethinkDb
 {
@@ -30,6 +31,16 @@ namespace RethinkDb
         }
 
         public static MatchResponse Match(this string @string, string regexp)
+        {
+            throw new NotSupportedException("This method cannot be invoked directly, it can only be used as part of an expression tree.");
+        }
+
+        public static Dictionary<TKey, TValue> SetValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        {
+            throw new NotSupportedException("This method cannot be invoked directly, it can only be used as part of an expression tree.");
+        }
+
+        public static Dictionary<TKey, TValue> Without<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key)
         {
             throw new NotSupportedException("This method cannot be invoked directly, it can only be used as part of an expression tree.");
         }

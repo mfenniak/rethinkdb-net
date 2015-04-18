@@ -4,6 +4,15 @@
 
 ### Features
 
+* Add support for free-form objects or fields in the form of ```Dictionary<string, object>```, or ```Dictionary<string, TValue>``` without the use of rethinkdb-net-newtonsoft, and including a bunch of dictionary-specific functionality. [PR #214](https://github.com/mfenniak/rethinkdb-net/pull/214)
+
+  * ContainsValue method can be used in expressions, particularly filtering and map expression.  eg. ```table.Filter(o => o.Properties.Contains("key"))```
+  * Keys and Values properties can be used to retrieve the keys and values of a dictionary as an array.
+  * Dictionary accessor can be used to access a key value, eg. ```table.Filter(o => o.Properties["key"] > 5)```
+  * New extension method ```SetValue``` on Dictionary can be used to add and update a value to a dictionary during an Update query, eg. ```table.Update(o => new User() { Properties = o.Properties.SetValue("new_key", "new_value") })``` will add or set the field "new_value" on the object "Properties".
+  * New extension method ```Without``` on Dictionary can be used to exclude a field from a table query.
+  * New automatic logic to determine the most appropriate native type to create when reading a ```Dictionary<string, object>``` from the server.
+
 * Supports RethinkDB's regular expression matching of strings, eg. ```table.Filter(o => o.Email != null && o.Email.Match(".*@(.*)") != null)```.  [Issue #107](https://github.com/mfenniak/rethinkdb-net/issues/107) & [PR #208](https://github.com/mfenniak/rethinkdb-net/pull/208)
 
 * Expressions can now reference member variables of server-side calculated data, eg. ```table.Filter(o => o.Email.Match(".*@(.*)").Groups[0].MatchedString == "google.com")``` would filter for all records with an e-mail address that has a domain of "google.com".  [PR #209](https://github.com/mfenniak/rethinkdb-net/pull/209)

@@ -233,6 +233,8 @@
     <Compile Include="QueryTerm\MaxAggregateIndexQuery.cs" />
     <Compile Include="Protocols\Version_0_4_JsonProtocol.cs" />
     <Compile Include="Protocols\Version_0_4_ProtobufProtocol.cs" />
+    <Compile Include="DatumConverters\NamedValueDictionaryDatumConverterFactory.cs.cs" />
+    <Compile Include="Expressions\DictionaryExpressionConverters.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -189,6 +189,14 @@ namespace RethinkDb.Expressions
                     };
                 }
 
+                case ExpressionType.Convert:
+                {
+                    // The use-case for this right now is automatic boxing that occurs when setting a Dictionary<string,object>'s value
+                    // to a primitive.  In that particular case, we don't actually need to generate any ReQL for the conversion, so we're
+                    // just ignoring the Convert and mapping the expression inside.  Might need other behavior here in the future...
+                    return RecursiveMap(((UnaryExpression)expr).Operand);
+                }
+
                 default:
                 {
                     return AttemptClientSideConversion(datumConverterFactory, expr);
