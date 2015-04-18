@@ -15,5 +15,12 @@ namespace RethinkDb.Test.Integration
 
         [DataMember(Name = "data")]
         public Dictionary<string, object> FreeformProperties;
+
+        [DataMember(Name = "valuetypedata")]
+        public Dictionary<string, int> IntegerProperties;
+
+        [DataMember(Name = "referencetypedata")]
+        public Dictionary<string, string> StringProperties;
+
     }
 }

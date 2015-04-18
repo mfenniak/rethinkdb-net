@@ -34,7 +34,17 @@ namespace RethinkDb.Test.Integration
                                 { "awesome level", 100 },
                                 { "cool level", 15 },
                                 { "best movie", "School of Rock" }
-                            }
+                            },
+                            IntegerProperties = new Dictionary<string, int>()
+                            {
+                                { "awesome level", 100 },
+                                { "cool level", 15 },
+                            },
+                            StringProperties = new Dictionary<string, string>()
+                            {
+                                { "best movie", "School of Rock" },
+                                { "oscar winning movie", null }
+                            },
                         },
                         new TestObjectWithDictionary()
                         {
@@ -44,7 +54,12 @@ namespace RethinkDb.Test.Integration
                                 { "awesome level", 101 },
                                 { "cool level", 0 },
                                 { "best known for", "CSI: Las Vegas" }
-                            }
+                            },
+                            IntegerProperties = new Dictionary<string, int>()
+                            {
+                                { "awesome level", 101 },
+                                { "cool level", 0 },
+                            },
                         },
                         new TestObjectWithDictionary()
                         {
@@ -54,7 +69,12 @@ namespace RethinkDb.Test.Integration
                                 { "awesome level", 15 },
                                 { "cool level", -1 },
                                 { "impressive", true }
-                            }
+                            },
+                            IntegerProperties = new Dictionary<string, int>()
+                            {
+                                { "awesome level", 15 },
+                                { "cool level", -1 },
+                            },
                         }
                     }
                 )
@@ -78,6 +98,16 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void ContainsKeyTyped()
+        {
+            var enumerable = connection.Run(testTable.Map(o => o.StringProperties != null && o.StringProperties.ContainsKey("best movie")));
+            var numTrue = enumerable.Count(r => r == true);
+            var numFalse = enumerable.Count(r => r == false);
+            numTrue.Should().Be(1);
+            numFalse.Should().Be(2);
+        }
+
+        [Test]
         public void Keys()
         {
             var keys = connection.Run(testTable.Filter(o => o.Name == "Madame Curie").Map(o => o.FreeformProperties.Keys)).Single();
@@ -85,6 +115,15 @@ namespace RethinkDb.Test.Integration
             keys.Should().Contain("cool level");
             keys.Should().Contain("impressive");
             keys.Should().HaveCount(3);
+        }
+
+        [Test]
+        public void KeysTypes()
+        {
+            var keys = connection.Run(testTable.Filter(o => o.Name == "Madame Curie").Map(o => o.IntegerProperties.Keys)).Single();
+            keys.Should().Contain("awesome level");
+            keys.Should().Contain("cool level");
+            keys.Should().HaveCount(2);
         }
 
         [Test]
@@ -98,11 +137,28 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void ValuesTyped()
+        {
+            var values = connection.Run(testTable.Filter(o => o.Name == "Madame Curie").Map(o => o.IntegerProperties.Values)).Single();
+            values.Should().Contain(15);
+            values.Should().Contain(-1);
+            values.Should().HaveCount(2);
+        }
+
+        [Test]
         public void ItemGetter()
         {
             var gilGrissomBestKnownFor =
                 connection.Run(testTable.Filter(o => o.Name == "Gil Grissom").Map(o => o.FreeformProperties["best known for"])).Single();
             gilGrissomBestKnownFor.Should().Be("CSI: Las Vegas");
+        }
+
+        [Test]
+        public void ItemGetterTyped()
+        {
+            var gilGrissomBestKnownFor =
+                connection.Run(testTable.Filter(o => o.Name == "Jack Black").Map(o => o.StringProperties["best movie"])).Single();
+            gilGrissomBestKnownFor.Should().Be("School of Rock");
         }
 
         [Test]
@@ -118,6 +174,21 @@ namespace RethinkDb.Test.Integration
             var gil = connection.Run(testTable.Filter(o => o.Name == "Gil Grissom")).Single();
             gil.FreeformProperties.Should().Contain("best known for", "being awesome");
             gil.FreeformProperties.Should().HaveCount(3);
+        }
+
+        [Test]
+        public void ItemSetterTyped()
+        {
+            var gilGrissomBestKnownFor = connection.Run(
+                testTable
+                .Filter(o => o.Name == "Jack Black")
+                .Update(o => new TestObjectWithDictionary() { StringProperties = o.StringProperties.SetValue("best movie", "High Fidelity") })
+            );
+
+            gilGrissomBestKnownFor.Replaced.Should().Be(1);
+            var gil = connection.Run(testTable.Filter(o => o.Name == "Jack Black")).Single();
+            gil.StringProperties.Should().Contain("best movie", "High Fidelity");
+            gil.StringProperties.Should().HaveCount(2);
         }
 
         [Test]
@@ -153,6 +224,30 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void MultipleItemSetterTyped()
+        {
+            var gilGrissomBestKnownFor = connection.Run(
+                testTable
+                .Filter(o => o.Name == "Gil Grissom")
+                .Update(o => new TestObjectWithDictionary()
+                {
+                    IntegerProperties = o.IntegerProperties
+                        .SetValue("skill level", 100)
+                        .SetValue("cunning level", 200)
+                        .SetValue("clever level", 300)
+                    }
+                )
+            );
+
+            gilGrissomBestKnownFor.Replaced.Should().Be(1);
+            var gil = connection.Run(testTable.Filter(o => o.Name == "Gil Grissom")).Single();
+            gil.IntegerProperties.Should().Contain("skill level", 100);
+            gil.IntegerProperties.Should().Contain("cunning level", 200);
+            gil.IntegerProperties.Should().Contain("clever level", 300);
+            gil.IntegerProperties.Should().HaveCount(5);
+        }
+
+        [Test]
         public void Without()
         {
             var dict = connection.Run(testTable
@@ -169,6 +264,14 @@ namespace RethinkDb.Test.Integration
             var impressivePeople = connection.Run(testTable.Filter(o => (bool)o.FreeformProperties["impressive"])).ToArray();
             impressivePeople.Should().HaveCount(1);
             impressivePeople [0].Name.Should().Be("Madame Curie");
+        }
+
+        [Test]
+        public void FilterByTypedPropertyValue()
+        {
+            var impressivePeople = connection.Run(testTable.Filter(o => o.IntegerProperties["awesome level"] > 100)).ToArray();
+            impressivePeople.Should().HaveCount(1);
+            impressivePeople [0].Name.Should().Be("Gil Grissom");
         }
 
         [Test]

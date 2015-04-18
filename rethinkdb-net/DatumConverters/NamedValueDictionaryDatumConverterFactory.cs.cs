@@ -18,21 +18,36 @@ namespace RethinkDb.DatumConverters
             if (rootDatumConverterFactory == null)
                 throw new ArgumentNullException("rootDatumConverterFactory");
 
-            if (typeof(T) == typeof(Dictionary<string, object>))
+            if (typeof(T).IsGenericType &&
+                typeof(T).GetGenericTypeDefinition() == typeof(Dictionary<,>) &&
+                typeof(T).GetGenericArguments() [0] == typeof(string))
             {
-                datumConverter = (IDatumConverter<T>)new NamedValueDictionaryDatumConverter(rootDatumConverterFactory);
+                var specificType = typeof(NamedValueDictionaryDatumConverter<>).MakeGenericType(typeof(T).GetGenericArguments()[1]);
+                var dc = Activator.CreateInstance(specificType, new object[] { rootDatumConverterFactory });
+                datumConverter = (IDatumConverter<T>)dc;
                 return true;
             }
 
-            if (typeof(T) == typeof(Dictionary<string, object>.KeyCollection))
+            if (typeof(T).IsGenericType &&
+                typeof(T).GetGenericTypeDefinition() == typeof(Dictionary<,>.KeyCollection) &&
+                typeof(T).GetGenericArguments() [0] == typeof(string))
             {
-                datumConverter = (IDatumConverter<T>)new NamedValueDictionaryKeysDatumConverter(rootDatumConverterFactory);
+                var specificType = typeof(NamedValueDictionaryKeysDatumConverter<>).MakeGenericType(typeof(T).GetGenericArguments()[1]);
+                var dc = Activator.CreateInstance(specificType, new object[] { rootDatumConverterFactory });
+                datumConverter = (IDatumConverter<T>)dc;
                 return true;
             }
 
-            if (typeof(T) == typeof(Dictionary<string, object>.ValueCollection))
+            if (typeof(T).IsGenericType &&
+                typeof(T).GetGenericTypeDefinition() == typeof(Dictionary<,>.ValueCollection) &&
+                typeof(T).GetGenericArguments()[0] == typeof(string))
             {
-                datumConverter = (IDatumConverter<T>)new NamedValueDictionaryValuesDatumConverter(new NamedValueDictionaryDatumConverter(rootDatumConverterFactory));
+                var dictionaryConverterType = typeof(NamedValueDictionaryDatumConverter<>).MakeGenericType(typeof(T).GetGenericArguments()[1]);
+                var dictionaryConverter = Activator.CreateInstance(dictionaryConverterType, new object[] { rootDatumConverterFactory });
+
+                var specificType = typeof(NamedValueDictionaryValuesDatumConverter<>).MakeGenericType(typeof(T).GetGenericArguments()[1]);
+                var dc = Activator.CreateInstance(specificType, new object[] { dictionaryConverter });
+                datumConverter = (IDatumConverter<T>)dc;
                 return true;
             }
 
@@ -40,7 +55,7 @@ namespace RethinkDb.DatumConverters
         }
     }
 
-    public class NamedValueDictionaryDatumConverter : AbstractReferenceTypeDatumConverter<Dictionary<string, object>>
+    public class NamedValueDictionaryDatumConverter<TValue> : AbstractReferenceTypeDatumConverter<Dictionary<string, TValue>>
     {
         private IDatumConverterFactory rootDatumConverterFactory;
         private Dictionary<Type, IDatumConverter> datumConverterCache = new Dictionary<Type, IDatumConverter>();
@@ -63,7 +78,7 @@ namespace RethinkDb.DatumConverters
             return valueConverter;
         }
 
-        public override Dictionary<string, object> ConvertDatum(Spec.Datum datum)
+        public override Dictionary<string, TValue> ConvertDatum(Spec.Datum datum)
         {
             if (datum.type == Spec.Datum.DatumType.R_NULL)
                 return null;
@@ -71,19 +86,27 @@ namespace RethinkDb.DatumConverters
             if (datum.type != RethinkDb.Spec.Datum.DatumType.R_OBJECT)
                 throw new NotSupportedException("Attempted to convert Datum to named-value dictionary, but Datum was unsupported type " + datum.type);
 
-            Dictionary<string, object> retval = new Dictionary<string, object>();
+            Dictionary<string, TValue> retval = new Dictionary<string, TValue>();
+
+            IDatumConverter valueConverter = null;
+            if (typeof(TValue) != typeof(object))
+                valueConverter = rootDatumConverterFactory.Get<TValue>();
 
             foreach (var kvp in datum.r_object)
             {
-                Type valueType = rootDatumConverterFactory.GetBestNativeTypeForDatum(kvp.val);
-                var valueConverter = GetConverter(valueType);
-                retval [kvp.key] = valueConverter.ConvertDatum(kvp.val);
+                IDatumConverter thisValueConverter = valueConverter;
+                if (thisValueConverter == null)
+                {
+                    Type valueType = rootDatumConverterFactory.GetBestNativeTypeForDatum(kvp.val);
+                    thisValueConverter = GetConverter(valueType);
+                }
+                retval[kvp.key] = (TValue)thisValueConverter.ConvertDatum(kvp.val);
             }
 
             return retval;
         }
 
-        public override Spec.Datum ConvertObject(Dictionary<string, object> dictionary)
+        public override Spec.Datum ConvertObject(Dictionary<string, TValue> dictionary)
         {
             if (dictionary == null)
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
@@ -92,7 +115,15 @@ namespace RethinkDb.DatumConverters
 
             foreach (var kvp in dictionary)
             {
-                var valueConverter = GetConverter(kvp.Value.GetType());
+                IDatumConverter valueConverter;
+                if ((object)kvp.Value == null)
+                {
+                    // can't call kvp.Value.GetType() if it's null!
+                    valueConverter = GetConverter(typeof(object));
+                }
+                else
+                    valueConverter = GetConverter(kvp.Value.GetType());
+                
                 var convertedValue = valueConverter.ConvertObject(kvp.Value);
                 retval.r_object.Add(new RethinkDb.Spec.Datum.AssocPair()
                 {
@@ -107,7 +138,7 @@ namespace RethinkDb.DatumConverters
         #endregion
     }
 
-    public class NamedValueDictionaryKeysDatumConverter : AbstractReferenceTypeDatumConverter<Dictionary<string, object>.KeyCollection>
+    public class NamedValueDictionaryKeysDatumConverter<TValue> : AbstractReferenceTypeDatumConverter<Dictionary<string, TValue>.KeyCollection>
     {
         private IDatumConverter<string[]> arrayDatumConverter;
 
@@ -118,16 +149,16 @@ namespace RethinkDb.DatumConverters
 
         #region IDatumConverter<T> Members
 
-        public override Dictionary<string, object>.KeyCollection ConvertDatum(Spec.Datum datum)
+        public override Dictionary<string, TValue>.KeyCollection ConvertDatum(Spec.Datum datum)
         {
             if (datum.type == Spec.Datum.DatumType.R_NULL)
                 return null;
 
             string[] keys = arrayDatumConverter.ConvertDatum(datum);
-            return keys.ToDictionary(k => k, k => (object)null).Keys;
+            return keys.ToDictionary(k => k, k => default(TValue)).Keys;
         }
 
-        public override Spec.Datum ConvertObject(Dictionary<string, object>.KeyCollection keyCollection)
+        public override Spec.Datum ConvertObject(Dictionary<string, TValue>.KeyCollection keyCollection)
         {
             if (keyCollection == null)
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
@@ -139,25 +170,25 @@ namespace RethinkDb.DatumConverters
 
     // There's no RethinkDB command to get the "values" of an object; so, this datum converter will function on the actual
     // object (both keys and values) and extract the values collection client-side.
-    public class NamedValueDictionaryValuesDatumConverter : AbstractReferenceTypeDatumConverter<Dictionary<string, object>.ValueCollection>
+    public class NamedValueDictionaryValuesDatumConverter<TValue> : AbstractReferenceTypeDatumConverter<Dictionary<string, TValue>.ValueCollection>
     {
-        private NamedValueDictionaryDatumConverter dictionaryConverter;
+        private NamedValueDictionaryDatumConverter<TValue> dictionaryConverter;
 
-        public NamedValueDictionaryValuesDatumConverter(NamedValueDictionaryDatumConverter dictionaryConverter)
+        public NamedValueDictionaryValuesDatumConverter(NamedValueDictionaryDatumConverter<TValue> dictionaryConverter)
         {
             this.dictionaryConverter = dictionaryConverter;
         }
 
         #region IDatumConverter<T> Members
 
-        public override Dictionary<string, object>.ValueCollection ConvertDatum(Spec.Datum datum)
+        public override Dictionary<string, TValue>.ValueCollection ConvertDatum(Spec.Datum datum)
         {
             if (datum.type == Spec.Datum.DatumType.R_NULL)
                 return null;
             return dictionaryConverter.ConvertDatum(datum).Values;
         }
 
-        public override Spec.Datum ConvertObject(Dictionary<string, object>.ValueCollection valueCollection)
+        public override Spec.Datum ConvertObject(Dictionary<string, TValue>.ValueCollection valueCollection)
         {
             if (valueCollection == null)
                 return new Spec.Datum() { type = Spec.Datum.DatumType.R_NULL };
