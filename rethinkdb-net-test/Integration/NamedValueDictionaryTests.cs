@@ -104,5 +104,52 @@ namespace RethinkDb.Test.Integration
                 connection.Run(testTable.Filter(o => o.Name == "Gil Grissom").Map(o => o.FreeformProperties["best known for"])).Single();
             gilGrissomBestKnownFor.Should().Be("CSI: Las Vegas");
         }
+
+        [Test]
+        public void ItemSetter()
+        {
+            var gilGrissomBestKnownFor = connection.Run(
+                testTable
+                    .Filter(o => o.Name == "Gil Grissom")
+                    .Update(o => new TestObjectWithDictionary() { FreeformProperties = o.FreeformProperties.SetValue("best known for", "being awesome") })
+            );
+
+            gilGrissomBestKnownFor.Replaced.Should().Be(1);
+            var gil = connection.Run(testTable.Filter(o => o.Name == "Gil Grissom")).Single();
+            gil.FreeformProperties.Should().Contain("best known for", "being awesome");
+            gil.FreeformProperties.Should().HaveCount(3);
+        }
+
+        [Test]
+        public void MultipleItemSetter()
+        {
+            var gilGrissomBestKnownFor = connection.Run(
+                testTable
+                .Filter(o => o.Name == "Gil Grissom")
+                .Update(o => new TestObjectWithDictionary()
+                {
+                    FreeformProperties = o.FreeformProperties
+                        .SetValue("best known for", "being awesome")
+                        .SetValue("skill level", 1000)
+                        .SetValue("updated at", DateTimeOffset.UtcNow)
+                }
+                )
+            );
+
+            //var allObjectsAfter = connection.Run(testTable).ToArray();
+
+            gilGrissomBestKnownFor.Replaced.Should().Be(1);
+            var gil = connection.Run(testTable.Filter(o => o.Name == "Gil Grissom")).Single();
+            MultipleItemSetterVerifyDictionary(gil);
+        }
+
+        protected virtual void MultipleItemSetterVerifyDictionary(TestObjectWithDictionary gil)
+        {
+            gil.FreeformProperties.Should().Contain("best known for", "being awesome");
+            gil.FreeformProperties.Should().Contain("skill level", 1000);
+            gil.FreeformProperties.Should().ContainKey("updated at");
+            gil.FreeformProperties ["updated at"].Should().BeOfType<DateTimeOffset>();
+            gil.FreeformProperties.Should().HaveCount(5);
+        }
     }
 }

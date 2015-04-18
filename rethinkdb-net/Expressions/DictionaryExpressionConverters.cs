@@ -17,6 +17,14 @@ namespace RethinkDb.Expressions
                 (d, k) => d[k],
                 (d, k) => new Term() { type = Term.TermType.GET_FIELD, args = { d, k } });
 
+            expressionConverterFactory.RegisterTemplateMapping<Dictionary<string, object>, string, object, Dictionary<string, object>>(
+                (d, k, v) => d.SetValue(k, v),
+                (d, k, v) => new Term()
+                {
+                    type = Term.TermType.MERGE,
+                    args = { d, new Term() { type = Term.TermType.OBJECT, args = { k, v } } }
+                });
+
             expressionConverterFactory.RegisterTemplateMapping<Dictionary<string, object>, Dictionary<string, object>.KeyCollection>(
                 (d) => d.Keys,
                 (d) => new Term() { type = Term.TermType.KEYS, args = { d } });
