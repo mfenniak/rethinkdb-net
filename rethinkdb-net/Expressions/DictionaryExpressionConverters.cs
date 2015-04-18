@@ -34,6 +34,14 @@ namespace RethinkDb.Expressions
             expressionConverterFactory.RegisterTemplateMapping<Dictionary<string, object>, Dictionary<string, object>.ValueCollection>(
                 (d) => d.Values,
                 (d) => d);
+            
+            expressionConverterFactory.RegisterTemplateMapping<Dictionary<string, object>, string, Dictionary<string, object>>(
+                (d, k) => d.Without(k),
+                (d, k) => new Term()
+                {
+                    type = Term.TermType.WITHOUT,
+                    args = { d, k }
+                });
         }
     }
 }

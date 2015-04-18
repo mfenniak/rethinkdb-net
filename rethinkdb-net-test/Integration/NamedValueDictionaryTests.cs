@@ -151,5 +151,16 @@ namespace RethinkDb.Test.Integration
             gil.FreeformProperties ["updated at"].Should().BeOfType<DateTimeOffset>();
             gil.FreeformProperties.Should().HaveCount(5);
         }
+
+        [Test]
+        public void Without()
+        {
+            var dict = connection.Run(testTable
+                .Filter(o => o.Name == "Madame Curie")
+                .Map(o => o.FreeformProperties.Without("awesome level"))).Single();
+            dict.Should().ContainKey("cool level");
+            dict.Should().ContainKey("impressive");
+            dict.Should().HaveCount(2);
+        }
     }
 }
