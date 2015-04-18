@@ -16,7 +16,7 @@ echo "Processing release $NEW_VERSION"
 find . -type f -name '*.cs' -exec dos2unix -m '{}' \;
 
 for f in **/AssemblyInfo.cs; do
-    sed --in-place -e "s/\"[0-9]\.[0-9]\.[0-9]\.[0-9]\"/\"$NEW_VERSION\"/" $f
+    sed --in-place -e "s/\"[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\"/\"$NEW_VERSION\"/" $f
     if ! grep -q "$NEW_VERSION" "$f"
     then
         echo "sed failed $f"
@@ -24,7 +24,7 @@ for f in **/AssemblyInfo.cs; do
     fi
 done
 
-sed --in-place -e "s#<version>[0-9]\.[0-9]\.[0-9]\.[0-9]</version>#<version>$NEW_VERSION</version>#" rethinkdb-net.nuspec
+sed --in-place -e "s#<version>[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+</version>#<version>$NEW_VERSION</version>#" rethinkdb-net.nuspec
 if ! grep -q "<version>$NEW_VERSION</version>" rethinkdb-net.nuspec
 then
     echo "sed failed"
@@ -32,14 +32,14 @@ then
 fi
 
 
-sed --in-place -e "s#<version>[0-9]\.[0-9]\.[0-9]\.[0-9]</version>#<version>$NEW_VERSION</version>#" rethinkdb-net-newtonsoft.nuspec
+sed --in-place -e "s#<version>[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+</version>#<version>$NEW_VERSION</version>#" rethinkdb-net-newtonsoft.nuspec
 if ! grep -q "<version>$NEW_VERSION</version>" rethinkdb-net-newtonsoft.nuspec
 then
     echo "sed failed"
     exit
 fi
 
-sed --in-place -e "s#<dependency id=\"rethinkdb-net\" version=\"[0-9]\.[0-9]\.[0-9]\.[0-9]\" />#<dependency id=\"rethinkdb-net\" version=\"$NEW_VERSION\" />#" rethinkdb-net-newtonsoft.nuspec
+sed --in-place -e "s#<dependency id=\"rethinkdb-net\" version=\"[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\" />#<dependency id=\"rethinkdb-net\" version=\"$NEW_VERSION\" />#" rethinkdb-net-newtonsoft.nuspec
 if ! grep -q "<dependency id=\"rethinkdb-net\" version=\"$NEW_VERSION\" />" rethinkdb-net-newtonsoft.nuspec
 then
     echo "sed failed"
