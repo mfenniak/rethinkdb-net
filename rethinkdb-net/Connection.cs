@@ -426,6 +426,14 @@ namespace RethinkDb
                 get { return connection; }
             }
 
+            public void Reset()
+            {
+                query = null;
+                lastResponse = null;
+                lastResponseIndex = 0;
+                disposed = false;
+            }
+
             ~QueryEnumerator()
             {
                 if (!disposed)

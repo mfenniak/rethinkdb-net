@@ -1,5 +1,9 @@
 # rethinkdb-net Release Notes
 
+## Next Release
+
+* Added working Reset function to all query enumerators to reissue the query from the beginning.  [Issues #148](https://github.com/mfenniak/rethinkdb-net/issues/148)
+
 ## 0.11.0.0 (2015-04-18)
 
 ### Features

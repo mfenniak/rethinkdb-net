@@ -9,5 +9,6 @@ namespace RethinkDb
         T Current { get; }
         Task<bool> MoveNext(CancellationToken cancellationToken);
         Task Dispose(CancellationToken cancellationToken);
+        void Reset();
     }
 }

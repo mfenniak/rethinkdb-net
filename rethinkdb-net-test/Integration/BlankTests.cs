@@ -96,6 +96,58 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void AsyncEnumeratorReset()
+        {
+            DoAsyncEnumeratorReset(new double[] { 1, 2, 3 }).Wait();
+        }
+
+        private async Task DoAsyncEnumeratorReset<T>(IEnumerable<T> enumerable)
+        {
+            var asyncEnumerable = connection.RunAsync(Query.Expr(enumerable));
+
+            asyncEnumerable.Reset();
+
+            (await asyncEnumerable.MoveNext()).Should().BeTrue();
+            asyncEnumerable.Current.Should().Be(1.0);
+
+            asyncEnumerable.Reset();
+
+            (await asyncEnumerable.MoveNext()).Should().BeTrue();
+            asyncEnumerable.Current.Should().Be(1.0);
+            (await asyncEnumerable.MoveNext()).Should().BeTrue();
+            asyncEnumerable.Current.Should().Be(2.0);
+
+            asyncEnumerable.Reset();
+
+            (await asyncEnumerable.MoveNext()).Should().BeTrue();
+            asyncEnumerable.Current.Should().Be(1.0);
+            (await asyncEnumerable.MoveNext()).Should().BeTrue();
+            asyncEnumerable.Current.Should().Be(2.0);
+            (await asyncEnumerable.MoveNext()).Should().BeTrue();
+            asyncEnumerable.Current.Should().Be(3.0);
+
+            asyncEnumerable.Reset();
+
+            (await asyncEnumerable.MoveNext()).Should().BeTrue();
+            asyncEnumerable.Current.Should().Be(1.0);
+            (await asyncEnumerable.MoveNext()).Should().BeTrue();
+            asyncEnumerable.Current.Should().Be(2.0);
+            (await asyncEnumerable.MoveNext()).Should().BeTrue();
+            asyncEnumerable.Current.Should().Be(3.0);
+            (await asyncEnumerable.MoveNext()).Should().BeFalse();
+
+            asyncEnumerable.Reset();
+
+            (await asyncEnumerable.MoveNext()).Should().BeTrue();
+            asyncEnumerable.Current.Should().Be(1.0);
+            (await asyncEnumerable.MoveNext()).Should().BeTrue();
+            asyncEnumerable.Current.Should().Be(2.0);
+            (await asyncEnumerable.MoveNext()).Should().BeTrue();
+            asyncEnumerable.Current.Should().Be(3.0);
+            (await asyncEnumerable.MoveNext()).Should().BeFalse();
+        }
+
+        [Test]
         public void ExprNth()
         {
             DoExprNth(new double[] { 1, 2, 3 }).Wait();

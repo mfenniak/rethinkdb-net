@@ -142,6 +142,12 @@ namespace RethinkDb.ConnectionFactories
                 get { return reliableConnection; }
             }
 
+            public void Reset()
+            {
+                if (this.innerEnumerator != null)
+                    this.innerEnumerator.Reset();
+            }
+
             public async Task<bool> MoveNext(CancellationToken cancellationToken)
             {
                 if (this.innerEnumerator == null)

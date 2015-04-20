@@ -82,6 +82,11 @@ namespace RethinkDb
 
             #region IAsyncEnumerator implementation
 
+            public void Reset()
+            {
+                this.innerEnumerator.Reset();
+            }
+
             public Task<bool> MoveNext(CancellationToken cancellationToken)
             {
                 return this.innerEnumerator.MoveNext(cancellationToken);

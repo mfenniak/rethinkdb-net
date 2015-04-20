@@ -98,7 +98,7 @@ namespace RethinkDb
 
             public void Reset()
             {
-                throw new NotSupportedException();
+                this.asyncEnumerator.Reset();
             }
 
             public object Current
@@ -130,4 +130,3 @@ namespace RethinkDb
         #endregion
     }
 }
-
