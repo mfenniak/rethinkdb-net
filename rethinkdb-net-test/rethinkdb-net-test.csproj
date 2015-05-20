@@ -124,6 +124,8 @@
     <Compile Include="Integration\TestObjectWithDictionary.cs" />
     <Compile Include="Integration\NamedValueDictionaryTests.cs" />
     <Compile Include="DatumConverters\NamedValueDictionaryConverterTests.cs" />
+    <Compile Include="Integration\DynamicTestObject.cs" />
+    <Compile Include="Integration\DynamicTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

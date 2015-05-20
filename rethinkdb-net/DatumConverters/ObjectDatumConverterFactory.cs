@@ -48,9 +48,14 @@ namespace RethinkDb.DatumConverters
             if (obj == null)
                 return new Datum() { type = Datum.DatumType.R_NULL };
 
+            var valueConverter = rootDatumConverterFactory.Get(obj.GetType());
+            return valueConverter.ConvertObject(obj);
+
+            /*
             // What to do here... I don't know why someone would be doing this in the first place, we really only expected
             // to return null here.  Once we find the use-case that this works for, we'll worry about it.
             throw new Exception("Not able to convert non-null Object to a ReQL datum");
+            */
         }
 
         #endregion
