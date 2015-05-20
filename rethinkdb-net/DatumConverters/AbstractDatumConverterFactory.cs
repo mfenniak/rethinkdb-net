@@ -100,7 +100,8 @@ namespace RethinkDb.DatumConverters
                             }
                         }
 
-                        return typeof(Dictionary<string, object>);
+                        return typeof(RethinkDbObject);
+                        //return typeof(Dictionary<string, object>);
                     }
                 
                 case Datum.DatumType.R_STR:

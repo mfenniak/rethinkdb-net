@@ -235,6 +235,8 @@
     <Compile Include="Protocols\Version_0_4_ProtobufProtocol.cs" />
     <Compile Include="DatumConverters\NamedValueDictionaryDatumConverterFactory.cs.cs" />
     <Compile Include="Expressions\DictionaryExpressionConverters.cs" />
+    <Compile Include="RethinkDbObject.cs" />
+    <Compile Include="DatumConverters\RethinkDbObjectDatumConverterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
