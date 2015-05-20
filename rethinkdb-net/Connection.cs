@@ -209,9 +209,7 @@ namespace RethinkDb
 
                 await Protocol.ConnectionHandshake(stream, Logger, AuthorizationKey, cancellationToken);
 
-#pragma warning disable 4014
-                ReadLoop();
-#pragma warning restore 4014
+                TaskUtilities.SpinupFreethreadedTask(ReadLoop);
             }
             catch (Exception e)
             {

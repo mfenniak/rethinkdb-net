@@ -53,5 +53,24 @@ namespace RethinkDb
                 SynchronizationContext.SetSynchronizationContext(synchronizationContext);
             }
         }
+
+        /// <summary>
+        /// Invokes a function that creates a task but is expected to be free-threaded.  Basically, we remove the current
+        /// synchronization context (if there is one), then create the task, and then restore the synchronization context
+        /// if there was one.
+        /// </summary>
+        public static void SpinupFreethreadedTask(Func<Task> taskDelegate)
+        {
+            var synchronizationContext = SynchronizationContext.Current;
+            try
+            {
+                SynchronizationContext.SetSynchronizationContext(null);
+                taskDelegate();
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(synchronizationContext);
+            }
+        }
     }
 }
