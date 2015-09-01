@@ -9,7 +9,7 @@ namespace RethinkDb.Expressions
 {
     public class DefaultExpressionConverterFactory : IExpressionConverterFactory
     {
-        public delegate Term RecursiveMapDelegate(Expression expression);
+        public delegate Term RecursiveMapDelegate(Expression expression, bool allowMemberInit = false);
         public delegate Term ExpressionMappingDelegate<T>(
             T expression,
             RecursiveMapDelegate recursiveMap,

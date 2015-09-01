@@ -92,8 +92,11 @@ namespace RethinkDb.Expressions
             return retval;
         }
 
-        protected override Term RecursiveMap(Expression expression)
+        protected override Term RecursiveMap(Expression expression, bool allowMemberInit = false)
         {
+            if (allowMemberInit && expression.NodeType == ExpressionType.MemberInit)
+                return MapMemberInitToTerm((MemberInitExpression)expression);
+
             return MapExpressionToTerm(expression);
         }
 

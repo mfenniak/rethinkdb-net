@@ -42,7 +42,7 @@ namespace RethinkDb.Expressions
         #endregion
         #region Parameter-independent Mappings
 
-        protected abstract Term RecursiveMap(Expression expression);
+        protected abstract Term RecursiveMap(Expression expression, bool allowMemberInit = false);
 
         private Term ConvertBinaryExpressionToTerm(BinaryExpression expr, IDatumConverterFactory datumConverterFactory)
         {
@@ -183,8 +183,8 @@ namespace RethinkDb.Expressions
                         type = Term.TermType.BRANCH,
                         args = {
                             RecursiveMap(conditionalExpression.Test),
-                            RecursiveMap(conditionalExpression.IfTrue),
-                            RecursiveMap(conditionalExpression.IfFalse)
+                            RecursiveMap(conditionalExpression.IfTrue, true),
+                            RecursiveMap(conditionalExpression.IfFalse, true)
                         }
                     };
                 }

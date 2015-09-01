@@ -24,7 +24,7 @@ namespace RethinkDb.Expressions
         #endregion
         #region Abstract implementation
 
-        protected override Term RecursiveMap(Expression expression)
+        protected override Term RecursiveMap(Expression expression, bool allowMemberInit = false)
         {
             return SimpleMap(datumConverterFactory, expression);
         }
