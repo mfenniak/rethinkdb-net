@@ -60,6 +60,11 @@ namespace RethinkDb
             return new IndexCreateQuery<T, TIndexExpression>(target, indexName, indexExpression, multiIndex);
         }
 
+        public static CompoundIndexCreateQuery<T> IndexCreate<T>(this ITableQuery<T> target, string indexName, CompoundIndex<T> compoundIndex)
+        {
+            return new CompoundIndexCreateQuery<T>(target, indexName, compoundIndex.IndexExpression);
+        } 
+
         public static IndexWaitQuery<T> IndexWait<T>(this ITableQuery<T> target, params string[] indexNames)
         {
             return new IndexWaitQuery<T>(target, indexNames);

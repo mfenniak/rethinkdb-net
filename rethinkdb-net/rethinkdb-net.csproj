@@ -50,10 +50,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompoundIndex.cs" />
+    <Compile Include="CompoundIndexKeys.cs" />
     <Compile Include="Conflict.cs" />
     <Compile Include="Connection.cs" />
+    <Compile Include="DatumConverters\CompoundIndexDatumConverterFactory.cs" />
     <Compile Include="DatumConverters\EnumDatumConverterFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryTerm\CompoundIndexCreateQuery.cs" />
     <Compile Include="QueryTerm\HasFieldsQuery.cs" />
     <Compile Include="QueryTerm\TableListQuery.cs" />
     <Compile Include="QueryTerm\DbCreateQuery.cs" />

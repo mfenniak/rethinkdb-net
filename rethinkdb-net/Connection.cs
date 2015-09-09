@@ -44,7 +44,8 @@ namespace RethinkDb
                     TimeSpanDatumConverterFactory.Instance,
                     GroupingDictionaryDatumConverterFactory.Instance,
                     ObjectDatumConverterFactory.Instance,
-                    NamedValueDictionaryDatumConverterFactory.Instance
+                    NamedValueDictionaryDatumConverterFactory.Instance,
+                    CompoundIndexDatumConverterFactory.Instance
                 ),
                 new Expressions.DefaultExpressionConverterFactory()
             );
