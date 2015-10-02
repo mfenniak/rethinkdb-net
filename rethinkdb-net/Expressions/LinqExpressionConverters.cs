@@ -127,14 +127,7 @@ namespace RethinkDb.Expressions
                     type = Term.TermType.APPEND
                 };
                 newTerm.args.Add(term);
-
-                if (datumExpression.NodeType == ExpressionType.MemberInit)
-                {
-                    var memberInit = (MemberInitExpression)datumExpression;
-                    newTerm.args.Add(recursiveMap(memberInit));
-                }
-                else
-                    throw new NotSupportedException(String.Format("Expected ReQLExpression.Append to contain MemberInit additions, but was: {0}", datumExpression.NodeType));
+                newTerm.args.Add(recursiveMap(datumExpression));
 
                 term = newTerm;
             }
