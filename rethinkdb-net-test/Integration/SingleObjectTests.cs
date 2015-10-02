@@ -280,6 +280,21 @@ namespace RethinkDb.Test.Integration
         }
 
         [Test]
+        public void IsEmptyTrue()
+        {
+            connection.Run(testTable.Delete());
+            var retval = connection.Run(testTable.IsEmpty());
+            Assert.That(retval, Is.True);
+        }
+
+        [Test]
+        public void IsEmptyFalse()
+        {
+            var retval = connection.Run(testTable.IsEmpty());
+            Assert.That(retval, Is.False);
+        }
+
+        [Test]
         public void AppendScalarValue()
         {
             connection.Run(testTable.Update(o => new TestObject() { Tags = o.Tags.Append("mango") }));
