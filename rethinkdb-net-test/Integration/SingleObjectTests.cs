@@ -299,5 +299,12 @@ namespace RethinkDb.Test.Integration
         {
             connection.Run(testTable.Update(o => new TestObject() { Tags = o.Tags.Append("mango") }));
         }
+
+        [Test]
+        public void AppendArrayValue()
+        {
+            string[] values = new[] { "mango", "peach", "diet" };
+            connection.Run(testTable.Update(o => new TestObject() { Tags = o.Tags.Append(values) }));
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -116,12 +117,30 @@ namespace RethinkDb.Expressions
             var target = methodCall.Arguments[0];
 
             var appendArray = methodCall.Arguments[1];
-            if (appendArray.NodeType != ExpressionType.NewArrayInit)
-                throw new NotSupportedException(String.Format("Expected second arg to ReQLExpression.Append to be NewArrayInit, but was: {0}", appendArray.NodeType));
 
-            var newArrayExpression = (NewArrayExpression)appendArray;
+            IEnumerable<Expression> appendExpressions;
+            if (appendArray.NodeType == ExpressionType.NewArrayInit)
+            {
+                appendExpressions = ((NewArrayExpression)appendArray).Expressions;
+            }
+            else if (appendArray.NodeType == ExpressionType.MemberAccess)
+            {
+                var memberExpression = (MemberExpression)appendArray;
+                if (!memberExpression.Type.IsArray)
+                    throw new NotSupportedException(String.Format("Expected second arg to ReQLExpression.Append to be an array, but was: {0}", memberExpression.Type));
+
+                var array = (IEnumerable)Expression.Lambda(memberExpression).Compile().DynamicInvoke();
+                var items = array as object[] ?? array.Cast<object>().ToArray();
+
+                appendExpressions = items.Select(item => Expression.Constant(item));
+            }
+            else
+            {
+                throw new NotSupportedException(String.Format("Expected second arg to ReQLExpression.Append to be NewArrayInit or MemberAccess, but was: {0}", appendArray.NodeType));
+            }
+            
             var term = recursiveMap(target);
-            foreach (var datumExpression in newArrayExpression.Expressions)
+            foreach (var datumExpression in appendExpressions)
             {
                 var newTerm = new Term() {
                     type = Term.TermType.APPEND
