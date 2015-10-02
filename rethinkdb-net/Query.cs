@@ -445,6 +445,11 @@ namespace RethinkDb
             return new NthQuery<T>(sequenceQuery, index);
         }
 
+        public static IsEmptyQuery<T> IsEmpty<T>(this ISequenceQuery<T> sequenceQuery)
+        {
+            return new IsEmptyQuery<T>(sequenceQuery);
+        }
+
         public static DistinctQuery<T> Distinct<T>(this ISequenceQuery<T> sequenceQuery)
         {
             return new DistinctQuery<T>(sequenceQuery);
