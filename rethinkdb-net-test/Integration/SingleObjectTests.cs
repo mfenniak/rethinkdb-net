@@ -278,5 +278,11 @@ namespace RethinkDb.Test.Integration
             var slice = connection.Run(testTable.Map(testObject => testObject.Data.Slice(0, 2, Bound.Open, Bound.Closed))).Single();
             Assert.That(slice, Is.EquivalentTo(new byte[] { 2, 3 }));
         }
+
+        [Test]
+        public void AppendScalarValue()
+        {
+            connection.Run(testTable.Update(o => new TestObject() { Tags = o.Tags.Append("mango") }));
+        }
     }
 }
