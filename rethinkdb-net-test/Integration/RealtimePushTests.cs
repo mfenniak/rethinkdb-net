@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -24,7 +25,7 @@ namespace RethinkDb.Test.Integration
 
             testSomeNumberIndex = testTable.IndexDefine("test_number", o => o.SomeNumber);
             connection.Run(testSomeNumberIndex.IndexCreate());
-            connection.Run(testSomeNumberIndex.IndexWait());
+            connection.Run(testSomeNumberIndex.IndexWait()).ToArray(); // ToArray ensures that the IEnumerable is actually evaluated completely and the wait is completed
         }
 
         [SetUp]

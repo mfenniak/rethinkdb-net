@@ -16,7 +16,7 @@ namespace RethinkDb.Test.Integration
             connection.RunAsync(Query.Db("test").TableCreate("table")).Wait();
             testTable = Query.Db("test").Table<TestObject>("table");
             connection.Run(testTable.IndexCreate("index1", o => o.Name));
-            connection.Run(testTable.IndexWait("index1"));
+            connection.Run(testTable.IndexWait("index1")).ToArray(); // ToArray ensures that the IEnumerable is actually evaluated completely and the wait is completed
         }
 
         [SetUp]

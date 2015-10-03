@@ -37,7 +37,7 @@ namespace RethinkDb.Test.Integration
 
             nameIndex = testTable.IndexDefine("name", to => to.Name);
             connection.Run(nameIndex.IndexCreate());
-            connection.Run(nameIndex.IndexWait());
+            connection.Run(nameIndex.IndexWait()).ToArray(); // ToArray ensures that the IEnumerable is actually evaluated completely and the wait is completed
         }
 
         [Test]
