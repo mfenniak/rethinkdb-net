@@ -278,5 +278,33 @@ namespace RethinkDb.Test.Integration
             var slice = connection.Run(testTable.Map(testObject => testObject.Data.Slice(0, 2, Bound.Open, Bound.Closed))).Single();
             Assert.That(slice, Is.EquivalentTo(new byte[] { 2, 3 }));
         }
+
+        [Test]
+        public void IsEmptyTrue()
+        {
+            connection.Run(testTable.Delete());
+            var retval = connection.Run(testTable.IsEmpty());
+            Assert.That(retval, Is.True);
+        }
+
+        [Test]
+        public void IsEmptyFalse()
+        {
+            var retval = connection.Run(testTable.IsEmpty());
+            Assert.That(retval, Is.False);
+        }
+
+        [Test]
+        public void AppendScalarValue()
+        {
+            connection.Run(testTable.Update(o => new TestObject() { Tags = o.Tags.Append("mango") }));
+        }
+
+        [Test]
+        public void AppendArrayValue()
+        {
+            string[] values = new[] { "mango", "peach", "diet" };
+            connection.Run(testTable.Update(o => new TestObject() { Tags = o.Tags.Append(values) }));
+        }
     }
 }
