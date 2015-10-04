@@ -208,6 +208,51 @@ namespace RethinkDb.Expressions
                     return RecursiveMap(((UnaryExpression)expr).Operand);
                 }
 
+                case ExpressionType.MemberInit:
+                {
+                    var memberInit = (MemberInitExpression)expr;
+                    var memberType = memberInit.Type;
+
+                    IDatumConverter datumConverter;
+                    if (!datumConverterFactory.TryGet(memberType, out datumConverter))
+                        return AttemptClientSideConversion(datumConverterFactory, expr);
+
+                    var fieldConverter = datumConverter as IObjectDatumConverter;
+                    if (fieldConverter == null)
+                        return AttemptClientSideConversion(datumConverterFactory, expr);
+
+                    var makeObjTerm = new Term() {
+                        type = Term.TermType.MAKE_OBJ,
+                    };
+
+                    foreach (var binding in memberInit.Bindings)
+                    {
+                        switch (binding.BindingType)
+                        {
+                            case MemberBindingType.Assignment:
+                            {
+                                var memberAssignment = (MemberAssignment)binding;
+                                var pair = new Term.AssocPair();
+
+                                pair.key = fieldConverter.GetDatumFieldName(memberAssignment.Member);
+                                pair.val = RecursiveMap(memberAssignment.Expression);
+
+                                if (pair.key == null)
+                                    throw new NotSupportedException("Cannot map member assignments into ReQL without implementing IObjectDatumConverter");
+
+
+                                makeObjTerm.optargs.Add(pair);
+                                break;
+                            }
+                            case MemberBindingType.ListBinding:
+                            case MemberBindingType.MemberBinding:
+                                throw new NotSupportedException("Binding type not currently supported");
+                        }
+                    }
+
+                    return makeObjTerm;
+                }
+
                 default:
                 {
                     return AttemptClientSideConversion(datumConverterFactory, expr);

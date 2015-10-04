@@ -50,63 +50,13 @@ namespace RethinkDb.Expressions
             this.parameter1Name = expression.Parameters[0].Name;
             this.parameter2Name = expression.Parameters[1].Name;
 
-            var body = expression.Body;
-            if (body.NodeType == ExpressionType.MemberInit)
-            {
-                var memberInit = (MemberInitExpression)body;
-                if (!memberInit.Type.Equals(typeof(TReturn)))
-                    throw new InvalidOperationException("Only expression types matching the table type are supported");
-                else if (memberInit.NewExpression.Arguments.Count != 0)
-                    throw new NotSupportedException("Constructors will not work here, only field member initialization");
-                funcTerm.args.Add(MapMemberInitToTerm(memberInit));
-            }
-            else
-            {
-                funcTerm.args.Add(MapExpressionToTerm(expression.Body));
-            }
+            funcTerm.args.Add(MapExpressionToTerm(expression.Body));
 
             return funcTerm;
         }
 
         #endregion
         #region Abstract implementation
-
-        private Term MapMemberInitToTerm(MemberInitExpression memberInit)
-        {
-            var makeObjTerm = new Term() {
-                type = Term.TermType.MAKE_OBJ,
-            };
-
-            foreach (var binding in memberInit.Bindings)
-            {
-                switch (binding.BindingType)
-                {
-                    case MemberBindingType.Assignment:
-                        makeObjTerm.optargs.Add(MapMemberAssignmentToMakeObjArg((MemberAssignment)binding));
-                        break;
-                    case MemberBindingType.ListBinding:
-                    case MemberBindingType.MemberBinding:
-                        throw new NotSupportedException("Binding type not currently supported");
-                }
-            }
-
-            return makeObjTerm;
-        }
-
-        private Term.AssocPair MapMemberAssignmentToMakeObjArg(MemberAssignment memberAssignment)
-        {
-            var retval = new Term.AssocPair();
-
-            var datumConverter = datumConverterFactory.Get<TReturn>();
-            var fieldConverter = datumConverter as IObjectDatumConverter;
-            if (fieldConverter == null)
-                throw new NotSupportedException("Cannot map member assignments into ReQL without implementing IObjectDatumConverter");
-
-            retval.key = fieldConverter.GetDatumFieldName(memberAssignment.Member);
-            retval.val = MapExpressionToTerm(memberAssignment.Expression);
-
-            return retval;
-        }
 
         private Term MapExpressionToTerm(Expression expr)
         {

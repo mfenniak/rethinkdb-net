@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using RethinkDb;
 using System.Runtime.Serialization;
+using FluentAssertions;
 
 namespace RethinkDb.Test.Integration
 {
@@ -319,6 +320,15 @@ namespace RethinkDb.Test.Integration
         {
             var localObject = new DataContractWithoutDataMembers { SomeNumberArray = new[] { 1d, 2d, 3d } };
             connection.Run(testTable.Filter(o => localObject.SomeNumberArray.Contains(o.SomeNumber))).ToArray();
+        }
+
+        [Test]
+        public void NestedMemberInit()
+        {
+            connection.Run(testTable.Update(t => t.SomeNumber > 500 ? new TestObject() { SomeNumber = t.SomeNumber - 500 } : t));
+
+            var results = connection.Run(testTable).ToArray();
+            results[0].SomeNumber.Should().Be(734);
         }
     }
 }
