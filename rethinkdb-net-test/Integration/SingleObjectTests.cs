@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using RethinkDb;
+using System.Runtime.Serialization;
 
 namespace RethinkDb.Test.Integration
 {
@@ -305,6 +306,19 @@ namespace RethinkDb.Test.Integration
         {
             string[] values = new[] { "mango", "peach", "diet" };
             connection.Run(testTable.Update(o => new TestObject() { Tags = o.Tags.Append(values) }));
+        }
+
+        [DataContract]
+        public class DataContractWithoutDataMembers
+        {
+            public double[] SomeNumberArray;
+        }
+
+        [Test]
+        public void AccessingMemberOnDataContract()
+        {
+            var localObject = new DataContractWithoutDataMembers { SomeNumberArray = new[] { 1d, 2d, 3d } };
+            connection.Run(testTable.Filter(o => localObject.SomeNumberArray.Contains(o.SomeNumber))).ToArray();
         }
     }
 }
