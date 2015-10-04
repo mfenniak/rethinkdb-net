@@ -9,6 +9,7 @@ using System.Collections.Generic;
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
+    [Ignore]
     public class ManyObjectTests : TestBase
     {
         private ITableQuery<TestObject> testTable;

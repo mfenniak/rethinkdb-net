@@ -7,6 +7,7 @@ using System.Collections.Generic;
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
+    [Ignore]
     public class GroupingTests : TestBase
     {
         private ITableQuery<TestObject> testTable;

@@ -10,6 +10,7 @@ using FluentAssertions;
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
+    [Ignore]
     public class TableTests : TestBase
     {
         private ITableQuery<TestObject> testTable;

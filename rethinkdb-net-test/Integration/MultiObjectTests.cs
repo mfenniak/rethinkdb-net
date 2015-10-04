@@ -11,6 +11,7 @@ using FluentAssertions;
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
+    [Ignore]
     public class MultiObjectTests : TestBase
     {
         private ITableQuery<TestObject> testTable;

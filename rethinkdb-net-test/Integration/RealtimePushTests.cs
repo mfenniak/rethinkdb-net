@@ -11,6 +11,7 @@ using RethinkDb.QueryTerm;
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
+    [Ignore]
     public class RealtimePushTests : TestBase
     {
         private TableQuery<TestObject> testTable;

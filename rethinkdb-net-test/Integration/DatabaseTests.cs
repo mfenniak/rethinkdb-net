@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
+    [Ignore]
     public class DatabaseTests : TestBase
     {
         public override void TestFixtureSetUp()

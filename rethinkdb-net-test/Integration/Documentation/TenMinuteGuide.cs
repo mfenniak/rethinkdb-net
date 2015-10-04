@@ -6,6 +6,7 @@ namespace RethinkDb.Test.Integration.Documentation
 {
     // C# implementation of queries documented in http://www.rethinkdb.com/docs/guide/python/
     [TestFixture]
+    [Ignore]
     public class TenMinuteGuide : TestBase
     {
         [Test]

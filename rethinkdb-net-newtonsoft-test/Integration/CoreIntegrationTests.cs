@@ -13,6 +13,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     }
 
     [TestFixture]
+    [Ignore]
     public class NSingleObjectTest : SingleObjectTests
     {
         static NSingleObjectTest()
@@ -22,6 +23,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     }
 
     [TestFixture]
+    [Ignore]
     public class NTableTests : TableTests
     {
         static NTableTests()
@@ -31,6 +33,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     }
 
     [TestFixture]
+    [Ignore]
     public class NMultiTableTests : MultiTableTests
     {
         static NMultiTableTests()
@@ -40,6 +43,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     }
 
     [TestFixture]
+    [Ignore]
     public class NMultiObjectTests : MultiObjectTests
     {
         static NMultiObjectTests()
@@ -49,6 +53,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     }
 
     [TestFixture]
+    [Ignore]
     public class NManyObjectTests : ManyObjectTests
     {
         static NManyObjectTests()
@@ -58,6 +63,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     }
 
     [TestFixture]
+    [Ignore]
     public class NBlankTests : BlankTests
     {
         static NBlankTests()
@@ -68,6 +74,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
 
 
     [TestFixture]
+    [Ignore]
     public class NDatabaseTests : DatabaseTests
     {
         static NDatabaseTests()
@@ -78,6 +85,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
 
 
     [TestFixture]
+    [Ignore]
     public class NGroupingTests : GroupingTests
     {
         static NGroupingTests()
@@ -88,6 +96,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
 
 
     [TestFixture]
+    [Ignore]
     public class NHasFieldsTests : HasFieldsTests
     {
         static NHasFieldsTests()
@@ -97,6 +106,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     }
 
     [TestFixture]
+    [Ignore]
     public class NRealtimePushTests : RealtimePushTests
     {
         static NRealtimePushTests()
@@ -106,6 +116,7 @@ namespace RethinkDb.Newtonsoft.Test.Integration
     }
 
     [TestFixture]
+    [Ignore]
     public class NNamedValueDictionaryTests : NamedValueDictionaryTests
     {
         static NNamedValueDictionaryTests()

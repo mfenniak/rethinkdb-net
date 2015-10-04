@@ -5,6 +5,7 @@ using System.Collections.Generic;
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
+    [Ignore]
     public class HasFieldsTests : TestBase
     {
         private ITableQuery<TestObject> testTable;

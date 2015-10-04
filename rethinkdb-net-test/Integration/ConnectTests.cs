@@ -10,6 +10,7 @@ using System.Threading;
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
+    [Ignore]
     public class ConnectTests
     {
         [Test]

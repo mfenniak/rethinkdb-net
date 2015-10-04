@@ -8,6 +8,7 @@ using FluentAssertions;
 namespace RethinkDb.Test.Integration
 {
     [TestFixture]
+    [Ignore]
     public class NamedValueDictionaryTests : TestBase
     {
         private ITableQuery<TestObjectWithDictionary> testTable;
