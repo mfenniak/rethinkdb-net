@@ -42,7 +42,7 @@ namespace RethinkDb.Expressions
         #endregion
         #region Parameter-independent Mappings
 
-        protected abstract Term RecursiveMap(Expression expression, bool allowMemberInit = false);
+        protected abstract Term RecursiveMap(Expression expression);
 
         private Term ConvertBinaryExpressionToTerm(BinaryExpression expr, IDatumConverterFactory datumConverterFactory)
         {
@@ -194,8 +194,8 @@ namespace RethinkDb.Expressions
                         type = Term.TermType.BRANCH,
                         args = {
                             RecursiveMap(conditionalExpression.Test),
-                            RecursiveMap(conditionalExpression.IfTrue, true),
-                            RecursiveMap(conditionalExpression.IfFalse, true)
+                            RecursiveMap(conditionalExpression.IfTrue),
+                            RecursiveMap(conditionalExpression.IfFalse)
                         }
                     };
                 }
@@ -206,6 +206,51 @@ namespace RethinkDb.Expressions
                     // to a primitive.  In that particular case, we don't actually need to generate any ReQL for the conversion, so we're
                     // just ignoring the Convert and mapping the expression inside.  Might need other behavior here in the future...
                     return RecursiveMap(((UnaryExpression)expr).Operand);
+                }
+
+                case ExpressionType.MemberInit:
+                {
+                    var memberInit = (MemberInitExpression)expr;
+                    var memberType = memberInit.Type;
+
+                    IDatumConverter datumConverter;
+                    if (!datumConverterFactory.TryGet(memberType, out datumConverter))
+                        return AttemptClientSideConversion(datumConverterFactory, expr);
+
+                    var fieldConverter = datumConverter as IObjectDatumConverter;
+                    if (fieldConverter == null)
+                        return AttemptClientSideConversion(datumConverterFactory, expr);
+
+                    var makeObjTerm = new Term() {
+                        type = Term.TermType.MAKE_OBJ,
+                    };
+
+                    foreach (var binding in memberInit.Bindings)
+                    {
+                        switch (binding.BindingType)
+                        {
+                            case MemberBindingType.Assignment:
+                            {
+                                var memberAssignment = (MemberAssignment)binding;
+                                var pair = new Term.AssocPair();
+
+                                pair.key = fieldConverter.GetDatumFieldName(memberAssignment.Member);
+                                pair.val = RecursiveMap(memberAssignment.Expression);
+
+                                if (pair.key == null)
+                                    throw new NotSupportedException("Cannot map member assignments into ReQL without implementing IObjectDatumConverter");
+
+
+                                makeObjTerm.optargs.Add(pair);
+                                break;
+                            }
+                            case MemberBindingType.ListBinding:
+                            case MemberBindingType.MemberBinding:
+                                throw new NotSupportedException("Binding type not currently supported");
+                        }
+                    }
+
+                    return makeObjTerm;
                 }
 
                 default:
