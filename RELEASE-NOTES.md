@@ -10,9 +10,9 @@
 
 * Added IsEmpty query; ```query.IsEmpty()``` will return true or false if the query has records.  Thanks to @nkreipke for the patch.  [PR #226](https://github.com/mfenniak/rethinkdb-net/pull/226) / [PR #231](https://github.com/mfenniak/rethinkdb-net/pull/231)
 
-* Remove restriction on the array Append operation that prevented adding scalar and array values to arrays in updates; thanks to @nkreipke for the patch.  [PR #227](https://github.com/mfenniak/rethinkdb-net/pull/227) / [PR #232](https://github.com/mfenniak/rethinkdb-net/pull/232) / [PR #228](https://github.com/mfenniak/rethinkdb-net/pull/228 / [PR #233](https://github.com/mfenniak/rethinkdb-net/pull/233)
+* Remove restriction on the array Append operation that prevented adding scalar and array values to arrays in updates; thanks to @nkreipke for the patch.  [PR #227](https://github.com/mfenniak/rethinkdb-net/pull/227) / [PR #232](https://github.com/mfenniak/rethinkdb-net/pull/232) / [PR #228](https://github.com/mfenniak/rethinkdb-net/pull/228) / [PR #233](https://github.com/mfenniak/rethinkdb-net/pull/233)
 
-* Allow the use of ```new ...() {...}``` expressions in the expression tree at locations other than the root; eg. ```table.Update(t => t.Value > 500 ? new Whatever() { Value = t.Value + 100 } : t)``` to do a conditional update.  For this specific example though, a Filter and then an Update is probably more efficient.  Thanks to @nkreipke for the patch.  [PR #230](https://github.com/mfenniak/rethinkdb-net/pull/230 / [PR #237](https://github.com/mfenniak/rethinkdb-net/pull/237)
+* Allow the use of ```new ...() {...}``` expressions in the expression tree at locations other than the root; eg. ```table.Update(t => t.Value > 500 ? new Whatever() { Value = t.Value + 100 } : t)``` to do a conditional update.  For this specific example though, a Filter and then an Update is probably more efficient.  Thanks to @nkreipke for the patch.  [PR #230](https://github.com/mfenniak/rethinkdb-net/pull/230) / [PR #237](https://github.com/mfenniak/rethinkdb-net/pull/237)
 
 ### Bugfixes
 
