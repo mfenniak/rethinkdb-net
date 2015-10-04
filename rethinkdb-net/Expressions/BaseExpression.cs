@@ -147,6 +147,17 @@ namespace RethinkDb.Expressions
                     return AttemptClientSideConversion(datumConverterFactory, expr);
                 }
 
+                case ExpressionType.NewArrayInit:
+                    var arrayExpression = (NewArrayExpression)expr;
+                    var array = new Term {type = Term.TermType.MAKE_ARRAY};
+
+                    foreach (var expression in arrayExpression.Expressions)
+                    {
+                        array.args.Add(RecursiveMap(expression));
+                    }
+
+                    return array;
+
                 case ExpressionType.Call:
                 {
                     var callExpression = (MethodCallExpression)expr;

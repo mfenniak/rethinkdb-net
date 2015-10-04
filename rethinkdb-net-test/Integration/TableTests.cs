@@ -541,5 +541,25 @@ namespace RethinkDb.Test.Integration
             }
             count.Should().Be(1);
         }
+
+        [Test]
+        public void CreateCompoundIndexStronglyTyped()
+        {
+            var index = testTable.IndexDefine("Compound", a => a.Name, a => a.SomeNumber);
+            connection.Run(index.IndexCreate());
+
+            var resp = connection.Run(testTable.Insert(new TestObject[] {
+                new TestObject() { Name = "1", SomeNumber = 1 },
+                new TestObject() { Name = "2", SomeNumber = 2 },
+                new TestObject() { Name = "3", SomeNumber = 3 },
+            }));
+            Assert.That(resp, Is.Not.Null);
+
+            connection.Run(index.IndexWait()).ToArray(); // ToArray ensures that the IEnumerable is actually evaluated completely and the wait is completed
+
+            var results = connection.Run(index.GetAll(index.Key("1", 1)));
+
+            results.Should().HaveCount(1);
+        }
     }
 }
