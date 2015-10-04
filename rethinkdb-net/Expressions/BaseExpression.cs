@@ -147,6 +147,17 @@ namespace RethinkDb.Expressions
                     return AttemptClientSideConversion(datumConverterFactory, expr);
                 }
 
+                case ExpressionType.NewArrayInit:
+                    var arrayExpression = (NewArrayExpression)expr;
+                    var array = new Term {type = Term.TermType.MAKE_ARRAY};
+
+                    foreach (var expression in arrayExpression.Expressions)
+                    {
+                        array.args.Add(RecursiveMap(expression));
+                    }
+
+                    return array;
+
                 case ExpressionType.Call:
                 {
                     var callExpression = (MethodCallExpression)expr;
@@ -228,8 +239,12 @@ namespace RethinkDb.Expressions
 
             var datumFieldName = fieldConverter.GetDatumFieldName(memberExpression.Member);
             if (string.IsNullOrEmpty(datumFieldName))
+            {
                 // At this point we're not returning false because we're expecting this should work; throwing an error instead.
-                throw new NotSupportedException(String.Format("Member {0} on type {1} could not be mapped to a datum field", memberExpression.Member.Name, memberExpression.Type));
+                // We're expecting this to work, but, returning false will give us a chance to try client-side evaluation instead and
+                // maintain compatibility with the pre-PR #209 behaviour. (issue #220).
+                return false;
+            }
 
             var getAttrTerm = new Term()
             {

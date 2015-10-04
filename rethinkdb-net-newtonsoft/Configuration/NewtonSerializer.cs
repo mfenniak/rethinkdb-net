@@ -11,6 +11,7 @@ namespace RethinkDb.Newtonsoft.Configuration
             BoundEnumDatumConverterFactory.Instance,
             NullableDatumConverterFactory.Instance,
             NamedValueDictionaryDatumConverterFactory.Instance,
+            CompoundIndexDatumConverterFactory.Instance,
             NewtonsoftDatumConverterFactory.Instance
         )
         {

@@ -2,7 +2,20 @@
 
 ## Next Release
 
+### Features
+
+* Compound secondary indexes are now supported the IndexDefine API.  This allows you to create a .NET object that represents a RethinkDB index over multiple columns (using ```table.IndexDefine("name", obj => obj.FirstField, obj => obj.SecondField)```), which can then be used to create the index (```conn.Run(index.IndexCreate())```), and query the index (```conn.Run(index.GetAll(index.Key("first field type", 123)))```).  Thanks to @nkreipke for the patch. [PR #229](https://github.com/mfenniak/rethinkdb-net/pull/229) / [PR #235](https://github.com/mfenniak/rethinkdb-net/pull/235)
+
 * Added working Reset function to all query enumerators to reissue the query from the beginning.  [Issues #148](https://github.com/mfenniak/rethinkdb-net/issues/148)
+
+* Added IsEmpty query; ```query.IsEmpty()``` will return true or false if the query has records.  Thanks to @nkreipke for the patch.  [PR #226](https://github.com/mfenniak/rethinkdb-net/pull/226) / [PR #231](https://github.com/mfenniak/rethinkdb-net/pull/231)
+
+* Remove restriction on the array Append operation that prevented adding scalar and array values to arrays in updates; thanks to @nkreipke for the patch.  [PR #227](https://github.com/mfenniak/rethinkdb-net/pull/227) / [PR #232](https://github.com/mfenniak/rethinkdb-net/pull/232) / [PR #228](https://github.com/mfenniak/rethinkdb-net/pull/228 / [PR #233](https://github.com/mfenniak/rethinkdb-net/pull/233)
+
+### Bugfixes
+
+* Fixed [issue #220](https://github.com/mfenniak/rethinkdb-net/issues/220) in [PR #236](https://github.com/mfenniak/rethinkdb-net/pull/236)
+
 
 ## 0.11.0.0 (2015-04-18)
 

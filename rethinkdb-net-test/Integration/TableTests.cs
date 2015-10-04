@@ -296,7 +296,7 @@ namespace RethinkDb.Test.Integration
             var resp = connection.Run(testTable.IndexCreate("index1", o => o.SomeNumber + o.SomeNumber));
             Assert.That(resp.Created, Is.EqualTo(1));
 
-            connection.Run(testTable.IndexWait("index1"));
+            connection.Run(testTable.IndexWait("index1")).ToArray(); // ToArray ensures that the IEnumerable is actually evaluated completely and the wait is completed
         }
 
         [Test]
@@ -327,7 +327,7 @@ namespace RethinkDb.Test.Integration
             resp = connection.Run(testTable.IndexCreate("index_tags", x => x.Tags, multiIndex: true));
             Assert.That(resp.Created, Is.EqualTo(1));
 
-            connection.Run(testTable.IndexWait("index_tags"));
+            connection.Run(testTable.IndexWait("index_tags")).ToArray(); // ToArray ensures that the IEnumerable is actually evaluated completely and the wait is completed
 
             //and query
             var stronglyTyped = connection.Run(testTable.GetAll("strongly-typed", "index_tags"))
@@ -367,7 +367,7 @@ namespace RethinkDb.Test.Integration
             resp = connection.Run(index.IndexCreate());
             Assert.That(resp.Created, Is.EqualTo(1));
 
-            connection.Run(index.IndexWait());
+            connection.Run(index.IndexWait()).ToArray(); // ToArray ensures that the IEnumerable is actually evaluated completely and the wait is completed
 
             //and query
             var stronglyTyped = connection.Run(index.GetAll("strongly-typed")).ToArray();
@@ -540,6 +540,26 @@ namespace RethinkDb.Test.Integration
                 count += 1;
             }
             count.Should().Be(1);
+        }
+
+        [Test]
+        public void CreateCompoundIndexStronglyTyped()
+        {
+            var index = testTable.IndexDefine("Compound", a => a.Name, a => a.SomeNumber);
+            connection.Run(index.IndexCreate());
+
+            var resp = connection.Run(testTable.Insert(new TestObject[] {
+                new TestObject() { Name = "1", SomeNumber = 1 },
+                new TestObject() { Name = "2", SomeNumber = 2 },
+                new TestObject() { Name = "3", SomeNumber = 3 },
+            }));
+            Assert.That(resp, Is.Not.Null);
+
+            connection.Run(index.IndexWait()).ToArray(); // ToArray ensures that the IEnumerable is actually evaluated completely and the wait is completed
+
+            var results = connection.Run(index.GetAll(index.Key("1", 1)));
+
+            results.Should().HaveCount(1);
         }
     }
 }

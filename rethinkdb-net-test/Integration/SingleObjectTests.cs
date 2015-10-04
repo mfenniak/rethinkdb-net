@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using RethinkDb;
+using System.Runtime.Serialization;
 
 namespace RethinkDb.Test.Integration
 {
@@ -277,6 +278,47 @@ namespace RethinkDb.Test.Integration
             // 4-arg slice
             var slice = connection.Run(testTable.Map(testObject => testObject.Data.Slice(0, 2, Bound.Open, Bound.Closed))).Single();
             Assert.That(slice, Is.EquivalentTo(new byte[] { 2, 3 }));
+        }
+
+        [Test]
+        public void IsEmptyTrue()
+        {
+            connection.Run(testTable.Delete());
+            var retval = connection.Run(testTable.IsEmpty());
+            Assert.That(retval, Is.True);
+        }
+
+        [Test]
+        public void IsEmptyFalse()
+        {
+            var retval = connection.Run(testTable.IsEmpty());
+            Assert.That(retval, Is.False);
+        }
+
+        [Test]
+        public void AppendScalarValue()
+        {
+            connection.Run(testTable.Update(o => new TestObject() { Tags = o.Tags.Append("mango") }));
+        }
+
+        [Test]
+        public void AppendArrayValue()
+        {
+            string[] values = new[] { "mango", "peach", "diet" };
+            connection.Run(testTable.Update(o => new TestObject() { Tags = o.Tags.Append(values) }));
+        }
+
+        [DataContract]
+        public class DataContractWithoutDataMembers
+        {
+            public double[] SomeNumberArray;
+        }
+
+        [Test]
+        public void AccessingMemberOnDataContract()
+        {
+            var localObject = new DataContractWithoutDataMembers { SomeNumberArray = new[] { 1d, 2d, 3d } };
+            connection.Run(testTable.Filter(o => localObject.SomeNumberArray.Contains(o.SomeNumber))).ToArray();
         }
     }
 }
