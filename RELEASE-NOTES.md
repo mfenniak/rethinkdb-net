@@ -10,7 +10,11 @@
 
 * Added IsEmpty query; ```query.IsEmpty()``` will return true or false if the query has records.  Thanks to @nkreipke for the patch.  [PR #226](https://github.com/mfenniak/rethinkdb-net/pull/226) / [PR #231](https://github.com/mfenniak/rethinkdb-net/pull/231)
 
-* Remove restriction on the array Append operation that prevented adding scalar and array values to arrays in updates; thanks to @nkreipke for the patch.  [PR #227](https://github.com/mfenniak/rethinkdb-net/pull/227) / [PR #232](https://github.com/mfenniak/rethinkdb-net/pull/232) / [PR #228](https://github.com/mfenniak/rethinkdb-net/pull/227228 / [PR #233](https://github.com/mfenniak/rethinkdb-net/pull/233)
+* Remove restriction on the array Append operation that prevented adding scalar and array values to arrays in updates; thanks to @nkreipke for the patch.  [PR #227](https://github.com/mfenniak/rethinkdb-net/pull/227) / [PR #232](https://github.com/mfenniak/rethinkdb-net/pull/232) / [PR #228](https://github.com/mfenniak/rethinkdb-net/pull/228 / [PR #233](https://github.com/mfenniak/rethinkdb-net/pull/233)
+
+### Bugfixes
+
+* Fixed [issue #220](https://github.com/mfenniak/rethinkdb-net/issues/220) in [PR #236](https://github.com/mfenniak/rethinkdb-net/pull/236)
 
 
 ## 0.11.0.0 (2015-04-18)
