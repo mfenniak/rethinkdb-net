@@ -30,11 +30,11 @@ namespace RethinkDb.Test.Integration
 
             firstNameIndex = anotherTestTable.IndexDefine("index1", o => o.FirstName);
             connection.Run(firstNameIndex.IndexCreate());
-            connection.Run(firstNameIndex.IndexWait());
+            connection.Run(firstNameIndex.IndexWait()).ToArray(); // ToArray ensures that the IEnumerable is actually evaluated completely and the wait is completed
 
             tagsIndex = testTable.IndexDefineMulti("indexTags", o => o.Tags);
             connection.Run(tagsIndex.IndexCreate());
-            connection.Run(tagsIndex.IndexWait());
+            connection.Run(tagsIndex.IndexWait()).ToArray(); // ToArray ensures that the IEnumerable is actually evaluated completely and the wait is completed
         }
 
         [SetUp]
