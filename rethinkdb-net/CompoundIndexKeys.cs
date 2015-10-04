@@ -6,50 +6,73 @@ using System.Threading.Tasks;
 
 namespace RethinkDb
 {
-    public class CompoundIndexKeys
+    public class CompoundIndexKey
     {
-        private CompoundIndexKeys() { }
-
-        internal object[] Values { get; set; }
-
-        public static CompoundIndexKeys Make<T1, T2>(T1 value1, T2 value2)
+        protected CompoundIndexKey(params object[] keyValues)
         {
-            return new CompoundIndexKeys { Values = new object[] { value1, value2 } };
+            this.KeyValues = keyValues;
         }
 
-        public static CompoundIndexKeys Make<T1, T2, T3>(T1 value1, T2 value2, T3 value3)
+        public object[] KeyValues
         {
-            return new CompoundIndexKeys { Values = new object[] { value1, value2, value3 } };
+            get;
+            set;
         }
+    }
 
-        public static CompoundIndexKeys Make<T1, T2, T3, T4>(T1 value1, T2 value2, T3 value3, T4 value4)
+    public class CompoundIndexKey<TKey1, TKey2> : CompoundIndexKey
+    {
+        public CompoundIndexKey(TKey1 key1, TKey2 key2)
+            : base(key1, key2)
         {
-            return new CompoundIndexKeys { Values = new object[] { value1, value2, value3, value4 } };
         }
+    }
 
-        public static CompoundIndexKeys Make<T1, T2, T3, T4, T5>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5)
+    public class CompoundIndexKey<TKey1, TKey2, TKey3> : CompoundIndexKey
+    {
+        public CompoundIndexKey(TKey1 key1, TKey2 key2, TKey3 key3)
+            : base(key1, key2, key3)
         {
-            return new CompoundIndexKeys { Values = new object[] { value1, value2, value3, value4, value5 } };
         }
+    }
 
-        public static CompoundIndexKeys Make<T1, T2, T3, T4, T5, T6>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5, T6 value6)
+    public class CompoundIndexKey<TKey1, TKey2, TKey3, TKey4> : CompoundIndexKey
+    {
+        public CompoundIndexKey(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4)
+            : base(key1, key2, key3, key4)
         {
-            return new CompoundIndexKeys { Values = new object[] { value1, value2, value3, value4, value5, value6 } };
         }
+    }
 
-        public static CompoundIndexKeys Make<T1, T2, T3, T4, T5, T6, T7>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5, T6 value6, T7 value7)
+    public class CompoundIndexKey<TKey1, TKey2, TKey3, TKey4, TKey5> : CompoundIndexKey
+    {
+        public CompoundIndexKey(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5)
+            : base(key1, key2, key3, key4, key5)
         {
-            return new CompoundIndexKeys { Values = new object[] { value1, value2, value3, value4, value5, value6, value7 } };
         }
+    }
 
-        public static CompoundIndexKeys Make<T1, T2, T3, T4, T5, T6, T7, T8>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5, T6 value6, T7 value7, T8 value8)
+    public class CompoundIndexKey<TKey1, TKey2, TKey3, TKey4, TKey5, TKey6> : CompoundIndexKey
+    {
+        public CompoundIndexKey(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5, TKey6 key6)
+            : base(key1, key2, key3, key4, key5, key6)
         {
-            return new CompoundIndexKeys { Values = new object[] { value1, value2, value3, value4, value5, value6, value7, value8 } };
         }
+    }
 
-        public static CompoundIndexKeys Make<T1, T2, T3, T4, T5, T6, T7, T8, T9>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5, T6 value6, T7 value7, T8 value8, T9 value9)
+    public class CompoundIndexKey<TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7> : CompoundIndexKey
+    {
+        public CompoundIndexKey(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5, TKey6 key6, TKey7 key7)
+            : base(key1, key2, key3, key4, key5, key6, key7)
         {
-            return new CompoundIndexKeys { Values = new object[] { value1, value2, value3, value4, value5, value6, value7, value8, value9 } };
+        }
+    }
+
+    public class CompoundIndexKey<TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8> : CompoundIndexKey
+    {
+        public CompoundIndexKey(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5, TKey6 key6, TKey7 key7, TKey8 key8)
+            : base(key1, key2, key3, key4, key5, key6, key7, key8)
+        {
         }
     }
 }

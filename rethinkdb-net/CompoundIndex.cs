@@ -5,150 +5,123 @@ using System.Net;
 
 namespace RethinkDb
 {
-    public class CompoundIndex<TRecord>
+    public class CompoundIndexBase<TRecord>
     {
-        private CompoundIndex() { }
+        private readonly ITableQuery<TRecord> table;
+        private readonly string name;
+        private readonly Expression[] indexExpressions;
 
-        internal Expression<Func<TRecord, object[]>> IndexExpression;
-
-        public static CompoundIndex<TRecord> Make<T1, T2>(Expression<Func<TRecord, T1>> indexExpression1,
-                                                                   Expression<Func<TRecord, T2>> indexExpression2)
+        protected CompoundIndexBase(ITableQuery<TRecord> table, string name, Expression[] indexExpressions)
         {
-            return MakeRaw(indexExpression1.Body, indexExpression2.Body);
+            this.table = table;
+            this.name = name;
+            this.indexExpressions = indexExpressions;
         }
 
-        public static CompoundIndex<TRecord> Make<T1, T2, T3>(Expression<Func<TRecord, T1>> indexExpression1,
-                                                                       Expression<Func<TRecord, T2>> indexExpression2,
-                                                                       Expression<Func<TRecord, T3>> indexExpression3)
+        public Expression[] IndexAccessor
         {
-            return MakeRaw(indexExpression1.Body, indexExpression2.Body, indexExpression3.Body);
+            get { return indexExpressions; }
         }
 
-        public static CompoundIndex<TRecord> Make<T1, T2, T3, T4>(
-            Expression<Func<TRecord, T1>> indexExpression1,
-            Expression<Func<TRecord, T2>> indexExpression2,
-            Expression<Func<TRecord, T3>> indexExpression3,
-            Expression<Func<TRecord, T4>> indexExpression4)
+        public ITableQuery<TRecord> Table
         {
-            return MakeRaw(indexExpression1.Body, indexExpression2.Body, indexExpression3.Body, indexExpression4.Body);
+            get { return table; }
         }
 
-        public static CompoundIndex<TRecord> Make<T1, T2, T3, T4, T5>(
-            Expression<Func<TRecord, T1>> indexExpression1,
-            Expression<Func<TRecord, T2>> indexExpression2,
-            Expression<Func<TRecord, T3>> indexExpression3,
-            Expression<Func<TRecord, T4>> indexExpression4,
-            Expression<Func<TRecord, T5>> indexExpression5)
+        public string Name
         {
-            return MakeRaw(indexExpression1.Body,
-                           indexExpression2.Body,
-                           indexExpression3.Body,
-                           indexExpression4.Body,
-                           indexExpression5.Body);
-        }
-
-        public static CompoundIndex<TRecord> Make<T1, T2, T3, T4, T5, T6>(
-            Expression<Func<TRecord, T1>> indexExpression1,
-            Expression<Func<TRecord, T2>> indexExpression2,
-            Expression<Func<TRecord, T3>> indexExpression3,
-            Expression<Func<TRecord, T4>> indexExpression4,
-            Expression<Func<TRecord, T5>> indexExpression5,
-            Expression<Func<TRecord, T6>> indexExpression6)
-        {
-            return MakeRaw(indexExpression1.Body,
-                           indexExpression2.Body,
-                           indexExpression3.Body,
-                           indexExpression4.Body,
-                           indexExpression5.Body,
-                           indexExpression6.Body);
-        }
-
-        public static CompoundIndex<TRecord> Make<T1, T2, T3, T4, T5, T6, T7>(
-            Expression<Func<TRecord, T1>> indexExpression1,
-            Expression<Func<TRecord, T2>> indexExpression2,
-            Expression<Func<TRecord, T3>> indexExpression3,
-            Expression<Func<TRecord, T4>> indexExpression4,
-            Expression<Func<TRecord, T5>> indexExpression5,
-            Expression<Func<TRecord, T6>> indexExpression6,
-            Expression<Func<TRecord, T7>> indexExpression7)
-        {
-            return MakeRaw(indexExpression1.Body,
-                           indexExpression2.Body,
-                           indexExpression3.Body,
-                           indexExpression4.Body,
-                           indexExpression5.Body,
-                           indexExpression6.Body,
-                           indexExpression7.Body);
-        }
-
-        public static CompoundIndex<TRecord> Make<T1, T2, T3, T4, T5, T6, T7, T8>(
-            Expression<Func<TRecord, T1>> indexExpression1,
-            Expression<Func<TRecord, T2>> indexExpression2,
-            Expression<Func<TRecord, T3>> indexExpression3,
-            Expression<Func<TRecord, T4>> indexExpression4,
-            Expression<Func<TRecord, T5>> indexExpression5,
-            Expression<Func<TRecord, T6>> indexExpression6,
-            Expression<Func<TRecord, T7>> indexExpression7,
-            Expression<Func<TRecord, T8>> indexExpression8)
-        {
-            return MakeRaw(indexExpression1.Body,
-                           indexExpression2.Body,
-                           indexExpression3.Body,
-                           indexExpression4.Body,
-                           indexExpression5.Body,
-                           indexExpression6.Body,
-                           indexExpression7.Body,
-                           indexExpression8.Body);
-        }
-
-        public static CompoundIndex<TRecord> Make<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
-            Expression<Func<TRecord, T1>> indexExpression1,
-            Expression<Func<TRecord, T2>> indexExpression2,
-            Expression<Func<TRecord, T3>> indexExpression3,
-            Expression<Func<TRecord, T4>> indexExpression4,
-            Expression<Func<TRecord, T5>> indexExpression5,
-            Expression<Func<TRecord, T6>> indexExpression6,
-            Expression<Func<TRecord, T7>> indexExpression7,
-            Expression<Func<TRecord, T8>> indexExpression8,
-            Expression<Func<TRecord, T9>> indexExpression9)
-        {
-            return MakeRaw(indexExpression1.Body,
-                           indexExpression2.Body,
-                           indexExpression3.Body,
-                           indexExpression4.Body,
-                           indexExpression5.Body,
-                           indexExpression6.Body,
-                           indexExpression7.Body,
-                           indexExpression8.Body,
-                           indexExpression9.Body);
-        }
-
-        private static CompoundIndex<TRecord> MakeRaw(params Expression[] indexExpressions)
-        {
-            var param = Expression.Parameter(typeof(TRecord));
-            var visitor = new ParameterReplacingVisitor(param);
-
-            return new CompoundIndex<TRecord>
-            {
-                IndexExpression = Expression.Lambda<Func<TRecord, object[]>>(Expression.NewArrayInit(typeof(object),
-                                                                                                     indexExpressions.Select(expr => Expression.Convert(visitor.Visit(expr), typeof(object)))),
-                                                                             param)
-            };
+            get { return name; }
         }
     }
 
-    internal class ParameterReplacingVisitor : ExpressionVisitor
+    public class CompoundIndex<TRecord, TKey1, TKey2> : CompoundIndexBase<TRecord>, ICompoundIndex<TRecord, TKey1, TKey2>
     {
-        private readonly ParameterExpression _parameter;
-
-        public ParameterReplacingVisitor(ParameterExpression parameter)
+        public CompoundIndex(ITableQuery<TRecord> table, string name, Expression<Func<TRecord, TKey1>> indexExpression1, Expression<Func<TRecord, TKey2>> indexExpression2)
+            : base(table, name, new Expression[] { indexExpression1, indexExpression2 })
         {
-            _parameter = parameter;
         }
 
-        protected override Expression VisitParameter(ParameterExpression node)
+        public CompoundIndexKey<TKey1, TKey2> Key(TKey1 key1, TKey2 key2)
         {
-            return _parameter;
+            return new CompoundIndexKey<TKey1, TKey2>(key1, key2);
+        }
+    }
+
+    public class CompoundIndex<TRecord, TKey1, TKey2, TKey3> : CompoundIndexBase<TRecord>, ICompoundIndex<TRecord, TKey1, TKey2, TKey3>
+    {
+        public CompoundIndex(ITableQuery<TRecord> table, string name, Expression<Func<TRecord, TKey1>> indexExpression1, Expression<Func<TRecord, TKey2>> indexExpression2, Expression<Func<TRecord, TKey3>> indexExpression3)
+            : base(table, name, new Expression[] { indexExpression1, indexExpression2, indexExpression3 })
+        {
+        }
+
+        public CompoundIndexKey<TKey1, TKey2, TKey3> Key(TKey1 key1, TKey2 key2, TKey3 key3)
+        {
+            return new CompoundIndexKey<TKey1, TKey2, TKey3>(key1, key2, key3);
+        }
+    }
+
+    public class CompoundIndex<TRecord, TKey1, TKey2, TKey3, TKey4> : CompoundIndexBase<TRecord>, ICompoundIndex<TRecord, TKey1, TKey2, TKey3, TKey4>
+    {
+        public CompoundIndex(ITableQuery<TRecord> table, string name, Expression<Func<TRecord, TKey1>> indexExpression1, Expression<Func<TRecord, TKey2>> indexExpression2, Expression<Func<TRecord, TKey3>> indexExpression3, Expression<Func<TRecord, TKey4>> indexExpression4)
+            : base(table, name, new Expression[] { indexExpression1, indexExpression2, indexExpression3, indexExpression4 })
+        {
+        }
+
+        public CompoundIndexKey<TKey1, TKey2, TKey3, TKey4> Key(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4)
+        {
+            return new CompoundIndexKey<TKey1, TKey2, TKey3, TKey4>(key1, key2, key3, key4);
+        }
+    }
+
+    public class CompoundIndex<TRecord, TKey1, TKey2, TKey3, TKey4, TKey5> : CompoundIndexBase<TRecord>, ICompoundIndex<TRecord, TKey1, TKey2, TKey3, TKey4, TKey5>
+    {
+        public CompoundIndex(ITableQuery<TRecord> table, string name, Expression<Func<TRecord, TKey1>> indexExpression1, Expression<Func<TRecord, TKey2>> indexExpression2, Expression<Func<TRecord, TKey3>> indexExpression3, Expression<Func<TRecord, TKey4>> indexExpression4, Expression<Func<TRecord, TKey5>> indexExpression5)
+            : base(table, name, new Expression[] { indexExpression1, indexExpression2, indexExpression3, indexExpression4, indexExpression5 })
+        {
+        }
+
+        public CompoundIndexKey<TKey1, TKey2, TKey3, TKey4, TKey5> Key(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5)
+        {
+            return new CompoundIndexKey<TKey1, TKey2, TKey3, TKey4, TKey5>(key1, key2, key3, key4, key5);
+        }
+    }
+
+    public class CompoundIndex<TRecord, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6> : CompoundIndexBase<TRecord>, ICompoundIndex<TRecord, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6>
+    {
+        public CompoundIndex(ITableQuery<TRecord> table, string name, Expression<Func<TRecord, TKey1>> indexExpression1, Expression<Func<TRecord, TKey2>> indexExpression2, Expression<Func<TRecord, TKey3>> indexExpression3, Expression<Func<TRecord, TKey4>> indexExpression4, Expression<Func<TRecord, TKey5>> indexExpression5, Expression<Func<TRecord, TKey6>> indexExpression6)
+            : base(table, name, new Expression[] { indexExpression1, indexExpression2, indexExpression3, indexExpression4, indexExpression5, indexExpression6 })
+        {
+        }
+
+        public CompoundIndexKey<TKey1, TKey2, TKey3, TKey4, TKey5, TKey6> Key(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5, TKey6 key6)
+        {
+            return new CompoundIndexKey<TKey1, TKey2, TKey3, TKey4, TKey5, TKey6>(key1, key2, key3, key4, key5, key6);
+        }
+    }
+
+    public class CompoundIndex<TRecord, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7> : CompoundIndexBase<TRecord>, ICompoundIndex<TRecord, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7>
+    {
+        public CompoundIndex(ITableQuery<TRecord> table, string name, Expression<Func<TRecord, TKey1>> indexExpression1, Expression<Func<TRecord, TKey2>> indexExpression2, Expression<Func<TRecord, TKey3>> indexExpression3, Expression<Func<TRecord, TKey4>> indexExpression4, Expression<Func<TRecord, TKey5>> indexExpression5, Expression<Func<TRecord, TKey6>> indexExpression6, Expression<Func<TRecord, TKey7>> indexExpression7)
+            : base(table, name, new Expression[] { indexExpression1, indexExpression2, indexExpression3, indexExpression4, indexExpression5, indexExpression6, indexExpression7 })
+        {
+        }
+
+        public CompoundIndexKey<TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7> Key(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5, TKey6 key6, TKey7 key7)
+        {
+            return new CompoundIndexKey<TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7>(key1, key2, key3, key4, key5, key6, key7);
+        }
+    }
+
+    public class CompoundIndex<TRecord, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8> : CompoundIndexBase<TRecord>, ICompoundIndex<TRecord, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8>
+    {
+        public CompoundIndex(ITableQuery<TRecord> table, string name, Expression<Func<TRecord, TKey1>> indexExpression1, Expression<Func<TRecord, TKey2>> indexExpression2, Expression<Func<TRecord, TKey3>> indexExpression3, Expression<Func<TRecord, TKey4>> indexExpression4, Expression<Func<TRecord, TKey5>> indexExpression5, Expression<Func<TRecord, TKey6>> indexExpression6, Expression<Func<TRecord, TKey7>> indexExpression7, Expression<Func<TRecord, TKey8>> indexExpression8)
+            : base(table, name, new Expression[] { indexExpression1, indexExpression2, indexExpression3, indexExpression4, indexExpression5, indexExpression6, indexExpression7, indexExpression8 })
+        {
+        }
+
+        public CompoundIndexKey<TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8> Key(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5, TKey6 key6, TKey7 key7, TKey8 key8)
+        {
+            return new CompoundIndexKey<TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8>(key1, key2, key3, key4, key5, key6, key7, key8);
         }
     }
 }

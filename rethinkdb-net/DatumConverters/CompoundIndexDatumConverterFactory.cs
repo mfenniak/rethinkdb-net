@@ -18,35 +18,66 @@ namespace RethinkDb.DatumConverters
 
             datumConverter = null;
 
-            if (typeof(T) == typeof(CompoundIndexKeys))
-                datumConverter = (IDatumConverter<T>)new CompoundIndexDatumConverter(rootDatumConverterFactory);
+            if (typeof(CompoundIndexKey).IsAssignableFrom(typeof(T)))
+            {
+                var retval = Activator.CreateInstance(
+                    typeof(CompoundIndexKeyDatumConverterShim<>).MakeGenericType(typeof(T)),
+                    new object[] { rootDatumConverterFactory }
+                );
+                datumConverter = (IDatumConverter<T>)retval;
+            }
 
             return datumConverter != null;
         }
 
-        public class CompoundIndexDatumConverter : AbstractReferenceTypeDatumConverter<CompoundIndexKeys>
+        public class CompoundIndexKeyDatumConverterShim<T> : AbstractReferenceTypeDatumConverter<T>
+            where T : CompoundIndexKey
         {
-            private readonly IDatumConverterFactory _rootDatumConverterFactory;
+            private readonly CompoundIndexKeyDatumConverter datumConverter;
 
-            public CompoundIndexDatumConverter(IDatumConverterFactory rootDatumConverterFactory)
+            public CompoundIndexKeyDatumConverterShim(IDatumConverterFactory rootDatumConverterFactory)
             {
-                _rootDatumConverterFactory = rootDatumConverterFactory;
+                this.datumConverter = new CompoundIndexKeyDatumConverter(rootDatumConverterFactory);
             }
 
-            public override CompoundIndexKeys ConvertDatum(Datum datum)
+            #region implemented abstract members of AbstractReferenceTypeDatumConverter
+
+            public override T ConvertDatum(Datum datum)
             {
-                throw new NotSupportedException("Converting back to a CompoundIndexKeys object is not supported.");
+                throw new NotSupportedException("Converting back to a CompoundIndexKey object is not supported.");
             }
 
-            public override Datum ConvertObject(CompoundIndexKeys compoundIndexKeys)
+            public override Datum ConvertObject(T value)
             {
-                if (compoundIndexKeys == null)
-                    return new Datum {type = Datum.DatumType.R_NULL};
+                return datumConverter.ConvertObject(value);
+            }
+
+            #endregion
+        }
+
+        public class CompoundIndexKeyDatumConverter : AbstractReferenceTypeDatumConverter<CompoundIndexKey>
+        {
+            private readonly IDatumConverterFactory rootDatumConverterFactory;
+
+            public CompoundIndexKeyDatumConverter(IDatumConverterFactory rootDatumConverterFactory)
+            {
+                this.rootDatumConverterFactory = rootDatumConverterFactory;
+            }
+
+            public override CompoundIndexKey ConvertDatum(Datum datum)
+            {
+                throw new NotSupportedException("Converting back to a CompoundIndexKey object is not supported.");
+            }
+
+            public override Datum ConvertObject(CompoundIndexKey compoundIndexKey)
+            {
+                if (compoundIndexKey == null)
+                    return new Datum { type = Datum.DatumType.R_NULL };
 
                 var retval = new Datum {type = Datum.DatumType.R_ARRAY};
-                foreach (var key in compoundIndexKeys.Values)
+                foreach (var key in compoundIndexKey.KeyValues)
                 {
-                    var converter = _rootDatumConverterFactory.Get(key.GetType());
+                    var converter = rootDatumConverterFactory.Get(key.GetType());
                     retval.r_array.Add(converter.ConvertObject(key));
                 }
 

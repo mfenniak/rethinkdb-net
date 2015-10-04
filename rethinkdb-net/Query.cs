@@ -60,11 +60,6 @@ namespace RethinkDb
             return new IndexCreateQuery<T, TIndexExpression>(target, indexName, indexExpression, multiIndex);
         }
 
-        public static CompoundIndexCreateQuery<T> IndexCreate<T>(this ITableQuery<T> target, string indexName, CompoundIndex<T> compoundIndex)
-        {
-            return new CompoundIndexCreateQuery<T>(target, indexName, compoundIndex.IndexExpression);
-        } 
-
         public static IndexWaitQuery<T> IndexWait<T>(this ITableQuery<T> target, params string[] indexNames)
         {
             return new IndexWaitQuery<T>(target, indexNames);
@@ -90,6 +85,76 @@ namespace RethinkDb
             return new Index<TRecord, TIndex>(table, name, indexAccessor);
         }
 
+        public static ICompoundIndex<TRecord, T1, T2> IndexDefine<TRecord, T1, T2>(this ITableQuery<TRecord> table, string name,
+            Expression<Func<TRecord, T1>> indexAccessor1,
+            Expression<Func<TRecord, T2>> indexAccessor2)
+        {
+            return new CompoundIndex<TRecord, T1, T2>(table, name, indexAccessor1, indexAccessor2);
+        }
+
+        public static ICompoundIndex<TRecord, T1, T2, T3> IndexDefine<TRecord, T1, T2, T3>(this ITableQuery<TRecord> table, string name,
+            Expression<Func<TRecord, T1>> indexAccessor1,
+            Expression<Func<TRecord, T2>> indexAccessor2,
+            Expression<Func<TRecord, T3>> indexAccessor3)
+        {
+            return new CompoundIndex<TRecord, T1, T2, T3>(table, name, indexAccessor1, indexAccessor2, indexAccessor3);
+        }
+
+        public static ICompoundIndex<TRecord, T1, T2, T3, T4> IndexDefine<TRecord, T1, T2, T3, T4>(this ITableQuery<TRecord> table, string name,
+            Expression<Func<TRecord, T1>> indexAccessor1,
+            Expression<Func<TRecord, T2>> indexAccessor2,
+            Expression<Func<TRecord, T3>> indexAccessor3,
+            Expression<Func<TRecord, T4>> indexAccessor4)
+        {
+            return new CompoundIndex<TRecord, T1, T2, T3, T4>(table, name, indexAccessor1, indexAccessor2, indexAccessor3, indexAccessor4);
+        }
+
+        public static ICompoundIndex<TRecord, T1, T2, T3, T4, T5> IndexDefine<TRecord, T1, T2, T3, T4, T5>(this ITableQuery<TRecord> table, string name,
+            Expression<Func<TRecord, T1>> indexAccessor1,
+            Expression<Func<TRecord, T2>> indexAccessor2,
+            Expression<Func<TRecord, T3>> indexAccessor3,
+            Expression<Func<TRecord, T4>> indexAccessor4,
+            Expression<Func<TRecord, T5>> indexAccessor5)
+        {
+            return new CompoundIndex<TRecord, T1, T2, T3, T4, T5>(table, name, indexAccessor1, indexAccessor2, indexAccessor3, indexAccessor4, indexAccessor5);
+        }
+
+        public static ICompoundIndex<TRecord, T1, T2, T3, T4, T5, T6> IndexDefine<TRecord, T1, T2, T3, T4, T5, T6>(this ITableQuery<TRecord> table, string name,
+            Expression<Func<TRecord, T1>> indexAccessor1,
+            Expression<Func<TRecord, T2>> indexAccessor2,
+            Expression<Func<TRecord, T3>> indexAccessor3,
+            Expression<Func<TRecord, T4>> indexAccessor4,
+            Expression<Func<TRecord, T5>> indexAccessor5,
+            Expression<Func<TRecord, T6>> indexAccessor6)
+        {
+            return new CompoundIndex<TRecord, T1, T2, T3, T4, T5, T6>(table, name, indexAccessor1, indexAccessor2, indexAccessor3, indexAccessor4, indexAccessor5, indexAccessor6);
+        }
+
+        public static ICompoundIndex<TRecord, T1, T2, T3, T4, T5, T6, T7> IndexDefine<TRecord, T1, T2, T3, T4, T5, T6, T7>(this ITableQuery<TRecord> table, string name,
+            Expression<Func<TRecord, T1>> indexAccessor1,
+            Expression<Func<TRecord, T2>> indexAccessor2,
+            Expression<Func<TRecord, T3>> indexAccessor3,
+            Expression<Func<TRecord, T4>> indexAccessor4,
+            Expression<Func<TRecord, T5>> indexAccessor5,
+            Expression<Func<TRecord, T6>> indexAccessor6,
+            Expression<Func<TRecord, T7>> indexAccessor7)
+        {
+            return new CompoundIndex<TRecord, T1, T2, T3, T4, T5, T6, T7>(table, name, indexAccessor1, indexAccessor2, indexAccessor3, indexAccessor4, indexAccessor5, indexAccessor6, indexAccessor7);
+        }
+
+        public static ICompoundIndex<TRecord, T1, T2, T3, T4, T5, T6, T7, T8> IndexDefine<TRecord, T1, T2, T3, T4, T5, T6, T7, T8>(this ITableQuery<TRecord> table, string name,
+            Expression<Func<TRecord, T1>> indexAccessor1,
+            Expression<Func<TRecord, T2>> indexAccessor2,
+            Expression<Func<TRecord, T3>> indexAccessor3,
+            Expression<Func<TRecord, T4>> indexAccessor4,
+            Expression<Func<TRecord, T5>> indexAccessor5,
+            Expression<Func<TRecord, T6>> indexAccessor6,
+            Expression<Func<TRecord, T7>> indexAccessor7,
+            Expression<Func<TRecord, T8>> indexAccessor8)
+        {
+            return new CompoundIndex<TRecord, T1, T2, T3, T4, T5, T6, T7, T8>(table, name, indexAccessor1, indexAccessor2, indexAccessor3, indexAccessor4, indexAccessor5, indexAccessor6, indexAccessor7, indexAccessor8);
+        }
+
         public static IMultiIndex<TRecord, TIndex> IndexDefineMulti<TRecord, TIndex>(this ITableQuery<TRecord> table, string name, Expression<Func<TRecord, IEnumerable<TIndex>>> indexAccessor)
         {
             return new MultiIndex<TRecord, TIndex>(table, name, indexAccessor);
@@ -98,6 +163,11 @@ namespace RethinkDb
         public static IndexCreateQuery<TRecord, TIndex> IndexCreate<TRecord, TIndex>(this IIndex<TRecord, TIndex> index)
         {
             return index.Table.IndexCreate(index.Name, index.IndexAccessor, false);
+        }
+
+        public static CompoundIndexCreateQuery<TRecord> IndexCreate<TRecord>(this ICompoundIndex<TRecord> index)
+        {
+            return new CompoundIndexCreateQuery<TRecord>(index.Table, index.Name, index.IndexAccessor);
         }
 
         public static IndexCreateQuery<TRecord, IEnumerable<TIndex>> IndexCreate<TRecord, TIndex>(this IMultiIndex<TRecord, TIndex> index)

@@ -13,5 +13,35 @@ namespace RethinkDb.QueryTerm
             : base(tableTerm, indexName, indexExpression, false)
         {
         }
+
+        public CompoundIndexCreateQuery(ITableQuery<TTable> tableTerm, string indexName, Expression[] accessorExpressions)
+            : base(tableTerm, indexName, ConvertExpression(accessorExpressions), false)
+        {
+        }
+
+        internal class ParameterReplacingVisitor : ExpressionVisitor
+        {
+            private readonly ParameterExpression _parameter;
+
+            public ParameterReplacingVisitor(ParameterExpression parameter)
+            {
+                _parameter = parameter;
+            }
+
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                return _parameter;
+            }
+        }
+
+        private static Expression<Func<TTable, object[]>> ConvertExpression(Expression[] accessorExpressions)
+        {
+            var param = Expression.Parameter(typeof(TTable));
+            var visitor = new ParameterReplacingVisitor(param);
+
+            return Expression.Lambda<Func<TTable, object[]>>(Expression.NewArrayInit(typeof(object),
+                accessorExpressions.Select(expr => Expression.Convert(visitor.Visit(((LambdaExpression)expr).Body), typeof(object)))),
+                param);
+        }
     }
 }

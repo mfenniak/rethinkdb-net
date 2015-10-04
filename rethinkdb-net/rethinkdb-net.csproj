@@ -240,6 +240,7 @@
     <Compile Include="Protocols\Version_0_4_ProtobufProtocol.cs" />
     <Compile Include="DatumConverters\NamedValueDictionaryDatumConverterFactory.cs.cs" />
     <Compile Include="Expressions\DictionaryExpressionConverters.cs" />
+    <Compile Include="Interfaces\ICompoundIndex.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
