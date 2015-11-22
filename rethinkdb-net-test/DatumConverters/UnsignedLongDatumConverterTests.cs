@@ -11,7 +11,7 @@ namespace RethinkDb.Test.DatumConverters
         [ExpectedException(typeof(NotSupportedException))]
         public void ConvertDatum_ValueTooLargeToRepresentAsLongProperly_ThrowException()
         {
-            PrimitiveDatumConverterFactory.Instance.Get<ulong>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_NUM, r_num = 1.0 + ulong.MaxValue});
+            PrimitiveDatumConverterFactory.Instance.Get<ulong>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_NUM, r_num = 10000.0 + ulong.MaxValue});
         }
 
         [Test]
