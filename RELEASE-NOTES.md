@@ -1,5 +1,11 @@
 # rethinkdb-net Release Notes
 
+## Next Release
+
+### Bugfixes
+
+* Correct logic around ulong & long range checking which had prevented the use of boundary values, specifically 0 for a ulong.  Thanks to @ThomasHoest for the patch. [PR #241](https://github.com/mfenniak/rethinkdb-net/pull/241) / [Issue #240](https://github.com/mfenniak/rethinkdb-net/issues/240)
+
 ## 0.12.0.0 (2015-10-04)
 
 ### Features
