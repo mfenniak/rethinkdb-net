@@ -74,8 +74,8 @@ then
 fi
 
 xbuild /p:Configuration=Release rethinkdb-net.sln
-mono ~/bin/NuGet.exe pack rethinkdb-net.nuspec
-mono ~/bin/NuGet.exe pack rethinkdb-net-newtonsoft.nuspec
+nuget pack rethinkdb-net.nuspec
+nuget pack rethinkdb-net-newtonsoft.nuspec
 git commit -a -m"Update version to $NEW_VERSION"
 git push
 git tag -a -m"Version ${NEW_VERSION}" v${NEW_VERSION}
