@@ -11,14 +11,14 @@ namespace RethinkDb.Test.DatumConverters
         [ExpectedException(typeof(NotSupportedException))]
         public void ConvertDatum_ValueTooLargeToRepresentAsLongProperly_ThrowException()
         {
-            PrimitiveDatumConverterFactory.Instance.Get<long>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_NUM, r_num = 1.0 + long.MaxValue});
+            PrimitiveDatumConverterFactory.Instance.Get<long>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_NUM, r_num = 10000.0 + long.MaxValue});
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
         public void ConvertDatum_ValueTooSmallToRepresentAsLongProperly_ThrowException()
         {
-            PrimitiveDatumConverterFactory.Instance.Get<long>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_NUM, r_num = long.MinValue - 1.0});
+            PrimitiveDatumConverterFactory.Instance.Get<long>().ConvertDatum(new RethinkDb.Spec.Datum(){type = RethinkDb.Spec.Datum.DatumType.R_NUM, r_num = long.MinValue - 10000.0});
         }
 
         [Test]

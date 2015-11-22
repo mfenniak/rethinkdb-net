@@ -240,20 +240,17 @@ namespace RethinkDb.DatumConverters
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable long, but Datum was null");
                 else if (datum.type == Spec.Datum.DatumType.R_NUM)
                 {
-                    var valueAsLong = (long)datum.r_num;
-
-                    if (valueAsLong >= long.MaxValue || valueAsLong <= long.MinValue)
+                    if (datum.r_num > long.MaxValue || datum.r_num < long.MinValue)
                     {
                         throw new NotSupportedException("Attempted to cast Datum to non-nullable long, but Datum outside range of valid long");
                     }
+
                     if (datum.r_num % 1 == 0)
                     {
                         return (long)datum.r_num;
                     }
-                    else
-                    {
-                        throw new NotSupportedException("Attempted to cast fractional Datum to non-nullable long");
-                    }
+
+                    throw new NotSupportedException("Attempted to cast fractional Datum to non-nullable long");
                 }
                 else
                     throw new NotSupportedException("Attempted to cast Datum to Long, but Datum was unsupported type " + datum.type);
@@ -279,20 +276,17 @@ namespace RethinkDb.DatumConverters
                     throw new NotSupportedException("Attempted to cast Datum to non-nullable unsigned long, but Datum was null");
                 else if (datum.type == Spec.Datum.DatumType.R_NUM)
                 {
-                    var valueAsLong = (ulong)datum.r_num;
-
-                    if (valueAsLong >= ulong.MaxValue || valueAsLong <= ulong.MinValue)
+                    if (datum.r_num > ulong.MaxValue || datum.r_num < ulong.MinValue)
                     {
                         throw new NotSupportedException("Attempted to cast Datum to non-nullable unsigned long, but Datum outside range of valid unsigned long");
                     }
+
                     if (datum.r_num % 1 == 0)
                     {
                         return (ulong)datum.r_num;
                     }
-                    else
-                    {
-                        throw new NotSupportedException("Attempted to cast fractional Datum to non-nullable unsigned long");
-                    }
+
+                    throw new NotSupportedException("Attempted to cast fractional Datum to non-nullable unsigned long");
                 }
                 else
                     throw new NotSupportedException("Attempted to cast Datum to unsigned Long, but Datum was unsupported type " + datum.type);
