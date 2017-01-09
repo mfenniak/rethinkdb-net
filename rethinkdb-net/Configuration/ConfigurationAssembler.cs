@@ -37,7 +37,7 @@ namespace RethinkDb.Configuration
                 }
             }
 
-            throw new ArgumentException("Cluster name could not be found in configuration", "clusterName");
+            throw new ArgumentException("Cluster name could not be found in configuration", clusterName);
         }
 
         private static IConnectionFactory CreateDefaultConnectionFactory(ClusterElement cluster)
